@@ -57,7 +57,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+// 定义一个简单的 GET 接口
+app.MapGet("/hello", () => "Hello, World!");
 app.UseCors("AllowClient"); // 新增：启用 CORS
 
 

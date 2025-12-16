@@ -21,16 +21,17 @@ namespace ChargePadLine.DbContexts
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new SysUserClaimEntityConfiguration());
-            
-			// 配置SysCompany实体
-			modelBuilder.Entity<SysCompany>(entity =>
-			{
-				entity.HasKey(e => e.CompanyId);
-				entity.Property(e => e.CompanyId).ValueGeneratedOnAdd();
-				entity.HasIndex(e => e.CompanyCode).IsUnique();
-				entity.HasIndex(e => e.CompanyName).IsUnique();
-			});
-			
+            modelBuilder.ApplyConfiguration(new SysMenuClaimEntityConfiguration());
+
+            // 配置SysCompany实体
+            modelBuilder.Entity<SysCompany>(entity =>
+            {
+                entity.HasKey(e => e.CompanyId);
+                entity.Property(e => e.CompanyId).ValueGeneratedOnAdd();
+                entity.HasIndex(e => e.CompanyCode).IsUnique();
+                entity.HasIndex(e => e.CompanyName).IsUnique();
+            });
+
             // 配置SysDept实体的主键自增
             modelBuilder.Entity<SysDept>(entity =>
             {
@@ -53,7 +54,7 @@ namespace ChargePadLine.DbContexts
             {
                 entity.HasKey(e => e.LogId);
                 entity.Property(e => e.LogId).ValueGeneratedOnAdd();
-                
+
                 // 配置 OperationTime 字段：将 DateTimeOffset 转换为 DateTime 以兼容 PostgreSQL
                 entity.Property(e => e.OperationTime)
                     .HasConversion(

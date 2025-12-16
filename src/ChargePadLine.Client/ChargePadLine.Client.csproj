@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>font\logo128X128.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="HandyControl" Version="3.5.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="Prism.Wpf" Version="9.0.537" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<None Update="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="Resources\**\*.xaml" />
+		<Resource Include="Styles\**\*.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="font\logo48X48.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="font\logo128X128.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="font\logo48X48.ico">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Resource>
+	</ItemGroup>
+</Project>
