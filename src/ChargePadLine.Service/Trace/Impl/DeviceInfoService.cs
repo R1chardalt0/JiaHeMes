@@ -1,0 +1,205 @@
+using ChargePadLine.DbContexts.Repository;
+using ChargePadLine.DbContexts;
+using ChargePadLine.Entitys.Trace;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+namespace ChargePadLine.Service.Trace.Impl
+{
+    public class DeviceInfoService : IDeviceInfoService
+    {
+        private readonly IRepository<DeviceInfo> _deviceRepo;
+        private readonly AppDbContext _dbContext;
+        private ILogger<DeviceInfoService> _logger;
+
+        public DeviceInfoService(IRepository<DeviceInfo> deviceRepo, AppDbContext dbContext, ILogger<DeviceInfoService> logge)
+        {
+            _deviceRepo = deviceRepo;
+            _dbContext = dbContext;
+            _logger = logge;
+        }
+
+        /// <summary>
+        /// 分页查询设备信息列表
+        /// </summary>
+        public async Task<PaginatedList<DeviceInfo>> PaginationAsync(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, int? companyId, DateTime? startTime, DateTime? endTime)
+        {
+            var query = _dbContext.DeviceInfos
+                .Include(d => d.ProductionLine) // 关联生产线表
+                .OrderByDescending(s => s.CreateTime)
+                .AsQueryable();
+
+            // 过滤设备名称
+            if (!string.IsNullOrEmpty(deviceName))
+            {
+                query = query.Where(r => r.DeviceName.Contains(deviceName));
+            }
+
+            // 过滤设备编码
+            if (!string.IsNullOrEmpty(deviceEnCode))
+            {
+                query = query.Where(r => r.DeviceEnCode.Contains(deviceEnCode));
+             
+            }
+
+            // 过滤设备类型
+            if (!string.IsNullOrEmpty(deviceType))
+            {
+                query = query.Where(r => r.DeviceType == deviceType);
+            }
+
+            // 过滤生产线ID
+            if (!string.IsNullOrEmpty(productionLineId) && Guid.TryParse(productionLineId, out var lineId))
+            {
+                query = query.Where(r => r.ProductionLineId == lineId);
+            }
+
+            // 过滤设备状态
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(r => r.Status == status);
+            }
+
+            // 过滤公司ID（通过产线关联）：如果提供了companyId，先获取该公司的所有产线ID，然后过滤设备
+            if (companyId.HasValue)
+            {
+                // 获取该公司的所有产线ID
+                var productionLineIds = await _dbContext.ProductionLines
+                    .Where(pl => pl.CompanyId == companyId.Value)
+                    .Select(pl => pl.ProductionLineId)
+                    .ToListAsync();
+
+                // 如果该公司有产线，则只查询这些产线下的设备；如果没有产线，则返回空结果
+                if (productionLineIds.Any())
+                {
+                    query = query.Where(r => productionLineIds.Contains(r.ProductionLineId));
+                }
+                else
+                {
+                    // 如果该公司没有产线，返回空结果
+                    query = query.Where(r => false);
+                }
+            }
+
+            // 过滤创建时间范围
+            if (startTime.HasValue)
+            {
+                query = query.Where(r => r.CreateTime >= startTime.Value);
+            }
+
+            if (endTime.HasValue)
+            {
+                query = query.Where(r => r.CreateTime <= endTime.Value);
+            }
+
+            // 分页查询
+            var list = await query.RetrievePagedListAsync(current, pageSize);
+            
+            // 确保每个设备的 ProductionLineName 被正确设置
+            // PaginatedList<T> 继承自 List<T>，可以直接遍历
+            foreach (var device in list)
+            {
+                if (device.ProductionLine != null && string.IsNullOrEmpty(device.ProductionLineName))
+                {
+                    device.ProductionLineName = device.ProductionLine.ProductionLineName;
+                }
+            }
+            
+            return list;
+        }
+
+        /// <summary>
+        /// 获取设备详情
+        /// </summary>
+        public async Task<DeviceInfo> GetDeviceInfoById(Guid deviceId)
+        {
+            return await _dbContext.DeviceInfos
+                .Include(d => d.ProductionLine) // 关联生产线表，以便获取生产线名称
+                .FirstOrDefaultAsync(r => r.DeviceId == deviceId);
+        }
+
+        /// <summary>
+        /// 根据设备编码获取设备信息
+        /// </summary>
+        public async Task<DeviceInfo> GetDeviceInfoByEnCode(string deviceEnCode)
+        {
+            return await _dbContext.DeviceInfos
+                .Include(d => d.ProductionLine) // 关联生产线表，以便获取生产线名称
+                .FirstOrDefaultAsync(r => r.DeviceEnCode == deviceEnCode);
+        }
+
+        /// <summary>
+        /// 创建设备信息
+        /// </summary>
+        public async Task<int> CreateDeviceInfo(DeviceInfo deviceInfo)
+        {
+            // 验证设备编码唯一性
+            var exists = await _deviceRepo.GetAsync(r => r.DeviceEnCode == deviceInfo.DeviceEnCode);
+            if (exists != null)
+                return -1; // 设备编码已存在
+
+            deviceInfo.CreateTime = DateTime.Now;
+            deviceInfo.UpdateTime = DateTime.Now;
+            return await _deviceRepo.InsertAsyncs(deviceInfo);
+        }
+
+        /// <summary>
+        /// 更新设备信息
+        /// </summary>
+        public async Task<int> UpdateDeviceInfo(DeviceInfo deviceInfo)
+        {
+            // 验证设备编码唯一性（排除当前设备）
+            var exists = await _deviceRepo.GetAsync(r => r.DeviceEnCode == deviceInfo.DeviceEnCode && r.DeviceId != deviceInfo.DeviceId);
+            if (exists != null)
+                return -1; // 设备编码已存在
+
+            deviceInfo.UpdateTime = DateTime.Now;
+            return await _deviceRepo.UpdateAsyncs(deviceInfo);
+        }
+
+        /// <summary>
+        /// 批量删除设备信息
+        /// </summary>
+        public async Task<int> DeleteDeviceInfoByIds(Guid[] deviceIds)
+        {
+            // 使用DbContext直接管理事务
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 删除设备
+                    var result = await _deviceRepo.DeleteAsyncs(r => deviceIds.Contains(r.DeviceId));
+
+                    await transaction.CommitAsync();
+                    return result;
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取所有设备列表
+        /// </summary>
+        public async Task<List<DeviceInfo>> GetAllDeviceInfos()
+        {
+            return await _deviceRepo.GetListAsync();
+        }
+
+        /// <summary>
+        /// 根据生产线ID获取设备列表
+        /// </summary>
+        public async Task<List<DeviceInfo>> GetDeviceInfosByProductionLineId(Guid productionLineId)
+        {
+            return await _deviceRepo.GetListAsync(r => r.ProductionLineId == productionLineId);
+        }
+    }
+}

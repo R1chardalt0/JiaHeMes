@@ -1,0 +1,6 @@
+@ChargePadLine.WebApi_HostAddress = http://localhost:5076
+
+GET {{ChargePadLine.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

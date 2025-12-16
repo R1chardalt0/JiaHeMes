@@ -1,0 +1,128 @@
+.messageItem {
+  margin-bottom: 16px;
+  animation: fadeIn 0.3s ease-in;
+
+  &.userMessage {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &.assistantMessage {
+    display: flex;
+    justify-content: flex-start;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.messageCard {
+  max-width: 75%;
+  min-width: 200px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  :global(.ant-card-body) {
+    padding: 12px 16px;
+  }
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.messageRole {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userIcon {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+.assistantIcon {
+  color: #52c41a;
+  font-size: 16px;
+}
+
+.roleText {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(240, 240, 240, 0.9);
+}
+
+.copyButton {
+  color: rgba(240, 240, 240, 0.7);
+  
+  &:hover {
+    color: rgba(240, 240, 240, 1);
+  }
+}
+
+.messageContent {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.messageText {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.loadingDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(24, 144, 255, 0.8);
+  animation: loadingDot 1.4s infinite ease-in-out;
+
+  &:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+
+  &:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+}
+
+@keyframes loadingDot {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.errorContainer {
+  padding: 8px 0;
+}
+

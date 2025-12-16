@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_图层_1" data-name="图层 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 455 334">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#_未命名的渐变_90);
+        filter: url(#drop-shadow-1);
+        stroke: url(#_未命名的渐变_592);
+        stroke-miterlimit: 10;
+        stroke-width: 2px;
+      }
+    </style>
+    <linearGradient id="_未命名的渐变_90" data-name="未命名的渐变 90" x1="31.72" y1="162.32" x2="423.98" y2="162.32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#064f8f"/>
+      <stop offset="0" stop-color="#064985" stop-opacity=".9"/>
+      <stop offset=".03" stop-color="#073d73" stop-opacity=".7"/>
+      <stop offset=".06" stop-color="#083363" stop-opacity=".52"/>
+      <stop offset=".09" stop-color="#082b56" stop-opacity=".38"/>
+      <stop offset=".13" stop-color="#09254c" stop-opacity=".28"/>
+      <stop offset=".17" stop-color="#092146" stop-opacity=".2"/>
+      <stop offset=".23" stop-color="#091e42" stop-opacity=".16"/>
+      <stop offset=".4" stop-color="#0a1e41" stop-opacity=".14"/>
+      <stop offset=".54" stop-color="#0a1e41" stop-opacity=".06"/>
+      <stop offset=".6" stop-color="#0a1e41" stop-opacity="0"/>
+      <stop offset=".77" stop-color="#091e42" stop-opacity=".01"/>
+      <stop offset=".83" stop-color="#092045" stop-opacity=".06"/>
+      <stop offset=".87" stop-color="#09254c" stop-opacity=".14"/>
+      <stop offset=".91" stop-color="#082a55" stop-opacity=".26"/>
+      <stop offset=".94" stop-color="#083261" stop-opacity=".42"/>
+      <stop offset=".96" stop-color="#073b70" stop-opacity=".61"/>
+      <stop offset=".98" stop-color="#064681" stop-opacity=".83"/>
+      <stop offset="1" stop-color="#064f8f"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_592" data-name="未命名的渐变 592" x1="30.72" y1="162.32" x2="424.98" y2="162.32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00f0ff"/>
+      <stop offset=".02" stop-color="#01daeb" stop-opacity=".9"/>
+      <stop offset=".05" stop-color="#02b3c8" stop-opacity=".71"/>
+      <stop offset=".09" stop-color="#048fa8" stop-opacity=".54"/>
+      <stop offset=".13" stop-color="#06718c" stop-opacity=".4"/>
+      <stop offset=".17" stop-color="#075774" stop-opacity=".27"/>
+      <stop offset=".21" stop-color="#084261" stop-opacity=".17"/>
+      <stop offset=".26" stop-color="#093253" stop-opacity=".1"/>
+      <stop offset=".32" stop-color="#092648" stop-opacity=".04"/>
+      <stop offset=".39" stop-color="#091f42" stop-opacity="0"/>
+      <stop offset=".52" stop-color="#0a1e41" stop-opacity="0"/>
+      <stop offset=".61" stop-color="#092043" stop-opacity=".01"/>
+      <stop offset=".68" stop-color="#092849" stop-opacity=".05"/>
+      <stop offset=".73" stop-color="#083655" stop-opacity=".11"/>
+      <stop offset=".78" stop-color="#084965" stop-opacity=".19"/>
+      <stop offset=".83" stop-color="#06617a" stop-opacity=".3"/>
+      <stop offset=".88" stop-color="#058094" stop-opacity=".44"/>
+      <stop offset=".92" stop-color="#04a4b2" stop-opacity=".6"/>
+      <stop offset=".96" stop-color="#02ced5" stop-opacity=".78"/>
+      <stop offset="1" stop-color="#00fcfc" stop-opacity=".99"/>
+      <stop offset="1" stop-color="aqua"/>
+    </linearGradient>
+    <filter id="drop-shadow-1" x="0" y="0" width="455" height="334" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="5"/>
+      <feGaussianBlur result="blur" stdDeviation="10"/>
+      <feFlood flood-color="#000" flood-opacity=".3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <rect class="cls-1" x="31.72" y="26.66" width="392.26" height="271.32" rx="20" ry="20"/>
+</svg>

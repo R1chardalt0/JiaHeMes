@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_图层_1" data-name="图层 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 395.26 274.32">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#_未命名的渐变_484);
+      }
+
+      .cls-2 {
+        fill: #000a3c;
+        opacity: .6;
+      }
+
+      .cls-3 {
+        fill: none;
+        stroke: url(#_未命名的渐变_246);
+        stroke-miterlimit: 10;
+        stroke-width: 3px;
+      }
+    </style>
+    <radialGradient id="_未命名的渐变_484" data-name="未命名的渐变 484" cx="223.92" cy="291.76" fx="223.92" fy="291.76" r="48" gradientTransform="translate(-988.23 618.57) rotate(-94.81) scale(1 4.23)" gradientUnits="userSpaceOnUse">
+      <stop offset=".4" stop-color="#00ceff"/>
+      <stop offset=".56" stop-color="#04b0fe" stop-opacity=".69"/>
+      <stop offset=".72" stop-color="#0993fd" stop-opacity=".4"/>
+      <stop offset=".85" stop-color="#0d7efd" stop-opacity=".18"/>
+      <stop offset=".95" stop-color="#0f71fd" stop-opacity=".05"/>
+      <stop offset="1" stop-color="#106dfd" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="_未命名的渐变_246" data-name="未命名的渐变 246" x1="36.53" y1="298.26" x2="358.73" y2="-23.94" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#006aff"/>
+      <stop offset=".12" stop-color="#0385ff" stop-opacity=".78"/>
+      <stop offset=".25" stop-color="#06a0ff" stop-opacity=".57"/>
+      <stop offset=".31" stop-color="#08abff" stop-opacity=".48"/>
+      <stop offset=".33" stop-color="#0894e0" stop-opacity=".41"/>
+      <stop offset=".37" stop-color="#086aa7" stop-opacity=".26"/>
+      <stop offset=".41" stop-color="#09487a" stop-opacity=".15"/>
+      <stop offset=".44" stop-color="#09315a" stop-opacity=".07"/>
+      <stop offset=".48" stop-color="#092247" stop-opacity=".02"/>
+      <stop offset=".52" stop-color="#0a1e41" stop-opacity="0"/>
+      <stop offset=".52" stop-color="#0a1e43" stop-opacity=".01"/>
+      <stop offset=".67" stop-color="#0c3f91" stop-opacity=".43"/>
+      <stop offset=".79" stop-color="#0e58cb" stop-opacity=".74"/>
+      <stop offset=".87" stop-color="#0f67ef" stop-opacity=".93"/>
+      <stop offset=".91" stop-color="#106dfd"/>
+    </linearGradient>
+  </defs>
+  <rect class="cls-2" x="1.5" y="1.5" width="392.26" height="271.32" rx="20" ry="20"/>
+  <rect class="cls-1" x="1.5" y="1.5" width="392.26" height="271.32" rx="20" ry="20"/>
+  <rect class="cls-3" x="1.5" y="1.5" width="392.26" height="271.32" rx="20" ry="20"/>
+</svg>
