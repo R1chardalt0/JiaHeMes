@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
-		<ApplicationIcon>font\logo128X128.ico</ApplicationIcon>
+		<ApplicationIcon>font\logo.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -35,7 +35,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="font\logo128X128.ico" />
+	  <Content Include="font\logo.ico" />
 	</ItemGroup>
 
 	<ItemGroup>

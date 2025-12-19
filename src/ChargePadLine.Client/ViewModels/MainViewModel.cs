@@ -47,7 +47,7 @@ public class MainViewModel : ViewModelBase
         {
             StatusMessage = "正在测试连接...";
             // 这里可以调用一个测试接口，比如健康检查
-             var result = await _apiClient.GetAsync<object>("/api/CompanyDashboard/GetOverview");
+             var result = await _apiClient.GetAsync<object>("/hello");
            
             StatusMessage = "连接成功！";
             ApiResponse = "后端API连接正常";

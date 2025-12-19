@@ -22,30 +22,6 @@ namespace ChargePadLine.DbContexts
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // 配置SysCompany实体
-            modelBuilder.Entity<SysCompany>(entity =>
-            {
-                entity.HasKey(e => e.CompanyId);
-                entity.Property(e => e.CompanyId).ValueGeneratedOnAdd();
-                entity.HasIndex(e => e.CompanyCode).IsUnique();
-                entity.HasIndex(e => e.CompanyName).IsUnique();
-            });
-
-            modelBuilder.Entity<EquipmentTracinfo>(entity =>
-            {
-                entity.HasKey(e => e.EquipmentTraceId);
-
-                entity.Property(e => e.Parameters)
-                      .HasConversion(
-                          v => v == null ? "[]" : JsonSerializer.Serialize<List<Iotdata>>(v, new JsonSerializerOptions()),
-                          v => string.IsNullOrEmpty(v)
-                               ? new List<Iotdata>()
-                               : JsonSerializer.Deserialize<List<Iotdata>>(v, new JsonSerializerOptions())
-                                 ?? new List<Iotdata>()
-                      );
-            });
-
             modelBuilder.Entity<ProductTraceInfo>(entity =>
             {
                 entity.HasKey(e => e.ProductTraceId);
@@ -62,10 +38,8 @@ namespace ChargePadLine.DbContexts
         }
 
         #region 业务模块
-        public DbSet<SysCompany> SysCompanys { get; set; }
         public DbSet<ProductionLine> ProductionLines { get; set; }
         public DbSet<DeviceInfo> DeviceInfos { get; set; }
-        public DbSet<EquipmentTracinfo> EquipmentTracinfos { get; set; }
         public DbSet<ProductTraceInfo> ProductTraceInfos { get; set; }
         #endregion
     }

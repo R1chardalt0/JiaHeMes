@@ -12,8 +12,6 @@ using ChargePadLine.Service.Systems;
 using ChargePadLine.Service.Systems.Impl;
 using ChargePadLine.Service.Trace;
 using ChargePadLine.Service.Trace.Impl;
-using ChargePadLine.Service.Dashboard;
-using ChargePadLine.Service.Dashboard.Impl;
 
 namespace ChargePadLine.Service
 {
@@ -26,22 +24,17 @@ namespace ChargePadLine.Service
             services.AddTransient<IRoleService, RoleService>();
             services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IDeptService, DeptService>();
-            services.AddScoped<ICompanyService, CompanyService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             #endregion
 
             #region 业务配置
-            services.AddScoped<IDeviceInfoCollectionService, DeviceInfoCollectionService>();
-            services.AddScoped<IEqumentTraceinfoService, EqumentTraceinfoService>();
             services.AddScoped<IDeviceInfoService, DeviceInfoService>();
             services.AddScoped<IProductionLineService, ProductionLineService>();
             services.AddScoped<IProductTraceInfoCollectionService, ProductTraceInfoCollectionService>();
             services.AddScoped<IProductTraceInfoService, ProductTraceInfoService>();
-            services.AddScoped<ICompanyDashboardService, CompanyDashboardService>();
             services.AddScoped<IOperationLogService, OperationLogService>();
             // 历史记录服务（使用ReportDbContext）
-            services.AddScoped<IHistoryEqumentTraceinfoService, HistoryEqumentTraceinfoService>();
             services.AddScoped<IHistoryProductTraceInfoService, HistoryProductTraceInfoService>();
             #endregion
 

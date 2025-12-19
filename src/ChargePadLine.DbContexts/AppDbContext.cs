@@ -22,15 +22,7 @@ namespace ChargePadLine.DbContexts
 
             modelBuilder.ApplyConfiguration(new SysUserClaimEntityConfiguration());
             modelBuilder.ApplyConfiguration(new SysMenuClaimEntityConfiguration());
-
-            // 配置SysCompany实体
-            modelBuilder.Entity<SysCompany>(entity =>
-            {
-                entity.HasKey(e => e.CompanyId);
-                entity.Property(e => e.CompanyId).ValueGeneratedOnAdd();
-                entity.HasIndex(e => e.CompanyCode).IsUnique();
-                entity.HasIndex(e => e.CompanyName).IsUnique();
-            });
+ 
 
             // 配置SysDept实体的主键自增
             modelBuilder.Entity<SysDept>(entity =>
@@ -62,19 +54,7 @@ namespace ChargePadLine.DbContexts
                         v => new DateTimeOffset(v));  // 读取时转换回 DateTimeOffset
             });
 
-            modelBuilder.Entity<EquipmentTracinfo>(entity =>
-            {
-                entity.HasKey(e => e.EquipmentTraceId);
-
-                entity.Property(e => e.Parameters)
-                      .HasConversion(
-                          v => v == null ? "[]" : JsonSerializer.Serialize<List<Iotdata>>(v, new JsonSerializerOptions()),
-                          v => string.IsNullOrEmpty(v)
-                               ? new List<Iotdata>()
-                               : JsonSerializer.Deserialize<List<Iotdata>>(v, new JsonSerializerOptions())
-                                 ?? new List<Iotdata>()
-                      );
-            });
+          
 
             modelBuilder.Entity<ProductTraceInfo>(entity =>
             {
@@ -101,13 +81,13 @@ namespace ChargePadLine.DbContexts
         public DbSet<SysRoleDept> SysRoleDept { get; set; }
         public DbSet<SysRoleMenu> SysRoleMenu { get; set; }
         public DbSet<SysUserPost> SysUserPost { get; set; }
-        public DbSet<SysCompany> SysCompanys { get; set; }
+     
         #endregion
 
         #region 业务模块
         public DbSet<ProductionLine> ProductionLines { get; set; }
         public DbSet<DeviceInfo> DeviceInfos { get; set; }
-        public DbSet<EquipmentTracinfo> EquipmentTracinfos { get; set; }
+     
         public DbSet<ProductTraceInfo> ProductTraceInfos { get; set; }
         #endregion
 

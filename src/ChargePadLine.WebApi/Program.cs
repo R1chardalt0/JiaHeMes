@@ -58,7 +58,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 // 定义一个简单的 GET 接口
-app.MapGet("/hello", () => "Hello, World!");
+app.MapGet("/hello", () =>
+{
+    var data = new
+    {
+        name = "Alice",
+        age = 30,
+        city = "New York",
+        is_student = false,
+        courses = new[] { "Math", "Science" }
+    };
+    return Results.Json(data);
+});
+
 app.UseCors("AllowClient"); // 新增：启用 CORS
 
 

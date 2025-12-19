@@ -5,13 +5,13 @@ using ChargePadLine.Service.Systems;
 using ChargePadLine.Service.Systems.Dto;
 using ChargePadLine.Service.Systems.Impl;
 using System.Configuration;
-using ChargePadLine.WebApi.Controllers.Response;
 using Microsoft.AspNetCore.Authorization;
 using ChargePadLine.Common.Md5Module;
 using System.Collections.Generic;
 using ChargePadLine.Service.OperationLog;
 using ChargePadLine.Service.OperationLog.Dto;
 using ChargePadLine.Entitys.Systems;
+using ChargePadLine.WebApi.Controllers.util;
 
 namespace ChargePadLine.WebApi.Controllers.Systems
 {

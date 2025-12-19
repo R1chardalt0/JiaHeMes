@@ -56,10 +56,7 @@ namespace ChargePadLine.Service.Migration.Impl
             try
             {
                 _logger.LogMigrationStart("静态表数据复制操作");
-
-                // 复制SysCompanys表
-                await CopySysCompanysAsync(result);
-                
+          
                 // 复制ProductionLines表
                 await CopyProductionLinesAsync(result);
                 
@@ -99,9 +96,7 @@ namespace ChargePadLine.Service.Migration.Impl
                 
                 try
                 {
-                    // 转移EquipmentTracinfos表
-                    await TransferEquipmentTracinfosAsync(thresholdDate, result, reportTransaction, appTransaction);
-                    
+                                      
                     // 转移ProductTraceInfos表
                     await TransferProductTraceInfosAsync(thresholdDate, result, reportTransaction, appTransaction);
 
@@ -159,45 +154,7 @@ namespace ChargePadLine.Service.Migration.Impl
         }
 
         #region 私有方法
-
-        /// <summary>
-        /// 复制SysCompanys表数据
-        /// </summary>
-        private async Task CopySysCompanysAsync(MigrationResult result)
-        {
-            try
-            {
-                var companies = await _appDbContext.SysCompanys.ToListAsync();
-                var existingCompanyIds = await _reportDbContext.SysCompanys.Select(c => c.CompanyId).ToListAsync();
-                
-                int addedCount = 0;
-                foreach (var company in companies)
-                {
-                    if (!existingCompanyIds.Contains(company.CompanyId))
-                    {
-                        await _reportDbContext.SysCompanys.AddAsync(company);
-                        addedCount++;
-                    }
-                }
-                
-                if (addedCount > 0)
-                {
-                    await _reportDbContext.SaveChangesAsync();
-                    result.SuccessCount += addedCount;
-                    _logger.LogInformation($"成功复制SysCompanys表数据：{addedCount} 条");
-                }
-                else
-                {
-                    _logger.LogInformation("SysCompanys表无需复制数据，所有记录已存在");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogMigrationError("复制SysCompanys表", ex);
-                result.Errors.Add($"复制SysCompanys表失败：{ex.Message}");
-                result.FailedCount++;
-            }
-        }
+     
 
         /// <summary>
         /// 复制ProductionLines表数据
@@ -277,60 +234,7 @@ namespace ChargePadLine.Service.Migration.Impl
             }
         }
 
-        /// <summary>
-        /// 转移EquipmentTracinfos表数据
-        /// </summary>
-        private async Task TransferEquipmentTracinfosAsync(DateTime thresholdDate, MigrationResult result, IDbContextTransaction reportTransaction, IDbContextTransaction appTransaction)
-        {
-            try
-            {
-                // 查询需要转移的数据
-                var equipmentTraces = await _appDbContext.EquipmentTracinfos
-                    .Where(e => e.CreateTime <= new DateTimeOffset(thresholdDate))
-                    .ToListAsync();
-
-                if (equipmentTraces.Any())
-                {
-                    _logger.LogInformation($"开始转移EquipmentTracinfos表数据，共 {equipmentTraces.Count} 条记录");
-                    
-                    // 添加到报表数据库
-                    await _reportDbContext.EquipmentTracinfos.AddRangeAsync(equipmentTraces);
-                    int reportRowsAffected = await _reportDbContext.SaveChangesAsync();
-                    
-                    if (reportRowsAffected == equipmentTraces.Count)
-                    {
-                        // 从应用数据库删除
-                        _appDbContext.EquipmentTracinfos.RemoveRange(equipmentTraces);
-                        int appRowsAffected = await _appDbContext.SaveChangesAsync();
-                        
-                        if (appRowsAffected == equipmentTraces.Count)
-                        {
-                            result.SuccessCount += equipmentTraces.Count;
-                            _logger.LogInformation($"成功转移EquipmentTracinfos表数据：{equipmentTraces.Count} 条");
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException($"删除应用数据库EquipmentTracinfos表数据不匹配，预期删除 {equipmentTraces.Count} 条，实际删除 {appRowsAffected} 条");
-                        }
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"插入报表数据库EquipmentTracinfos表数据不匹配，预期插入 {equipmentTraces.Count} 条，实际插入 {reportRowsAffected} 条");
-                    }
-                }
-                else
-                {
-                    _logger.LogInformation("EquipmentTracinfos表无需转移数据，没有符合条件的记录");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogMigrationError("转移EquipmentTracinfos表", ex);
-                result.Errors.Add($"转移EquipmentTracinfos表失败：{ex.Message}");
-                result.FailedCount++;
-                throw;
-            }
-        }
+       
 
         /// <summary>
         /// 转移ProductTraceInfos表数据

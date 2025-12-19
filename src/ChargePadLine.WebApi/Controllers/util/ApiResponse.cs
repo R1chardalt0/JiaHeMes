@@ -1,6 +1,6 @@
 ﻿using ChargePadLine.Entitys.Systems;
 
-namespace ChargePadLine.WebApi.Controllers.Response
+namespace ChargePadLine.WebApi.Controllers.util
 {
     public class ApiResponse
     {
