@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Systems
 {
-    [Table("SysUserPost")]
+    [Table("sys_userPost")]
     public class SysUserPost
     {
         [Key]

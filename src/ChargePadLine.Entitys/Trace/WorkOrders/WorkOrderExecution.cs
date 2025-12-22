@@ -2,6 +2,7 @@
 using Microsoft.FSharp.Core;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using UNIT = System.ValueTuple;
 
 namespace ChargePadLine.Entitys.Trace.WorkOrders
 {
+    [Table("mes_prod_workorder_execution")]
     public class WorkOrderExecution
     {
         public int Id { get; set; }

@@ -74,7 +74,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
                 }
 
                 // 转换参数
-                var updateParams = request.updateParams?.Select(x => new Iotdata
+                var updateParams = request.updateParams?.Select(x => new ParameterData
                 {
                     Name = x.Tag ?? string.Empty,
                     Type = 0,

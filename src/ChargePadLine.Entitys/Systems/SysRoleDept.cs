@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -9,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Systems
 {
-    [Table("SysRoleDept")]
+    [Table("sys_roleDept")]
     public class SysRoleDept
     {
         [Key]
@@ -25,5 +27,19 @@ namespace ChargePadLine.Entitys.Systems
         /// </summary>
         [Description("部门ID")]
         public long DeptId { get; set; }
+    }
+
+    public class SysRoleDeptClaimEntityConfiguration : IEntityTypeConfiguration<SysRoleDept>
+    {
+        public void Configure(EntityTypeBuilder<SysRoleDept> builder)
+        {
+            var defaultSysRoleDept = new SysRoleDept
+            {
+                Id = 1,
+                DeptId = 1,
+                RoleId = 1
+            };
+            builder.HasData(defaultSysRoleDept);
+        }
     }
 }

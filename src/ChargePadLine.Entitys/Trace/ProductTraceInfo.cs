@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Trace
 {
+    /// <summary>
+    /// 产品信息追溯
+    /// </summary>
+    [Table("mes_productTraceInfo")]
     public class ProductTraceInfo
     {
         /// <summary>
@@ -58,6 +63,6 @@ namespace ChargePadLine.Entitys.Trace
         /// <summary>
         /// 产品参数组
         /// </summary>
-        public List<Iotdata>? parametricDataArray { get; set; } = new List<Iotdata>();
+        public List<ParameterData>? parametricDataArray { get; set; } = new List<ParameterData>();
     }
 }

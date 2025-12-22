@@ -1,8 +1,11 @@
 ﻿using ChargePadLine.Entitys.Trace.Production;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
 using ChargePadLine.Entitys.Trace.WorkOrders;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +15,7 @@ namespace ChargePadLine.Entitys.Trace.TraceInfo
     /// <summary>
     /// 追溯信息
     /// </summary>
+    [Table("mes_traceinfo")]
     public class TraceInfo
     {
         // public int Id { get; set; }
@@ -134,5 +138,19 @@ namespace ChargePadLine.Entitys.Trace.TraceInfo
             return x;
         }
         #endregion
+    }
+
+
+    public class TraceInfoEntityTypeConfiguration : IEntityTypeConfiguration<TraceInfo>
+    {
+        public void Configure(EntityTypeBuilder<TraceInfo> builder)
+        {
+            builder.HasIndex(e => e.CreatedAt);
+            builder.HasIndex(e => new { e.Vsn, e.ProductLine }).IsUnique();
+            builder.OwnsOne(e => e.PIN, nb =>
+            {
+                nb.HasIndex(x => x.Value);
+            });
+        }
     }
 }

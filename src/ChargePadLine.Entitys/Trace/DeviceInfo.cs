@@ -2,12 +2,17 @@ using ChargePadLine.Entitys.Systems;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Trace
 {
+    /// <summary>
+    /// 设备信息
+    /// </summary>
+    [Table("mes_deviceInfo")]
     public class DeviceInfo : BaseEntity
     {
         /// <summary>

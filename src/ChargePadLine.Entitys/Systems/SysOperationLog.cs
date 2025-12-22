@@ -9,6 +9,7 @@ namespace ChargePadLine.Entitys.Systems
     /// 系统操作日志实体类
     /// 用于记录用户对业务数据的增删改操作
     /// </summary>
+    [Table("sys_operation_log")]
     public class SysOperationLog
     {
         /// <summary>

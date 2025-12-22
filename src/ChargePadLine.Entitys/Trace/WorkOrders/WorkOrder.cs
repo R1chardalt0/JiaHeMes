@@ -1,7 +1,10 @@
 ﻿using ChargePadLine.Entitys.Trace.Production;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +13,8 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
 {
     /// <summary>
     /// 工单
-    /// </summary>
+    /// </summary>|
+    [Table("mes_prod_workorder")]
     public class WorkOrder
     {
         public int Id { get; set; }
@@ -49,7 +53,7 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
             var x = new WorkOrder
             {
                 ProductCode = bomRecipe.ProductCode.Value,
-                BomRecipe = bomRecipe,
+                BomRecipe = bomRecipe,  
                 Code = workOrderCode,
                 BomRecipeId = bomRecipe.Id,
                 PerTraceInfo = 0,
@@ -74,5 +78,15 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
             return x;
         }
         #endregion
+    }
+
+    public class WorkOrderEntityTypeConfiguration : IEntityTypeConfiguration<WorkOrder>
+    {
+        public void Configure(EntityTypeBuilder<WorkOrder> builder)
+        {
+            builder.OwnsOne(e => e.Code, e => {
+                e.HasIndex(e => e.Value);
+            });        
+        }
     }
 }

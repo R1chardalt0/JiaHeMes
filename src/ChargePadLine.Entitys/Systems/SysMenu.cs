@@ -13,7 +13,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ChargePadLine.Entitys.Systems
 {
-    [Table("SysMenus")]
+    [Table("sys_menu")]
     public class SysMenu : BaseEntity
     {
         /// <summary>

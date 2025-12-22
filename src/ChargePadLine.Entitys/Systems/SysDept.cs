@@ -1,11 +1,13 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Numerics;
 
 namespace ChargePadLine.Entitys.Systems
 {
-    [Table("SysDepts")]
+    [Table("sys_dept")]
     public class SysDept: BaseEntity
     {
         /// <summary>
@@ -69,5 +71,39 @@ namespace ChargePadLine.Entitys.Systems
         /// </summary>
         [Description("子部门列表（用于存储当前部门的所有子部门信息")]
         public List<SysDept> Children { get; set; } = new List<SysDept>();
+    }
+
+    public class SysDeptClaimEntityConfiguration : IEntityTypeConfiguration<SysDept>
+    {
+        public void Configure(EntityTypeBuilder<SysDept> builder)
+        {
+            var defaultSysDept = new SysDept
+            {
+                // 主键
+                DeptId = 100,
+
+                // 部门自身字段
+                ParentId = null,
+                Ancestors = "0",
+                DeptName = "总公司",
+                OrderNum = 0,
+                Leader = "系统管理员",
+                Phone = "13800138000",
+                Email = "admin@example.com",
+                Status = "0",      // 正常
+                DelFlag = "0",     // 未删除
+
+                // BaseEntity 字段（这些会被映射到数据库）
+                CreateBy = "system",
+                CreateTime = new DateTimeOffset(2025, 12, 1, 0, 0, 0, TimeSpan.FromHours(8)), // UTC+8
+                UpdateBy = "system",
+                UpdateTime = new DateTimeOffset(2025, 12, 1, 0, 0, 0, TimeSpan.FromHours(8)),
+                Remark = "系统默认根部门"
+
+         
+            };
+
+            builder.HasData(defaultSysDept);
+        }
     }
 }

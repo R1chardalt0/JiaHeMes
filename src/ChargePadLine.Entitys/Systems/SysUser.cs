@@ -14,7 +14,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ChargePadLine.Entitys.Systems
 {
-    [Table("SysUsers")]
+    [Table("sys_user")]
     public class SysUser : BaseEntity
     {
         /// <summary>

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Systems
 {
-    [Table("SysUserRole")]
+    [Table("sys_userRole")]
     public class SysUserRole
     {
         [Key]
@@ -26,5 +28,19 @@ namespace ChargePadLine.Entitys.Systems
         /// </summary>
         [Description("角色ID")]
         public long RoleId { get; set; }
+    }
+
+    public class SysUserRoleClaimEntityConfiguration : IEntityTypeConfiguration<SysUserRole>
+    {
+        public void Configure(EntityTypeBuilder<SysUserRole> builder)
+        {
+            var defaultSysUserRole = new SysUserRole
+            {
+                Id = 1,
+                UserId = 1,
+                RoleId = 1
+            };
+            builder.HasData(defaultSysUserRole);
+        }
     }
 }

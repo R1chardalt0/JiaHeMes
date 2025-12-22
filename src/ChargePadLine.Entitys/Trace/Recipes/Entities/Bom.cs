@@ -1,5 +1,9 @@
-﻿using System;
+﻿using ChargePadLine.Entitys.Trace.Production;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +18,7 @@ namespace ChargePadLine.Entitys.Trace.Recipes.Entities
         Deleted = 999,
     }
 
+    [Table("mes_recipes_bom")]
     public class BomRecipe
     {
         public int Id { get; set; }
@@ -53,7 +58,7 @@ namespace ChargePadLine.Entitys.Trace.Recipes.Entities
         }
     }
 
-
+    [Table("mes_recipes_bom_item")]
     public class BomRecipeItem
     {
         public int Id { get; set; }
@@ -119,6 +124,32 @@ namespace ChargePadLine.Entitys.Trace.Recipes.Entities
             }
             bom.Items.Add(item);
             return item;
+        }
+    }
+
+    public class BomRecipeEntityTypeConfiguration : IEntityTypeConfiguration<BomRecipe>
+    {
+        public void Configure(EntityTypeBuilder<BomRecipe> builder)
+        {
+            builder.HasData(new BomRecipe
+            {
+                Id = 1,
+                Status = BomRecipeStatus.Draft,
+                BomName = BomCodeDefines.BOM_CODE_MAIN,
+                Description = "",
+                BomCode = null!,
+                ProductCode = null!,
+            });
+            builder.OwnsOne(e => e.BomCode, nb =>
+            {
+                nb.HasIndex(e => e.Value);
+                nb.HasData(new { Id = 1, BomRecipeId = 1, Value = BomCodeDefines.BOM_CODE_MAIN });
+            });
+
+            builder.OwnsOne(e => e.ProductCode, nb =>
+            {
+                nb.HasData(new { Id = 1, BomRecipeId = 1, Value = ProductCodeDefines.PCODE_MAIN });
+            });
         }
     }
 }

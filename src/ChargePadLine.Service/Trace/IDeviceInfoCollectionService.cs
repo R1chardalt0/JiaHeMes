@@ -10,6 +10,6 @@ namespace ChargePadLine.Service.Trace
 {
     public interface IDeviceInfoCollectionService
     {
-        Task<FSharpResult<ValueTuple, (int, string)>> DeviceDataCollectionExAsync(string deviceEnCode, DateTimeOffset sendTime, string alarmMessages, List<Iotdata> updateParams);
+        Task<FSharpResult<ValueTuple, (int, string)>> DeviceDataCollectionExAsync(string deviceEnCode, DateTimeOffset sendTime, string alarmMessages, List<ParameterData> updateParams);
     }
 }

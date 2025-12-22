@@ -1,7 +1,10 @@
 ﻿using ChargePadLine.Entitys.Trace.Production;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +14,7 @@ namespace ChargePadLine.Entitys.Trace.TraceInfo
     /// <summary>
     /// 生产BOM信息项
     /// </summary>
+    [Table("mes_traceinfo_bom_item")]
     public class TraceBomItem
     {
         public Guid Id { get; set; }
@@ -68,5 +72,4 @@ namespace ChargePadLine.Entitys.Trace.TraceInfo
         /// </summary>
         public decimal Consumption { get; set; }
     }
-
 }

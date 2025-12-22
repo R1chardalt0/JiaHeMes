@@ -1,6 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +14,7 @@ namespace ChargePadLine.Entitys.Trace.TraceInfo
     /// <summary>
     /// 生产加工信息
     /// </summary>
+    [Table("mes_traceinfo_proc_item")]
     public class TraceProcItem
     {
         public Guid Id { get; set; }
@@ -38,5 +43,15 @@ namespace ChargePadLine.Entitys.Trace.TraceInfo
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset DeletedAt { get; set; }
     }
-
+    public class TraceProcItemEntityTypeConfiguration : IEntityTypeConfiguration<TraceProcItem>
+    {
+        public void Configure(EntityTypeBuilder<TraceProcItem> builder)
+        {
+            builder.Property(p => p.Value)
+                .HasConversion(
+                    o => JsonConvert.SerializeObject(o),
+                    s => JsonConvert.DeserializeObject<JToken>(s)
+                );
+        }
+    }
 }

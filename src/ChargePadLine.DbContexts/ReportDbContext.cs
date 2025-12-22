@@ -28,11 +28,11 @@ namespace ChargePadLine.DbContexts
 
                 entity.Property(e => e.parametricDataArray)
                       .HasConversion(
-                          v => v == null ? "[]" : JsonSerializer.Serialize<List<Iotdata>>(v, new JsonSerializerOptions()),
+                          v => v == null ? "[]" : JsonSerializer.Serialize<List<ParameterData>>(v, new JsonSerializerOptions()),
                           v => string.IsNullOrEmpty(v)
-                               ? new List<Iotdata>()
-                               : JsonSerializer.Deserialize<List<Iotdata>>(v, new JsonSerializerOptions())
-                                 ?? new List<Iotdata>()
+                               ? new List<ParameterData>()
+                               : JsonSerializer.Deserialize<List<ParameterData>>(v, new JsonSerializerOptions())
+                                 ?? new List<ParameterData>()
                       );
             });
         }

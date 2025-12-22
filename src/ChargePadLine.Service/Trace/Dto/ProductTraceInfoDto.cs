@@ -62,6 +62,6 @@ namespace ChargePadLine.Service.Trace.Dto
         /// <summary>
         /// 数据收集组
         /// </summary>
-        public List<Iotdata>? parametricDataArray { get; set; } = new List<Iotdata>();
+        public List<ParameterData>? parametricDataArray { get; set; } = new List<ParameterData>();
     }
 }

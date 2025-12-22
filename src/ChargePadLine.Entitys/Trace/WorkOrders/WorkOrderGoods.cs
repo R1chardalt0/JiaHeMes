@@ -2,6 +2,7 @@
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
     /// <summary>
     /// 工单物资
     /// </summary>
+    [Table("mes_prod_workorder_goods")]
     public class WorkOrderGoods
     {
         public int Id { get; set; }

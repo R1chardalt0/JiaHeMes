@@ -1,10 +1,14 @@
+using ChargePadLine.Entitys.Systems;
+using ChargePadLine.Entitys.Trace;
+using ChargePadLine.Entitys.Trace.Production.BatchQueue;
+using ChargePadLine.Entitys.Trace.Recipes.Entities;
+using ChargePadLine.Entitys.Trace.TraceInfo;
+using ChargePadLine.Entitys.Trace.WorkOrders;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using ChargePadLine.Entitys.Systems;
-using ChargePadLine.Entitys.Trace;
 
 namespace ChargePadLine.DbContexts
 {
@@ -21,8 +25,19 @@ namespace ChargePadLine.DbContexts
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new SysUserClaimEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new SysUserRoleClaimEntityConfiguration());
             modelBuilder.ApplyConfiguration(new SysMenuClaimEntityConfiguration());
- 
+            modelBuilder.ApplyConfiguration(new SysRoleClaimEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new SysRoleMenuClaimEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new SysDeptClaimEntityConfiguration()); 
+            modelBuilder.ApplyConfiguration(new SysRoleDeptClaimEntityConfiguration());
+
+            modelBuilder.ApplyConfiguration(new MaterialEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new BomRecipeEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new WorkOrderEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new TraceInfoEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new TraceProcItemEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new MaterialBatchQueueItemEntityTypeConfiguration());
 
             // 配置SysDept实体的主键自增
             modelBuilder.Entity<SysDept>(entity =>
@@ -54,7 +69,7 @@ namespace ChargePadLine.DbContexts
                         v => new DateTimeOffset(v));  // 读取时转换回 DateTimeOffset
             });
 
-          
+
 
             modelBuilder.Entity<ProductTraceInfo>(entity =>
             {
@@ -62,11 +77,11 @@ namespace ChargePadLine.DbContexts
 
                 entity.Property(e => e.parametricDataArray)
                       .HasConversion(
-                          v => v == null ? "[]" : JsonSerializer.Serialize<List<Iotdata>>(v, new JsonSerializerOptions()),
+                          v => v == null ? "[]" : JsonSerializer.Serialize<List<ParameterData>>(v, new JsonSerializerOptions()),
                           v => string.IsNullOrEmpty(v)
-                               ? new List<Iotdata>()
-                               : JsonSerializer.Deserialize<List<Iotdata>>(v, new JsonSerializerOptions())
-                                 ?? new List<Iotdata>()
+                               ? new List<ParameterData>()
+                               : JsonSerializer.Deserialize<List<ParameterData>>(v, new JsonSerializerOptions())
+                                 ?? new List<ParameterData>()
                       );
             });
         }
@@ -81,14 +96,23 @@ namespace ChargePadLine.DbContexts
         public DbSet<SysRoleDept> SysRoleDept { get; set; }
         public DbSet<SysRoleMenu> SysRoleMenu { get; set; }
         public DbSet<SysUserPost> SysUserPost { get; set; }
-     
+
         #endregion
 
         #region 业务模块
         public DbSet<ProductionLine> ProductionLines { get; set; }
         public DbSet<DeviceInfo> DeviceInfos { get; set; }
-     
         public DbSet<ProductTraceInfo> ProductTraceInfos { get; set; }
+
+        public DbSet<Material> Materials { get; set; }
+        public DbSet<BomRecipe> BomRecipes { get; set; }
+        public DbSet<BomRecipeItem> BomRecipeItems { get; set; }
+        public DbSet<WorkOrder> WorkOrders { get; set; }
+        public DbSet<WorkOrderExecution> WorkOrderExecutions { get; set; }
+        public DbSet<TraceInfo> TraceInfos { get; set; }
+        public DbSet<TraceBomItem> TraceBomItems { get; set; }
+        public DbSet<TraceProcItem> TraceProcItems { get; set; }
+        public DbSet<BatchMaterialQueueItem> BatchMaterialQueueItems { get; set; }
         #endregion
 
         #region 系统日志

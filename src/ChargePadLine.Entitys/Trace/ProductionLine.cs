@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Trace
 {
+    /// <summary>
+    /// 产线信息
+    /// </summary>
+    [Table("mes_productionLine")]
     public class ProductionLine
     {
         [Key]

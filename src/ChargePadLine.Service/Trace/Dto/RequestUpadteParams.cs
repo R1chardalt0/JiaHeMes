@@ -12,7 +12,7 @@ namespace ChargePadLine.Service.Trace.Dto
         public string deviceEnCode { get; set; }
         public DateTimeOffset sendTime { get; set; }
         public string alarmMessages { get; set; }
-        public List<Iotdata> updateParams { get; set; }
+        public List<ParameterData> updateParams { get; set; }
     }
 
     public class RequestBGUpadteParams
@@ -72,6 +72,6 @@ namespace ChargePadLine.Service.Trace.Dto
         /// <summary>
         /// 产品参数组
         /// </summary>
-        public List<Iotdata>? parametricDataArray { get; set; } = new List<Iotdata>();
+        public List<ParameterData>? parametricDataArray { get; set; } = new List<ParameterData>();
     }
 }

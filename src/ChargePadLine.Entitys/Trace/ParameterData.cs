@@ -15,7 +15,7 @@ namespace ChargePadLine.Entitys.Trace
         BOOLEAN   // 布尔型，如 true/false
     }
 
-    public class Iotdata
+    public class ParameterData
     {
         /// <summary>
         /// 参数名称，例如：Temperature, Humidity

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Systems
 {
-    [Table("SysRoles")]
+    [Table("sys_role")]
 
     public class SysRole : BaseEntity
     {
@@ -80,5 +82,34 @@ namespace ChargePadLine.Entitys.Systems
         /// </summary>
         [Description("权限集合（用于存储角色的具体权限列表")]
         public HashSet<String>? Permissions;
+    }
+    public class SysRoleClaimEntityConfiguration : IEntityTypeConfiguration<SysRole>
+    {
+        public void Configure(EntityTypeBuilder<SysRole> builder)
+        {
+            var defaultSysRole = new SysRole
+            {
+                RoleId = 1,
+                RoleName = "超级管理员",
+                RoleKey = "admin",
+                RoleSort = "1",
+                DataScope = null,
+                MenuCheckStrictly = null,
+                DeptCheckStrictly = null,
+                Status = "1",
+                DelFlag = null,
+                Flag = false,
+                MenuIds = new long[]
+                         {
+                            1, 2, 201, 202, 203, 3, 301, 302, 303, 4, 401, 402, 403, 404, 405, 406, 407,
+                            5, 501, 502, 503, 504, 6, 601, 602, 603
+                         },
+                DeptIds = null,
+                Permissions = null,
+                CreateTime = new DateTime(2025, 12, 1, 15, 2, 3, 463, DateTimeKind.Local),
+                UpdateTime = new DateTime(2025, 12, 1, 15, 5, 11, DateTimeKind.Local)
+            };
+            builder.HasData(defaultSysRole);
+        }
     }
 }
