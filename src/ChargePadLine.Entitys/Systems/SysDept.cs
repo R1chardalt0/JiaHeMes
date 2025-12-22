@@ -4,11 +4,15 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Numerics;
+using System.Reflection.Emit;
 
 namespace ChargePadLine.Entitys.Systems
 {
+    /// <summary>
+    /// 部门表
+    /// </summary>
     [Table("sys_dept")]
-    public class SysDept: BaseEntity
+    public class SysDept : BaseEntity
     {
         /// <summary>
         /// 部门ID
@@ -77,6 +81,11 @@ namespace ChargePadLine.Entitys.Systems
     {
         public void Configure(EntityTypeBuilder<SysDept> builder)
         {
+
+            builder.HasKey(e => e.DeptId);
+            // 使用ValueGeneratedOnAdd让EF Core自动处理主键生成
+            builder.Property(e => e.DeptId).ValueGeneratedOnAdd();
+
             var defaultSysDept = new SysDept
             {
                 // 主键
@@ -100,7 +109,7 @@ namespace ChargePadLine.Entitys.Systems
                 UpdateTime = new DateTimeOffset(2025, 12, 1, 0, 0, 0, TimeSpan.FromHours(8)),
                 Remark = "系统默认根部门"
 
-         
+
             };
 
             builder.HasData(defaultSysDept);

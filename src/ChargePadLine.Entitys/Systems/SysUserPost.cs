@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Systems
 {
+    /// <summary>
+    /// 用户岗位关联表
+    /// </summary>
     [Table("sys_userPost")]
     public class SysUserPost
     {

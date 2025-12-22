@@ -14,6 +14,9 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ChargePadLine.Entitys.Systems
 {
+    /// <summary>
+    /// 用户表
+    /// </summary>
     [Table("sys_user")]
     public class SysUser : BaseEntity
     {
@@ -31,7 +34,7 @@ namespace ChargePadLine.Entitys.Systems
         /// <summary>
         /// 用户账号
         /// </summary>
-         [Description("用户账号")]
+        [Description("用户账号")]
         public string? UserName { get; set; }
         /// <summary>
         /// 用户昵称
@@ -127,10 +130,10 @@ namespace ChargePadLine.Entitys.Systems
             var defaultUser = new SysUser
             {
                 UserId = 1, // 通常建议自增，若手动指定请确保唯一
-               // 假设存在ID为1的部门
+                            // 假设存在ID为1的部门
                 UserName = "admin",
                 NickName = "系统管理员",
-                Email = "admin@example.com",              
+                Email = "admin@example.com",
                 Password = "D3283606DABAC98BEF13E80ABF9E11C9", // 例如用BCrypt: BCrypt.Net.BCrypt.HashPassword("默认密码")
                 Sex = "0", // 假设"0"代表男，"1"代表女
                 PhoneNumber = "15195028555",
@@ -143,7 +146,7 @@ namespace ChargePadLine.Entitys.Systems
                 RoleIds = new long[] { 1 }, // 假设角色ID数组
                 PostIds = new long[] { 1 }  // 假设岗位ID数组
             };
-            builder.HasData(defaultUser);         
+            builder.HasData(defaultUser);
         }
     }
 }

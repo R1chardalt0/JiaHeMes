@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Systems
 {
+    /// <summary>
+    /// 角色菜单关联表
+    /// </summary>
     [Table("sys_roleMenu")]
     public class SysRoleMenu
     {

@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Systems
 {
+    /// <summary>
+    /// 角色部门关联表
+    /// </summary>
     [Table("sys_roleDept")]
     public class SysRoleDept
     {

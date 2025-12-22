@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -111,6 +113,22 @@ namespace ChargePadLine.Entitys.Systems
         [Column("operation_status")]
         [Description("操作状态（非空，枚举值：SUCCESS-成功、FAIL-失败，记录操作是否执行成功）")]
         public string OperationStatus { get; set; } = "SUCCESS";
+    }
+
+
+    public class SysOperationLogClaimEntityConfiguration : IEntityTypeConfiguration<SysOperationLog>
+    {
+        public void Configure(EntityTypeBuilder<SysOperationLog> builder)
+        {
+            builder.HasKey(e => e.LogId);
+            builder.Property(e => e.LogId).ValueGeneratedOnAdd();
+
+            // 配置 OperationTime 字段：将 DateTimeOffset 转换为 DateTime 以兼容 PostgreSQL
+            builder.Property(e => e.OperationTime)
+                .HasConversion(
+                    v => v.DateTime,  // 存储时转换为 DateTime
+                    v => new DateTimeOffset(v));  // 读取时转换回 DateTimeOffset
+        }
     }
 
     /// <summary>

@@ -15,6 +15,9 @@ namespace ChargePadLine.Entitys.Trace
         BOOLEAN   // 布尔型，如 true/false
     }
 
+    /// <summary>
+    /// 参数数据
+    /// </summary>
     public class ParameterData
     {
         /// <summary>

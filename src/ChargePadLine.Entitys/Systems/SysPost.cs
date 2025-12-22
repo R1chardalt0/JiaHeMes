@@ -10,6 +10,9 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ChargePadLine.Entitys.Systems
 {
+    /// <summary>
+    /// 岗位表
+    /// </summary>
     [Table("sys_post")]
     public class SysPost : BaseEntity
     {

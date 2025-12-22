@@ -53,7 +53,7 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
             var x = new WorkOrder
             {
                 ProductCode = bomRecipe.ProductCode.Value,
-                BomRecipe = bomRecipe,  
+                BomRecipe = bomRecipe,
                 Code = workOrderCode,
                 BomRecipeId = bomRecipe.Id,
                 PerTraceInfo = 0,
@@ -84,9 +84,10 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
     {
         public void Configure(EntityTypeBuilder<WorkOrder> builder)
         {
-            builder.OwnsOne(e => e.Code, e => {
+            builder.OwnsOne(e => e.Code, e =>
+            {
                 e.HasIndex(e => e.Value);
-            });        
+            });
         }
     }
 }

@@ -13,6 +13,9 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ChargePadLine.Entitys.Systems
 {
+    /// <summary>
+    /// 菜单表
+    /// </summary>
     [Table("sys_menu")]
     public class SysMenu : BaseEntity
     {
@@ -80,7 +83,7 @@ namespace ChargePadLine.Entitys.Systems
         /// <summary>
         /// 显示状态（0显示 1隐藏）
         /// </summary>
-       [Description("显示状态（0显示 1隐藏）")]
+        [Description("显示状态（0显示 1隐藏）")]
         public string? Visible { get; set; }
         /// <summary>
         /// 菜单状态（0正常 1停用）

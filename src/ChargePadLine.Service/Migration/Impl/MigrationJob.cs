@@ -39,7 +39,7 @@ namespace ChargePadLine.Service.Migration.Impl
             {
                 // 执行静态表复制
                 var copyResult = await _migrationService.CopyStaticTablesAsync();
-                
+
                 // 执行历史数据转移
                 var transferResult = await _migrationService.TransferHistoryDataAsync();
 

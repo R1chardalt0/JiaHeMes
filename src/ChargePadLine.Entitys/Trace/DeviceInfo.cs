@@ -40,8 +40,8 @@ namespace ChargePadLine.Entitys.Trace
         /// 生产线名称（从生产线导航属性获取）
         /// </summary>
         [System.ComponentModel.DataAnnotations.Schema.NotMapped]
-        public string? ProductionLineName 
-        { 
+        public string? ProductionLineName
+        {
             get => ProductionLine?.ProductionLineName ?? _productionLineName;
             set => _productionLineName = value;
         }

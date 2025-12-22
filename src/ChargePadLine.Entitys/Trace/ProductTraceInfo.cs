@@ -1,9 +1,13 @@
-﻿using System;
+﻿using ChargePadLine.Entitys.Systems;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Trace
@@ -64,5 +68,22 @@ namespace ChargePadLine.Entitys.Trace
         /// 产品参数组
         /// </summary>
         public List<ParameterData>? parametricDataArray { get; set; } = new List<ParameterData>();
+    }
+
+    public class ProductTraceInfoClaimEntityConfiguration : IEntityTypeConfiguration<ProductTraceInfo>
+    {
+        public void Configure(EntityTypeBuilder<ProductTraceInfo> builder)
+        {
+            builder.HasKey(e => e.ProductTraceId);
+
+            builder.Property(e => e.parametricDataArray)
+                  .HasConversion(
+                      v => v == null ? "[]" : JsonSerializer.Serialize<List<ParameterData>>(v, new JsonSerializerOptions()),
+                      v => string.IsNullOrEmpty(v)
+                           ? new List<ParameterData>()
+                           : JsonSerializer.Deserialize<List<ParameterData>>(v, new JsonSerializerOptions())
+                             ?? new List<ParameterData>()
+                  );
+        }
     }
 }

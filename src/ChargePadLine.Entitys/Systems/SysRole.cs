@@ -12,8 +12,10 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Systems
 {
+    /// <summary>
+    /// 角色表
+    /// </summary>
     [Table("sys_role")]
-
     public class SysRole : BaseEntity
     {
         /// <summary>
@@ -87,6 +89,11 @@ namespace ChargePadLine.Entitys.Systems
     {
         public void Configure(EntityTypeBuilder<SysRole> builder)
         {
+
+            builder.HasKey(e => e.RoleId);
+            // 使用ValueGeneratedOnAdd让EF Core自动处理主键生成
+            builder.Property(e => e.RoleId).ValueGeneratedOnAdd();
+
             var defaultSysRole = new SysRole
             {
                 RoleId = 1,

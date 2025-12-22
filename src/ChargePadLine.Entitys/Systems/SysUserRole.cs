@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Systems
 {
+    /// <summary>
+    /// 用户角色关联表
+    /// </summary>
     [Table("sys_userRole")]
     public class SysUserRole
     {
