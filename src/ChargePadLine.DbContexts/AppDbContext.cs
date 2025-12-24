@@ -2,7 +2,7 @@ using ChargePadLine.Entitys.Systems;
 using ChargePadLine.Entitys.Trace;
 using ChargePadLine.Entitys.Trace.Production.BatchQueue;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
-using ChargePadLine.Entitys.Trace.TraceInfo;
+using ChargePadLine.Entitys.Trace.TraceInformation;
 using ChargePadLine.Entitys.Trace.WorkOrders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -61,7 +61,7 @@ namespace ChargePadLine.DbContexts
 
         #region 业务模块
         public DbSet<ProductionLine> ProductionLines { get; set; }
-        public DbSet<DeviceInfo> DeviceInfos { get; set; }
+        public DbSet<Deviceinfo> DeviceInfos { get; set; }
         public DbSet<ProductTraceInfo> ProductTraceInfos { get; set; }
 
         public DbSet<Material> Materials { get; set; }
@@ -73,6 +73,7 @@ namespace ChargePadLine.DbContexts
         public DbSet<TraceBomItem> TraceBomItems { get; set; }
         public DbSet<TraceProcItem> TraceProcItems { get; set; }
         public DbSet<BatchMaterialQueueItem> BatchMaterialQueueItems { get; set; }
+        public DbSet<CtrlVsn> CtrlVs { get; set; }
         #endregion
     }
 }

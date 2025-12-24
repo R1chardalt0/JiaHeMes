@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Trace.Recipes.Entities
 {
+    /// <summary>
+    /// 物料信息
+    /// </summary>
     [Table("mes_recipes_material")]
     public class Material
     {

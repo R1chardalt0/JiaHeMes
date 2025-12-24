@@ -23,7 +23,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 分页查询设备信息列表
         /// </summary>
         [HttpGet]
-        public async Task<PagedResp<DeviceInfo>> GetDeviceInfoList(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, int? companyId, DateTime? startTime, DateTime? endTime)
+        public async Task<PagedResp<Deviceinfo>> GetDeviceInfoList(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, int? companyId, DateTime? startTime, DateTime? endTime)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
             }
             catch (Exception ex)
             {
-                return RespExtensions.MakePagedEmpty<DeviceInfo>();
+                return RespExtensions.MakePagedEmpty<Deviceinfo>();
             }
         }
 
@@ -52,14 +52,14 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 根据设备ID获取设备详情
         /// </summary>
         [HttpGet("{deviceId}")]
-        public async Task<Resp<DeviceInfo>> GetDeviceInfoById(Guid deviceId)
+        public async Task<Resp<Deviceinfo>> GetDeviceInfoById(Guid deviceId)
         {
             try
             {
                 var deviceInfo = await _deviceInfoService.GetDeviceInfoById(deviceId);
                 if (deviceInfo == null)
                 {
-                    return RespExtensions.MakeFail<DeviceInfo>("404", "设备不存在");
+                    return RespExtensions.MakeFail<Deviceinfo>("404", "设备不存在");
                 }
                 // 确保 ProductionLineName 被正确设置
                 // 如果 ProductionLine 导航属性已加载，手动设置 ProductionLineName 以确保序列化时包含此值
@@ -71,7 +71,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
             }
             catch (Exception ex)
             {
-                return RespExtensions.MakeFail<DeviceInfo>("500", ex.Message);
+                return RespExtensions.MakeFail<Deviceinfo>("500", ex.Message);
             }
         }
 
@@ -79,20 +79,20 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 根据设备编码获取设备信息
         /// </summary>
         [HttpGet("ByEnCode/{deviceEnCode}")]
-        public async Task<Resp<DeviceInfo>> GetDeviceInfoByEnCode(string deviceEnCode)
+        public async Task<Resp<Deviceinfo>> GetDeviceInfoByEnCode(string deviceEnCode)
         {
             try
             {
                 var deviceInfo = await _deviceInfoService.GetDeviceInfoByEnCode(deviceEnCode);
                 if (deviceInfo == null)
                 {
-                    return RespExtensions.MakeFail<DeviceInfo>("404", "设备不存在");
+                    return RespExtensions.MakeFail<Deviceinfo>("404", "设备不存在");
                 }
                 return RespExtensions.MakeSuccess(deviceInfo);
             }
             catch (Exception ex)
             {
-                return RespExtensions.MakeFail<DeviceInfo>("500", ex.Message);
+                return RespExtensions.MakeFail<Deviceinfo>("500", ex.Message);
             }
         }
 
@@ -100,18 +100,18 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 创建设备信息
         /// </summary>
         [HttpPost]
-        public async Task<Resp<bool>> CreateDeviceInfo([FromBody] DeviceInfo deviceInfo)
+        public async Task<Resp<bool>> CreateDeviceInfo([FromBody] Deviceinfo deviceInfo)
         {
             try
             {
                 // 验证参数
-                if (deviceInfo == null || string.IsNullOrEmpty(deviceInfo.DeviceEnCode) || string.IsNullOrEmpty(deviceInfo.DeviceName))
+                if (deviceInfo == null || string.IsNullOrEmpty(deviceInfo.Resource) || string.IsNullOrEmpty(deviceInfo.ResourceName))
                 {
                     return RespExtensions.MakeFail<bool>("400", "设备编码和设备名称不能为空");
                 }
 
                 // 生成新的设备ID
-                deviceInfo.DeviceId = Guid.NewGuid();
+                deviceInfo.ResourceId = Guid.NewGuid();
 
                 var result = await _deviceInfoService.CreateDeviceInfo(deviceInfo);
                 if (result == -1)
@@ -130,12 +130,12 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 更新设备信息
         /// </summary>
         [HttpPost]
-        public async Task<Resp<bool>> UpdateDeviceInfo([FromBody] DeviceInfo deviceInfo)
+        public async Task<Resp<bool>> UpdateDeviceInfo([FromBody] Deviceinfo deviceInfo)
         {
             try
             {
                 // 验证参数
-                if (deviceInfo == null || deviceInfo.DeviceId == Guid.Empty || string.IsNullOrEmpty(deviceInfo.DeviceEnCode) || string.IsNullOrEmpty(deviceInfo.DeviceName))
+                if (deviceInfo == null || deviceInfo.ResourceId == Guid.Empty || string.IsNullOrEmpty(deviceInfo.Resource) || string.IsNullOrEmpty(deviceInfo.ResourceName))
                 {
                     return RespExtensions.MakeFail<bool>("400", "设备ID、编码和名称不能为空");
                 }
@@ -179,7 +179,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 获取所有设备列表
         /// </summary>
         [HttpGet("All")]
-        public async Task<Resp<List<DeviceInfo>>> GetAllDeviceInfos()
+        public async Task<Resp<List<Deviceinfo>>> GetAllDeviceInfos()
         {
             try
             {
@@ -188,7 +188,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
             }
             catch (Exception ex)
             {
-                return RespExtensions.MakeFail<List<DeviceInfo>>("500", ex.Message);
+                return RespExtensions.MakeFail<List<Deviceinfo>>("500", ex.Message);
             }
         }
 
@@ -196,7 +196,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 根据生产线ID获取设备列表
         /// </summary>
         [HttpGet("ByProductionLineId/{productionLineId}")]
-        public async Task<Resp<List<DeviceInfo>>> GetDeviceInfosByProductionLineId(Guid productionLineId)
+        public async Task<Resp<List<Deviceinfo>>> GetDeviceInfosByProductionLineId(Guid productionLineId)
         {
             try
             {
@@ -205,7 +205,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
             }
             catch (Exception ex)
             {
-                return RespExtensions.MakeFail<List<DeviceInfo>>("500", ex.Message);
+                return RespExtensions.MakeFail<List<Deviceinfo>>("500", ex.Message);
             }
         }
     }

@@ -54,7 +54,7 @@ namespace ChargePadLine.Service.Trace.Dto
         /// <summary>
         /// 设备名称
         /// </summary>
-        public string DeviceName { get; set; }
+        public string ResourceName { get; set; }
         /// <summary>
         /// 统计小时（格式：yyyy-MM-dd HH:00）
         /// </summary>

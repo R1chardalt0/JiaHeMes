@@ -13,13 +13,13 @@ namespace ChargePadLine.Entitys.Trace
     /// 设备信息
     /// </summary>
     [Table("mes_deviceInfo")]
-    public class DeviceInfo : BaseEntity
+    public class Deviceinfo : BaseEntity
     {
         /// <summary>
         /// 设备ID
         /// </summary>
         [Key]
-        public Guid DeviceId { get; set; }
+        public Guid ResourceId { get; set; }
         /// <summary>
         /// 图标
         /// </summary>
@@ -27,7 +27,7 @@ namespace ChargePadLine.Entitys.Trace
         /// <summary>
         /// 设备图片
         /// </summary>
-        public string DevicePicture { get; set; }
+        public string ResourcePicture { get; set; }
         /// <summary>
         /// 生产线ID
         /// </summary>
@@ -49,20 +49,20 @@ namespace ChargePadLine.Entitys.Trace
         /// <summary>
         /// 设备名称
         /// </summary>
-        public string? DeviceName { get; set; }
+        public string? ResourceName { get; set; }
         /// <summary>
         /// 设备类型
         /// </summary>
-        public string DeviceType { get; set; }
+        public string ResourceType { get; set; }
         /// <summary>
         /// 设备编码
         /// </summary>
-        public string DeviceEnCode { get; set; }
+        public string Resource { get; set; }
         /// <summary>
         /// 设备制造商
         /// </summary>
         /// 
-        public string DeviceManufacturer { get; set; }
+        public string ResourceManufacturer { get; set; }
         /// <summary>
         /// 描述信息
         /// </summary>

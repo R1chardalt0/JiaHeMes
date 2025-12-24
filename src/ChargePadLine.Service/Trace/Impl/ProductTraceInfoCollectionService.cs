@@ -70,13 +70,13 @@ namespace ChargePadLine.Service.Trace.Impl
             }
         }
 
-        public DeviceInfo GetDeviceinfoByDevcideEnCode(string deviceEnCode)
+        public Deviceinfo GetDeviceinfoByDevcideEnCode(string deviceEnCode)
         {
             if (string.IsNullOrEmpty(deviceEnCode))
             {
                 return null;
             }
-            return _dbContext.DeviceInfos.FirstOrDefault(d => d.DeviceEnCode == deviceEnCode);
+            return _dbContext.DeviceInfos.FirstOrDefault(d => d.Resource == deviceEnCode);
         }
 
 

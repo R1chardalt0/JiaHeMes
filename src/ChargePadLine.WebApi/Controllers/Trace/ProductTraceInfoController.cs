@@ -119,22 +119,5 @@ namespace ChargePadLine.WebApi.Controllers.Trace
                 return RespExtensions.MakeFail<List<ProductionRecordsDto>>("500", ex.Message);
             }
         }
-
-        /// <summary>
-        /// 按小时输出产量报表
-        /// </summary>
-        [HttpGet]
-        public async Task<Resp<List<HourlyProductionRecordsDto>>> GetHourlyProductionRecordsAsync(string? productionLineName, string? deviceName, string? resource, DateTime startTime, DateTime endTime)
-        {
-            try
-            {
-                var list = await _productTraceInfoService.GetHourlyProductionRecordsAsync(productionLineName, deviceName, startTime, endTime, resource);
-                return RespExtensions.MakeSuccess(list);
-            }
-            catch (Exception ex)
-            {
-                return RespExtensions.MakeFail<List<HourlyProductionRecordsDto>>("500", ex.Message);
-            }
-        }
     }
 }

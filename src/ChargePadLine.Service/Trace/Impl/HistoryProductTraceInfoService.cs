@@ -47,14 +47,14 @@ namespace ChargePadLine.Service.Trace.Impl
         {
             // 关联查询获取所需字段，使用ReportDbContext
             var query = from et in _reportDbContext.ProductTraceInfos
-                        join di in _reportDbContext.DeviceInfos on et.Resource equals di.DeviceEnCode
+                        join di in _reportDbContext.DeviceInfos on et.Resource equals di.Resource
                         join pl in _reportDbContext.ProductionLines on di.ProductionLineId equals pl.ProductionLineId
                         orderby et.CreateTime descending
                         select new ProductTraceInfoDto
                         {
                             Sfc = et.Sfc,
                             ProductionLine = pl.ProductionLineName,
-                            DeviceName = di.DeviceName,
+                            DeviceName = di.ResourceName,
                             Site = et.Site,
                             ActivityId = et.ActivityId,
                             Resource = et.Resource,

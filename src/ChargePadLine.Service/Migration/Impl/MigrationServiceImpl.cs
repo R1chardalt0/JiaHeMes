@@ -203,12 +203,12 @@ namespace ChargePadLine.Service.Migration.Impl
             try
             {
                 var devices = await _appDbContext.DeviceInfos.ToListAsync();
-                var existingDeviceIds = await _reportDbContext.DeviceInfos.Select(d => d.DeviceId).ToListAsync();
+                var existingDeviceIds = await _reportDbContext.DeviceInfos.Select(d => d.ResourceId).ToListAsync();
                 
                 int addedCount = 0;
                 foreach (var device in devices)
                 {
-                    if (!existingDeviceIds.Contains(device.DeviceId))
+                    if (!existingDeviceIds.Contains(device.ResourceId))
                     {
                         await _reportDbContext.DeviceInfos.AddAsync(device);
                         addedCount++;

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Entitys.Trace.TraceInfo
+namespace ChargePadLine.Entitys.Trace.TraceInformation
 {
     /// <summary>
     /// 生产加工信息

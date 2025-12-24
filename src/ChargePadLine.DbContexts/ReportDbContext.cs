@@ -39,7 +39,7 @@ namespace ChargePadLine.DbContexts
 
         #region 业务模块
         public DbSet<ProductionLine> ProductionLines { get; set; }
-        public DbSet<DeviceInfo> DeviceInfos { get; set; }
+        public DbSet<Deviceinfo> DeviceInfos { get; set; }
         public DbSet<ProductTraceInfo> ProductTraceInfos { get; set; }
         #endregion
     }

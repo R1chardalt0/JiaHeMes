@@ -56,16 +56,5 @@ namespace ChargePadLine.Service.Trace
         /// <param name="resource"></param>
         /// <returns></returns>
         Task<List<ProductionRecordsDto>> GetProductionRecordsAsync(string? ProductionLineName, string? DeviceName, DateTime startTime, DateTime endTime, string? resource);
-
-        /// <summary>
-        /// 按小时输出产量报表
-        /// </summary>
-        /// <param name="productionLineName">生产线名称</param>
-        /// <param name="deviceName">设备名称</param>
-        /// <param name="startTime">开始时间</param>
-        /// <param name="endTime">结束时间</param>
-        /// <param name="resource">设备编码</param>
-        /// <returns>按小时统计的产量数据列表</returns>
-        Task<List<HourlyProductionRecordsDto>> GetHourlyProductionRecordsAsync(string? productionLineName, string? deviceName, DateTime startTime, DateTime endTime, string? resource);
     }
 }

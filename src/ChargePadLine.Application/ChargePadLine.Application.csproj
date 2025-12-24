@@ -6,4 +6,15 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="9.0.300" />
+    <PackageReference Include="Itminus.Middleware" Version="0.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChargePadLine.DbContexts\ChargePadLine.DbContexts.csproj" />
+    <ProjectReference Include="..\ChargePadLine.Service\ChargePadLine.Service.csproj" />
+    <ProjectReference Include="..\ChargePadLine.Shared\ChargePadLine.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
