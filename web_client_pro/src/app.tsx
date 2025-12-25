@@ -11,7 +11,6 @@ import {
   SelectLang,
 } from '@/components';
 import { currentUser as queryCurrentUser } from '@/services/Api/Systems/login';
-import { getCompanyPagination } from '@/services/Api/Systems/company';
 import { getMenuTree } from '@/services/Api/Systems/menu';
 import type { MenuItem, MenuTreeResult } from '@/services/Model/Systems/menu';
 import * as Icons from '@ant-design/icons';
@@ -450,53 +449,6 @@ export const layout: RunTimeLayoutConfig = ({
             resCode === 200 && Array.isArray(resData)
               ? buildMenuFromSysMenus(resData)
               : (defaultMenuData || []);
-
-          // 2. 在“产线设备管理”节点下，继续注入公司级动态子菜单（原有逻辑保留）
-          try {
-            const resp = await getCompanyPagination({ current: 1, pageSize: 1000 });
-            const companies = Array.isArray(resp?.data) ? resp.data : [];
-
-            const validCompanies = companies.filter(
-              (company: any) =>
-                company?.companyId !== undefined && company?.companyName,
-            );
-
-            const buildCompanyNode = (
-              companyId: number | string,
-              companyName: string,
-            ) => ({
-              name: companyName,
-              path: `/productionEquipment/company/${companyId}`,
-              children: [
-                {
-                  name: '产线管理',
-                  path: `/productionEquipment/company/${companyId}/productionLine`,
-                },
-                {
-                  name: '设备管理',
-                  path: `/productionEquipment/company/${companyId}/equipment`,
-                },
-              ],
-            });
-
-            menuData = (menuData || []).map((item: any) => {
-              if (item?.path === '/productionEquipment') {
-                const dynamicChildren = validCompanies.map((c: any) =>
-                  buildCompanyNode(c.companyId, c.companyName),
-                );
-                return {
-                  ...item,
-                  children:
-                    dynamicChildren.length > 0
-                      ? dynamicChildren
-                      : item?.children,
-                };
-              }
-              return item;
-            });
-          } catch (companyErr) {
-            console.error('加载公司菜单失败', companyErr);
-          }
 
           return menuData as any;
         } catch (error) {

@@ -14,7 +14,7 @@ namespace ChargePadLine.Service.Trace
         /// <summary>
         /// 分页查询生产线列表
         /// </summary>
-        Task<PaginatedList<ProductionLine>> PaginationAsync(int current, int pageSize, string? productionLineName, string? productionLineCode, int? companyId, DateTime? startTime, DateTime? endTime);
+        Task<PaginatedList<ProductionLine>> PaginationAsync(int current, int pageSize, string? productionLineName, string? productionLineCode, DateTime? startTime, DateTime? endTime);
 
         /// <summary>
         /// 获取生产线详情

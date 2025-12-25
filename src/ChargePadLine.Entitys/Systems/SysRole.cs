@@ -108,8 +108,8 @@ namespace ChargePadLine.Entitys.Systems
                 Flag = false,
                 MenuIds = new long[]
                          {
-                            1, 2, 201, 202, 203, 3, 301, 302, 303, 4, 401, 402, 403, 404, 405, 406, 407,
-                            5, 501, 502, 503, 504, 6, 601, 602, 603
+                            1, 2, 201, 202, 203, 3, 301, 302, 303, 304, 305, 306, 307,
+                            4, 401, 402, 5, 501, 502,6,601
                          },
                 DeptIds = null,
                 Permissions = null,

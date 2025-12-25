@@ -34,7 +34,6 @@ export interface DeviceInfo {
   additionalProp1?: string; // 新增字段
   additionalProp2?: string; // 新增字段
   additionalProp3?: string; // 新增字段
-  companyId?: string | number;
 }
 
 // 设备查询参数
@@ -48,7 +47,6 @@ export interface DeviceInfoQueryParams {
   status?: string;
   startTime?: string;
   endTime?: string;
-  companyId?: string | number;
 }
 
 // 设备表单提交数据
@@ -68,5 +66,4 @@ export interface DeviceInfoFormData {
   deviceType: string; // 改为必需字段
   deviceManufacturer: string; // 改为必需字段
   expireTime?: number; // 新增字段
-  companyId?: string | number;
 }

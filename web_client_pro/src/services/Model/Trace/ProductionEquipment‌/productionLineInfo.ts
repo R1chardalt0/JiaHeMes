@@ -20,7 +20,6 @@ export interface productionLine {
   status: string;
   createdAt?: string;
   updatedAt?: string;
-  companyId?: string | number;
   companyName?: string;
 }
 
@@ -33,7 +32,6 @@ export interface ProductionLineQueryParams {
   status?: number;
   startTime?: string;
   endTime?: string;
-  companyId?: string | number;
 }
 
 // 产线表单提交数据接口
@@ -42,6 +40,5 @@ export interface ProductionLineFormData {
   productionLineCode: string;
   remark?: string;
   status: string; // 表单中使用字符串，提交时转换为数字
-  companyId?: string | number; // 公司ID（必填）
 }
 

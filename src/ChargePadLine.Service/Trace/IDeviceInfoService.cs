@@ -20,11 +20,10 @@ namespace ChargePadLine.Service.Trace
         /// <param name="deviceType">设备类型(精确匹配)</param>
         /// <param name="productionLineId">生产线ID</param>
         /// <param name="status">设备状态(精确匹配)</param>
-        /// <param name="companyId">公司ID（通过产线关联过滤）</param>
         /// <param name="startTime">开始时间</param>
         /// <param name="endTime">结束时间</param>
         /// <returns>分页设备信息列表</returns>
-        Task<PaginatedList<Deviceinfo>> PaginationAsync(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, int? companyId, DateTime? startTime, DateTime? endTime);
+        Task<PaginatedList<Deviceinfo>> PaginationAsync(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, DateTime? startTime, DateTime? endTime);
 
         /// <summary>
         /// 获取设备详情

@@ -23,7 +23,7 @@ namespace ChargePadLine.Service.Trace.Impl
         /// <summary>
         /// 分页查询生产线列表
         /// </summary>
-        public async Task<PaginatedList<ProductionLine>> PaginationAsync(int current, int pageSize, string? productionLineName, string? productionLineCode, int? companyId, DateTime? startTime, DateTime? endTime)
+        public async Task<PaginatedList<ProductionLine>> PaginationAsync(int current, int pageSize, string? productionLineName, string? productionLineCode, DateTime? startTime, DateTime? endTime)
         {
             var query = _dbContext.ProductionLines.OrderByDescending(s => s.CreatedAt).AsQueryable();
 
@@ -36,12 +36,6 @@ namespace ChargePadLine.Service.Trace.Impl
             if (!string.IsNullOrEmpty(productionLineCode))
             {
                 query = query.Where(r => r.ProductionLineCode.Contains(productionLineCode));
-            }
-
-            // 过滤公司ID
-            if (companyId.HasValue)
-            {
-                query = query.Where(r => r.CompanyId == companyId.Value);
             }
 
             // 过滤创建时间范围
