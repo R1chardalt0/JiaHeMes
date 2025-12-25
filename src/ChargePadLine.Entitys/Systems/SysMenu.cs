@@ -541,13 +541,8 @@ namespace ChargePadLine.Entitys.Systems
                     CreateBy = "admin",
                     CreateTime = new DateTimeOffset(2025, 12, 10, 10, 53, 26, 117, TimeSpan.FromHours(8)),
                     Remark = "产品信息追溯菜单"
-                },
-
-
-               
-                
+                },               
             };
-
             builder.HasData(menus);
         }
     }
