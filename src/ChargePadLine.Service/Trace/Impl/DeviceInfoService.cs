@@ -27,7 +27,7 @@ namespace ChargePadLine.Service.Trace.Impl
         /// <summary>
         /// 分页查询设备信息列表
         /// </summary>
-        public async Task<PaginatedList<Deviceinfo>> PaginationAsync(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, int? companyId, DateTime? startTime, DateTime? endTime)
+        public async Task<PaginatedList<Deviceinfo>> PaginationAsync(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, DateTime? startTime, DateTime? endTime)
         {
             var query = _dbContext.DeviceInfos
                 .Include(d => d.ProductionLine) // 关联生产线表
@@ -65,26 +65,6 @@ namespace ChargePadLine.Service.Trace.Impl
                 query = query.Where(r => r.Status == status);
             }
 
-            // 过滤公司ID（通过产线关联）：如果提供了companyId，先获取该公司的所有产线ID，然后过滤设备
-            if (companyId.HasValue)
-            {
-                // 获取该公司的所有产线ID
-                var productionLineIds = await _dbContext.ProductionLines
-                    .Where(pl => pl.CompanyId == companyId.Value)
-                    .Select(pl => pl.ProductionLineId)
-                    .ToListAsync();
-
-                // 如果该公司有产线，则只查询这些产线下的设备；如果没有产线，则返回空结果
-                if (productionLineIds.Any())
-                {
-                    query = query.Where(r => productionLineIds.Contains(r.ProductionLineId));
-                }
-                else
-                {
-                    // 如果该公司没有产线，返回空结果
-                    query = query.Where(r => false);
-                }
-            }
 
             // 过滤创建时间范围
             if (startTime.HasValue)

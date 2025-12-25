@@ -23,7 +23,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 分页查询设备信息列表
         /// </summary>
         [HttpGet]
-        public async Task<PagedResp<Deviceinfo>> GetDeviceInfoList(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, int? companyId, DateTime? startTime, DateTime? endTime)
+        public async Task<PagedResp<Deviceinfo>> GetDeviceInfoList(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, DateTime? startTime, DateTime? endTime)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
                 {
                     pageSize = 100;
                 }
-                var list = await _deviceInfoService.PaginationAsync(current, pageSize, deviceName, deviceEnCode, deviceType, productionLineId, status, companyId, startTime, endTime);
+                var list = await _deviceInfoService.PaginationAsync(current, pageSize, deviceName, deviceEnCode, deviceType, productionLineId, status, startTime, endTime);
                 return RespExtensions.MakePagedSuccess(list);
             }
             catch (Exception ex)

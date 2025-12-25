@@ -1,7 +1,7 @@
-import { useRequest, useParams, useNavigate, useLocation } from '@umijs/max';
+import { useRequest, useNavigate } from '@umijs/max';
 import React, { useRef, useState, useEffect } from 'react';
 import { Button, message, Modal, Space, Drawer, Tag, Image } from 'antd';
-import { ProTable, ProDescriptions, ProColumns, RequestData } from '@ant-design/pro-components';
+import { ProTable, ProDescriptions, ProColumns, RequestData, PageContainer } from '@ant-design/pro-components';
 import type { ActionType } from '@ant-design/pro-components';
 import { PlusOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { CreateEquipmentForm } from './CreateEqumentForm';
@@ -14,14 +14,6 @@ import type {
   DeviceInfo,
   DeviceInfoQueryParams,
 } from '@/services/Model/Trace/ProductionEquipment‌/equipmentInfo';
-
-// 从路径中提取 companyId 的辅助函数
-const extractCompanyIdFromPath = (pathname: string): string | undefined => {
-  // 匹配路径格式：/productionEquipment/company/{companyId}/productionLine
-  // 或：/productionEquipment/company/{companyId}/equipment
-  const match = pathname.match(/\/productionEquipment\/company\/([^/]+)\/(productionLine|equipment)/);
-  return match ? match[1] : undefined;
-};
 
 // 设备状态映射
 const statusMap = {
@@ -92,27 +84,7 @@ const getImagePath = (imageName?: string): string | undefined => {
 };
 
 const EquipmentPage: React.FC = () => {
-  const location = useLocation();
-  const { companyId: paramsCompanyId } = useParams<{ companyId: string }>();
   const navigate = useNavigate();
-  
-  // 从路径中提取 companyId（作为备用方案）
-  const pathCompanyId = extractCompanyIdFromPath(location.pathname);
-  
-  // 优先使用 useParams 获取的 companyId，如果没有则使用从路径提取的
-  const companyId = paramsCompanyId || pathCompanyId;
-  const normalizedCompanyId = companyId && !Number.isNaN(Number(companyId)) ? Number(companyId) : companyId;
-  
-  // 调试日志：检查路由参数
-  useEffect(() => {
-    console.log('🔍 设备管理 - 路由参数检查:', {
-      paramsCompanyId,
-      pathCompanyId,
-      companyId,
-      normalizedCompanyId,
-      pathname: location.pathname,
-    });
-  }, [paramsCompanyId, pathCompanyId, companyId, normalizedCompanyId, location.pathname]);
   
   const [formModalVisible, setFormModalVisible] = useState(false);
   const [currentRow, setCurrentRow] = useState<DeviceInfo | null>(null);
@@ -134,7 +106,7 @@ const EquipmentPage: React.FC = () => {
 
   // 路由切换时清理状态，避免卡顿
   useEffect(() => {
-    // 当 companyId 变化时，清理状态
+    // 路由切换时清理状态
     setDetailDrawerVisible(false);
     setCurrentRow(null);
     setFormModalVisible(false);
@@ -149,22 +121,11 @@ const EquipmentPage: React.FC = () => {
     return () => {
       clearTimeout(timer);
     };
-  }, [normalizedCompanyId]); // 当 companyId 变化时清理状态
+  }, []);
 
   // 获取设备列表
   const fetchDeviceInfoList = async (params: DeviceInfoQueryParams) => {
     try {
-      // 使用传入的 params.companyId（从 request 函数传入）
-      // 如果 params.companyId 为 undefined，则使用 normalizedCompanyId（从路由参数获取）
-      const finalCompanyId = params.companyId !== undefined ? params.companyId : normalizedCompanyId;
-      
-      // 调试日志：检查最终使用的 companyId
-      console.log('🔧 设备管理 - fetchDeviceInfoList:', {
-        paramsCompanyId: params.companyId,
-        normalizedCompanyId,
-        finalCompanyId,
-      });
-      
       const requestParams: DeviceInfoQueryParams = {
         current: params.current,
         pageSize: params.pageSize,
@@ -173,7 +134,6 @@ const EquipmentPage: React.FC = () => {
         productionLineId: params.productionLineId,
         startTime: params.startTime,
         endTime: params.endTime,
-        companyId: finalCompanyId, // 使用最终确定的 companyId
       };
 
       // 调试日志：检查发送给后端的参数
@@ -184,11 +144,28 @@ const EquipmentPage: React.FC = () => {
       // 调试日志：检查后端返回的数据
       console.log('📥 设备管理 - 后端返回数据:', {
         dataCount: response.data?.length || 0,
-        companyIds: response.data?.map((item: any) => item.companyId),
+        firstItem: response.data?.[0],
       });
       
+      // 映射字段名：后端可能返回 resourceId/resourceName/resource 等，前端期望 deviceId/deviceName/deviceEnCode
+      const mappedData = (response.data || []).map((item: any) => ({
+        ...item,
+        // 映射设备ID
+        deviceId: item.deviceId || item.resourceId || '',
+        // 映射设备名称
+        deviceName: item.deviceName || item.resourceName || '',
+        // 映射设备编码
+        deviceEnCode: item.deviceEnCode || item.resource || '',
+        // 映射设备类型
+        deviceType: item.deviceType || item.resourceType || '',
+        // 映射设备制造商
+        deviceManufacturer: item.deviceManufacturer || item.resourceManufacturer || '',
+        // 映射设备图片
+        devicePicture: item.devicePicture || item.resourcePicture || '',
+      }));
+      
       return {
-        data: response.data || [],
+        data: mappedData,
         success: true,
         total: (response as any).total || 0,
       };
@@ -253,18 +230,52 @@ const EquipmentPage: React.FC = () => {
   // 打开详情抽屉
   const showDetailDrawer = async (row: DeviceInfo) => {
     try {
-      const response = await getDeviceInfoById(row.deviceId || '');
+      // 获取设备ID，支持多种字段名（deviceId 或 resourceId）
+      const deviceId = row.deviceId || (row as any).resourceId || '';
+      
+      if (!deviceId) {
+        message.error('设备ID不存在，无法获取详情');
+        return;
+      }
+
+      // 调试日志：检查请求参数
+      console.log('📤 获取设备详情 - 设备ID:', deviceId);
+      console.log('📤 获取设备详情 - 行数据:', row);
+
+      const response = await getDeviceInfoById(deviceId);
+      
+      // 调试日志：检查响应数据
+      console.log('📥 获取设备详情 - 响应数据:', response);
+
       if (response.data) {
-        // 确保生产线名称被正确设置：优先使用后端返回的值，如果没有则使用表格行中的值
-        const detailDataWithProductionLine = {
+        // 将后端返回的字段名映射到前端期望的字段名
+        const detailData: DeviceInfo = {
           ...response.data,
-          productionLineName: response.data.productionLineName || row.productionLineName || (response.data as any).productionLine?.productionLineName || '-',
+          // 映射字段名：后端可能返回 resourceId，前端期望 deviceId
+          deviceId: (response.data as any).deviceId || (response.data as any).resourceId || deviceId,
+          // 映射设备名称
+          deviceName: (response.data as any).deviceName || (response.data as any).resourceName || '',
+          // 映射设备编码
+          deviceEnCode: (response.data as any).deviceEnCode || (response.data as any).resource || '',
+          // 映射设备类型
+          deviceType: (response.data as any).deviceType || (response.data as any).resourceType || '',
+          // 映射设备制造商
+          deviceManufacturer: (response.data as any).deviceManufacturer || (response.data as any).resourceManufacturer || '',
+          // 映射设备图片
+          devicePicture: (response.data as any).devicePicture || (response.data as any).resourcePicture || '',
+          // 确保生产线名称被正确设置
+          productionLineName: (response.data as any).productionLineName || row.productionLineName || (response.data as any).productionLine?.productionLineName || '-',
         };
-        setDetailData(detailDataWithProductionLine);
+        
+        setDetailData(detailData);
         setDetailDrawerVisible(true);
+      } else {
+        message.error('设备详情数据为空');
       }
     } catch (error) {
-      message.error('获取设备详情失败');
+      console.error('❌ 获取设备详情失败:', error);
+      const errorMsg = (error as any)?.response?.data?.msg || (error as any)?.response?.data?.message || (error as any)?.message || '获取设备详情失败';
+      message.error(errorMsg);
     }
   };
 
@@ -276,10 +287,6 @@ const EquipmentPage: React.FC = () => {
 
   // 打开新增表单
   const handleAdd = () => {
-    if (!companyId) {
-      message.warning('请先通过左侧公司菜单进入再新增设备');
-      return;
-    }
     setCurrentRow(null);
     setFormModalVisible(true);
   };
@@ -504,11 +511,33 @@ const EquipmentPage: React.FC = () => {
   ];
 
   return (
-    <div className="system-settings-page" style={{ padding: 24 }}>
-      <ProTable<DeviceInfo>
+    <PageContainer
+      breadcrumb={{
+        items: [
+          {
+            path: '/productionEquipment',
+            title: '产线设备管理',
+          },
+          {
+            path: '/productionEquipment/equipment',
+            title: '设备管理',
+          },
+        ],
+        itemRender: (route, params, routes, paths) => {
+          const isLast = routes.indexOf(route) === routes.length - 1;
+          return isLast ? (
+            <span style={{ fontWeight: 600 }}>{route.title}</span>
+          ) : (
+            <span style={{ fontWeight: 600 }}>{route.title}</span>
+          );
+        },
+      }}
+    >
+      <div className="system-settings-page" style={{ padding: 24 }}>
+        <ProTable<DeviceInfo>
         columns={columns}
         actionRef={actionRef} // 添加 actionRef
-        key={normalizedCompanyId || 'default'} // 添加 key，确保路由切换时重新渲染
+        key={'default'}
         scroll={{ x: 'max-content' }} // 添加横向滚动
         cardProps={{
           style: (window as any).__panelStyles?.panelStyle,
@@ -525,15 +554,11 @@ const EquipmentPage: React.FC = () => {
               // 处理标准的时间范围参数
               startTime: params.startTime,
               endTime: params.endTime,
-              // 使用 normalizedCompanyId（从路由参数获取）
-              // 如果为 undefined，则显示所有数据；如果有值，则只显示该公司的数据
-              companyId: normalizedCompanyId,
             };
             
             // 调试日志：检查查询参数
             console.log('📊 设备管理 - 查询参数:', {
               requestParams,
-              normalizedCompanyId,
               pathname: window.location.pathname,
             });
             
@@ -547,7 +572,6 @@ const EquipmentPage: React.FC = () => {
             console.log('📋 设备管理 - 返回结果:', {
               dataCount: result.data?.length || 0,
               total: result.total,
-              firstItemCompanyId: result.data?.[0]?.companyId,
             });
             
             return result;
@@ -705,9 +729,9 @@ const EquipmentPage: React.FC = () => {
         onCancel={handleCancel}
         onSuccess={handleSuccess}
         currentRow={currentRow}
-        companyId={normalizedCompanyId !== undefined ? String(normalizedCompanyId) : ''}
       />
-    </div>
+      </div>
+    </PageContainer>
   );
 };
 

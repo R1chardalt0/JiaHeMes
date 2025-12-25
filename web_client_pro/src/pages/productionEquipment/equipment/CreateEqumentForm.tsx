@@ -11,7 +11,6 @@ interface CreateEquipmentFormProps {
   onCancel: () => void;
   onSuccess: () => void;
   currentRow?: DeviceInfo | null;
-  companyId?: string;
 }
 
 const layout = {
@@ -28,21 +27,16 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
   onCancel, 
   onSuccess, 
   currentRow,
-  companyId,
 }) => {
   const [form] = Form.useForm<DeviceInfoFormData>();
   const [productionLines, setProductionLines] = React.useState<Array<{ productionLineId: string; productionLineName: string }>>([]);
   const [loading, setLoading] = React.useState(false);
-  const resolvedCompanyId = companyId ?? currentRow?.companyId;
-  const normalizedCompanyId = resolvedCompanyId !== undefined && resolvedCompanyId !== null && !Number.isNaN(Number(resolvedCompanyId))
-    ? Number(resolvedCompanyId)
-    : resolvedCompanyId;
 
   // 加载生产线列表
   useEffect(() => {
     const fetchProductionLines = async () => {
       try {
-        const res = await getProductionLineList({ pageSize: 1000, companyId: normalizedCompanyId });
+        const res = await getProductionLineList({ pageSize: 1000 });
         if (res.data) {
           setProductionLines(
             res.data
@@ -61,7 +55,7 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
     if (visible) {
       fetchProductionLines();
     }
-  }, [visible, normalizedCompanyId]);
+  }, [visible]);
 
   // 重置表单并根据currentRow设置初始值
   useEffect(() => {
@@ -90,25 +84,42 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
   const handleFinish = async (values: DeviceInfoFormData) => {
     setLoading(true);
     try {
-      // 构造提交数据
-      const submitData: DeviceInfo = {
-        ...values,
-        companyId: normalizedCompanyId,
-        // 移除status字段的类型转换
-        // status: values.status ? parseInt(values.status, 10) : undefined,
-        // 确保日期类型正确
-        createTime: currentRow?.createTime,
-        updateTime: new Date().toISOString(),
-        // 确保必填字段都有值
-        avatar: values.avatar || '',
-        deviceType: values.deviceType || '',
-        devicePicture: values.devicePicture || '',
-        deviceManufacturer: values.deviceManufacturer || '',
+      // 将前端字段名映射到后端期望的字段名
+      // 后端实体使用：Resource, ResourceName, ResourceId, ResourceType, ResourceManufacturer, ResourcePicture
+      const submitData: any = {
+        // 映射字段名到后端实体字段
+        resource: values.deviceEnCode, // 设备编码 -> Resource
+        resourceName: values.deviceName, // 设备名称 -> ResourceName
+        resourceType: values.deviceType || '', // 设备类型 -> ResourceType
+        resourceManufacturer: values.deviceManufacturer || '', // 设备制造商 -> ResourceManufacturer
+        resourcePicture: values.devicePicture || '', // 设备图片 -> ResourcePicture
+        avatar: values.avatar || '', // 设备头像 -> Avatar
+        status: values.status || '1', // 状态 -> Status
+        description: values.description || '', // 描述 -> Description
+        updateTime: new Date().toISOString(), // 更新时间
       };
+
+      // 只有当 productionLineId 存在且有效时才添加
+      if (values.productionLineId) {
+        submitData.productionLineId = values.productionLineId;
+      }
+
+      // 编辑模式需要添加设备ID
+      if (currentRow) {
+        submitData.resourceId = currentRow.deviceId; // 设备ID -> ResourceId
+        submitData.createTime = currentRow.createTime; // 保留创建时间
+      }
+
+      // 调试日志：检查提交的数据
+      console.log('📤 提交设备数据:', {
+        isEdit: !!currentRow,
+        submitData,
+        url: currentRow ? '/api/Deviceinfo/UpdateDeviceInfo' : '/api/Deviceinfo/CreateDeviceInfo'
+      });
 
       if (currentRow) {
         // 编辑模式
-        await updateDeviceInfo({ ...submitData, deviceId: currentRow.deviceId });
+        await updateDeviceInfo(submitData);
         message.success('设备更新成功');
       } else {
         // 新增模式
@@ -117,7 +128,9 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
       }
       onSuccess();
     } catch (error) {
-      message.error(currentRow ? '设备更新失败' : '设备创建失败');
+      console.error('❌ 提交设备数据失败:', error);
+      const errorMsg = (error as any)?.response?.data?.msg || (error as any)?.response?.data?.message || (error as any)?.message || '操作失败';
+      message.error(errorMsg);
     } finally {
       setLoading(false);
     }

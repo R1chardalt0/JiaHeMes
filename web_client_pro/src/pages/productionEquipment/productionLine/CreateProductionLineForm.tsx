@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Form, message } from 'antd';
-import { ModalForm, ProForm, ProFormText, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
-import type { CompanyItem } from '@/services/Model/Systems/company';
+import { ModalForm, ProFormText, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
 
 /**
  * 创建/编辑产线表单组件
@@ -11,8 +10,6 @@ interface CreateProductionLineFormProps {
   onOpenChange: (visible: boolean) => void;
   currentRow?: any;
   onFinish: (values: any) => Promise<boolean | void>;
-  companyId?: string;
-  companies?: CompanyItem[]; // 从父组件传递公司列表，避免重复加载
 }
 
 const CreateProductionLineForm: React.FC<CreateProductionLineFormProps> = ({
@@ -20,8 +17,6 @@ const CreateProductionLineForm: React.FC<CreateProductionLineFormProps> = ({
   onOpenChange,
   currentRow,
   onFinish,
-  companyId,
-  companies = [], // 从父组件传递，默认为空数组
 }) => {
   const [form] = Form.useForm();
   
@@ -33,33 +28,18 @@ const CreateProductionLineForm: React.FC<CreateProductionLineFormProps> = ({
     return 600;
   }, []);
   
-  // 使用 useMemo 优化公司选项的生成，避免每次渲染都重新计算
-  const companyOptions = useMemo(() => {
-    return companies.map((company) => ({
-      value: company.companyId,
-      label: company.companyName,
-    }));
-  }, [companies]);
-  
   // 表单提交处理函数（不使用 useCallback，避免依赖问题导致卡顿）
   const handleFinish = async (values: any) => {
     // 根据最新的API要求，直接传递表单数据，不再包装在productionLine字段中
     // 添加当前时间作为创建时间，解决1901-01-01 00:00:00的问题
     const currentTime = new Date().toISOString();
     
-    // 优先使用表单中选择的companyId，如果没有则使用props传入的companyId
-    const finalCompanyId = values.companyId || companyId;
-    
-    if (!finalCompanyId) {
-      message.error('请选择公司');
-      return false;
-    }
-    
+    // 构建提交数据，使用 camelCase（ASP.NET Core 会自动转换为 PascalCase）
     const submitValues = {
-      ...values,
-      companyId: finalCompanyId,
-      // 注意：ProductionLine接口中status被定义为number类型，需要转换
-      status: parseInt(values.status, 10).toString(), // 将字符串状态转换为数字
+      productionLineName: values.productionLineName,
+      productionLineCode: values.productionLineCode,
+      status: values.status, // Status 在后端是 string 类型，直接使用
+      description: values.description || '', // 描述字段
       createdAt: currentTime, // 新增模式时传递当前时间
       updatedAt: currentTime  // 同时更新修改时间
     };
@@ -67,6 +47,7 @@ const CreateProductionLineForm: React.FC<CreateProductionLineFormProps> = ({
     try {
       return await onFinish(submitValues);
     } catch (error) {
+      console.error('表单提交错误:', error);
       message.error('提交失败，请重试');
       return false;
     }
@@ -82,18 +63,16 @@ const CreateProductionLineForm: React.FC<CreateProductionLineFormProps> = ({
     // 使用 setTimeout 确保在弹窗完全打开后再设置值，避免卡顿
     const timer = setTimeout(() => {
       if (currentRow) {
-        // 编辑模式：设置表单初始值，包括companyId
+        // 编辑模式：设置表单初始值
         form.setFieldsValue({
           ...currentRow,
           status: currentRow.status?.toString() || '1',
-          companyId: currentRow.companyId || (companyId ? Number(companyId) : undefined),
         });
       } else {
-        // 新增模式：如果有传入的companyId，则设置为默认值
+        // 新增模式：设置默认值
         form.resetFields();
         form.setFieldsValue({ 
           status: '1',
-          companyId: companyId ? Number(companyId) : undefined,
         });
       }
     }, 0);
@@ -102,7 +81,7 @@ const CreateProductionLineForm: React.FC<CreateProductionLineFormProps> = ({
       clearTimeout(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, currentRow?.productionLineId, companyId]); // 只依赖关键字段，避免频繁更新
+  }, [open, currentRow?.productionLineId]); // 只依赖关键字段，避免频繁更新
 
   return (
     <ModalForm
@@ -180,34 +159,6 @@ const CreateProductionLineForm: React.FC<CreateProductionLineFormProps> = ({
       />
 
       <ProFormSelect
-        name="companyId"
-        label="所属公司"
-        placeholder="请选择公司"
-        rules={[
-          {
-            required: true,
-            message: '请选择所属公司',
-          },
-        ]}
-        options={companyOptions}
-        fieldProps={{
-          showSearch: true,
-          filterOption: (input, option) =>
-            (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase()),
-          popupClassName: 'glass-dropdown',
-          dropdownStyle: {
-            background:
-              'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-            backdropFilter: 'blur(12px) saturate(115%)',
-            WebkitBackdropFilter: 'blur(12px) saturate(115%)',
-            border: '1px solid rgba(72,115,255,0.28)',
-            boxShadow:
-              '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
-          }
-        }}
-      />
-      
-      <ProFormSelect
         name="status"
         label="状态"
         placeholder="请选择状态"
@@ -247,14 +198,8 @@ const CreateProductionLineForm: React.FC<CreateProductionLineFormProps> = ({
         label="备注信息"
         placeholder="请输入备注信息（选填），最多200个字符"
         rows={3}
-           rules={[
-          {
-            required: true,
-            message: '请输入备注信息',
-          },
-        ]}
         maxLength={200}
-        showCount={{}}
+        showCount
       />
     </ModalForm>
   );

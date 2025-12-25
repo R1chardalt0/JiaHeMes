@@ -1,21 +1,11 @@
-import { useRequest, useParams, useLocation } from '@umijs/max';
-import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
+import { useRequest } from '@umijs/max';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button, message, Modal, Space, Drawer } from 'antd';
-import { ProTable, ProDescriptions, RequestData } from '@ant-design/pro-components';
+import { ProTable, ProDescriptions, RequestData, PageContainer } from '@ant-design/pro-components';
 import { PlusOutlined } from '@ant-design/icons';
 import CreateProductionLineForm from './CreateProductionLineForm';
 import { getProductionLineList, createProductionLine, updateProductionLine, deleteProductionLineByIds, getProductionLineById } from '@/services/Api/Trace/ProductionEquipment‌/productionLineInfo';
-import { getAllCompanies } from '@/services/Api/Systems/company';
 import type { productionLine as ModelProductionLine, ProductionLineQueryParams } from '@/services/Model/Trace/ProductionEquipment‌/productionLineInfo';
-import type { CompanyItem } from '@/services/Model/Systems/company';
-
-// 从路径中提取 companyId 的辅助函数
-const extractCompanyIdFromPath = (pathname: string): string | undefined => {
-  // 匹配路径格式：/productionEquipment/company/{companyId}/productionLine
-  // 或：/productionEquipment/company/{companyId}/equipment
-  const match = pathname.match(/\/productionEquipment\/company\/([^/]+)\/(productionLine|equipment)/);
-  return match ? match[1] : undefined;
-};
 
 // 定义产线类型接口，与后端保持一致
 interface productionLine extends ModelProductionLine {
@@ -26,48 +16,24 @@ interface productionLine extends ModelProductionLine {
   status: string;
   createdAt: string;
   updatedAt: string;
-  companyName?: string; // 公司名称（用于显示）
 }
 
 // 使用从服务层导入的查询参数接口
 
 const ProductionLineManagement: React.FC = () => {
-  const location = useLocation();
-  const { companyId: paramsCompanyId } = useParams<{ companyId: string }>();
-  
-  // 从路径中提取 companyId（作为备用方案）
-  const pathCompanyId = extractCompanyIdFromPath(location.pathname);
-  
-  // 优先使用 useParams 获取的 companyId，如果没有则使用从路径提取的
-  const companyId = paramsCompanyId || pathCompanyId;
-  const normalizedCompanyId = companyId && !Number.isNaN(Number(companyId)) ? Number(companyId) : companyId;
-  
-  // 调试日志：检查路由参数
-  useEffect(() => {
-    console.log('🔍 产线管理 - 路由参数检查:', {
-      paramsCompanyId,
-      pathCompanyId,
-      companyId,
-      normalizedCompanyId,
-      pathname: location.pathname,
-    });
-  }, [paramsCompanyId, pathCompanyId, companyId, normalizedCompanyId, location.pathname]);
-  
   const actionRef = useRef<any>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [currentRow, setCurrentRow] = useState<productionLine | undefined>();
   const [selectedRows, setSelectedRows] = useState<productionLine[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [companyList, setCompanyList] = useState<CompanyItem[]>([]); // 公司列表
   const [currentSearchParams, setCurrentSearchParams] = useState<ProductionLineQueryParams>({
     current: 1,
     pageSize: 15
   });
-  const companyIdValue = normalizedCompanyId ?? currentRow?.companyId ?? companyId;
 
   // 路由切换时清理状态，避免卡顿
   useEffect(() => {
-    // 当 companyId 变化时，清理状态
+    // 路由切换时清理状态
     setShowDetail(false);
     setCurrentRow(undefined);
     setSelectedRows([]);
@@ -83,71 +49,12 @@ const ProductionLineManagement: React.FC = () => {
     return () => {
       clearTimeout(timer);
     };
-  }, [normalizedCompanyId]); // 当 companyId 变化时清理状态
+  }, []); // 路由变化不再依赖 companyId
 
-  // 加载公司列表并建立映射关系（只加载一次，避免重复请求）
-  useEffect(() => {
-    let isMounted = true; // 防止组件卸载后更新状态
-    let abortController: AbortController | null = null;
-    
-    const fetchCompanies = async () => {
-      try {
-        // 创建 AbortController 用于取消请求
-        abortController = new AbortController();
-        
-        const res = await getAllCompanies();
-        if (isMounted && res.success && res.data) {
-          setCompanyList(res.data); // 保存完整的公司列表
-        }
-      } catch (error: any) {
-        // 如果是取消的请求，不显示错误
-        if (error?.name === 'AbortError') {
-          return;
-        }
-        // 静默失败，不影响主流程
-        if (isMounted) {
-          console.error('加载公司列表失败:', error);
-        }
-      }
-    };
-
-    // 只在组件挂载时加载一次
-    fetchCompanies();
-    
-    return () => {
-      isMounted = false;
-      // 取消未完成的请求
-      if (abortController) {
-        abortController.abort();
-      }
-    };
-  }, []);
-
-  // 使用 useMemo 优化公司ID到名称的映射，避免每次渲染都重新计算
-  const companyMap = useMemo(() => {
-    const map = new Map<string | number, string>();
-    companyList.forEach((company) => {
-      if (company.companyId) {
-        map.set(company.companyId, company.companyName || '');
-      }
-    });
-    return map;
-  }, [companyList]);
 
   // 获取产线列表
   const fetchProductionLineList = async (params: ProductionLineQueryParams) => {
     try {
-      // 使用传入的 params.companyId（从 request 函数传入）
-      // 如果 params.companyId 为 undefined，则使用 normalizedCompanyId（从路由参数获取）
-      const finalCompanyId = params.companyId !== undefined ? params.companyId : normalizedCompanyId;
-      
-      // 调试日志：检查最终使用的 companyId
-      console.log('🔧 产线管理 - fetchProductionLineList:', {
-        paramsCompanyId: params.companyId,
-        normalizedCompanyId,
-        finalCompanyId,
-      });
-      
       // 更新搜索参数状态
       setCurrentSearchParams({
         current: Math.max(1, params.current || 1),
@@ -156,7 +63,6 @@ const ProductionLineManagement: React.FC = () => {
         productionLineCode: params.productionLineCode,
         startTime: params.startTime,
         endTime: params.endTime,
-        companyId: finalCompanyId,
       });
       
       // 转换查询参数，与后端保持一致
@@ -167,7 +73,6 @@ const ProductionLineManagement: React.FC = () => {
         productionLineCode: params.productionLineCode,
         startTime: params.startTime,
         endTime: params.endTime,
-        companyId: finalCompanyId, // 使用最终确定的 companyId
       };
 
       // 调试日志：检查发送给后端的参数
@@ -178,7 +83,6 @@ const ProductionLineManagement: React.FC = () => {
       // 调试日志：检查后端返回的数据
       console.log('📥 产线管理 - 后端返回数据:', {
         dataCount: res.data?.length || 0,
-        companyIds: res.data?.map((item: any) => item.companyId),
       });
       
       // 根据后端返回结构调整数据格式
@@ -211,10 +115,27 @@ const ProductionLineManagement: React.FC = () => {
   const { run: submitRun } = useRequest(
     async (payload: any, isEdit: boolean, productionLineId?: string) => {
       // 转换提交数据格式，与后端保持一致
-      const submitData = {
-        ...payload,
-        productionLineId: productionLineId || payload.productionLineId,
+      // 新增时不应该包含 productionLineId（后端会自动生成）
+      const submitData: any = {
+        productionLineName: payload.productionLineName,
+        productionLineCode: payload.productionLineCode,
+        status: payload.status,
+        description: payload.description || '',
+        createdAt: payload.createdAt,
+        updatedAt: payload.updatedAt,
       };
+
+      // 只有编辑模式才添加 productionLineId
+      if (isEdit && (productionLineId || payload.productionLineId)) {
+        submitData.productionLineId = productionLineId || payload.productionLineId;
+      }
+
+      // 调试日志：检查提交的数据
+      console.log('📤 提交产线数据:', {
+        isEdit,
+        submitData,
+        url: isEdit ? '/api/ProductionLine/UpdateProductionLine' : '/api/ProductionLine/CreateProductionLine'
+      });
 
       return isEdit ? updateProductionLine(submitData) : createProductionLine(submitData);
     },
@@ -227,7 +148,8 @@ const ProductionLineManagement: React.FC = () => {
         setCurrentRow(undefined); // 清空当前行，避免状态残留
       },
       onError: (error) => {
-        const errorMsg = error.message || (error as any)?.response?.data?.message || '操作失败';
+        console.error('❌ 提交产线数据失败:', error);
+        const errorMsg = error.message || (error as any)?.response?.data?.message || (error as any)?.response?.data?.msg || '操作失败';
         message.error(errorMsg);
       },
     }
@@ -257,14 +179,7 @@ const ProductionLineManagement: React.FC = () => {
 
   // 表单提交处理函数（优化：明确传递编辑状态和ID，避免闭包问题）
   const handleSubmit = async (values: any) => {
-    // 表单中已经包含了companyId，直接使用表单提交的值
-    // 如果表单中没有companyId，则使用URL参数中的companyId作为后备
-    const finalCompanyId = values.companyId || normalizedCompanyId;
-    
-    if (!finalCompanyId) {
-      message.warning('请选择公司后再新增或编辑产线');
-      return false;
-    }
+    // 不再从路由 companyId 维度做限制：是否需要 companyId 由表单本身/后端数据模型决定
     
     // 判断是编辑还是新增
     const isEdit = !!currentRow?.productionLineId;
@@ -273,7 +188,7 @@ const ProductionLineManagement: React.FC = () => {
     // 直接使用CreateProductionLineForm传递的原始数据格式
     // 明确传递编辑状态和ID，避免闭包问题
     await submitRun(
-      { ...values, companyId: finalCompanyId },
+      { ...values },
       isEdit,
       productionLineId
     );
@@ -294,25 +209,7 @@ const ProductionLineManagement: React.FC = () => {
       dataIndex: 'productionLineCode',
       search: true,
     },
-    {
-      title: '公司名称',
-      dataIndex: 'companyName',
-      key: 'companyName',
-      ellipsis: true,
-      search: false,
-      render: (_: any, record: productionLine) => {
-        // 优先使用后端返回的 companyName
-        if (record.companyName) {
-          return record.companyName;
-        }
-        // 如果后端没有返回，则从映射中查找
-        if (record.companyId && companyMap.has(record.companyId)) {
-          return companyMap.get(record.companyId) || record.companyId;
-        }
-        // 如果都没有，则显示公司ID
-        return record.companyId || '-';
-      },
-    },
+
     {
       title: '状态',
       dataIndex: 'status',
@@ -385,11 +282,33 @@ const ProductionLineManagement: React.FC = () => {
   ];
 
   return (
-    <div className="system-settings-page">
-      <ProTable<productionLine>
+    <PageContainer
+      breadcrumb={{
+        items: [
+          {
+            path: '/productionEquipment',
+            title: '产线设备管理',
+          },
+          {
+            path: '/productionEquipment/productionLine',
+            title: '产线管理',
+          },
+        ],
+        itemRender: (route, params, routes, paths) => {
+          const isLast = routes.indexOf(route) === routes.length - 1;
+          return isLast ? (
+            <span style={{ fontWeight: 600 }}>{route.title}</span>
+          ) : (
+            <span style={{ fontWeight: 600 }}>{route.title}</span>
+          );
+        },
+      }}
+    >
+      <div className="system-settings-page">
+        <ProTable<productionLine>
         rowKey="productionLineId"
         actionRef={actionRef}
-        key={normalizedCompanyId || 'default'} // 添加 key，确保路由切换时重新渲染
+        key={'default'}
         // 合并列配置，添加时间区间搜索字段
         columns={[
           ...columns,
@@ -419,15 +338,11 @@ const ProductionLineManagement: React.FC = () => {
               productionLineCode: params.productionLineCode, // 添加产线编号搜索参数
               startTime: params.startTime || (params as any).createdAt?.[0],
               endTime: params.endTime || (params as any).createdAt?.[1],
-              // 使用 normalizedCompanyId（从路由参数获取）
-              // 如果为 undefined，则显示所有数据；如果有值，则只显示该公司的数据
-              companyId: normalizedCompanyId,
             };
             
             // 调试日志：检查查询参数
             console.log('📊 产线管理 - 查询参数:', {
               queryParams,
-              normalizedCompanyId,
               pathname: window.location.pathname,
             });
             
@@ -437,7 +352,6 @@ const ProductionLineManagement: React.FC = () => {
             console.log('📋 产线管理 - 返回结果:', {
               dataCount: result.data?.length || 0,
               total: result.total,
-              firstItemCompanyId: result.data?.[0]?.companyId,
             });
             
             // 确保返回类型符合RequestData格式
@@ -458,10 +372,6 @@ const ProductionLineManagement: React.FC = () => {
             key="add"
             type="primary"
             onClick={() => {
-              if (!companyId) {
-                message.warning('请先通过左侧公司菜单进入再新增产线');
-                return;
-              }
               setCurrentRow(undefined);
               setModalVisible(true);
             }}
@@ -613,10 +523,9 @@ const ProductionLineManagement: React.FC = () => {
         onOpenChange={setModalVisible}
         currentRow={currentRow}
         onFinish={handleSubmit}
-        companyId={companyIdValue !== undefined ? String(companyIdValue) : ''}
-        companies={companyList} // 传递公司列表，避免表单组件重复加载
       />
-    </div>
+      </div>
+    </PageContainer>
   );
 };
 
