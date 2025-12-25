@@ -1,6 +1,9 @@
 using ChargePadLine.Entitys.Systems;
 using ChargePadLine.Entitys.Trace;
+using ChargePadLine.Entitys.Trace.InventoryManagement;
+using ChargePadLine.Entitys.Trace.ProcessRouting;
 using ChargePadLine.Entitys.Trace.Production.BatchQueue;
+using ChargePadLine.Entitys.Trace.QualityManagement;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
 using ChargePadLine.Entitys.Trace.TraceInformation;
 using ChargePadLine.Entitys.Trace.WorkOrders;
@@ -44,6 +47,8 @@ namespace ChargePadLine.DbContexts
             modelBuilder.ApplyConfiguration(new MaterialBatchQueueItemEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ProductTraceInfoClaimEntityConfiguration());
             #endregion
+
+
         }
 
         #region System配置
@@ -60,20 +65,49 @@ namespace ChargePadLine.DbContexts
         #endregion
 
         #region 业务模块
+        //产站设备
         public DbSet<ProductionLine> ProductionLines { get; set; }
         public DbSet<Deviceinfo> DeviceInfos { get; set; }
         public DbSet<ProductTraceInfo> ProductTraceInfos { get; set; }
 
+        //物料bom
         public DbSet<Material> Materials { get; set; }
         public DbSet<BomRecipe> BomRecipes { get; set; }
         public DbSet<BomRecipeItem> BomRecipeItems { get; set; }
+
+        //工单
         public DbSet<WorkOrder> WorkOrders { get; set; }
         public DbSet<WorkOrderExecution> WorkOrderExecutions { get; set; }
+
+        //追溯信息
         public DbSet<TraceInfo> TraceInfos { get; set; }
         public DbSet<TraceBomItem> TraceBomItems { get; set; }
         public DbSet<TraceProcItem> TraceProcItems { get; set; }
+
+        //批次排队
         public DbSet<BatchMaterialQueueItem> BatchMaterialQueueItems { get; set; }
         public DbSet<CtrlVsn> CtrlVs { get; set; }
+
+        //工艺路线
+        public DbSet<ProcessRoute> ProcessRoutes { get; set; }
+        public DbSet<RoutingOperation> RoutingOperations { get; set; }
+        public DbSet<ProductProcessState> ProductProcessStates { get; set; }
+
+        //质量检验
+        public DbSet<DefectRecord> DefectRecords { get; set; }
+        public DbSet<QualityInspectionDetail> QualityInspectionDetails { get; set; }
+        public DbSet<QualityInspectionItem> QualityInspectionItems { get; set; }
+        public DbSet<QualityInspectionRecord> QualityInspectionRecords { get; set; }
+        public DbSet<QualityInspectionStandard> QualityInspectionStandards { get; set; }
+        #endregion
+
+        #region 库存管理
+        public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<InventoryMaterial> InventoryMaterials { get; set; }
+        public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
+        public DbSet<InventoryStocktake> inventoryStocktakes { get; set; }
+
+
         #endregion
     }
 }

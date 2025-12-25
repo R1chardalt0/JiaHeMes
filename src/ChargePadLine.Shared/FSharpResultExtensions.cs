@@ -108,5 +108,91 @@ namespace ChargePadLine.Shared
 
             return list.ToOkResult<IList<TOk>, TError>();
         }
+
+        // Extension methods for Task<FSharpResult<T, TError>> to support LINQ query syntax
+        public static async Task<FSharpResult<TOk3, TError>> SelectMany<TOk1, TError, TOk2, TOk3>(
+            this Task<FSharpResult<TOk1, TError>> source,
+            Func<TOk1, Task<FSharpResult<TOk2, TError>>> selector,
+            Func<TOk1, TOk2, TOk3> resultSelector)
+        {
+            var result1 = await source;
+            if (result1.IsError)
+            {
+                return result1.ErrorValue.ToErrResult<TOk3, TError>();
+            }
+
+            var result2 = await selector(result1.ResultValue);
+            if (result2.IsError)
+            {
+                return result2.ErrorValue.ToErrResult<TOk3, TError>();
+            }
+
+            return resultSelector(result1.ResultValue, result2.ResultValue).ToOkResult<TOk3, TError>();
+        }
+
+        public static async Task<FSharpResult<TOk2, TError>> SelectMany<TOk1, TError, TOk2>(
+            this Task<FSharpResult<TOk1, TError>> source,
+            Func<TOk1, Task<FSharpResult<TOk2, TError>>> selector)
+        {
+            var result1 = await source;
+            if (result1.IsError)
+            {
+                return result1.ErrorValue.ToErrResult<TOk2, TError>();
+            }
+
+            return await selector(result1.ResultValue);
+        }
+
+        public static async Task<FSharpResult<TOk2, TError>> Select<TOk1, TError, TOk2>(
+            this Task<FSharpResult<TOk1, TError>> source,
+            Func<TOk1, TOk2> selector)
+        {
+            var result = await source;
+            return result.SelectOk(selector);
+        }
+
+        public static async Task<FSharpResult<TOk, TError>> WithOkResult<TOk, TError>(
+            this Task<TOk> task,
+            TOk okValue)
+        {
+            var result = await task;
+            return okValue.ToOkResult<TOk, TError>();
+        }
+
+        // Extension method for Task<T> to convert nullable results to FSharpResult
+        public static async Task<FSharpResult<T, TError>> MapNullableToResult<T, TError>(
+            this Task<T> task,
+            Func<TError> errorFactory)
+            where T : class
+        {
+            var result = await task;
+            if (result == null)
+            {
+                return errorFactory().ToErrResult<T, TError>();
+            }
+            return result.ToOkResult<T, TError>();
+        }
+
+        public static async Task<FSharpResult<T, TError>> MapNullableToResult<T, TError>(
+            this Task<T?> task,
+            Func<TError> errorFactory)
+            where T : struct
+        {
+            var result = await task;
+            if (!result.HasValue)
+            {
+                return errorFactory().ToErrResult<T, TError>();
+            }
+            return result.Value.ToOkResult<T, TError>();
+        }
+
+        // Extension method for Task<FSharpResult<T, TError>> to transform errors
+        public static async Task<FSharpResult<T, TError2>> SelectError<T, TError1, TError2>(
+            this Task<FSharpResult<T, TError1>> task,
+            Func<TError1, TError2> mapError)
+        {
+            var result = await task;
+            return result.SelectError(mapError);
+        }
     }
 }
