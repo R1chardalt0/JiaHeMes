@@ -1,6 +1,7 @@
-﻿using ChargePadLine.Entitys.Systems;
+using ChargePadLine.Entitys.Systems;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,7 @@ namespace ChargePadLine.Entitys.Trace.ProcessRouting
         /// <summary>
         /// 工艺路线ID
         /// </summary>
+        [Key]
         public Guid Id { get; set; }
 
         /// <summary>
@@ -38,7 +40,9 @@ namespace ChargePadLine.Entitys.Trace.ProcessRouting
         /// 状态 0-禁用 1-启用
         /// </summary>
         public int Status { get; set; } = 0;
+        [NotMapped]
         public Dictionary<Guid, RoutingOperation> Nodes { get; set; } = new(); // Key: OperationId
+        [NotMapped]
         public List<Guid> StartNodes => Nodes.Values.Where(n => !n.Predecessors.Any()).Select(n => n.OperationId).ToList();
 
     }

@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -13,12 +14,15 @@ namespace ChargePadLine.Entitys.Trace.ProcessRouting
     [Table("mes_routingOperation")]
     public class RoutingOperation
     {
+        [Key]
         public Guid OperationId { get; set; }          // 工序唯一ID
         public string StationId { get; set; }            // 工站ID
         public string Resource { get; set; }
         public bool Required { get; set; } = true;       // 是否必经
         public bool AllowSkip { get; set; } = false;     // 是否允许跳过（仅对非Required有效或特殊场景）
+        [NotMapped]
         public List<string> Predecessors { get; set; } = new(); // 前置工序ID列表（空表示起始节点）
+        [NotMapped]
         public List<string> Successors { get; set; } = new();   // 后续工序ID列表
     }
 }
