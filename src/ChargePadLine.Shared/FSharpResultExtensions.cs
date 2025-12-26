@@ -167,7 +167,7 @@ namespace ChargePadLine.Shared
             return okValue.ToOkResult<TOk, TError>();
         }
 
-        // Extension method for Task<T> to convert nullable results to FSharpResult
+        // Extension method for Task<T?> to convert nullable results to FSharpResult
         public static async Task<FSharpResult<T, TError>> MapNullableToResult<T, TError>(
             this Task<T?> task,
             Func<TError> errorFactory)

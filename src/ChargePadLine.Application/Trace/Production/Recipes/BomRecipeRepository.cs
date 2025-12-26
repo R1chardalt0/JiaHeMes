@@ -22,6 +22,15 @@ namespace ChargePadLine.Application.Trace.Production.Recipes
             _context = context;
         }
 
+        public async Task<BomRecipe?> FindAsync(int bomRecipeId)
+        {
+            var dbSet = _context.Set<BomRecipe>();
+            return await dbSet
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .FirstOrDefaultAsync(x => x.Id == bomRecipeId);
+        }
+
         public async Task<BomRecipeItem?> FindBomItemByCodeWithNoTrackAsync(string bomItemCode)
         {
             var dbSet = _context.Set<BomRecipeItem>();
@@ -37,6 +46,24 @@ namespace ChargePadLine.Application.Trace.Production.Recipes
             var dbSet = _context.Set<BomRecipe>();
             var query = dbSet.AsQueryable();
             return await query.RetrievePagedListAsync(page, size);
+        }
+
+        public async Task<BomRecipe> AddAsync(BomRecipe entity, bool saveChanges)
+        {
+            var dbSet = _context.Set<BomRecipe>();
+            var addedEntity = await dbSet.AddAsync(entity);
+            
+            if (saveChanges)
+            {
+                await _context.SaveChangesAsync();
+            }
+            
+            return addedEntity.Entity;
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync();
         }
     }
 }

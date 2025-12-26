@@ -1,5 +1,6 @@
-﻿using ChargePadLine.Application.Trace.Production.BatchQueue;
+using ChargePadLine.Application.Trace.Production.BatchQueue;
 using ChargePadLine.Application.Trace.Production.Recipes;
+using ChargePadLine.Application.Trace.Production.TraceInformation;
 using ChargePadLine.Application.Trace.Production.WorkOrders;
 using ChargePadLine.DbContexts.Repository;
 using ChargePadLine.Service.Migration;
@@ -30,6 +31,11 @@ namespace ChargePadLine.Application
             services.AddScoped<WorkOrderBiz>();
             // BOM配方服务
             services.AddScoped<IBomRecipeRepository, BomRecipeRepository>();
+            services.AddScoped<IMaterialRepository, MaterialRepository>();
+            services.AddScoped<BomRecipeBiz>();
+            
+            // VSN控制服务
+            services.AddScoped<ICtrlVsnsService, CtrlVsnsService>();
 
             return services;
         }
