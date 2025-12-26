@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ChargePadLine.Service\ChargePadLine.Service.csproj" />
+    <ProjectReference Include="..\ChargePadLine.Application\ChargePadLine.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

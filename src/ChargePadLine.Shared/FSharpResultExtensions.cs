@@ -159,11 +159,18 @@ namespace ChargePadLine.Shared
             return okValue.ToOkResult<TOk, TError>();
         }
 
+        public static async Task<FSharpResult<TOk, TError>> ToOkResult<TOk, TError>(
+            this Task<int> task,
+            TOk okValue)
+        {
+            await task;
+            return okValue.ToOkResult<TOk, TError>();
+        }
+
         // Extension method for Task<T> to convert nullable results to FSharpResult
         public static async Task<FSharpResult<T, TError>> MapNullableToResult<T, TError>(
-            this Task<T> task,
+            this Task<T?> task,
             Func<TError> errorFactory)
-            where T : class
         {
             var result = await task;
             if (result == null)
@@ -171,19 +178,6 @@ namespace ChargePadLine.Shared
                 return errorFactory().ToErrResult<T, TError>();
             }
             return result.ToOkResult<T, TError>();
-        }
-
-        public static async Task<FSharpResult<T, TError>> MapNullableToResult<T, TError>(
-            this Task<T?> task,
-            Func<TError> errorFactory)
-            where T : struct
-        {
-            var result = await task;
-            if (!result.HasValue)
-            {
-                return errorFactory().ToErrResult<T, TError>();
-            }
-            return result.Value.ToOkResult<T, TError>();
         }
 
         // Extension method for Task<FSharpResult<T, TError>> to transform errors

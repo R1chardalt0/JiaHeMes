@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using ChargePadLine.Common.TokenModule.Models;
 using System.Reflection;
 using ChargePadLine.Service;
+using ChargePadLine.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment;
@@ -100,6 +101,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     // 注册数据库和业务服务
     services.AddDBServices(configuration);
     services.AddBusinessServices(configuration);
+    services.AddAppCoreServices(configuration);
 
     // 添加 CORS 策略（允许所有客户端，生产环境需限制具体源）
     // 服务端 CORS 策略（示例）
