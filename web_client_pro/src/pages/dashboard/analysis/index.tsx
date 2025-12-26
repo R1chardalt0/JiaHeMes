@@ -501,70 +501,70 @@ const Analysis: React.FC = () => {
       .custom-range-picker-dropdown .ant-picker-date-panel,
       .custom-range-picker-dropdown .ant-picker-time-panel,
       .custom-range-picker-dropdown .ant-picker-footer {
-        background: rgba(0,10,50,1) !important;
-        // border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: #ffffff !important;
+        border: 1px solid #f0f0f0 !important;
         border-radius: 8px !important;
       }
       .custom-range-picker-dropdown .ant-picker-header,
       .custom-range-picker-dropdown .ant-picker-time-panel-column,
       .custom-range-picker-dropdown .ant-picker-time-panel-column > li {
         background: transparent !important;
-        color: rgba(255, 255, 255, 0.85) !important;
-        border-color: rgba(255, 255, 255, 0.1) !important;
+        color: #000000 !important;
+        border-color: #f0f0f0 !important;
       }
       .custom-range-picker-dropdown .ant-picker-cell {
-        color: rgba(255, 255, 255, 0.65) !important;
+        color: rgba(0, 0, 0, 0.65) !important;
       }
       .custom-range-picker-dropdown .ant-picker-cell-in-view {
-        color: rgba(255, 255, 255, 0.85) !important;
+        color: rgba(0, 0, 0, 0.85) !important;
       }
       .custom-range-picker-dropdown .ant-picker-cell:hover:not(.ant-picker-cell-in-view) {
-        color: rgba(255, 255, 255, 0.3) !important;
+        color: rgba(0, 0, 0, 0.3) !important;
       }
       .custom-range-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
-        border-color: rgba(240,240,240,1) !important;
+        border-color: #1890ff !important;
       }
       .custom-range-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-in-range::before,
       .custom-range-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-hover::before {
-        background: rgba(24, 144, 255, 0.2) !important;
+        background: rgba(24, 144, 255, 0.1) !important;
       }
       .custom-range-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner,
       .custom-range-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner,
       .custom-range-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inner {
-        background: rgba(65,255,235,1) !important;
-        color: rgba(0,10,50,1) !important;
+        background: #1890ff !important;
+        color: #ffffff !important;
       }
       .custom-range-picker-dropdown .ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
-        color: rgba(255, 255, 255, 0.85) !important;
+        color: rgba(0, 0, 0, 0.85) !important;
       }
       .custom-range-picker-dropdown .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
-        background: rgba(65,255,235,1) !important;
-        color: rgba(0,10,50,1) !important;
+        background: #1890ff !important;
+        color: #ffffff !important;
       }
       .custom-range-picker-dropdown .ant-picker-now-btn,
       .custom-range-picker-dropdown .ant-picker-ok .ant-btn {
-        color: rgba(0,10,50,1) !important;
-        border-color: rgba(240,240,240,1) !important;
+        color: #000000 !important;
+        border-color: #d9d9d9 !important;
       }
       .custom-range-picker-dropdown .ant-picker-now-btn:hover,
       .custom-range-picker-dropdown .ant-picker-ok .ant-btn:hover {
-        color: rgba(0,10,50,1) !important;
-        border-color: rgba(65,255,235,1) !important;
+        color: #1890ff !important;
+        border-color: #1890ff !important;
       }
       .custom-range-picker-dropdown .ant-picker-time-panel-cell-inner:hover {
-        background: rgba(255, 255, 255, 0.1) !important;
+        background: rgba(0, 0, 0, 0.05) !important;
       }
       .custom-range-picker-dropdown .ant-picker-header-super-prev-btn,
       .custom-range-picker-dropdown .ant-picker-header-prev-btn,
       .custom-range-picker-dropdown .ant-picker-header-next-btn,
       .custom-range-picker-dropdown .ant-picker-header-super-next-btn {
-        color: rgba(255, 255, 255, 0.45) !important;
+        color: rgba(0, 0, 0, 0.45) !important;
       }
       .custom-range-picker-dropdown .ant-picker-header-super-prev-btn:hover,
       .custom-range-picker-dropdown .ant-picker-header-prev-btn:hover,
       .custom-range-picker-dropdown .ant-picker-header-next-btn:hover,
       .custom-range-picker-dropdown .ant-picker-header-super-next-btn:hover {
-        color: rgba(65,255,235,1) !important;
+        color: #1890ff !important;
       }
     `;
     document.head.appendChild(style);
@@ -613,20 +613,20 @@ const Analysis: React.FC = () => {
               color: '#E6F7FF',
             },
             inputStyle: {
-              background: 'linear-gradient(180deg, rgba(7,16,35,0.55) 0%, rgba(7,16,35,0.35) 100%)',
-              border: '1px solid rgba(255,255,255,0.18)',
-              color: '#E6F7FF',
-              borderRadius: 10,
-              height: 36,
-              boxShadow: '0 4px 14px rgba(0,0,0,0.25) inset, 0 6px 16px rgba(0,0,0,0.25)',
+              background: '#ffffff',
+              border: '1px solid #d9d9d9',
+              color: '#000000',
+              borderRadius: 6,
+              height: 32,
+              boxShadow: 'none',
             },
             pickerStyle: {
-              background: 'linear-gradient(180deg, rgba(7,16,35,0.55) 0%, rgba(7,16,35,0.35) 100%)',
-              border: '1px solid rgba(255,255,255,0.18)',
-              color: '#E6F7FF',
-              borderRadius: 10,
-              height: 36,
-              boxShadow: '0 4px 14px rgba(0,0,0,0.25) inset, 0 6px 16px rgba(0,0,0,0.25)',
+              background: '#ffffff',
+              border: '1px solid #d9d9d9',
+              color: '#000000',
+              borderRadius: 6,
+              height: 32,
+              boxShadow: 'none',
               width: 'calc(100% - 80px)'
             }
           };
@@ -638,16 +638,14 @@ const Analysis: React.FC = () => {
       <div style={{
         marginBottom: 24,
         padding: 16,
-        borderRadius: 12,
-        background: 'linear-gradient(180deg, rgba(7,16,35,0.45) 0%, rgba(7,16,35,0.25) 100%)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-        backdropFilter: 'blur(6px)',
-        WebkitBackdropFilter: 'blur(6px)'
+        borderRadius: 8,
+        background: '#ffffff',
+        border: '1px solid #f0f0f0',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
       }}>
         <Row gutter={16} justify="space-between" align="middle" style={{margin:'0 16'}}>
           <Col xs={24} sm={24} md={8} lg={6} xl={5} style={{ display: 'flex', alignItems: 'center', marginBottom: 0 }}>
-            <span style={{ marginRight:0 }}>生产线：</span>
+            <span style={{ marginRight:0, color: '#000000', fontWeight: 500 }}>生产线：</span>
             <Input
               value={selectedProductionLine}
               onChange={(e) => setSelectedProductionLine(e.target.value)}
@@ -656,7 +654,7 @@ const Analysis: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={24} md={8} lg={6} xl={5} style={{ display: 'flex', alignItems: 'center', marginBottom: 0 }}>
-            <span style={{ marginRight:0 }}>设备名称：</span>
+            <span style={{ marginRight:0, color: '#000000', fontWeight: 500 }}>设备名称：</span>
             <Input
               value={deviceName}
               onChange={(e) => setDeviceName(e.target.value)}
@@ -665,7 +663,7 @@ const Analysis: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={24} md={8} lg={6} xl={5} style={{ display: 'flex', alignItems: 'center', marginBottom: 0 }}>
-            <span style={{ marginRight:0 }}>资源ID：</span>
+            <span style={{ marginRight:0, color: '#000000', fontWeight: 500 }}>资源ID：</span>
             <Input
               value={resource}
               onChange={(e) => setResource(e.target.value)}
@@ -674,7 +672,7 @@ const Analysis: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={24} md={24} lg={6} xl={9} style={{ display: 'flex', alignItems: 'center', marginBottom: 0  }}>
-            <span style={{ marginRight:0 }}>时间：</span>
+            <span style={{ marginRight:0, color: '#000000', fontWeight: 500 }}>时间：</span>
             {/* {renderTwoLineLabel('时间范围：')} */}
             <RangePicker
               value={dateRange}
@@ -687,22 +685,20 @@ const Analysis: React.FC = () => {
               format="YYYY-MM-DD HH:mm"
               style={{
                 flex: 1,
-                background: 'rgba(7, 16, 35, 0.4)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: 8,
-                color: '#fff',
-                height: 36,
-                boxShadow: '0 4px 14px rgba(0,0,0,0.2) inset, 0 2px 8px rgba(0,0,0,0.1)'
+                background: '#ffffff',
+                border: '1px solid #d9d9d9',
+                borderRadius: 6,
+                color: '#000000',
+                height: 32,
+                boxShadow: 'none'
               }}
               popupStyle={{
-                background: 'rgba(13, 25, 60, 0.95)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                borderRadius: 12,
+                background: '#ffffff',
+                border: '1px solid #f0f0f0',
+                borderRadius: 8,
                 padding: 12,
-                color: '#fff',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                color: '#000000',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
               }}
               dropdownClassName="custom-range-picker-dropdown"
               placeholder={['开始时间', '结束时间']}

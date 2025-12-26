@@ -29,7 +29,7 @@ namespace ChargePadLine.Service.Systems.Impl
         /// <summary>
         /// 获取角色列表
         /// </summary>
-        public async Task<PaginatedList<SysRole>> PaginationAsync(int current, int pageSize, string? roleName, string? RoleKey, DateTime? startTime, DateTime? endTime)
+        public async Task<PaginatedList<SysRole>> PaginationAsync(int current, int pageSize, string? roleName, string? RoleKey, string? status, DateTime? startTime, DateTime? endTime)
         {
             var query = _dbContext.SysRoles.OrderByDescending(s => s.CreateTime).AsQueryable();
             // 过滤角色名称
@@ -41,6 +41,31 @@ namespace ChargePadLine.Service.Systems.Impl
             if (!string.IsNullOrEmpty(RoleKey))
             {
                 query = query.Where(r => r.RoleKey.Contains(RoleKey));
+            }
+            // 过滤状态
+            // 前端传的 status: "0"=禁用, "1"=启用
+            // 后端实体 Status: "0"=正常(启用), "1"=停用(禁用)
+            // 需要做映射：前端"0"(禁用) -> 后端"1"(停用)，前端"1"(启用) -> 后端"0"(正常)
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                //string backendStatus;
+                //if (status == "0")
+                //{
+                //    // 前端传"0"(禁用)，查询后端"1"(停用)
+                //    backendStatus = "1";
+                //}
+                //else if (status == "1")
+                //{
+                //    // 前端传"1"(启用)，查询后端"0"(正常)
+                //    backendStatus = "0";
+                //}
+                //else
+                //{
+                //    // 其他值直接使用
+                //    backendStatus = status;
+                //}
+                //query = query.Where(r => r.Status != null && r.Status == backendStatus);
+                query = query.Where(r => r.Status == status);
             }
             // 过滤创建时间范围
             if (startTime.HasValue)

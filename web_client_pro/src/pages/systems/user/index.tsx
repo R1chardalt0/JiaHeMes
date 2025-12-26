@@ -351,10 +351,10 @@ const UserList: React.FC = () => {
     return fallback || '';
   };
 
-  // 统一判断是否启用（兼容 '1' | 1 | true | 'true'）
+  // 统一判断是否启用（后端：'0'=正常/启用，'1'=停用/禁用）
   const isEnabled = (val: any) => {
-    const v = String(val).toLowerCase();
-    return v === '1' || v === 'true';
+    const v = String(val ?? '0');
+    return v === '0';
   };
 
 
@@ -388,14 +388,33 @@ const UserList: React.FC = () => {
     {
       title: '状态',
       dataIndex: 'status',
+      valueEnum: {
+        '0': { text: '启用', status: 'Success' },
+        '1': { text: '禁用', status: 'Error' },
+      },
       render: (value, record) => {
         const uid = Number((record as any).userId);
-        const effective = (statusPatch && statusPatch[uid] !== undefined) ? statusPatch[uid] : value;
-        if (isEnabled(effective)) {
-          return <span><CheckCircleOutlined className="text-success mr-1" /> 启用</span>;
+        const rawStatus =
+          (statusPatch && statusPatch[uid] !== undefined)
+            ? statusPatch[uid]
+            : (record as any).status ?? value;
+
+        const enabled = isEnabled(rawStatus);
+
+        if (enabled) {
+          return (
+            <span>
+              <CheckCircleOutlined className="text-success mr-1" /> 启用
+            </span>
+          );
         }
-        return <span><CloseCircleOutlined className="text-error mr-1" /> 禁用</span>;
-      }
+        return (
+          <span>
+            <CloseCircleOutlined className="text-error mr-1" /> 禁用
+          </span>
+        );
+      },
+      hideInSearch: false,
     },
     { title: '创建时间', dataIndex: 'createTime', valueType: 'dateTime' },
     {
@@ -423,24 +442,19 @@ const UserList: React.FC = () => {
             rootClassName: 'delete-confirm-modal',
             styles: {
               content: {
-                background:
-                  'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-                backdropFilter: 'blur(14px) saturate(115%)',
-                WebkitBackdropFilter: 'blur(14px) saturate(115%)',
-                border: '1px solid rgba(72,115,255,0.28)',
-                boxShadow:
-                  '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+                background: '#ffffff',
+                border: '1px solid #f0f0f0',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
               },
               header: {
-                background: 'transparent',
-                borderBottom: '1px solid rgba(72,115,255,0.22)'
+                background: '#ffffff',
+                borderBottom: '1px solid #f0f0f0'
               },
               body: {
-                background: 'transparent'
+                background: '#ffffff'
               },
               mask: {
-                background: 'rgba(4,10,22,0.35)',
-                backdropFilter: 'blur(2px)'
+                background: 'rgba(0,0,0,0.1)'
               }
             },
             onOk: () => delRun([record.userId]),
@@ -463,33 +477,29 @@ const UserList: React.FC = () => {
     const uid = Number((record as any).userId);
     const effective = statusPatch?.[uid] ?? (record as any).status;
     const currentEnabled = isEnabled(effective);
-    const nextStatus = currentEnabled ? '0' : '1';
+    // 后端：'0'=启用，'1'=禁用。如果当前是启用，要禁用则设为'1'；如果当前是禁用，要启用则设为'0'
+    const nextStatus = currentEnabled ? '1' : '0';
     const actionText = currentEnabled ? '禁用' : '启用';
     Modal.confirm({
-      title: (<span style={{ color: '#fff' }}>{`确认${actionText}`}</span>),
-      content: (<span style={{ color: '#ffffff' }}>确定要{actionText}用户「{record.userName}」吗？</span>),
+      title: `确认${actionText}`,
+      content: `确定要${actionText}用户「${record.userName}」吗？`,
       className: 'status-confirm-modal',
       rootClassName: 'delete-confirm-modal status-confirm-modal',
       styles: {
         content: {
-          background:
-            'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-          backdropFilter: 'blur(14px) saturate(115%)',
-          WebkitBackdropFilter: 'blur(14px) saturate(115%)',
-          border: '1px solid rgba(72,115,255,0.28)',
-          boxShadow:
-            '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+          background: '#ffffff',
+          border: '1px solid #f0f0f0',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
         },
         header: {
-          background: 'transparent',
-          borderBottom: '1px solid rgba(72,115,255,0.22)'
+          background: '#ffffff',
+          borderBottom: '1px solid #f0f0f0'
         },
         body: {
-          background: 'transparent'
+          background: '#ffffff'
         },
         mask: {
-          background: 'rgba(4,10,22,0.35)',
-          backdropFilter: 'blur(2px)'
+          background: 'rgba(0,0,0,0.1)'
         }
       },
       okText: '确认',
@@ -503,9 +513,9 @@ const UserList: React.FC = () => {
   // 重置密码 确认并调用  
   const handleResetPwdConfirm = (record: UserItem) => {
     Modal.confirm({
-      title: (<span style={{ color: '#ffffff' }}>确认重置密码</span>),
+      title: '确认重置密码',
       content: (
-        <div style={{ color: '#ffffff' }}>
+        <div>
           <p>确定要重置用户「{record.userName}」的密码吗？</p>
           <p>重置后密码将变为默认密码：123456，请提醒用户及时修改。</p>
         </div>
@@ -514,24 +524,19 @@ const UserList: React.FC = () => {
       rootClassName: 'delete-confirm-modal reset-confirm-modal',
       styles: {
         content: {
-          background:
-            'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-          backdropFilter: 'blur(14px) saturate(115%)',
-          WebkitBackdropFilter: 'blur(14px) saturate(115%)',
-          border: '1px solid rgba(72,115,255,0.28)',
-          boxShadow:
-            '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+          background: '#ffffff',
+          border: '1px solid #f0f0f0',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
         },
         header: {
-          background: 'transparent',
-          borderBottom: '1px solid rgba(72,115,255,0.22)'
+          background: '#ffffff',
+          borderBottom: '1px solid #f0f0f0'
         },
         body: {
-          background: 'transparent'
+          background: '#ffffff'
         },
         mask: {
-          background: 'rgba(4,10,22,0.35)',
-          backdropFilter: 'blur(2px)'
+          background: 'rgba(0,0,0,0.1)'
         }
       },
       okText: '确认重置',
@@ -806,24 +811,19 @@ const UserList: React.FC = () => {
         rootClassName="user-info-drawer"
         styles={{
           content: {
-            background:
-              'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-            backdropFilter: 'blur(14px) saturate(115%)',
-            WebkitBackdropFilter: 'blur(14px) saturate(115%)',
-            borderLeft: '1px solid rgba(72,115,255,0.32)',
-            boxShadow:
-              '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+            background: '#ffffff',
+            borderLeft: '1px solid #f0f0f0',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
           },
           header: {
-            background: 'transparent',
-            borderBottom: '1px solid rgba(72,115,255,0.22)'
+            background: '#ffffff',
+            borderBottom: '1px solid #f0f0f0'
           },
           body: {
-            background: 'transparent'
+            background: '#ffffff'
           },
           mask: {
-            background: 'rgba(4,10,22,0.35)',
-            backdropFilter: 'blur(2px)'
+            background: 'rgba(0,0,0,0.1)'
           }
         }}
       >
@@ -857,7 +857,8 @@ const UserList: React.FC = () => {
                 title: '状态',
                 dataIndex: 'status',
                 valueEnum: {
-                  '1': { text: '启用', status: 'Success' },
+                  '0': { text: '启用', status: 'Success' },
+                  '1': { text: '禁用', status: 'Error' },
                 }
               },
               { title: '创建时间', dataIndex: 'createTime', valueType: 'dateTime' },

@@ -188,24 +188,19 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
       rootClassName="user-edit-drawer"
       styles={{
         content: {
-          background:
-            'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-          backdropFilter: 'blur(14px) saturate(115%)',
-          WebkitBackdropFilter: 'blur(14px) saturate(115%)',
-          borderLeft: '1px solid rgba(72,115,255,0.32)',
-          boxShadow:
-            '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+          background: '#ffffff',
+          borderLeft: '1px solid #f0f0f0',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
         },
         header: {
-          background: 'transparent',
-          borderBottom: '1px solid rgba(72,115,255,0.22)'
+          background: '#ffffff',
+          borderBottom: '1px solid #f0f0f0'
         },
         body: {
-          background: 'transparent'
+          background: '#ffffff'
         },
         mask: {
-          background: 'rgba(4,10,22,0.35)',
-          backdropFilter: 'blur(2px)'
+          background: 'rgba(0,0,0,0.1)'
         }
       }}
     >
@@ -234,6 +229,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
           name="nickName"
           label="姓名"
           colProps={{ span: 12 }}
+          placeholder="请输入姓名"
           rules={[{ required: true, message: '请输入姓名' }, { max: 20, message: '姓名最多20个字符' }]}
         />
 
@@ -251,13 +247,9 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
             showSearch: true,
             popupClassName: 'user-edit-drawer-dropdown',
             dropdownStyle: {
-              background:
-                'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-              backdropFilter: 'blur(12px) saturate(115%)',
-              WebkitBackdropFilter: 'blur(12px) saturate(115%)',
-              border: '1px solid rgba(72,115,255,0.28)',
-              boxShadow:
-                '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+              background: '#ffffff',
+              border: '1px solid #f0f0f0',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
             }
           }}
         />
@@ -266,6 +258,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
           name="phoneNumber"
           label="手机号码"
           colProps={{ span: 12 }}
+          placeholder={"请输入手机号码"}
           rules={[
             { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码（11位数字，以1开头，第二位为3-9）' },
           ]}
@@ -276,6 +269,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
           name="email"
           label="邮箱"
           colProps={{ span: 12 }}
+          placeholder={"请输入邮箱"}
           rules={[
             { type: 'email', message: '请输入正确的邮箱格式' },
           ]}
@@ -286,6 +280,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
           name="userName"
           label="工号"
           colProps={{ span: 12 }}
+          placeholder={"请输入工号"}
           rules={[
             { required: true, message: '请输入工号' }, 
             { max: 20, message: '工号最多20个字符' },
@@ -299,6 +294,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
             name="password"
             label="用户密码"
             colProps={{ span: 12 }}
+            placeholder={"请输入密码"}
             rules={[
               { required: true, message: '请输入密码' },
               { min: 6, message: '密码长度不能少于6个字符' },
@@ -318,13 +314,9 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
             allowClear: true,
             popupClassName: 'user-edit-drawer-dropdown',
             dropdownStyle: {
-              background:
-                'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-              backdropFilter: 'blur(12px) saturate(115%)',
-              WebkitBackdropFilter: 'blur(12px) saturate(115%)',
-              border: '1px solid rgba(72,115,255,0.28)',
-              boxShadow:
-                '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+              background: '#ffffff',
+              border: '1px solid #f0f0f0',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
             }
           }}
         />
@@ -341,13 +333,9 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
             mode: 'multiple',
             popupClassName: 'user-edit-drawer-dropdown',
             dropdownStyle: {
-              background:
-                'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-              backdropFilter: 'blur(12px) saturate(115%)',
-              WebkitBackdropFilter: 'blur(12px) saturate(115%)',
-              border: '1px solid rgba(72,115,255,0.28)',
-              boxShadow:
-                '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+              background: '#ffffff',
+              border: '1px solid #f0f0f0',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
             }
           }}
         />

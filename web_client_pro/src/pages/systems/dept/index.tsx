@@ -131,7 +131,7 @@ const DeptManagement: React.FC = () => {
             title: '状态',
             dataIndex: 'status',
             valueEnum: {
-                '0': { text: '正常', status: 'Success' },
+                '0': { text: '启用', status: 'Success' },
                 '1': { text: '停用', status: 'Error' }
             }
         },
@@ -221,26 +221,23 @@ const DeptManagement: React.FC = () => {
             rootClassName: 'delete-confirm-modal',
             styles: {
                 content: {
-                    background:
-                        'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-                    border: '1px solid rgba(72,115,255,0.32)',
-                    boxShadow:
-                        '0 0 0 1px rgba(72,115,255,0.15) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)',
-                    color: '#fff',
+                    background: '#ffffff',
+                    border: '1px solid #f0f0f0',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
                 },
                 header: {
-                    background: 'transparent',
-                    borderBottom: '1px solid rgba(72,115,255,0.22)',
+                    background: '#ffffff',
+                    borderBottom: '1px solid #f0f0f0'
                 },
                 body: {
-                    color: 'rgba(255,255,255,0.85)',
+                    background: '#ffffff'
                 },
                 footer: {
-                    borderTop: '1px solid rgba(72,115,255,0.22)',
+                    background: '#ffffff',
+                    borderTop: '1px solid #f0f0f0'
                 },
                 mask: {
-                    background: 'rgba(4,10,22,0.45)',
-                    backdropFilter: 'blur(3px)',
+                    background: 'rgba(0,0,0,0.1)'
                 },
             },
             okText: '确认',
@@ -348,26 +345,113 @@ const DeptManagement: React.FC = () => {
             <ProTable<DeptItem>
                 actionRef={actionRef}
                 columns={columns}
-                request={async () => {
-                    // 使用树形数据，不使用分页
+                // 使用树形数据，不走后端分页，在前端根据搜索条件进行过滤
+                request={async (params) => {
                     if (deptTreeData && Array.isArray(deptTreeData)) {
-                        // 计算总记录数（包括所有子节点）
+                        const { deptName, leader, phone, status, orderNum } = params || {};
+
+                        // 1. 扁平化树，方便过滤
+                        const flatten = (nodes: DeptItem[]): DeptItem[] => {
+                            const result: DeptItem[] = [];
+                            nodes.forEach((node) => {
+                                result.push(node);
+                                if (node.children && node.children.length > 0) {
+                                    result.push(...flatten(node.children));
+                                }
+                            });
+                            return result;
+                        };
+
+                        let flatList = flatten(deptTreeData);
+
+                        // 2. 按条件过滤
+                        if (deptName) {
+                            const keyword = String(deptName).trim();
+                            if (keyword) {
+                                flatList = flatList.filter((item) =>
+                                    (item.deptName || '').toString().includes(keyword),
+                                );
+                            }
+                        }
+
+                        if (leader) {
+                            const keyword = String(leader).trim();
+                            if (keyword) {
+                                flatList = flatList.filter((item) =>
+                                    (item.leader || '').toString().includes(keyword),
+                                );
+                            }
+                        }
+
+                        if (phone) {
+                            const keyword = String(phone).trim();
+                            if (keyword) {
+                                flatList = flatList.filter((item) =>
+                                    (item.phone || '').toString().includes(keyword),
+                                );
+                            }
+                        }
+
+                        // 部门排序
+                        if (orderNum !== undefined && orderNum !== null && orderNum !== '') {
+                            const num = Number(orderNum);
+                            if (!Number.isNaN(num)) {
+                                flatList = flatList.filter((item) => {
+                                    const value = (item as any).orderNum;
+                                    return value === num || Number(value) === num;
+                                });
+                            }
+                        }
+
+                        if (status !== undefined && status !== null && status !== '') {
+                            const s = String(status);
+                            flatList = flatList.filter((item) => item.status === s);
+                        }
+
+                        // 3. 根据过滤结果重建树：保留匹配节点及其父节点
+                        const filterTree = (nodes: DeptItem[]): DeptItem[] => {
+                            const result: DeptItem[] = [];
+                            nodes.forEach((node) => {
+                                const children = node.children ? filterTree(node.children) : [];
+                                const selfMatch = flatList.some((x) => x.deptId === node.deptId);
+                                if (selfMatch || children.length > 0) {
+                                    result.push({
+                                        ...node,
+                                        children: children.length > 0 ? children : undefined,
+                                    });
+                                }
+                            });
+                            return result;
+                        };
+
+                        const hasFilter =
+                            (deptName && String(deptName).trim()) ||
+                            (leader && String(leader).trim()) ||
+                            (phone && String(phone).trim()) ||
+                            (orderNum !== undefined && orderNum !== null && orderNum !== '') ||
+                            (status !== undefined && status !== null && status !== '');
+
+                        const filteredTree = hasFilter ? filterTree(deptTreeData) : deptTreeData;
+
+                        // 4. 重新计算总数（包括所有子节点）
                         const countNodes = (nodes: DeptItem[]): number => {
                             let count = nodes.length;
-                            nodes.forEach(node => {
+                            nodes.forEach((node) => {
                                 if (node.children && node.children.length > 0) {
                                     count += countNodes(node.children);
                                 }
                             });
                             return count;
                         };
-                        const total = countNodes(deptTreeData);
+                        const total = countNodes(filteredTree);
+
                         return {
-                            data: deptTreeData,
-                            total: total,
+                            data: filteredTree,
+                            total,
                             success: true,
                         };
                     }
+
                     return {
                         data: [],
                         total: 0,
@@ -473,24 +557,19 @@ const DeptManagement: React.FC = () => {
                 rootClassName="dept-edit-modal"
                 styles={{
                   content: {
-                    background:
-                      'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-                    backdropFilter: 'blur(14px) saturate(115%)',
-                    WebkitBackdropFilter: 'blur(14px) saturate(115%)',
-                    border: '1px solid rgba(72,115,255,0.28)',
-                    boxShadow:
-                      '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+                    background: '#ffffff',
+                    border: '1px solid #f0f0f0',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
                   },
                   header: {
-                    background: 'transparent',
-                    borderBottom: '1px solid rgba(72,115,255,0.22)'
+                    background: '#ffffff',
+                    borderBottom: '1px solid #f0f0f0'
                   },
                   body: {
-                    background: 'transparent'
+                    background: '#ffffff'
                   },
                   mask: {
-                    background: 'rgba(4,10,22,0.35)',
-                    backdropFilter: 'blur(2px)'
+                    background: 'rgba(0,0,0,0.1)'
                   }
                 }}
             >
@@ -509,15 +588,11 @@ const DeptManagement: React.FC = () => {
                             treeData={deptTree || []}
                             fieldNames={{ label: 'deptName', value: 'deptId', children: 'children' }}
                             treeDefaultExpandAll
-                            popupClassName="glass-dropdown"
+                            popupClassName="dept-edit-modal-dropdown"
                             dropdownStyle={{
-                              background:
-                                'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-                              backdropFilter: 'blur(12px) saturate(115%)',
-                              WebkitBackdropFilter: 'blur(12px) saturate(115%)',
-                              border: '1px solid rgba(72,115,255,0.28)',
-                              boxShadow:
-                                '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+                              background: '#ffffff',
+                              border: '1px solid #f0f0f0',
+                              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
                             }}
                         />
                     </Form.Item>
@@ -556,7 +631,7 @@ const DeptManagement: React.FC = () => {
                         label="显示排序"
                         rules={[{ required: true, message: '请输入排序号' }]}
                     >
-                        <InputNumber min={0} style={{ width: '100%' }} />
+                        <InputNumber min={0} style={{ width: '100%' }} placeholder="请输入排序号" />
                     </Form.Item>
 
                     <Form.Item
@@ -590,24 +665,19 @@ const DeptManagement: React.FC = () => {
                 rootClassName="dept-info-drawer"
                 styles={{
                   content: {
-                    background:
-                      'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-                    backdropFilter: 'blur(14px) saturate(115%)',
-                    WebkitBackdropFilter: 'blur(14px) saturate(115%)',
-                    borderLeft: '1px solid rgba(72,115,255,0.32)',
-                    boxShadow:
-                      '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+                    background: '#ffffff',
+                    borderLeft: '1px solid #f0f0f0',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
                   },
                   header: {
-                    background: 'transparent',
-                    borderBottom: '1px solid rgba(72,115,255,0.22)'
+                    background: '#ffffff',
+                    borderBottom: '1px solid #f0f0f0'
                   },
                   body: {
-                    background: 'transparent'
+                    background: '#ffffff'
                   },
                   mask: {
-                    background: 'rgba(4,10,22,0.35)',
-                    backdropFilter: 'blur(2px)'
+                    background: 'rgba(0,0,0,0.1)'
                   }
                 }}
             >

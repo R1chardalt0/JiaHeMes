@@ -251,24 +251,19 @@ const ProductionLineManagement: React.FC = () => {
               rootClassName: 'delete-confirm-modal',
               styles: {
                 content: {
-                  background:
-                    'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-                  backdropFilter: 'blur(14px) saturate(115%)',
-                  WebkitBackdropFilter: 'blur(14px) saturate(115%)',
-                  border: '1px solid rgba(72,115,255,0.28)',
-                  boxShadow:
-                    '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+                  background: '#ffffff',
+                  border: '1px solid #f0f0f0',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
                 },
                 header: {
-                  background: 'transparent',
-                  borderBottom: '1px solid rgba(72,115,255,0.22)'
+                  background: '#ffffff',
+                  borderBottom: '1px solid #f0f0f0'
                 },
                 body: {
-                  background: 'transparent'
+                  background: '#ffffff'
                 },
                 mask: {
-                  background: 'rgba(4,10,22,0.35)',
-                  backdropFilter: 'blur(2px)'
+                  background: 'rgba(0,0,0,0.1)'
                 }
               },
               onOk: () => delRun([record.productionLineId]),
@@ -481,24 +476,19 @@ const ProductionLineManagement: React.FC = () => {
         rootClassName="production-line-info-drawer"
         styles={{
           content: {
-            background:
-              'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-            backdropFilter: 'blur(14px) saturate(115%)',
-            WebkitBackdropFilter: 'blur(14px) saturate(115%)',
-            borderLeft: '1px solid rgba(72,115,255,0.32)',
-            boxShadow:
-              '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+            background: '#ffffff',
+            borderLeft: '1px solid #f0f0f0',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
           },
           header: {
-            background: 'transparent',
-            borderBottom: '1px solid rgba(72,115,255,0.22)'
+            background: '#ffffff',
+            borderBottom: '1px solid #f0f0f0'
           },
           body: {
-            background: 'transparent'
+            background: '#ffffff'
           },
           mask: {
-            background: 'rgba(4,10,22,0.35)',
-            backdropFilter: 'blur(2px)'
+            background: 'rgba(0,0,0,0.1)'
           }
         }}
         footer={[

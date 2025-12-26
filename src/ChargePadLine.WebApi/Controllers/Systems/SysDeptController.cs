@@ -18,7 +18,7 @@ namespace ChargePadLine.WebApi.Controllers.Systems
         /// 获取部门分页列表
         /// </summary>
         [HttpGet]
-        public async Task<PagedResp<SysDept>> GetDeptPaginationAsync(string? deptName, string? status, int current, int pageSize = 50)
+        public async Task<PagedResp<SysDept>> GetDeptPaginationAsync(string? deptName, int? orderNum, string? status, int current, int pageSize = 50)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace ChargePadLine.WebApi.Controllers.Systems
                 {
                     pageSize = 100;
                 }
-                var list = await _deptService.PaginationAsync(current, pageSize, deptName, status);
+                var list = await _deptService.PaginationAsync(current, pageSize, deptName, orderNum, status);
                 return RespExtensions.MakePagedSuccess(list);
             }
             catch
