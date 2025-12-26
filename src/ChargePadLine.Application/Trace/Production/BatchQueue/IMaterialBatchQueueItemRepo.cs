@@ -19,6 +19,27 @@ namespace ChargePadLine.Application.Trace.Production.BatchQueue
     public interface IMaterialBatchQueueItemRepo 
     {
         /// <summary>
+        /// 添加物料批队列项
+        /// </summary>
+        /// <param name="entity">要添加的实体</param>
+        /// <param name="saveChanges">是否立即保存更改</param>
+        /// <returns>添加的实体</returns>
+        Task<BatchMaterialQueueItem> AddAsync(BatchMaterialQueueItem entity, bool saveChanges = true);
+
+        /// <summary>
+        /// 保存更改到数据库
+        /// </summary>
+        /// <returns></returns>
+        Task<int> SaveChangesAsync();
+
+        /// <summary>
+        /// 根据ID查找物料批队列项
+        /// </summary>
+        /// <param name="id">物料批队列项ID</param>
+        /// <returns></returns>
+        Task<BatchMaterialQueueItem?> FindAsync(int id);
+
+        /// <summary>
         /// 检查指定批次是否已经存在(不管是否已经删除). 如果存在,返回第一个匹配的队列项; 否则返回null
         /// </summary>
         /// <param name="bomItemCode"></param>
