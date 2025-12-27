@@ -28,12 +28,21 @@ namespace ChargePadLine.Application
             // 物料批队列服务
             services.AddScoped<IMaterialBatchQueueItemRepo, MaterialBatchQueueItemRepo>();
             services.AddScoped<MaterialBatchQueueBiz>();
-            services.AddScoped<WorkOrderBiz>();
+         
             // BOM配方服务
             services.AddScoped<IBomRecipeRepository, BomRecipeRepository>();
             services.AddScoped<IMaterialRepository, MaterialRepository>();
             services.AddScoped<BomRecipeBiz>();
-            
+
+            // WorkOrder服务
+            services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
+            services.AddScoped<IWorkOrderExecutionRepository, WorkOrderExecutionRepository>();
+            services.AddScoped<WorkOrderBiz>();
+
+            // TraceInfo服务
+            services.AddScoped<ITraceInfoRepository, TraceInfoRepository>();
+            services.AddScoped<TraceInfoBiz>();
+
             // VSN控制服务
             services.AddScoped<ICtrlVsnsService, CtrlVsnsService>();
 

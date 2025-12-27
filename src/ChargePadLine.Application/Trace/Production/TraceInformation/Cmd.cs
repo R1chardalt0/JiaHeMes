@@ -150,17 +150,18 @@ namespace ChargePadLine.Application.Trace.Production.Traceinfo
                  .ToOkResult<CmdSucc_TraceInfo, IErr_追溯信息_增加BOM子项>();
         }
 
-        public static FSharpResult<TraceBomItem, IErr_追溯信息_删除BOM子项> RemoveBomItem(CmdArg_TraceInfo_RemoveBomItem arg)
+        public static FSharpResult<CmdSucc_TraceInfo, IErr_追溯信息_删除BOM子项> RemoveBomItem(CmdArg_TraceInfo_RemoveBomItem arg)
         {
             var pbi = arg.ProdBomItem;
             if (pbi.IsDeleted)
             {
                 return new IErr_追溯信息_删除BOM子项.AlreadyDeleted(pbi.Id)
-                    .ToErrResult<TraceBomItem, IErr_追溯信息_删除BOM子项>();
+                    .ToErrResult<CmdSucc_TraceInfo, IErr_追溯信息_删除BOM子项>();
             }
             pbi.IsDeleted = true;
             pbi.DeletedAt = DateTimeOffset.UtcNow;
-            return pbi.ToOkResult<TraceBomItem, IErr_追溯信息_删除BOM子项>();
+            return new CmdSucc_TraceInfo(arg.TraceInfo, new List<ITraceInfoEvent>())
+                .ToOkResult<CmdSucc_TraceInfo, IErr_追溯信息_删除BOM子项>();
         }
 
         public static FSharpResult<CmdSucc_TraceInfo, IErr_追溯信息_增加PROC子项> AddProcItem( CmdArg_TraceInfo_AddProcItem arg)
@@ -207,17 +208,18 @@ namespace ChargePadLine.Application.Trace.Production.Traceinfo
         }
 
 
-        public static FSharpResult<TraceProcItem, IErr_追溯信息_删除Proc子项> RemoveProcItem(CmdArg_TraceInfo_RemoveProcItem arg)
+        public static FSharpResult<CmdSucc_TraceInfo, IErr_追溯信息_删除Proc子项> RemoveProcItem(CmdArg_TraceInfo_RemoveProcItem arg)
         {
             var pbi = arg.ProdProcItem;
             if (pbi.IsDeleted)
             {
                 return new IErr_追溯信息_删除Proc子项.AlreadyDeleted(pbi.Id)
-                    .ToErrResult<TraceProcItem, IErr_追溯信息_删除Proc子项>();
+                    .ToErrResult<CmdSucc_TraceInfo, IErr_追溯信息_删除Proc子项>();
             }
             pbi.IsDeleted = true;
             pbi.DeletedAt = DateTimeOffset.UtcNow;
-            return pbi.ToOkResult<TraceProcItem, IErr_追溯信息_删除Proc子项>();
+            return new CmdSucc_TraceInfo(arg.TraceInfo, new List<ITraceInfoEvent>())
+                .ToOkResult<CmdSucc_TraceInfo, IErr_追溯信息_删除Proc子项>();
         }
 
 

@@ -1,4 +1,4 @@
-﻿using ChargePadLine.Entitys.Trace.Production;
+using ChargePadLine.Entitys.Trace.Production;
 using ChargePadLine.Entitys.Trace.TraceInformation;
 using ChargePadLine.Service;
 
@@ -37,6 +37,27 @@ namespace ChargePadLine.Application.Trace.Production.TraceInformation
         /// <param name="limit"></param>
         /// <returns></returns>
         Task<IList<Guid>> SearchExpiredRecordsAsync(int expiry, int limit);
+
+        /// <summary>
+        /// 添加TraceInfo记录
+        /// </summary>
+        /// <param name="traceInfo">TraceInfo对象</param>
+        /// <param name="saveChanges">是否保存更改</param>
+        /// <returns></returns>
+        Task<TraceInfo> AddAsync(TraceInfo traceInfo, bool saveChanges);
+
+        /// <summary>
+        /// 根据ID查找TraceInfo
+        /// </summary>
+        /// <param name="id">TraceInfo ID</param>
+        /// <returns></returns>
+        Task<TraceInfo?> FindAsync(Guid id);
+
+        /// <summary>
+        /// 保存更改
+        /// </summary>
+        /// <returns></returns>
+        Task<int> SaveChangesAsync();
     }
 }
 
