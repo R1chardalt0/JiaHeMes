@@ -102,7 +102,7 @@ const Welcome: React.FC = () => {
     };
   }, []);
   return (
-    <PageContainer header={{ title: '欢迎使用精研科技 | 博研IOT管理系统' }} fixedHeader>
+    <PageContainer header={{ title: '欢迎使用MES管理系统' }} fixedHeader>
       {/** 注入统一面板样式常量 */}
       {/** @ts-ignore */}
       {(() => {
@@ -150,7 +150,7 @@ const Welcome: React.FC = () => {
           }}
         >
           <iframe
-            src="https://www.jsgian.com/#/"
+            src=""
             title="江苏精研科技官网"
             width="100%"
             height="100%"
