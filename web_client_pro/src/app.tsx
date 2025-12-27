@@ -34,24 +34,22 @@ const GlobalBackground: React.FC<{ children: React.ReactNode }> = ({ children })
       if (!anyWin.__panelStyles) {
         anyWin.__panelStyles = {
           panelStyle: {
-            background: 'rgba(30,30,30,0.1) ',
-            border: '1px solid rgba(255,255,255,0.18)',
-            borderRadius: 12,
-            boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
-            backdropFilter: 'blur(6px)',
-            WebkitBackdropFilter: 'blur(6px)',
+            background: '#ffffff',
+            border: '1px solid #f0f0f0',
+            borderRadius: 8,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             overflow: 'hidden',
           },
           headStyle: {
-            background: 'transparent',
-            color: '#f0f0f0ff',
-            borderBottom: '1px solid rgba(255,255,255,0.15)',
-            // fontWeight: 400,
+            background: '#fafafa',
+            color: 'rgba(0, 0, 0, 0.85)',
+            borderBottom: '1px solid #f0f0f0',
+            fontWeight: 600,
           },
           bodyStyle: {
-            background: 'transparent',
+            background: '#ffffff',
             padding: 16,
-            color: 'rgba(240,240,240,1)',
+            color: 'rgba(0, 0, 0, 0.85)',
           },
         };
       }
@@ -91,16 +89,7 @@ const GlobalBackground: React.FC<{ children: React.ReactNode }> = ({ children })
       }
     };
 
-    // 创建或获取背景层元素
-    let bgElement = document.getElementById('global-background-layer');
-    if (!bgElement) {
-      bgElement = document.createElement('div');
-      bgElement.id = 'global-background-layer';
-      // 放到 body 第一位，避免被其他绝对定位元素覆盖
-      document.body.insertBefore(bgElement, document.body.firstChild);
-    }
-    
-    // 更新背景的函数
+    // 更新背景的函数（仅应用面板样式，不再设置背景图）
     const updateBackground = () => {
       const currentPath = location.pathname;
       const isLoginPage = currentPath === loginPath || currentPath.startsWith('/user/login');
@@ -108,54 +97,8 @@ const GlobalBackground: React.FC<{ children: React.ReactNode }> = ({ children })
       if (!isLoginPage) {
         // 确保已注入统一面板样式
         ensurePanelStyles();
-        // 显示背景层
-        if (bgElement) {
-          bgElement.style.display = 'block';
-          bgElement.style.visibility = 'visible';
-          bgElement.style.position = 'fixed';
-          bgElement.style.top = '0';
-          bgElement.style.left = '0';
-          bgElement.style.right = '0';
-          bgElement.style.bottom = '0';
-          bgElement.style.width = '100%';
-          bgElement.style.height = '100%';
-          bgElement.style.zIndex = '0';
-          bgElement.style.pointerEvents = 'none';
-          bgElement.style.backgroundImage = "url('/images/background.jpg')";
-          bgElement.style.backgroundSize = 'cover';
-          bgElement.style.backgroundPosition = 'center';
-          bgElement.style.backgroundRepeat = 'no-repeat';
-          bgElement.style.backgroundAttachment = 'fixed';
-        }
-        // 同时给 html 和 body 添加背景类
-        document.documentElement.classList.add('global-background');
-        document.body.classList.add('global-background');
-        // 直接设置内联样式作为备用方案（使用 images/background.jpg）
-        document.body.style.setProperty('background-image', "url('/images/background.jpg')", 'important');
-        document.body.style.setProperty('background-size', 'cover', 'important');
-        document.body.style.setProperty('background-position', 'center', 'important');
-        document.body.style.setProperty('background-repeat', 'no-repeat', 'important');
-        document.body.style.setProperty('background-attachment', 'fixed', 'important');
-        console.log('✅ 已添加全局背景，当前路径:', currentPath);
-        console.log('✅ 背景层元素:', bgElement);
-        console.log('✅ body 背景样式:', document.body.style.backgroundImage);
         // 延迟应用卡片样式，等待页面节点渲染
         setTimeout(applyPanelStyles, 50);
-      } else {
-        // 隐藏背景层
-        if (bgElement) {
-          bgElement.style.display = 'none';
-          bgElement.style.visibility = 'hidden';
-        }
-        document.documentElement.classList.remove('global-background');
-        document.body.classList.remove('global-background');
-        // 清除内联样式
-        document.body.style.removeProperty('background-image');
-        document.body.style.removeProperty('background-size');
-        document.body.style.removeProperty('background-position');
-        document.body.style.removeProperty('background-repeat');
-        document.body.style.removeProperty('background-attachment');
-        console.log('❌ 已移除全局背景，当前路径:', currentPath);
       }
     };
     
@@ -172,46 +115,7 @@ const GlobalBackground: React.FC<{ children: React.ReactNode }> = ({ children })
       setTimeout(() => {
         if (!isLoginPage) {
           ensurePanelStyles();
-          if (bgElement) {
-            bgElement.style.display = 'block';
-            bgElement.style.visibility = 'visible';
-            bgElement.style.position = 'fixed';
-            bgElement.style.top = '0';
-            bgElement.style.left = '0';
-            bgElement.style.right = '0';
-            bgElement.style.bottom = '0';
-            bgElement.style.width = '100%';
-            bgElement.style.height = '100%';
-            bgElement.style.zIndex = '0';
-            bgElement.style.pointerEvents = 'none';
-            bgElement.style.backgroundImage = "url('/images/background.jpg')";
-            bgElement.style.backgroundSize = 'cover';
-            bgElement.style.backgroundPosition = 'center';
-            bgElement.style.backgroundRepeat = 'no-repeat';
-            bgElement.style.backgroundAttachment = 'fixed';
-          }
-          document.documentElement.classList.add('global-background');
-          document.body.classList.add('global-background');
-          document.body.style.setProperty('background-image', "url('/images/background.jpg')", 'important');
-          document.body.style.setProperty('background-size', 'cover', 'important');
-          document.body.style.setProperty('background-position', 'center', 'important');
-          document.body.style.setProperty('background-repeat', 'no-repeat', 'important');
-          document.body.style.setProperty('background-attachment', 'fixed', 'important');
-          console.log('✅ 路由变化：已添加全局背景，当前路径:', currentPath);
           setTimeout(applyPanelStyles, 50);
-        } else {
-          if (bgElement) {
-            bgElement.style.display = 'none';
-            bgElement.style.visibility = 'hidden';
-          }
-          document.documentElement.classList.remove('global-background');
-          document.body.classList.remove('global-background');
-          document.body.style.removeProperty('background-image');
-          document.body.style.removeProperty('background-size');
-          document.body.style.removeProperty('background-position');
-          document.body.style.removeProperty('background-repeat');
-          document.body.style.removeProperty('background-attachment');
-          console.log('❌ 路由变化：已移除全局背景，当前路径:', currentPath);
         }
       }, 100);
     });
@@ -235,20 +139,9 @@ const GlobalBackground: React.FC<{ children: React.ReactNode }> = ({ children })
     const observeTarget = document.querySelector('.ant-layout') || document.getElementById('root') || document.body;
     observer.observe(observeTarget, { childList: true, subtree: true });
 
-    // 清理函数：组件卸载时移除类和监听器
+    // 清理函数：组件卸载时移除监听器
     return () => {
       clearTimeout(timer);
-      if (bgElement) {
-        bgElement.style.display = 'none';
-        bgElement.style.visibility = 'hidden';
-      }
-      document.documentElement.classList.remove('global-background');
-      document.body.classList.remove('global-background');
-      document.body.style.removeProperty('background-image');
-      document.body.style.removeProperty('background-size');
-      document.body.style.removeProperty('background-position');
-      document.body.style.removeProperty('background-repeat');
-      document.body.style.removeProperty('background-attachment');
       unlisten();
       observer.disconnect();
       if (rafId) {
@@ -506,7 +399,7 @@ export const layout: RunTimeLayoutConfig = ({
           </Link>,
         ]
       : [],
-    menuHeaderRender: undefined,
+    menuHeaderRender: false,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
     // 增加一个 loading 的状态

@@ -121,7 +121,7 @@ const config: RuntimeConfig = {
     configProvider: {
       theme: {
         cssVar: true,
-        algorithm: theme.darkAlgorithm,
+        algorithm: theme.defaultAlgorithm,
         token: {
           fontFamily: 'AlibabaSans, sans-serif',
         },

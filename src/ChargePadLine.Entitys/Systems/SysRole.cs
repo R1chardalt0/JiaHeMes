@@ -103,7 +103,7 @@ namespace ChargePadLine.Entitys.Systems
                 DataScope = null,
                 MenuCheckStrictly = null,
                 DeptCheckStrictly = null,
-                Status = "1",
+                Status = "0",
                 DelFlag = null,
                 Flag = false,
                 MenuIds = new long[]

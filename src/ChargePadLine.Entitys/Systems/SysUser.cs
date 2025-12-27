@@ -143,6 +143,8 @@ namespace ChargePadLine.Entitys.Systems
                 LoginIp = "127.0.0.1",
                 LoginDate = DateTimeOffset.Now,
                 PwdUpdateDate = DateTimeOffset.Now,
+                CreateTime=DateTime.Now,
+                UpdateTime=DateTime.Now,
                 RoleIds = new long[] { 1 }, // 假设角色ID数组
                 PostIds = new long[] { 1 }  // 假设岗位ID数组
             };

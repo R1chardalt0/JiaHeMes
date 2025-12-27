@@ -153,24 +153,19 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
       rootClassName="device-edit-modal"
       styles={{
         content: {
-          background:
-            'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-          backdropFilter: 'blur(14px) saturate(115%)',
-          WebkitBackdropFilter: 'blur(14px) saturate(115%)',
-          border: '1px solid rgba(72,115,255,0.28)',
-          boxShadow:
-            '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+          background: '#ffffff',
+          border: '1px solid #f0f0f0',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
         },
         header: {
-          background: 'transparent',
-          borderBottom: '1px solid rgba(72,115,255,0.22)'
+          background: '#ffffff',
+          borderBottom: '1px solid #f0f0f0'
         },
         body: {
-          background: 'transparent'
+          background: '#ffffff'
         },
         mask: {
-          background: 'rgba(4,10,22,0.35)',
-          backdropFilter: 'blur(2px)'
+          background: 'rgba(0,0,0,0.1)'
         }
       }}
     >
@@ -207,15 +202,11 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
         >
           <Select
             placeholder="请选择所属生产线"
-            popupClassName="glass-dropdown"
+            popupClassName="device-edit-modal-dropdown"
             dropdownStyle={{
-              background:
-                'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-              backdropFilter: 'blur(12px) saturate(115%)',
-              WebkitBackdropFilter: 'blur(12px) saturate(115%)',
-              border: '1px solid rgba(72,115,255,0.28)',
-              boxShadow:
-                '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+              background: '#ffffff',
+              border: '1px solid #f0f0f0',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
             }}
           >
             {productionLines.map((line) => (
@@ -233,15 +224,11 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
         >
           <Select
             placeholder="请选择设备状态"
-            popupClassName="glass-dropdown"
+            popupClassName="device-edit-modal-dropdown"
             dropdownStyle={{
-              background:
-                'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-              backdropFilter: 'blur(12px) saturate(115%)',
-              WebkitBackdropFilter: 'blur(12px) saturate(115%)',
-              border: '1px solid rgba(72,115,255,0.28)',
-              boxShadow:
-                '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
+              background: '#ffffff',
+              border: '1px solid #f0f0f0',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
             }}
           >
             <Option value="1">启用</Option>

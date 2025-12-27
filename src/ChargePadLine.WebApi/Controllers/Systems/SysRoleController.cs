@@ -23,7 +23,7 @@ namespace ChargePadLine.WebApi.Controllers.Systems
         /// 获取角色列表
         /// </summary>
         [HttpGet("list")]
-        public async Task<PagedResp<SysRole>> GetRoleList(int current, int pageSize, string? roleName, string? roleKey, DateTime? startTime, DateTime? endTime)
+        public async Task<PagedResp<SysRole>> GetRoleList(int current, int pageSize, string? roleName, string? roleKey, string? status, DateTime? startTime, DateTime? endTime)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace ChargePadLine.WebApi.Controllers.Systems
                 {
                     pageSize = 100;
                 }
-                var list = await _roleService.PaginationAsync(current, pageSize, roleName, roleKey, startTime, endTime);
+                var list = await _roleService.PaginationAsync(current, pageSize, roleName, roleKey, status, startTime, endTime);
                 return RespExtensions.MakePagedSuccess(list);
             }
             catch

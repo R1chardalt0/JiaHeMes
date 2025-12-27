@@ -9,6 +9,7 @@ export async function getRoleList(
     pageSize?: number;
     roleName?: string;
     roleKey?: string;
+    status?: string;
     startTime?: string;
     endTime?: string;
   } = { current: 1, pageSize: 10 },
@@ -22,6 +23,7 @@ export async function getRoleList(
       pageSize: params.pageSize,
       roleName: params.roleName,
       roleKey: params.roleKey,
+      status: params.status,
       startTime: params.startTime,
       endTime: params.endTime
     },

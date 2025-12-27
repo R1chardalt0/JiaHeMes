@@ -10,7 +10,7 @@ namespace ChargePadLine.Service.Systems
     public interface IRoleService
     {
         // 获取角色列表
-        Task<PaginatedList<SysRole>> PaginationAsync(int current, int pageSize, string? roleName,string? RoleKey, DateTime? startTime, DateTime? endTime);
+        Task<PaginatedList<SysRole>> PaginationAsync(int current, int pageSize, string? roleName, string? RoleKey, string? status, DateTime? startTime, DateTime? endTime);
 
         // 获取角色详情
         Task<SysRole> GetRoleById(long roleId);

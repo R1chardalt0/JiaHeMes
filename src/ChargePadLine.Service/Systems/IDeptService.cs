@@ -24,9 +24,10 @@ namespace ChargePadLine.Service.Systems
         /// <param name="current"></param>
         /// <param name="pageSize"></param>
         /// <param name="deptName"></param>
+        /// <param name="orderNum"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        Task<PaginatedList<SysDept>> PaginationAsync(int current, int pageSize, string? deptName, string? status);
+        Task<PaginatedList<SysDept>> PaginationAsync(int current, int pageSize, string? deptName, int? orderNum, string? status);
 
         /// <summary>
         /// 根据部门ID获取部门信息

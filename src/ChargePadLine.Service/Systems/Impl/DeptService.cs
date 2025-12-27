@@ -76,15 +76,22 @@ namespace ChargePadLine.Service.Systems.Impl
         /// <param name="current"></param>
         /// <param name="pageSize"></param>
         /// <param name="deptName"></param>
+        /// <param name="orderNum"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public async Task<PaginatedList<SysDept>> PaginationAsync(int current, int pageSize, string? deptName, string? status)
+        public async Task<PaginatedList<SysDept>> PaginationAsync(int current, int pageSize, string? deptName, int? orderNum, string? status)
         {
             var query = this._dbContext.Set<SysDept>().OrderByDescending(s => s.CreateTime).AsQueryable();
             // 过滤部门名称
             if (!string.IsNullOrEmpty(deptName))
             {
                 query = query.Where(r => r.DeptName.Contains(deptName));
+            }
+
+            // 过滤部门排序
+            if (orderNum.HasValue)
+            {
+                query = query.Where(r => r.OrderNum == orderNum.Value);
             }
 
             // 过滤部门状态

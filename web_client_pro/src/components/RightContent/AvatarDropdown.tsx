@@ -34,7 +34,7 @@ export const AvatarName = () => {
   return (
     <span
       className="anticon"
-      style={{ color: '#ffffff', fontWeight: 700, letterSpacing: '0.5px' }}
+      style={{ color: '#000000', fontWeight: 700, letterSpacing: '0.5px' }}
     >
       {text}
     </span>

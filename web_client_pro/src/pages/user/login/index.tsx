@@ -1,4 +1,4 @@
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { LockOutlined, UserOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { LoginForm, ProFormText, ProFormInstance } from '@ant-design/pro-components';
 import {
   FormattedMessage,
@@ -56,10 +56,9 @@ const useStyles = createStyles(({ token }) => {
       flexDirection: 'column',
       height: '100vh',
       overflow: 'auto',
-      backgroundImage: `url(${(window as any)?.publicPath || '/'}Loginbackgrounds4.svg)`,
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center',
-      backgroundSize: 'cover',
+      backgroundImage:
+        "url('https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/V-_oS6r-i7wAAAAAAAAAAAAAFl94AQBr')",
+      backgroundSize: '100% 100%',
     },
   };
 });
@@ -84,6 +83,7 @@ const Lang = () => {
     </div>
   );
 };
+
 
 const LoginMessage: React.FC<{
   content: string;
@@ -261,11 +261,10 @@ const Login: React.FC = () => {
     <div className={styles.container}>
       <Helmet>
         <title>
-          {intl.formatMessage({
+          {`${intl.formatMessage({
             id: 'menu.login',
             defaultMessage: '登录页',
-          })}
-          {Settings.title && ` - ${Settings.title}`}
+          })}${Settings.title ? ` - ${Settings.title}` : ''}`}
         </title>
       </Helmet>
       <Lang />
@@ -275,93 +274,20 @@ const Login: React.FC = () => {
           padding: '32px 0',
         }}
       >
-        {/* 右侧居中容器，包裹 Logo 与登录表单 */}
-        <div
-          style={{
-            width: 450,
-            maxWidth: '90vw',
-            margin: 'calc(22vh - 1.5cm) calc(10vw - 0.5cm) 0 auto',
-            position: 'relative',
-            minHeight: 382,
-            padding: '32px 24px 28px',
-            boxSizing: 'border-box',
-          }}
-        >
-          {/* 背景面板：绝对定位，仅渲染一次 */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `url(${(window as any)?.publicPath || '/'}IOT-172.svg)`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center calc(50% + 1.0cm)',
-              backgroundSize: '85% 85%',
-              pointerEvents: 'none',
-            }}
-          />
-          {/* 自定义 Logo 区域：与容器同宽并置于其上方 */}
-            <div
-            style={{
-              width: '100%',
-              marginBottom: 16,
-              position: 'relative',
-              zIndex: 1,
-              marginTop: '-1.5cm',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              overflow: 'visible',
-            }}
-            >
-            <img
-              alt="logo"
-              src={`${(window as any)?.publicPath || '/'}logo-19.svg`}
-              style={{
-              width: '100%',
-              height: 100,
-              display: 'block',
-              objectFit: 'contain',
-              transform: 'scale(1.15)',
-              transformOrigin: 'center center',
-               // 添加动态效果
-               animation: 'slideInRight 2s ease-out',
-              }}
-            />
-            </div>
-
-          <LoginForm
-            formRef={formRef}
-            style={{
-              width: 250,
-              maxWidth: '90vw',
-              margin: '0.2cm auto 0',
-              position: 'relative',
-              zIndex: 1,
-            }}
+        <LoginForm
+          formRef={formRef}
           contentStyle={{
-            minWidth: 200,
-            maxWidth: '100%',
-            width: '100%',
-            textAlign: 'left',
+            minWidth: 280,
+            maxWidth: '75vw',
           }}
-          
-          title={null}
-          subTitle={null}
+          logo={null}
+          title="MES管理系统"
+          subTitle=" Webyao 是常州最具影响力的 Web 工程师"
           initialValues={initialFormValues}
-          // actions={[
-          //   <FormattedMessage
-          //     key="loginWith"
-          //     id="pages.login.loginWith"
-          //     defaultMessage="其他登录方式"
-          //   />,
-          //   <ActionIcons key="icons" />,
-          // ]}
           onFinish={async (values) => {
             await handleSubmit(values as UserLoginDto);
           }}
         >
-          {/** Tabs 被隐藏，仅保留账户密码登录 */}
-
           {status === 'error' && loginType === 'account' && (
             <LoginMessage
               content={intl.formatMessage({
@@ -370,7 +296,6 @@ const Login: React.FC = () => {
               })}
             />
           )}
-          {/** 仅显示账户密码登录表单 */}
           <>
             <ProFormText
               name="userName"
@@ -379,8 +304,8 @@ const Login: React.FC = () => {
                 prefix: <UserOutlined />,
               }}
               placeholder={intl.formatMessage({
-              id: 'pages.login.username.placeholder',
-              defaultMessage: '请输入工号',
+                id: 'pages.login.username.placeholder',
+                defaultMessage: '请输入工号',
               })}
               rules={[
                 {
@@ -413,37 +338,26 @@ const Login: React.FC = () => {
             />
             <div
               style={{
-                marginTop: 8,
-                marginBottom: 12,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
+                marginBottom: 24,
               }}
             >
               <Checkbox
                 checked={rememberPassword}
                 onChange={(e) => setRememberPassword(e.target.checked)}
               >
-                <span style={{ color: '#ffffff', fontSize: '14px' }}>记住密码</span>
+                <FormattedMessage
+                  id="pages.login.rememberMe"
+                  defaultMessage="记住密码"
+                />
               </Checkbox>
-              {/* <Button
-                type="link"
-                style={{ padding: 0, color: '#40a9ff', fontSize: 14 }}
-                onClick={() => setRegisterOpen(true)}
-              >
-                注册
-              </Button> */}
             </div>
           </>
-
-          {/** 手机号登录与验证码相关内容已注释，页面不再显示；自动登录与忘记密码已移除 */}
         </LoginForm>
         <RegisterModal
           open={registerOpen}
           onClose={() => setRegisterOpen(false)}
           onRegistered={handleRegisterSuccess}
         />
-        </div>
       </div>
       <Footer />
     </div>
