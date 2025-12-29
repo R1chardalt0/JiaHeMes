@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:DeviceManage.Converters;assembly=DeviceManage">
+
+    <!-- 布尔值反转转换器 -->
+    <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    
+    <!-- 空值转换器 -->
+    <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+
+</ResourceDictionary>
+
