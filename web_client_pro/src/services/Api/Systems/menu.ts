@@ -87,16 +87,17 @@ export async function getMenuDetail(
     }
   );
 }
+/** 删除菜单（后端为 /api/SysMenu/DeleteMenu/{menuId}） */
 export async function deleteMenu(
-  ids: number[], // 修改为数组类型
+  menuId: number,
   options?: Record<string, any>
 ) {
-  return request<{ code: number; msg: string; data: {} }>(
-    '/api/sysMenu/batch', // 使用批量删除接口
+  return request<{ code: number; msg: string; data: any }>(
+    `/api/SysMenu/DeleteMenu/${menuId}`,
     {
-      method: 'DELETE',
-      data: { ids }, // 发送ID数组到请求体
-      ...(options || {})
+      // 后端控制器 DeleteMenu 使用的是 [HttpPost("{menuId}")]，这里需使用 POST
+      method: 'POST',
+      ...(options || {}),
     }
   );
 }

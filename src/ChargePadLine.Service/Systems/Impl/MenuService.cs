@@ -162,33 +162,51 @@ namespace ChargePadLine.Service.Systems.Impl
 
         public async Task<int> DeleteMenuById(long menuId)
         {
-            // 使用数据库上下文获取事务，DbTransaction类型包含CommitAsync和RollbackAsync方法
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            // 说明：原实现每次递归都会 BeginTransactionAsync()，同一个 DbContext 连接上会触发
+            // "The connection is already in a transaction and cannot participate in another transaction."。
+            // 修复思路：只开启一次事务；递归删除时复用同一事务/DbContext。
+
+            // 已处于事务中则不再重复开启（例如上层调用已开启事务）
+            if (_dbContext.Database.CurrentTransaction != null)
             {
-                try
-                {
-                    // 删除子菜单
-                    var children = await _menuRepo.GetListAsync(m => m.ParentId == menuId);
-                    foreach (var child in children)
-                    {
-                        await DeleteMenuById(child.MenuId);
-                    }
-
-                    // 删除菜单角色关联
-                    await _roleMenuRepo.DeleteAsyncs(rm => rm.MenuId == menuId);
-
-                    // 删除当前菜单
-                    var result = await _menuRepo.DeleteAsyncs(m => m.MenuId == menuId);
-
-                    await transaction.CommitAsync();
-                    return result;
-                }
-                catch
-                {
-                    await transaction.RollbackAsync();
-                    throw;
-                }
+                return await DeleteMenuByIdInternal(menuId);
             }
+
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                var result = await DeleteMenuByIdInternal(menuId);
+                await transaction.CommitAsync();
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 递归删除菜单（不负责开启/提交事务）
+        /// </summary>
+        private async Task<int> DeleteMenuByIdInternal(long menuId)
+        {
+            var affected = 0;
+
+            // 删除子菜单（先删子再删父）
+            var children = await _menuRepo.GetListAsync(m => m.ParentId == menuId);
+            foreach (var child in children)
+            {
+                affected += await DeleteMenuByIdInternal(child.MenuId);
+            }
+
+            // 删除菜单角色关联
+            affected += await _roleMenuRepo.DeleteAsyncs(rm => rm.MenuId == menuId);
+
+            // 删除当前菜单
+            affected += await _menuRepo.DeleteAsyncs(m => m.MenuId == menuId);
+
+            return affected;
         }
 
         public async Task<List<SysMenu>> SelectMenuTree(long userId)
