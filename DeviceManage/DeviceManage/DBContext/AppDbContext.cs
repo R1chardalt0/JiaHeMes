@@ -12,9 +12,7 @@ namespace DeviceManage.DBContext
 {
     public class AppDbContext : DbContext
     {
-        private readonly IHostEnvironment _env;
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-       : base(options)
+        public AppDbContext(DbContextOptions<AppDbContext> options): base(options)
         {
         }
 
@@ -24,8 +22,6 @@ namespace DeviceManage.DBContext
 
             modelBuilder.ApplyConfiguration(new TagClaimEntityConfiguration());
 
-
-            // 配置其他实体
             modelBuilder.Entity<PlcDevice>(entity =>
             {
                 entity.HasKey(e => e.Id);
