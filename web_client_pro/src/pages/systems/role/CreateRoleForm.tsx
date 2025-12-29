@@ -120,7 +120,8 @@ const CreateRoleForm: React.FC<CreateRoleFormProps> = ({
       } else {
         // 新增模式
         form.resetFields();
-        form.setFieldsValue({ roleSort: 1, status: "1" });
+        // 后端：0=启用(正常)，1=禁用；新增默认启用
+        form.setFieldsValue({ roleSort: 1, status: "0" });
       }
     } else {
       form.resetFields();
