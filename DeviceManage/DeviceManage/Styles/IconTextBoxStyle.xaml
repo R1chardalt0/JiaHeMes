@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:customerControl="clr-namespace:DeviceManage.CustomerControl">
+    <Style TargetType="customerControl:IconTextBox">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="customerControl:IconTextBox">
+                    <Border
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            CornerRadius="3">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Background="White" Style="{StaticResource OperateBtnStyle}" 
+                                        Content="{TemplateBinding Icon}" FontSize="20" Width="30"
+                                        BorderThickness="0"
+                                        Foreground="Gray"/>
+                                <ScrollViewer Background="White" Grid.Column="1" x:Name="PART_ContentHost" />
+                            </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value> 
+        </Setter>
+    </Style>
+</ResourceDictionary>
