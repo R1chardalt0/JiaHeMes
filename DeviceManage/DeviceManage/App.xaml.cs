@@ -1,8 +1,12 @@
-﻿using DeviceManage.Services;
+﻿using DeviceManage.DBContext;
+using DeviceManage.Services;
 using DeviceManage.ViewModels;
 using DeviceManage.Views;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Configuration;
 using System.Data;
 using System.Windows;
@@ -32,6 +36,9 @@ namespace DeviceManage
             ConfigureServices(services);
             _serviceProvider = services.BuildServiceProvider();
 
+            //使用pgSql
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            InitializeDatabaseAndStartServices(_serviceProvider);
             // 创建主窗口
             var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
@@ -53,11 +60,24 @@ namespace DeviceManage
                 client.Timeout = TimeSpan.FromSeconds(timeout);
             });
 
+            // 注册 DbContext
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseNpgsql(_configuration.GetConnectionString("AppDbContext"));
+                options.UseNpgsql(s => s.MigrationsAssembly(typeof(App).Assembly.GetName().Name));
+                //抛出sql文本
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    options.EnableSensitiveDataLogging();
+                }
+            });
+
             // 注册ViewModels
             services.AddTransient<MainViewModel>();
 
             // 注册Windows
             services.AddTransient<MainWindow>();
+
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -65,7 +85,30 @@ namespace DeviceManage
             _serviceProvider?.Dispose();
             base.OnExit(e);
         }
+
+        #region 数据库服务
+        void InitializeDatabaseAndStartServices(IServiceProvider services)
+        {
+            using (var scope = services.CreateScope())
+            {
+                var scopedServices = scope.ServiceProvider;
+                try
+                {
+                    // 初始化AppDbContext数据库
+                    var dbContext = scopedServices.GetRequiredService<AppDbContext>();
+                    dbContext.Database.EnsureCreated();
+                    var logger = scopedServices.GetRequiredService<ILogger<App>>();
+                    logger.LogInformation("数据库创建成功");
+                }
+                catch (Exception ex)
+                {
+                    var logger = scopedServices.GetRequiredService<ILogger<App>>();
+                    logger.LogError(ex, "初始化过程中发生错误");
+                    throw;
+                }
+            }
+        }
+        #endregion
     }
-
-
 }
+
