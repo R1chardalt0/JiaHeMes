@@ -14,6 +14,7 @@ namespace DeviceManage.Models
     /// <summary>
     /// 数据点位实体
     /// </summary>
+    [Table("dm_tag")]
     public class Tag
     {
         /// <summary>

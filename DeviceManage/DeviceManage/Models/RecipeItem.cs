@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace DeviceManage.Models
 {
+    [Table("dm_recipeItem")]
     public class RecipeItem
     {
         /// <summary>
