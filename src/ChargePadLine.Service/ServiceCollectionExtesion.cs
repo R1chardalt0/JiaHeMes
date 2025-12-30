@@ -36,6 +36,8 @@ namespace ChargePadLine.Service
             services.AddScoped<IOperationLogService, OperationLogService>();
             // 历史记录服务（使用ReportDbContext）
             services.AddScoped<IHistoryProductTraceInfoService, HistoryProductTraceInfoService>();
+            // 工单服务
+            services.AddScoped<IWorkOrderService, WorkOrderService>();
             #endregion
 
             #region 数据迁移服务配置
