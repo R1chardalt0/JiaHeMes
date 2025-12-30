@@ -20,6 +20,9 @@ namespace DeviceManage
     {
         private ServiceProvider? _serviceProvider;
         private IConfiguration? _configuration;
+        
+        // 静态ServiceProvider供View访问
+        public static IServiceProvider? ServiceProvider { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -42,6 +45,9 @@ namespace DeviceManage
                 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
                 
                 _serviceProvider = services.BuildServiceProvider();
+                
+                // 设置静态ServiceProvider
+                ServiceProvider = _serviceProvider;
                 
                 // 设置ViewModel定位器
                 DeviceManage.Helpers.ViewModelLocator.SetServiceProvider(_serviceProvider);

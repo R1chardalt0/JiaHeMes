@@ -1,8 +1,8 @@
 using System.Windows.Input;
 using DeviceManage.Commands;
 using DeviceManage.Services;
-using GalaSoft.MvvmLight.Command;
-using RelayCommand = GalaSoft.MvvmLight.Command.RelayCommand;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System.Collections.Generic;
 
 namespace DeviceManage.ViewModels;
@@ -13,9 +13,9 @@ namespace DeviceManage.ViewModels;
 public class MainViewModel : ViewModelBase
 {
     private readonly ApiClient _apiClient;
-    private string _currentPageTitle = "仪表盘";
-    private object? _currentView;
-    private bool _sidebarVisible = true;
+    public ReactiveProperty<string> CurrentPageTitle { get; }
+    public ReactiveProperty<object?> CurrentView { get; }
+    public ReactiveProperty<bool> SidebarVisible { get; }
     
     // 页面映射字典
     private readonly Dictionary<string, PageInfo> _pageMap;
@@ -23,6 +23,11 @@ public class MainViewModel : ViewModelBase
     public MainViewModel(ApiClient apiClient)
     {
         _apiClient = apiClient;
+        
+        // 初始化ReactiveProperty
+        CurrentPageTitle = new ReactiveProperty<string>("仪表盘");
+        CurrentView = new ReactiveProperty<object?>();
+        SidebarVisible = new ReactiveProperty<bool>(true);
         
         // 初始化页面映射
         _pageMap = new Dictionary<string, PageInfo>
@@ -36,9 +41,9 @@ public class MainViewModel : ViewModelBase
             { "UserManagement", new PageInfo("用户管理", typeof(UserManagementViewModel)) }
         };
         
-        NavigateToCommand = new RelayCommand<string>(NavigateTo);
-        LogoutCommand = new RelayCommand(Logout);
-        ToggleSidebarCommand = new RelayCommand(ToggleSidebar);
+        NavigateToCommand = new ReactiveCommand<string>().WithSubscribe(NavigateTo);
+        LogoutCommand = new ReactiveCommand().WithSubscribe(Logout);
+        ToggleSidebarCommand = new ReactiveCommand().WithSubscribe(ToggleSidebar);
         
         // 默认加载仪表盘
         NavigateTo("Dashboard");
@@ -61,27 +66,9 @@ public class MainViewModel : ViewModelBase
 
     #region Properties
 
-    public string CurrentPageTitle
-    {
-        get => _currentPageTitle;
-        set { _currentPageTitle = value; OnPropertyChanged(); }
-    }
-
-    public object? CurrentView
-    {
-        get => _currentView;
-        set { _currentView = value; OnPropertyChanged(); }
-    }
-
-    public bool SidebarVisible
-    {
-        get => _sidebarVisible;
-        set { _sidebarVisible = value; OnPropertyChanged(); }
-    }
-
-    public ICommand NavigateToCommand { get; }
-    public ICommand LogoutCommand { get; }
-    public ICommand ToggleSidebarCommand { get; }
+    public ReactiveCommand<string> NavigateToCommand { get; }
+    public ReactiveCommand LogoutCommand { get; }
+    public ReactiveCommand ToggleSidebarCommand { get; }
 
     #endregion
 
@@ -95,7 +82,7 @@ public class MainViewModel : ViewModelBase
         }
 
         var pageInfo = _pageMap[pageName];
-        CurrentPageTitle = pageInfo.Title;
+        CurrentPageTitle.Value = pageInfo.Title;
         
         try
         {
@@ -117,12 +104,12 @@ public class MainViewModel : ViewModelBase
                     break;
             }
             
-            CurrentView = view;
+            CurrentView.Value = view;
         }
         catch (Exception)
         {
             // 处理导航错误
-            CurrentView = null;
+            CurrentView.Value = null;
         }
     }
 
@@ -133,7 +120,7 @@ public class MainViewModel : ViewModelBase
 
     private void ToggleSidebar()
     {
-        SidebarVisible = !SidebarVisible;
+        SidebarVisible.Value = !SidebarVisible.Value;
     }
 
     #endregion

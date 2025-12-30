@@ -9,12 +9,12 @@
         Title="设备管理系统" Height="800" Width="1400"
         WindowStartupLocation="CenterScreen"
         Background="#F0F2F5">
-    
+
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:SidebarToggleConverter x:Key="SidebarToggleConverter"/>
         <converters:ColumnWidthConverter x:Key="ColumnWidthConverter"/>
-        
+
         <!-- 现代按钮样式 -->
         <Style x:Key="ModernButton" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
@@ -47,7 +47,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
+
         <!-- 卡片样式 -->
         <Style x:Key="ModernCard" TargetType="Border">
             <Setter Property="Background" Value="White"/>
@@ -65,7 +65,7 @@
             </Setter>
         </Style>
     </Window.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -81,7 +81,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <!-- 左侧标题和菜单切换 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Content="{Binding SidebarVisible, Converter={StaticResource SidebarToggleConverter}}"
@@ -110,7 +110,7 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    
+
                     <Ellipse Width="40" Height="40" Fill="{StaticResource PrimaryBrush}" Margin="0,0,15,0">
                         <Ellipse.Effect>
                             <DropShadowEffect Color="Black" Opacity="0.2" BlurRadius="5" ShadowDepth="2"/>
@@ -121,7 +121,7 @@
                         <TextBlock Text="智能设备管理平台" FontSize="12" Foreground="#999" Margin="0,2,0,0"/>
                     </StackPanel>
                 </StackPanel>
-                
+
                 <!-- 右侧用户信息 -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" 
                            HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -129,7 +129,7 @@
                         <TextBlock Text="管理员" FontSize="14" FontWeight="SemiBold" Foreground="#333"/>
                         <TextBlock Text="管理员" FontSize="12" Foreground="#999"/>
                     </StackPanel>
-                    
+
                     <Border Background="{StaticResource PrimaryBrush}" CornerRadius="20" Padding="12,8" Cursor="Hand">
                         <TextBlock Text="退出登录" Foreground="White" FontWeight="Medium"/>
                     </Border>
@@ -140,20 +140,20 @@
         <!-- 主内容区 -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{Binding SidebarVisible, Converter={StaticResource ColumnWidthConverter}}"/>
+                <ColumnDefinition Width="{Binding SidebarVisible.Value, Converter={StaticResource ColumnWidthConverter}}"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- 左侧导航菜单 -->
             <Border Grid.Column="0" Background="White" 
                    BorderBrush="#E0E0E0" BorderThickness="0,1,1,0"
-                   Visibility="{Binding SidebarVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                   Visibility="{Binding SidebarVisible.Value, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    
+
                     <!-- 搜索框 -->
                     <Border Grid.Row="0" Margin="15,15,15,10" CornerRadius="20" Background="#F5F5F5">
                         <Grid>
@@ -163,24 +163,24 @@
                                       Foreground="#999" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
-                    
+
                     <!-- 导航菜单 -->
                     <ScrollViewer Grid.Row="1" Margin="0,0,0,15">
                         <StackPanel Margin="15,0,15,15">
                             <TextBlock Text="主菜单" FontSize="12" Foreground="#999" Margin="10,10,0,10"/>
-                            
+
                             <Button Content="🏠 仪表盘" Command="{Binding NavigateToCommand}"
                                    CommandParameter="Dashboard" Style="{StaticResource ModernButton}" Margin="0,5"
-                                   Background="{StaticResource PrimaryBrush}"/>
+                                   Background="#673AB7"/>
                             <Button Content="🔌 PLC设备管理" Command="{Binding NavigateToCommand}"
                                    CommandParameter="PLCDeviceManagement" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
                             <Button Content="📊 设备状态" Command="{Binding NavigateToCommand}"
                                    CommandParameter="DeviceStatus" Style="{StaticResource ModernButton}" Margin="0,5"/>
                             <Button Content="⚙️ 配置管理" Command="{Binding NavigateToCommand}"
                                    CommandParameter="Configuration" Style="{StaticResource ModernButton}" Margin="0,5"/>
-                            
+
                             <TextBlock Text="系统管理" FontSize="12" Foreground="#999" Margin="10,20,0,10"/>
-                            
+
                             <Button Content="🔧 系统设置" Command="{Binding NavigateToCommand}"
                                    CommandParameter="SystemSettings" Style="{StaticResource ModernButton}" Margin="0,5"/>
                             <Button Content="📋 日志管理" Command="{Binding NavigateToCommand}"
@@ -200,12 +200,12 @@
                 </Grid.RowDefinitions>
 
                 <!-- 页面标题 -->
-                <TextBlock Grid.Row="0" Text="{Binding CurrentPageTitle}" 
+                <TextBlock Grid.Row="0" Text="{Binding CurrentPageTitle.Value}" 
                           FontSize="24" FontWeight="SemiBold" Margin="0,0,0,20" Foreground="#333"/>
 
                 <!-- 页面内容 -->
                 <Border Grid.Row="1" Style="{StaticResource ModernCard}" Padding="0">
-                    <ContentControl Content="{Binding CurrentView}" 
+                    <ContentControl Content="{Binding CurrentView.Value}" 
                                    HorizontalContentAlignment="Stretch" 
                                    VerticalContentAlignment="Stretch"/>
                 </Border>

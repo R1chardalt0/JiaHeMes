@@ -1,4 +1,4 @@
-﻿using DeviceManage.Commands;
+using DeviceManage.Commands;
 using DeviceManage.Models;
 using DeviceManage.Services.DeviceMagService;
 using Microsoft.Extensions.Logging;
@@ -6,88 +6,62 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace DeviceManage.ViewModels
 {
     public class PlcDeviceViewModel : ViewModelBase
     {
         public readonly IPlcDeviceService _plcDeviceService;
-        private ObservableCollection<PlcDevice> _plcDevices;
-        private PlcDevice _selectedPlcDevice;
-        private bool _isEditing;
         private readonly ILogger<PlcDeviceViewModel> _logger;
+        
+        public ReactiveProperty<ObservableCollection<PlcDevice>> PlcDevices { get; }
+        public ReactiveProperty<PlcDevice> SelectedPlcDevice { get; }
+        public ReactiveProperty<bool> IsEditing { get; }
 
         public PlcDeviceViewModel(IPlcDeviceService plcDeviceService, ILogger<PlcDeviceViewModel> logger)
         {
             this._plcDeviceService = plcDeviceService;
-            _plcDevices = new ObservableCollection<PlcDevice>();
-            _selectedPlcDevice = new PlcDevice();
-            LoadPlcDevicesCommand = new RelayCommand(async () => await LoadPlcDevicesAsync());
-            AddPlcDeviceCommand = new RelayCommand(async () => await AddPlcDeviceAsync(), () => !IsEditing);
-            UpdatePlcDeviceCommand = new RelayCommand(async () => await UpdatePlcDeviceAsync(), () => SelectedPlcDevice != null && IsEditing);
-            DeletePlcDeviceCommand = new RelayCommand(async () => await DeletePlcDeviceAsync(), () => SelectedPlcDevice != null && !IsEditing);
-            CancelCommand = new RelayCommand(CancelEdit, () => IsEditing);
-            EditCommand = new RelayCommand(EditPlcDevice, () => SelectedPlcDevice != null && !IsEditing);
+            this._logger = logger;
+            
+            // 初始化ReactiveProperty
+            PlcDevices = new ReactiveProperty<ObservableCollection<PlcDevice>>(new ObservableCollection<PlcDevice>());
+            SelectedPlcDevice = new ReactiveProperty<PlcDevice>(new PlcDevice());
+            IsEditing = new ReactiveProperty<bool>(false);
+            
+            // 初始化命令
+            LoadPlcDevicesCommand = new ReactiveCommand().WithSubscribe(async () => await LoadPlcDevicesAsync());
+            AddPlcDeviceCommand = new ReactiveCommand();
+            AddPlcDeviceCommand.Subscribe(async _ => await AddPlcDeviceAsync());
+            UpdatePlcDeviceCommand = new ReactiveCommand();
+            UpdatePlcDeviceCommand.Subscribe(async _ => await UpdatePlcDeviceAsync());
+            DeletePlcDeviceCommand = new ReactiveCommand();
+            DeletePlcDeviceCommand.Subscribe(async _ => await DeletePlcDeviceAsync());
+            CancelCommand = new ReactiveCommand();
+            CancelCommand.Subscribe(_ => CancelEdit());
+            EditCommand = new ReactiveCommand();
+            EditCommand.Subscribe(_ => EditPlcDevice());
 
             // 初始化时加载数据
             Task.Run(async () => await LoadPlcDevicesAsync());
-            _logger = logger;
         }
 
-        public ObservableCollection<PlcDevice> PlcDevices
-        {
-            get => _plcDevices;
-            set
-            {
-                _plcDevices = value;
-                OnPropertyChanged();
-            }
-        }
+        
 
-        public PlcDevice SelectedPlcDevice
-        {
-            get => _selectedPlcDevice;
-            set
-            {
-                _selectedPlcDevice = value;
-                OnPropertyChanged();
-                // 更新命令状态
-                ((RelayCommand)UpdatePlcDeviceCommand).RaiseCanExecuteChanged();
-                ((RelayCommand)DeletePlcDeviceCommand).RaiseCanExecuteChanged();
-                ((RelayCommand)EditCommand).RaiseCanExecuteChanged();
-                ((RelayCommand)CancelCommand).RaiseCanExecuteChanged();
-            }
-        }
-
-        public bool IsEditing
-        {
-            get => _isEditing;
-            set
-            {
-                _isEditing = value;
-                OnPropertyChanged();
-                // 更新命令状态
-                ((RelayCommand)AddPlcDeviceCommand).RaiseCanExecuteChanged();
-                ((RelayCommand)UpdatePlcDeviceCommand).RaiseCanExecuteChanged();
-                ((RelayCommand)DeletePlcDeviceCommand).RaiseCanExecuteChanged();
-                ((RelayCommand)EditCommand).RaiseCanExecuteChanged();
-                ((RelayCommand)CancelCommand).RaiseCanExecuteChanged();
-            }
-        }
-
-        public ICommand LoadPlcDevicesCommand { get; }
-        public ICommand AddPlcDeviceCommand { get; }
-        public ICommand UpdatePlcDeviceCommand { get; }
-        public ICommand DeletePlcDeviceCommand { get; }
-        public ICommand EditCommand { get; }
-        public ICommand CancelCommand { get; }
+        public ReactiveCommand LoadPlcDevicesCommand { get; }
+        public ReactiveCommand AddPlcDeviceCommand { get; }
+        public ReactiveCommand UpdatePlcDeviceCommand { get; }
+        public ReactiveCommand DeletePlcDeviceCommand { get; }
+        public ReactiveCommand EditCommand { get; }
+        public ReactiveCommand CancelCommand { get; }
 
         private async Task LoadPlcDevicesAsync()
         {
             try
             {
                 var devices = await _plcDeviceService.GetAllPlcDevicesAsync();
-                PlcDevices = new ObservableCollection<PlcDevice>(devices);
+                PlcDevices.Value = new ObservableCollection<PlcDevice>(devices);
             }
             catch (Exception ex)
             {
@@ -100,9 +74,9 @@ namespace DeviceManage.ViewModels
         {
             try
             {
-                var newDevice = await _plcDeviceService.AddPlcDeviceAsync(SelectedPlcDevice);
-                PlcDevices.Add(newDevice);
-                SelectedPlcDevice = new PlcDevice(); // 清空当前选中项
+                var newDevice = await _plcDeviceService.AddPlcDeviceAsync(SelectedPlcDevice.Value);
+                PlcDevices.Value.Add(newDevice);
+                SelectedPlcDevice.Value = new PlcDevice(); // 清空当前选中项
             }
             catch (Exception ex)
             {
@@ -115,11 +89,11 @@ namespace DeviceManage.ViewModels
         {
             try
             {
-                var updatedDevice = await _plcDeviceService.UpdatePlcDeviceAsync(SelectedPlcDevice);
-                var index = PlcDevices.IndexOf(PlcDevices.First(d => d.Id == SelectedPlcDevice.Id));
+                var updatedDevice = await _plcDeviceService.UpdatePlcDeviceAsync(SelectedPlcDevice.Value);
+                var index = PlcDevices.Value.IndexOf(PlcDevices.Value.First(d => d.Id == SelectedPlcDevice.Value.Id));
                 if (index != -1)
                 {
-                    PlcDevices[index] = updatedDevice;
+                    PlcDevices.Value[index] = updatedDevice;
                 }
                 CancelEdit(); // 完成编辑后取消编辑状态
             }
@@ -132,13 +106,13 @@ namespace DeviceManage.ViewModels
 
         private async Task DeletePlcDeviceAsync()
         {
-            if (SelectedPlcDevice != null && SelectedPlcDevice.Id > 0)
+            if (SelectedPlcDevice.Value != null && SelectedPlcDevice.Value.Id > 0)
             {
                 try
                 {
-                    await _plcDeviceService.DeletePlcDeviceAsync(SelectedPlcDevice.Id);
-                    PlcDevices.Remove(SelectedPlcDevice);
-                    SelectedPlcDevice = new PlcDevice(); // 清空当前选中项
+                    await _plcDeviceService.DeletePlcDeviceAsync(SelectedPlcDevice.Value.Id);
+                    PlcDevices.Value.Remove(SelectedPlcDevice.Value);
+                    SelectedPlcDevice.Value = new PlcDevice(); // 清空当前选中项
                 }
                 catch (Exception ex)
                 {
@@ -150,12 +124,12 @@ namespace DeviceManage.ViewModels
 
         private void EditPlcDevice()
         {
-            IsEditing = true;
+            IsEditing.Value = true;
         }
 
         private void CancelEdit()
         {
-            IsEditing = false;
+            IsEditing.Value = false;
             // 重新加载数据以取消未保存的更改
             Task.Run(async () => await LoadPlcDevicesAsync());
         }
