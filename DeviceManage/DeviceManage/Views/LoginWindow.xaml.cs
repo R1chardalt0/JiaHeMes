@@ -13,11 +13,10 @@ namespace DeviceManage.Views
     /// </summary>
     public partial class LoginWindow : Window
     {
-        // 本地模拟账号 + 对应密码（后续替换成接口/数据库校验即可）
         private static readonly Dictionary<string, string> FakeUsers = new()
         {
              #region
-            { "admin", "admin123" },
+            { "1", "1" },
             { "QE", "QE123" },
             { "ME", "ME123" },
             { "TL", "TL123" },
@@ -27,7 +26,6 @@ namespace DeviceManage.Views
 
         private readonly MainViewModel _mainViewModel;
 
-        // 由 DI 创建（App.xaml.cs 里 services.AddTransient<LoginWindow>() 会走这个构造函数）
         public LoginWindow(MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
@@ -44,14 +42,12 @@ namespace DeviceManage.Views
             var userName = (UserNameTextBox.Text ?? string.Empty).Trim();
             var pwd = GetCurrentPassword();
 
-            // 若输入的账号不在上述5个中，提示「用户名不存在」
             if (!FakeUsers.ContainsKey(userName))
             {
                 MessageBox.Show("用户名不存在", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // 若账号存在但密码不正确，提示「密码错误」
             if (FakeUsers[userName] != pwd)
             {
                 MessageBox.Show("密码错误", "提示", MessageBoxButton.OK, MessageBoxImage.Error);

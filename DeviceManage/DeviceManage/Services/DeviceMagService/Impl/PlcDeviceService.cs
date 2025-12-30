@@ -43,9 +43,22 @@ namespace DeviceManage.Services.DeviceMagService.Impl
 
         public async Task<PlcDevice> UpdatePlcDeviceAsync(PlcDevice plcDevice)
         {
-            _plcDeviceRepo.Update(plcDevice);
+            var existingDevice = await _plcDeviceRepo.GetAsync(r => r.Id == plcDevice.Id);
+            if (existingDevice == null)
+            {
+                _logger.LogWarning($"尝试更新不存在的PLC设备，ID: {plcDevice.Id}");
+                throw new InvalidOperationException($"PLC设备不存在，ID: {plcDevice.Id}");
+            }
+            existingDevice.PLCName = plcDevice.PLCName;
+            existingDevice.IPAddress = plcDevice.IPAddress;
+            existingDevice.Port = plcDevice.Port;
+            existingDevice.Protocolc = plcDevice.Protocolc;
+            existingDevice.Model = plcDevice.Model;
+            existingDevice.Remarks = plcDevice.Remarks;
+
+            _plcDeviceRepo.Update(existingDevice);
             await _dbContext.SaveChangesAsync();
-            return plcDevice;
+            return existingDevice;
         }
 
         public async Task DeletePlcDeviceAsync(int id)
