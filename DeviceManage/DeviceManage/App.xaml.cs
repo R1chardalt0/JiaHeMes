@@ -20,9 +20,6 @@ namespace DeviceManage
     {
         private ServiceProvider? _serviceProvider;
         private IConfiguration? _configuration;
-        
-        // 静态ServiceProvider供View访问
-        public static IServiceProvider? ServiceProvider { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -39,17 +36,20 @@ namespace DeviceManage
                 // 配置依赖注入
                 var services = new ServiceCollection();
                 ConfigureServices(services);
+                _serviceProvider = services.BuildServiceProvider();
                 services.AddDeviceManageServices(_configuration);
+                //使用pgSql
+                AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+                InitializeDatabaseAndStartServices(_serviceProvider);
 
-            //使用pgSql
-            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-            InitializeDatabaseAndStartServices(_serviceProvider);
-            // 创建主窗口
-            //var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
-            //mainWindow.Show();
-
-            var mainWindow = _serviceProvider.GetRequiredService<LoginWindow>();
-            mainWindow.Show();
+                var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
+                loginWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"应用程序启动失败: {ex.Message}\n\n异常详情: {ex.StackTrace}", "启动错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown(1);
+            }
         }
 
         private void ConfigureServices(IServiceCollection services)
@@ -80,8 +80,8 @@ namespace DeviceManage
                 }
             });
 
-            // 注册ViewModels - 简化的MVVM模式
-            services.AddSingleton<MainViewModel>();
+            // 注册ViewModels
+            services.AddTransient<MainViewModel>();
             services.AddTransient<DashboardViewModel>();
             services.AddTransient<PlcDeviceViewModel>();
             services.AddTransient<DeviceStatusViewModel>();
