@@ -1,0 +1,238 @@
+﻿<Window x:Class="DeviceManage.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="登录"
+        Width="500" 
+        Height="450"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        Background="#F5F7FB">
+
+    <Window.Resources>
+        <!-- 输入框提示文字样式 -->
+        <Style x:Key="PlaceholderTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="Foreground" Value="#A0A9B8"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- 背景渐变（属性元素必须放在子元素前面，否则会导致 XAML 编译错误） -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F5F7FB" Offset="0"/>
+                <GradientStop Color="#EEF3FF" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- 轻量悬浮提示（默认隐藏，不影响现有布局） -->
+        <Border x:Name="TopToast"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,14,14,0"
+                Padding="14,10"
+                CornerRadius="10"
+                Background="#CC2F7D32"
+                Opacity="0"
+                Visibility="Collapsed"
+                Panel.ZIndex="999"
+                IsHitTestVisible="False">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="✓"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           VerticalAlignment="Center"
+                           Margin="0,0,10,0"/>
+                <TextBlock x:Name="TopToastText"
+                           Text="登录成功"
+                           FontSize="13"
+                           Foreground="White"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 顶部标题（放在卡片外侧） -->
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Margin="0,30,0,0">
+            <TextBlock Text="欢迎使用设备管理系统"
+                       FontSize="30"
+                       FontWeight="SemiBold"
+                       Foreground="#1F2A44"/>
+        </StackPanel>
+
+        <!-- 居中卡片容器（整体下移一点，让标题完全在外部） -->
+        <Border HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Margin="0,40,0,0"
+                Width="360"
+                MaxWidth="360"
+                Padding="28"
+                Background="White"
+                CornerRadius="16"
+                BorderBrush="#E6EAF2"
+                BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <!-- 账号输入框 -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- 账号与密码之间间距：与密码和按钮之间的 24 保持一致 -->
+                    <RowDefinition Height="0"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="24"/>
+                    <!-- 密码输入框 -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- 密码与登录按钮之间间距（保持 24） -->
+                    <RowDefinition Height="24"/>
+                    <!-- 登录按钮 -->
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 账号：上移到卡片顶部（Grid.Row 从 2 调整为 0） -->
+                <Border Grid.Row="0"
+                        Background="#F7F9FC"
+                        BorderBrush="#DCE3EE"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="12,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="👤" 
+                                   FontSize="16"
+                                   VerticalAlignment="Center"
+                                   Foreground="#6B7A90"/>
+
+                        <Grid Grid.Column="1" Margin="10,0,0,0">
+                            <TextBlock x:Name="UserNamePlaceholder"
+                                       Text="请输入账号"
+                                       FontSize="17"
+                                       Style="{StaticResource PlaceholderTextBlockStyle}"/>
+                            <TextBox x:Name="UserNameTextBox"
+                                     FontSize="17"
+                                     FontWeight="Bold"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Foreground="#1F2A44"
+                                     Height="26"
+                                     VerticalContentAlignment="Center"
+                                     TextChanged="TextBox_TextChanged"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- 密码 -->
+                <Border Grid.Row="4"
+                        Background="#F7F9FC"
+                        BorderBrush="#DCE3EE"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="12,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="🔒" 
+                                   FontSize="16"
+                                   VerticalAlignment="Center"
+                                   Foreground="#6B7A90"/>
+
+                        <Grid Grid.Column="1" Margin="10,0,0,0">
+                            <TextBlock x:Name="PasswordPlaceholder"
+                                       Text="请输入密码"
+                                       FontSize="17"
+                                       Style="{StaticResource PlaceholderTextBlockStyle}"/>
+                            <!-- 用于隐藏密码 -->
+                            <PasswordBox x:Name="HiddenPasswordBox"
+                                         FontSize="17"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         Foreground="#1F2A44"
+                                         Height="26"
+                                         PasswordChanged="PasswordBox_PasswordChanged"/>
+                            <!-- 用于显示密码 -->
+                            <TextBox x:Name="VisiblePasswordTextBox"
+                                     FontSize="17"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Foreground="#1F2A44"
+                                     Height="26"
+                                     VerticalContentAlignment="Center"
+                                     Visibility="Collapsed"
+                                     TextChanged="TextBox_TextChanged"/>
+                        </Grid>
+
+                        <!-- 显示/隐藏密码按钮 -->
+                        <ToggleButton x:Name="ShowPasswordToggleButton"
+                                      Grid.Column="2"
+                                      FontSize="17"
+                                      VerticalAlignment="Center"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      Cursor="Hand"
+                                      Checked="ShowPassword_Checked"
+                                      Unchecked="ShowPassword_Unchecked">
+                            <ToggleButton.Style>
+                                <Style TargetType="ToggleButton">
+                                    <Setter Property="Padding" Value="6"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="Transparent" CornerRadius="6">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <!-- 默认：眼睛睁开（表示隐藏密码） -->
+                                    <Setter Property="Content" Value="👁"/>
+                                    <Style.Triggers>
+                                        <!-- 点击后：眼睛闭上（表示显示密码） -->
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter Property="Content" Value="🙈"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ToggleButton.Style>
+                        </ToggleButton>
+                    </Grid>
+                </Border>
+
+                <!-- 登录按钮 -->
+                <Button Grid.Row="6"
+                        x:Name="LoginButton"
+                        Content="登录"
+                        Height="44"
+                        FontSize="15"
+                        FontWeight="SemiBold"
+                        Foreground="White"
+                        Background="#2D6AE3"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        HorizontalAlignment="Stretch"
+                        Click="LoginButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="12">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

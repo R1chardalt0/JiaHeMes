@@ -40,7 +40,10 @@ namespace DeviceManage
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             InitializeDatabaseAndStartServices(_serviceProvider);
             // 创建主窗口
-            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            //var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            //mainWindow.Show();
+
+            var mainWindow = _serviceProvider.GetRequiredService<LoginWindow>();
             mainWindow.Show();
         }
 
@@ -77,7 +80,7 @@ namespace DeviceManage
 
             // 注册Windows
             services.AddTransient<MainWindow>();
-
+            services.AddTransient<LoginWindow>();
         }
 
         protected override void OnExit(ExitEventArgs e)
