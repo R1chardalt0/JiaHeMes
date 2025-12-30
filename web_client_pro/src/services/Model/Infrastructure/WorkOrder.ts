@@ -27,8 +27,6 @@ export interface WorkOrderDto {
   productCode?: string;
   /** BOM配方ID */
   bomRecipeId?: number;
-  /** BOM配方名称 */
-  bomRecipeName?: string;
   /** 是否无限生产 */
   isInfinite?: boolean;
   /** 生产数量 */
@@ -55,6 +53,10 @@ export interface WorkOrderQueryDto {
   current?: number;
   /** 每页条数 */
   pageSize?: number;
+  /** 排序字段 */
+  sortField?: string;
+  /** 排序方式 */
+  sortOrder?: 'ascend' | 'descend';
   /** 工单编号 */
   code?: string;
   /** 产品编码 */
@@ -81,6 +83,8 @@ export interface CreateWorkOrderDto {
   workOrderAmount?: number;
   /** 每个追踪信息的完成增量 */
   perTraceInfo?: number;
+  /** 工单状态：0-草稿，1-已提交，2-已拒绝，3-已通过 */
+  docStatus?: number;
 }
 
 /**

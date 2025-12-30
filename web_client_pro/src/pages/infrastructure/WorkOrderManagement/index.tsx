@@ -1,20 +1,80 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions } from '@ant-design/pro-components';
 import React, { useRef, useState } from 'react';
-import { Drawer, Button, message } from 'antd';
-import { getWorkOrderList } from '@/services/Api/Infrastructure/WorkOrder';
-import { WorkOrderDto, WorkOrderQueryDto, WorkOrderStatusText, WorkOrderStatusColor } from '@/services/Model/Infrastructure/WorkOrder';
+import { Drawer, Button, message, Modal, Form, Input, InputNumber, Switch, Select, Popconfirm } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { getWorkOrderList, createWorkOrder, updateWorkOrder, deleteWorkOrder } from '@/services/Api/Infrastructure/WorkOrder';
+import { WorkOrderDto, WorkOrderQueryDto, WorkOrderStatusText, WorkOrderStatusColor, CreateWorkOrderDto, UpdateWorkOrderDto } from '@/services/Model/Infrastructure/WorkOrder';
 import type { RequestData } from '@ant-design/pro-components';
 
 const WorkOrderManagement: React.FC = () => {
   const actionRef = useRef<ActionType | null>(null);
   const [showDetail, setShowDetail] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [currentRow, setCurrentRow] = useState<WorkOrderDto>();
+  const [editingRow, setEditingRow] = useState<WorkOrderDto>();
   const [messageApi] = message.useMessage();
+  const [form] = Form.useForm<CreateWorkOrderDto>();
+  const [editForm] = Form.useForm<UpdateWorkOrderDto>();
   const [currentSearchParams, setCurrentSearchParams] = useState<WorkOrderQueryDto>({
     current: 1,
     pageSize: 50
   });
+
+  // 处理新建工单
+  const handleCreateWorkOrder = async (values: CreateWorkOrderDto) => {
+    try {
+      const result = await createWorkOrder(values);
+      messageApi.success('工单创建成功');
+      setShowCreateModal(false);
+      form.resetFields();
+      actionRef.current?.reload();
+    } catch (error) {
+      messageApi.error('工单创建失败');
+    }
+  };
+
+  // 处理编辑工单
+  const handleEditWorkOrder = async (values: UpdateWorkOrderDto) => {
+    try {
+      const result = await updateWorkOrder(editingRow!.id!, values);
+      messageApi.success('工单更新成功');
+      setShowEditModal(false);
+      editForm.resetFields();
+      setEditingRow(undefined);
+      actionRef.current?.reload();
+    } catch (error) {
+      messageApi.error('工单更新失败');
+    }
+  };
+
+  // 处理删除工单
+  const handleDeleteWorkOrder = async (id: number) => {
+    try {
+      await deleteWorkOrder(id);
+      messageApi.success('工单删除成功');
+      actionRef.current?.reload();
+    } catch (error) {
+      messageApi.error('工单删除失败');
+    }
+  };
+
+  // 打开编辑弹窗
+  const openEditModal = (record: WorkOrderDto) => {
+    setEditingRow(record);
+    editForm.setFieldsValue({
+      id: record.id,
+      code: record.code,
+      productCode: record.productCode,
+      bomRecipeId: record.bomRecipeId,
+      isInfinite: record.isInfinite,
+      workOrderAmount: record.workOrderAmount,
+      perTraceInfo: record.perTraceInfo,
+      docStatus: record.docStatus,
+    });
+    setShowEditModal(true);
+  };
 
   const columns: ProColumns<WorkOrderDto>[] = [
     {
@@ -34,8 +94,8 @@ const WorkOrderManagement: React.FC = () => {
     },
     {
       title: 'BOM配方',
-      dataIndex: 'bomRecipeName',
-      key: 'bomRecipeName',
+      dataIndex: 'bomRecipeId',
+      key: 'bomRecipeId',
       width: 180,
       search: false,
     },
@@ -75,14 +135,47 @@ const WorkOrderManagement: React.FC = () => {
         2: { text: '已拒绝', status: 'Rejected' },
         3: { text: '已通过', status: 'Approved' },
       },
-      render: (status) => (
-        <span style={{
-          color: WorkOrderStatusColor[status as number] || '#000',
-          fontWeight: 500
-        }}>
-          {WorkOrderStatusText[status as number] || '未知'}
-        </span>
-      )
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 150,
+      search: false,
+      render: (_, record) => (
+        <div>
+          <Button
+            type="link"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              openEditModal(record);
+            }}
+          >
+            编辑
+          </Button>
+          <Popconfirm
+            title="确认删除"
+            description="确定要删除该工单吗？"
+            onConfirm={(e) => {
+              e?.stopPropagation();
+              handleDeleteWorkOrder(record.id!);
+            }}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={(e) => e.stopPropagation()}
+            >
+              删除
+            </Button>
+          </Popconfirm>
+        </div>
+      ),
     },
   ];
 
@@ -107,8 +200,6 @@ const WorkOrderManagement: React.FC = () => {
         request={async (
           params
         ): Promise<RequestData<WorkOrderDto>> => {
-          console.log('[工单管理] 开始请求数据，原始参数:', params);
-
           setCurrentSearchParams({
             current: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
@@ -121,33 +212,27 @@ const WorkOrderManagement: React.FC = () => {
           const queryParams: WorkOrderQueryDto = {
             current: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
+            sortField: 'id',
+            sortOrder: 'ascend',
             code: params.code,
             productCode: params.productCode,
             bomRecipeId: params.bomRecipeId,
             docStatus: params.docStatus,
           };
 
-          console.log('[工单管理] 构建的查询参数:', queryParams);
-
           try {
-            console.log('[工单管理] 调用API前...');
             const response = await getWorkOrderList(queryParams);
-            console.log('[工单管理] API响应:', response);
-            console.log('[工单管理] 响应数据:', response.data);
-            console.log('[工单管理] 响应总数:', response.total);
-            console.log('[工单管理] 响应成功状态:', response.success);
 
             const result = {
-              data: response.data || [],
+              data: (response.data || []).sort((a: WorkOrderDto, b: WorkOrderDto) => {
+                return (a.id || 0) - (b.id || 0);
+              }),
               total: response.total || 0,
               success: response.success ?? true,
             };
 
-            console.log('[工单管理] 返回给表格的数据:', result);
             return result;
           } catch (error) {
-            console.error('[工单管理] 请求失败，错误信息:', error);
-            console.error('[工单管理] 错误详情:', JSON.stringify(error, null, 2));
             return {
               data: [],
               total: 0,
@@ -162,7 +247,18 @@ const WorkOrderManagement: React.FC = () => {
           showSizeChanger: true,
           showTotal: (total) => `共 ${total} 条数据`,
         }}
-        toolBarRender={false}
+        toolBarRender={() => [
+          <Button
+            key="create"
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setShowCreateModal(true);
+            }}
+          >
+            新建工单
+          </Button>
+        ]}
         onRow={(record) => ({
           onClick: () => {
             setCurrentRow(record);
@@ -222,10 +318,6 @@ const WorkOrderManagement: React.FC = () => {
                 dataIndex: 'bomRecipeId',
               },
               {
-                title: 'BOM配方名称',
-                dataIndex: 'bomRecipeName',
-              },
-              {
                 title: '是否无限生产',
                 dataIndex: 'isInfinite',
                 render: (val) => val ? '是' : '否',
@@ -256,6 +348,243 @@ const WorkOrderManagement: React.FC = () => {
           />
         )}
       </Drawer>
+
+      <Modal
+        title="新建工单"
+        open={showCreateModal}
+        onCancel={() => {
+          setShowCreateModal(false);
+          form.resetFields();
+        }}
+        onOk={() => {
+          form.validateFields().then((values) => {
+            handleCreateWorkOrder(values);
+          });
+        }}
+        width={600}
+        destroyOnClose
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          autoComplete="off"
+        >
+          <Form.Item
+            label="工单编号"
+            name="code"
+            rules={[
+              { required: true, message: '请输入工单编号' },
+            ]}
+          >
+            <Input placeholder="请输入工单编号" />
+          </Form.Item>
+
+          <Form.Item
+            label="产品编码"
+            name="productCode"
+            rules={[
+              { required: true, message: '请输入产品编码' },
+            ]}
+          >
+            <Input placeholder="请输入产品编码" />
+          </Form.Item>
+
+          <Form.Item
+            label="BOM配方ID"
+            name="bomRecipeId"
+            rules={[
+              { required: true, message: '请输入BOM配方ID' },
+            ]}
+          >
+            <InputNumber
+              placeholder="请输入BOM配方ID"
+              style={{ width: '100%' }}
+              min={1}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="是否无限生产"
+            name="isInfinite"
+            valuePropName="checked"
+            initialValue={false}
+          >
+            <Switch />
+          </Form.Item>
+
+          <Form.Item
+            noStyle
+            shouldUpdate={(prevValues, currentValues) => prevValues.isInfinite !== currentValues.isInfinite}
+          >
+            {({ getFieldValue }) =>
+              !getFieldValue('isInfinite') ? (
+                <Form.Item
+                  label="生产数量"
+                  name="workOrderAmount"
+                  rules={[
+                    { required: true, message: '请输入生产数量' },
+                    { type: 'number', min: 1, message: '生产数量必须大于0' },
+                  ]}
+                >
+                  <InputNumber
+                    placeholder="请输入生产数量"
+                    style={{ width: '100%' }}
+                    min={1}
+                  />
+                </Form.Item>
+              ) : null
+            }
+          </Form.Item>
+
+          <Form.Item
+            label="追踪增量"
+            name="perTraceInfo"
+          >
+            <InputNumber
+              placeholder="请输入追踪增量"
+              style={{ width: '100%' }}
+              min={1}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="工单状态"
+            name="docStatus"
+            initialValue={0}
+          >
+            <Select
+              placeholder="请选择工单状态"
+              options={[
+                { label: '草稿', value: 0 },
+                { label: '已提交', value: 1 },
+                { label: '已拒绝', value: 2 },
+                { label: '已通过', value: 3 },
+              ]}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="编辑工单"
+        open={showEditModal}
+        onCancel={() => {
+          setShowEditModal(false);
+          editForm.resetFields();
+          setEditingRow(undefined);
+        }}
+        onOk={() => {
+          editForm.validateFields().then((values) => {
+            handleEditWorkOrder(values);
+          });
+        }}
+        width={600}
+        destroyOnClose
+      >
+        <Form
+          form={editForm}
+          layout="vertical"
+          autoComplete="off"
+        >
+          <Form.Item
+            name="id"
+            hidden
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="工单编号"
+            name="code"
+            rules={[
+              { required: true, message: '请输入工单编号' },
+            ]}
+          >
+            <Input placeholder="请输入工单编号" />
+          </Form.Item>
+
+          <Form.Item
+            label="产品编码"
+            name="productCode"
+            rules={[
+              { required: true, message: '请输入产品编码' },
+            ]}
+          >
+            <Input placeholder="请输入产品编码" />
+          </Form.Item>
+
+          <Form.Item
+            label="BOM配方ID"
+            name="bomRecipeId"
+            rules={[
+              { required: true, message: '请输入BOM配方ID' },
+            ]}
+          >
+            <InputNumber
+              placeholder="请输入BOM配方ID"
+              style={{ width: '100%' }}
+              min={1}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="是否无限生产"
+            name="isInfinite"
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
+
+          <Form.Item
+            noStyle
+            shouldUpdate={(prevValues, currentValues) => prevValues.isInfinite !== currentValues.isInfinite}
+          >
+            {({ getFieldValue }) =>
+              !getFieldValue('isInfinite') ? (
+                <Form.Item
+                  label="生产数量"
+                  name="workOrderAmount"
+                  rules={[
+                    { required: true, message: '请输入生产数量' },
+                    { type: 'number', min: 1, message: '生产数量必须大于0' },
+                  ]}
+                >
+                  <InputNumber
+                    placeholder="请输入生产数量"
+                    style={{ width: '100%' }}
+                    min={1}
+                  />
+                </Form.Item>
+              ) : null
+            }
+          </Form.Item>
+
+          <Form.Item
+            label="追踪增量"
+            name="perTraceInfo"
+          >
+            <InputNumber
+              placeholder="请输入追踪增量"
+              style={{ width: '100%' }}
+              min={1}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="工单状态"
+            name="docStatus"
+          >
+            <Select
+              placeholder="请选择工单状态"
+              options={[
+                { label: '草稿', value: 0 },
+                { label: '已提交', value: 1 },
+                { label: '已拒绝', value: 2 },
+                { label: '已通过', value: 3 },
+              ]}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </PageContainer>
   );
 };

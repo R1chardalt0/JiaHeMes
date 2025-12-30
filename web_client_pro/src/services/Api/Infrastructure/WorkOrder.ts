@@ -9,32 +9,22 @@ import { WorkOrderDto, WorkOrderQueryDto, CreateWorkOrderDto, UpdateWorkOrderDto
 export async function getWorkOrderList(
   params: WorkOrderQueryDto
 ): Promise<any> {
-  console.log('[API服务] getWorkOrderList 调用，参数:', params);
-  console.log('[API服务] 请求URL: /api/WorkOrder');
-  console.log('[API服务] 请求方法: GET');
-
   const result = await request('/api/WorkOrder', {
     method: 'GET',
     params,
   });
 
-  console.log('[API服务] getWorkOrderList 原始响应结果:', result);
-
   // 处理后端返回的数据格式
   // 如果返回的是数组，转换为分页格式
   if (Array.isArray(result)) {
-    console.log('[API服务] 检测到数组格式，转换为分页格式');
-    const convertedResult = {
+    return {
       data: result,
       total: result.length,
       success: true
     };
-    console.log('[API服务] 转换后的结果:', convertedResult);
-    return convertedResult;
   }
 
   // 如果已经是分页格式，直接返回
-  console.log('[API服务] 检测到分页格式，直接返回');
   return result;
 }
 
