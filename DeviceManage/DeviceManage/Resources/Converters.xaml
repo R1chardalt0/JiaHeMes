@@ -5,6 +5,9 @@
     <!-- 布尔值反转转换器 -->
     <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     
+    <!-- 布尔值取反转换器 -->
+    <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+    
     <!-- 空值转换器 -->
     <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 

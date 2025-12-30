@@ -45,5 +45,10 @@ public class RelayCommand : ICommand
             _execute?.Invoke();
         }
     }
+
+    public void RaiseCanExecuteChanged()
+    {
+        CommandManager.InvalidateRequerySuggested();
+    }
 }
 
