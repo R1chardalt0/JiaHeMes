@@ -5,13 +5,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using DeviceManage.ViewModels;
+using HandyControl.Controls;
 
 namespace DeviceManage.Views
 {
     /// <summary>
     /// LoginWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class LoginWindow : Window
+    public partial class LoginWindow : System.Windows.Window
     {
         // 本地模拟账号 + 对应密码（后续替换成接口/数据库校验即可）
         private static readonly Dictionary<string, string> FakeUsers = new()
@@ -47,14 +48,14 @@ namespace DeviceManage.Views
             // 若输入的账号不在上述5个中，提示「用户名不存在」
             if (!FakeUsers.ContainsKey(userName))
             {
-                MessageBox.Show("用户名不存在", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Growl.Warning("该用户名或密码不存在！  ");
                 return;
             }
 
             // 若账号存在但密码不正确，提示「密码错误」
             if (FakeUsers[userName] != pwd)
             {
-                MessageBox.Show("密码错误", "提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                Growl.Error("密码错误,请重新输入！");
                 return;
             }
 
