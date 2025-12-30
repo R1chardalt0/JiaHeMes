@@ -1,4 +1,4 @@
-﻿using DeviceManage.DBContext;
+using DeviceManage.DBContext;
 using DeviceManage.Services;
 using DeviceManage.ViewModels;
 using DeviceManage.Views;
@@ -20,21 +20,26 @@ namespace DeviceManage
     {
         private ServiceProvider? _serviceProvider;
         private IConfiguration? _configuration;
+        
+        // 静态ServiceProvider供View访问
+        public static IServiceProvider? ServiceProvider { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
+            try
+            {
+                base.OnStartup(e);
 
-            // 加载配置
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            _configuration = builder.Build();
+                // 加载配置
+                var builder = new ConfigurationBuilder()
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                _configuration = builder.Build();
 
-            // 配置依赖注入
-            var services = new ServiceCollection();
-            ConfigureServices(services);
-            _serviceProvider = services.BuildServiceProvider();
+                // 配置依赖注入
+                var services = new ServiceCollection();
+                ConfigureServices(services);
+                services.AddDeviceManageServices(_configuration);
 
             //使用pgSql
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -75,8 +80,15 @@ namespace DeviceManage
                 }
             });
 
-            // 注册ViewModels
-            services.AddTransient<MainViewModel>();
+            // 注册ViewModels - 简化的MVVM模式
+            services.AddSingleton<MainViewModel>();
+            services.AddTransient<DashboardViewModel>();
+            services.AddTransient<PlcDeviceViewModel>();
+            services.AddTransient<DeviceStatusViewModel>();
+            services.AddTransient<ConfigurationViewModel>();
+            services.AddTransient<SystemSettingsViewModel>();
+            services.AddTransient<LogManagementViewModel>();
+            services.AddTransient<UserManagementViewModel>();
 
             // 注册Windows
             services.AddTransient<MainWindow>();

@@ -1,0 +1,211 @@
+<UserControl x:Class="DeviceManage.Views.PlcDeviceView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:DeviceManage.Views"
+      xmlns:vm="clr-namespace:DeviceManage.ViewModels"
+      xmlns:vms="clr-namespace:DeviceManage.ViewModels"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      mc:Ignorable="d" 
+      d:DataContext="{d:DesignInstance Type={x:Type vms:PlcDeviceViewModel}}"
+      d:DesignHeight="600" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Converters.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+            <!-- 现代按钮样式 -->
+            <Style x:Key="ModernButton" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="FontWeight" Value="Medium"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Margin" Value="0,0,15,0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="6"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Opacity" Value="0.9"/>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter Property="Opacity" Value="0.8"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Toast消息容器 -->
+        <Canvas x:Name="ToastContainer" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="1000"/>
+
+        <!-- 顶部按钮区域 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="刷新" 
+                    Command="{Binding LoadPlcDevicesCommand}"                
+                    Margin="0,0,15,0"
+                    Style="{StaticResource ButtonDashedInfo}"/>
+            <Button Content="新增" 
+                    Command="{Binding AddPlcDeviceCommand}"
+                    Margin="0,0,15,0"
+                    Style="{StaticResource ButtonDashedSuccess}"/>
+            <Button Content="编辑" 
+                    Command="{Binding EditCommand}"
+                    Margin="0,0,15,0"
+                    Style="{StaticResource ButtonDashedSuccess}"/>
+            <Button Content="删除" 
+                    Command="{Binding DeletePlcDeviceCommand}"
+                    Margin="0,0,15,0"
+                    Style="{StaticResource ButtonDashedDanger}"/>
+            <Button Content="取消" 
+                    Command="{Binding CancelCommand}"
+                    Margin="0,0,15,0"
+                    Style="{StaticResource ButtonDashedWarning}"
+                    Visibility="{Binding IsEditing.Value, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        </StackPanel>
+
+        <!-- 数据表格区域 -->
+        <DataGrid Grid.Row="1" 
+                  ItemsSource="{Binding PlcDevices.Value}"
+                  SelectedItem="{Binding SelectedPlcDevice.Value, Mode=TwoWay}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="None"
+                  BorderThickness="1"
+                  BorderBrush="#DDDDDD"
+                 >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" 
+                                    Binding="{Binding Id}" 
+                                    Width="80"
+                                  />
+                <DataGridTextColumn Header="PLC名称" 
+                                    Binding="{Binding PLCName}" 
+                                    Width="*"
+                                  />
+                <DataGridTextColumn Header="IP地址" 
+                                    Binding="{Binding IPAddress}" 
+                                    Width="*"
+                                    />
+                <DataGridTextColumn Header="端口号" 
+                                    Binding="{Binding Port}" 
+                                    Width="80"
+                                    />
+                <DataGridTextColumn Header="通信协议" 
+                                    Binding="{Binding Protocolc}" 
+                                    Width="*"
+                                    />
+                <DataGridTextColumn Header="型号" 
+                                    Binding="{Binding Model}" 
+                                    Width="*"
+                                    />
+                <DataGridTextColumn Header="描述" 
+                                    Binding="{Binding Remarks}" 
+                                    Width="*"
+                                    />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- 编辑表单区域 -->
+        <Border Grid.Row="2" 
+                Background="#F9F9F9" 
+                BorderBrush="#DDDDDD" 
+                BorderThickness="1" 
+                CornerRadius="5"
+                Margin="0,10,0,0"
+                Padding="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="0,0,10,10">
+                        <Label Content="PLC名称:" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SelectedPlcDevice.Value.PLCName, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{Binding IsEditing.Value, Converter={StaticResource InverseBooleanConverter}}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="0,0,10,10">
+                        <Label Content="IP地址:" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SelectedPlcDevice.Value.IPAddress, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{Binding IsEditing.Value, Converter={StaticResource InverseBooleanConverter}}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Margin="0,0,10,10">
+                        <Label Content="端口号:" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SelectedPlcDevice.Value.Port, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:N0}'}" 
+                                 IsEnabled="{Binding IsEditing.Value, Converter={StaticResource InverseBooleanConverter}}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3" Margin="0,0,0,10">
+                        <Label Content="通信协议:" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SelectedPlcDevice.Value.Protocolc, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{Binding IsEditing.Value, Converter={StaticResource InverseBooleanConverter}}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                        <Label Content="型号:" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SelectedPlcDevice.Value.Model, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{Binding IsEditing.Value, Converter={StaticResource InverseBooleanConverter}}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                        <Label Content="描述:" FontSize="12" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SelectedPlcDevice.Value.Remarks, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{Binding IsEditing.Value, Converter={StaticResource InverseBooleanConverter}}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,25,0,0">
+                        <Button Content="保存" 
+                                Command="{Binding UpdatePlcDeviceCommand}"
+                                Click="Button_Click"
+                                Style="{StaticResource ButtonSuccess}"
+                                Margin="10,0,0,0"
+                                Visibility="{Binding IsEditing.Value, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

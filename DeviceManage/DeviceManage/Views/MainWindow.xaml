@@ -1,17 +1,21 @@
-﻿<Window x:Class="DeviceManage.Views.MainWindow"
+<Window x:Class="DeviceManage.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DeviceManage.Views"
         xmlns:converters="clr-namespace:DeviceManage.Converters"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         mc:Ignorable="d"
         Title="设备管理系统" Height="800" Width="1400"
         WindowStartupLocation="CenterScreen"
         Background="#F0F2F5">
+
     <Window.Resources>
-        <!-- 高级按钮样式 -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:SidebarToggleConverter x:Key="SidebarToggleConverter"/>
+        <converters:ColumnWidthConverter x:Key="ColumnWidthConverter"/>
+
+        <!-- 现代按钮样式 -->
         <Style x:Key="ModernButton" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
             <Setter Property="Foreground" Value="White"/>
@@ -43,11 +47,11 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
+
         <!-- 卡片样式 -->
         <Style x:Key="ModernCard" TargetType="Border">
             <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Padding" Value="20"/>
@@ -60,31 +64,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
-        <!-- 统计卡片样式 -->
-        <Style x:Key="StatCard" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="20"/>
-            <Setter Property="MinWidth" Value="200"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" 
-                                      Opacity="0.1" 
-                                      BlurRadius="10" 
-                                      ShadowDepth="2"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <!-- 转换器 -->
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converters:SidebarToggleConverter x:Key="SidebarToggleConverter"/>
-        <converters:ColumnWidthConverter x:Key="ColumnWidthConverter"/>
     </Window.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -93,36 +74,28 @@
 
         <!-- 顶部导航栏 -->
         <Border Grid.Row="0" Background="White" Padding="20,15" 
-                BorderBrush="{StaticResource BorderBrush}" 
-                BorderThickness="0,0,0,1">
+                BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                
-                <!-- Logo 和标题 -->
+
+                <!-- 左侧标题和菜单切换 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Sidebar Toggle Button -->
                     <Button Content="{Binding SidebarVisible, Converter={StaticResource SidebarToggleConverter}}"
                            Command="{Binding ToggleSidebarCommand}"
-                           Background="Transparent"
-                           BorderBrush="Transparent"
-                           Foreground="#333"
-                           FontSize="16"
-                           Width="40"
-                           Height="40"
-                           Margin="0,0,15,0"
-                           Cursor="Hand">
+                           Background="Transparent" BorderBrush="Transparent"
+                           Foreground="#333" FontSize="16" Width="40" Height="40"
+                           Margin="0,0,15,0" Cursor="Hand">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
                                             <Border Background="{TemplateBinding Background}"
-                                                    CornerRadius="20"
-                                                    Padding="8">
+                                                    CornerRadius="20" Padding="8">
                                                 <ContentPresenter HorizontalAlignment="Center" 
                                                                 VerticalAlignment="Center"/>
                                             </Border>
@@ -137,51 +110,28 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    
-                    <Ellipse Width="40" Height="40" 
-                             Fill="{StaticResource PrimaryBrush}" 
-                             Margin="0,0,15,0">
+
+                    <Ellipse Width="40" Height="40" Fill="{StaticResource PrimaryBrush}" Margin="0,0,15,0">
                         <Ellipse.Effect>
-                            <DropShadowEffect Color="Black" 
-                                              Opacity="0.2" 
-                                              BlurRadius="5" 
-                                              ShadowDepth="2"/>
+                            <DropShadowEffect Color="Black" Opacity="0.2" BlurRadius="5" ShadowDepth="2"/>
                         </Ellipse.Effect>
                     </Ellipse>
-                    <StackPanel>
-                        <TextBlock Text="设备管理系统" 
-                                  FontSize="20" 
-                                  FontWeight="SemiBold" 
-                                  Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Text="智能设备管理平台" 
-                                  FontSize="12" 
-                                  Foreground="#999" 
-                                  Margin="0,2,0,0"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="设备管理系统" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Text="智能设备管理平台" FontSize="12" Foreground="#999" Margin="0,2,0,0"/>
                     </StackPanel>
                 </StackPanel>
-                
+
                 <!-- 右侧用户信息 -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" 
-                           HorizontalAlignment="Right" 
-                           VerticalAlignment="Center">
+                           HorizontalAlignment="Right" VerticalAlignment="Center">
                     <StackPanel Margin="0,0,20,0">
-                        <TextBlock Text="{Binding CurrentUser}" 
-                                  FontSize="14" 
-                                  FontWeight="SemiBold" 
-                                  Foreground="#333"/>
-                        <TextBlock Text="管理员" 
-                                  FontSize="12" 
-                                  Foreground="#999"/>
+                        <TextBlock Text="管理员" FontSize="14" FontWeight="SemiBold" Foreground="#333"/>
+                        <TextBlock Text="管理员" FontSize="12" Foreground="#999"/>
                     </StackPanel>
-                    
-                    <Border Background="{StaticResource PrimaryBrush}" 
-                           CornerRadius="20" 
-                           Padding="12,8" 
-                           Cursor="Hand">
-                        <TextBlock Text="退出登录" 
-                                  Foreground="White" 
-                                  FontWeight="Medium" 
-                                  Cursor="Hand"/>
+
+                    <Border Background="{StaticResource PrimaryBrush}" CornerRadius="20" Padding="12,8" Cursor="Hand">
+                        <TextBlock Text="退出登录" Foreground="White" FontWeight="Medium"/>
                     </Border>
                 </StackPanel>
             </Grid>
@@ -190,202 +140,74 @@
         <!-- 主内容区 -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{Binding SidebarVisible, Converter={StaticResource ColumnWidthConverter}}"/>
+                <ColumnDefinition Width="{Binding SidebarVisible.Value, Converter={StaticResource ColumnWidthConverter}}"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- 左侧侧边栏 -->
+            <!-- 左侧导航菜单 -->
             <Border Grid.Column="0" Background="White" 
-                   BorderBrush="{StaticResource BorderBrush}" 
-                   BorderThickness="0,1,1,0"
-                   Visibility="{Binding SidebarVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                   BorderBrush="#E0E0E0" BorderThickness="0,1,1,0"
+                   Visibility="{Binding SidebarVisible.Value, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    
+
                     <!-- 搜索框 -->
                     <Border Grid.Row="0" Margin="15,15,15,10" CornerRadius="20" Background="#F5F5F5">
                         <Grid>
-                            <TextBox x:Name="SearchBox" 
-                                    Background="Transparent"
-                                    BorderBrush="Transparent" 
-                                    BorderThickness="0"
-                                    Padding="15,8,40,8" 
-                                    FontSize="14"
-                                    Text="搜索功能..."
-                                    Foreground="#999"/>
-                            <TextBlock Text="🔍" 
-                                      HorizontalAlignment="Right" 
-                                      Margin="0,0,15,0" 
-                                      Foreground="#999"
-                                      VerticalAlignment="Center"/>
+                            <TextBox Background="Transparent" BorderBrush="Transparent" BorderThickness="0"
+                                    Padding="15,8,40,8" FontSize="14" Text="搜索功能..." Foreground="#999"/>
+                            <TextBlock Text="🔍" HorizontalAlignment="Right" Margin="0,0,15,0" 
+                                      Foreground="#999" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
-                    
+
                     <!-- 导航菜单 -->
                     <ScrollViewer Grid.Row="1" Margin="0,0,0,15">
                         <StackPanel Margin="15,0,15,15">
-                            <TextBlock Text="主菜单" 
-                                      FontSize="12" 
-                                      Foreground="#999" 
-                                      Margin="10,10,0,10"/>
-                            
-                            <Button Content="🏠 仪表盘" 
-                                   Command="{Binding NavigateToCommand}"
-                                   Tag="Dashboard"
-                                   Style="{StaticResource ModernButton}"
-                                   Margin="0,5"
+                            <TextBlock Text="主菜单" FontSize="12" Foreground="#999" Margin="10,10,0,10"/>
+
+                            <Button Content="🏠 仪表盘" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="Dashboard" Style="{StaticResource ModernButton}" Margin="0,5"
                                    Background="#673AB7"/>
-                            <Button Content="🔌 设备管理" 
-                                   Command="{Binding NavigateToCommand}"
-                                   Tag="DeviceManagement"
-                                   Style="{StaticResource ModernButton}"
-                                   Margin="0,5"/>
-                            <Button Content="📊 设备状态" 
-                                   Command="{Binding NavigateToCommand}"
-                                   Tag="DeviceStatus"
-                                   Style="{StaticResource ModernButton}"
-                                   Margin="0,5"/>
-                            <Button Content="⚙️ 配置管理" 
-                                   Command="{Binding NavigateToCommand}"
-                                   Tag="Configuration"
-                                   Style="{StaticResource ModernButton}"
-                                   Margin="0,5"/>
-                            
-                            <TextBlock Text="系统管理" 
-                                      FontSize="12" 
-                                      Foreground="#999" 
-                                      Margin="10,20,0,10"/>
-                            
-                            <Button Content="🔧 系统设置" 
-                                   Command="{Binding NavigateToCommand}"
-                                   Tag="SystemSettings"
-                                   Style="{StaticResource ModernButton}"
-                                   Margin="0,5"/>
-                            <Button Content="📋 日志管理" 
-                                   Command="{Binding NavigateToCommand}"
-                                   Tag="LogManagement"
-                                   Style="{StaticResource ModernButton}"
-                                   Margin="0,5"/>
-                            <Button Content="👥 用户管理" 
-                                   Command="{Binding NavigateToCommand}"
-                                   Tag="UserManagement"
-                                   Style="{StaticResource ModernButton}"
-                                   Margin="0,5"/>
+                            <Button Content="🔌 PLC设备管理" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="PLCDeviceManagement" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
+                            <Button Content="📊 设备状态" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="DeviceStatus" Style="{StaticResource ModernButton}" Margin="0,5"/>
+                            <Button Content="⚙️ 配置管理" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="Configuration" Style="{StaticResource ModernButton}" Margin="0,5"/>
+
+                            <TextBlock Text="系统管理" FontSize="12" Foreground="#999" Margin="10,20,0,10"/>
+
+                            <Button Content="🔧 系统设置" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="SystemSettings" Style="{StaticResource ModernButton}" Margin="0,5"/>
+                            <Button Content="📋 日志管理" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="LogManagement" Style="{StaticResource ModernButton}" Margin="0,5"/>
+                            <Button Content="👥 用户管理" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="UserManagement" Style="{StaticResource ModernButton}" Margin="0,5"/>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
             </Border>
 
-            <!-- 右侧主内容区 -->
-            <Grid Grid.Column="1" Margin="20,20,20,20">
+            <!-- 右侧内容区 -->
+            <Grid Grid.Column="1" Margin="20">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- 页面标题和操作按钮 -->
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <TextBlock Grid.Column="0" 
-                              Text="{Binding CurrentPageTitle}" 
-                              FontSize="24" 
-                              FontWeight="SemiBold" 
-                              Foreground="#333"
-                              VerticalAlignment="Center"/>
-                    
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" 
-                               VerticalAlignment="Center">
-                        <Button Content="新建设备" 
-                               Style="{StaticResource ModernButton}"
-                               Margin="0,0,10,0"/>
-                        <Button Content="导出数据" 
-                               Background="#4CAF50"
-                               Style="{StaticResource ModernButton}"/>
-                    </StackPanel>
-                </Grid>
-                
-                <!-- 统计卡片区 -->
-                <Border Grid.Row="1" 
-                       Style="{StaticResource ModernCard}"
-                       Margin="0,15,0,15"
-                       Padding="15">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <Border Grid.Column="0" Style="{StaticResource StatCard}" Margin="0,0,10,0">
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="128" 
-                                          FontSize="24" 
-                                          FontWeight="Bold" 
-                                          Foreground="{StaticResource PrimaryBrush}"/>
-                                <TextBlock Text="在线设备" 
-                                          FontSize="14" 
-                                          Foreground="#999" 
-                                          Margin="0,5,0,0"/>
-                            </StackPanel>
-                        </Border>
-                        
-                        <Border Grid.Column="1" Style="{StaticResource StatCard}" Margin="5,0,5,0">
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="42" 
-                                          FontSize="24" 
-                                          FontWeight="Bold" 
-                                          Foreground="#4CAF50"/>
-                                <TextBlock Text="离线设备" 
-                                          FontSize="14" 
-                                          Foreground="#999" 
-                                          Margin="0,5,0,0"/>
-                            </StackPanel>
-                        </Border>
-                        
-                        <Border Grid.Column="2" Style="{StaticResource StatCard}" Margin="5,0,5,0">
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="15" 
-                                          FontSize="24" 
-                                          FontWeight="Bold" 
-                                          Foreground="#FF9800"/>
-                                <TextBlock Text="异常设备" 
-                                          FontSize="14" 
-                                          Foreground="#999" 
-                                          Margin="0,5,0,0"/>
-                            </StackPanel>
-                        </Border>
-                        
-                        <Border Grid.Column="3" Style="{StaticResource StatCard}" Margin="10,0,0,0">
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="94.2%" 
-                                          FontSize="24" 
-                                          FontWeight="Bold" 
-                                          Foreground="#2196F3"/>
-                                <TextBlock Text="设备可用率" 
-                                          FontSize="14" 
-                                          Foreground="#999" 
-                                          Margin="0,5,0,0"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </Border>
+                <!-- 页面标题 -->
+                <TextBlock Grid.Row="0" Text="{Binding CurrentPageTitle.Value}" 
+                          FontSize="24" FontWeight="SemiBold" Margin="0,0,0,20" Foreground="#333"/>
 
-                <!-- 主内容显示区 -->
-                <Border Grid.Row="2" 
-                       Style="{StaticResource ModernCard}"
-                       Padding="0">
-                    <ScrollViewer>
-                        <ContentControl Content="{Binding CurrentView}"/>
-                    </ScrollViewer>
+                <!-- 页面内容 -->
+                <Border Grid.Row="1" Style="{StaticResource ModernCard}" Padding="0">
+                    <ContentControl Content="{Binding CurrentView.Value}" 
+                                   HorizontalContentAlignment="Stretch" 
+                                   VerticalContentAlignment="Stretch"/>
                 </Border>
             </Grid>
         </Grid>

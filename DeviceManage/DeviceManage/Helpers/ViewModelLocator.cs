@@ -1,14 +1,18 @@
 using Microsoft.Extensions.DependencyInjection;
 using DeviceManage.ViewModels;
+using System;
 
 namespace DeviceManage.Helpers;
 
 /// <summary>
-/// ViewModel定位器（可选，用于XAML中的设计时绑定）
+/// ViewModel定位器 - 简化MVVM模式
 /// </summary>
 public class ViewModelLocator
 {
     private static IServiceProvider? _serviceProvider;
+    private static ViewModelLocator? _instance;
+
+    public static ViewModelLocator Instance => _instance ??= new ViewModelLocator();
 
     public static void SetServiceProvider(IServiceProvider serviceProvider)
     {
@@ -16,6 +20,21 @@ public class ViewModelLocator
     }
 
     public MainViewModel MainViewModel => _serviceProvider?.GetRequiredService<MainViewModel>() 
+        ?? throw new InvalidOperationException("ServiceProvider not initialized");
+
+    /// <summary>
+    /// 获取指定类型的ViewModel实例
+    /// </summary>
+    public object GetViewModel(Type viewModelType)
+    {
+        if (_serviceProvider == null)
+            throw new InvalidOperationException("ServiceProvider not initialized");
+            
+        return _serviceProvider.GetRequiredService(viewModelType);
+    }
+
+    // 各个ViewModel的属性访问器
+    public PlcDeviceViewModel PlcDeviceViewModel => _serviceProvider?.GetRequiredService<PlcDeviceViewModel>() 
         ?? throw new InvalidOperationException("ServiceProvider not initialized");
 }
 
