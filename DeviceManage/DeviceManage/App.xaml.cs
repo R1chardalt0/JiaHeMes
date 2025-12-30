@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using System.Configuration;
 using System.Data;
 using System.Windows;
+using HandyControl.Controls;
+using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace DeviceManage
 {
@@ -51,7 +53,12 @@ namespace DeviceManage
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"应用程序启动失败: {ex.Message}\n\n异常详情: {ex.StackTrace}", "启动错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                var errorMessage = $"应用程序启动失败！\n\n错误信息: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    errorMessage += $"\n\n内部异常: {ex.InnerException.Message}";
+                }
+                MessageBox.Show(errorMessage, "启动错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown(1);
             }
         }

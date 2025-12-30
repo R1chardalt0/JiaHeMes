@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using DeviceManage.ViewModels;
 using HandyControl.Controls;
+using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace DeviceManage.Views
 {
@@ -43,9 +44,15 @@ namespace DeviceManage.Views
             var userName = (UserNameTextBox.Text ?? string.Empty).Trim();
             var pwd = GetCurrentPassword();
 
+            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(pwd))
+            {
+                Growl.Warning("请输入用户名或密码！");
+                return;
+            }
+
             if (!FakeUsers.ContainsKey(userName))
             {
-                Growl.Warning("该用户名或密码不存在！  ");
+                Growl.Error("该用户名或密码不存在！");
                 return;
             }
 
@@ -55,10 +62,8 @@ namespace DeviceManage.Views
                 return;
             }
 
-            // 若账号和密码都正确：轻量提示（不阻塞）+ 直接跳转主窗口
             _ = ShowTopToastAsync("登录成功");
 
-            // MainWindow 需要 MainViewModel 构造参数，这里用同一个 ViewModel 实例创建
             var mainWindow = new MainWindow(_mainViewModel);
             mainWindow.Show();
 

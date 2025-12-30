@@ -37,5 +37,10 @@ public class ViewModelLocator
     // 各个ViewModel的属性访问器
     public PlcDeviceViewModel PlcDeviceViewModel => _serviceProvider?.GetRequiredService<PlcDeviceViewModel>() 
         ?? throw new InvalidOperationException("ServiceProvider not initialized");
+
+    /// <summary>
+    /// 获取 ServiceProvider（用于创建窗口等）
+    /// </summary>
+    public IServiceProvider? GetServiceProvider() => _serviceProvider;
 }
 

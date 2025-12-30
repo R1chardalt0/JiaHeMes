@@ -130,9 +130,37 @@
                         <TextBlock Text="管理员" FontSize="12" Foreground="#999"/>
                     </StackPanel>
 
-                    <Border Background="{StaticResource PrimaryBrush}" CornerRadius="20" Padding="12,8" Cursor="Hand">
+                    <Button Command="{Binding LogoutCommand}"
+                           Background="{StaticResource PrimaryBrush}" 
+                           Padding="12,8" 
+                           Cursor="Hand"
+                           BorderThickness="0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                   CornerRadius="20"
+                                                   Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Opacity" Value="0.9"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Opacity" Value="0.8"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <TextBlock Text="退出登录" Foreground="White" FontWeight="Medium"/>
-                    </Border>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>

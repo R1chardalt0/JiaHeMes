@@ -1,10 +1,9 @@
-using DeviceManage.Commands;
 using DeviceManage.Services;
 using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
-using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Input;
+using DeviceManage.Views;
+using Microsoft.Extensions.DependencyInjection;
+using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace DeviceManage.ViewModels;
 
@@ -131,7 +130,33 @@ public class MainViewModel : ViewModelBase
 
     private void Logout()
     {
-        // 实现退出登录逻辑
+        try
+        {
+            // 通过 ViewModelLocator 获取 ServiceProvider，创建新的登录窗口
+            var serviceProvider = DeviceManage.Helpers.ViewModelLocator.Instance.GetServiceProvider();
+            if (serviceProvider != null)
+            {
+                // 先创建并显示登录窗口（避免主窗口关闭后应用退出）
+                var newMainViewModel = serviceProvider.GetRequiredService<MainViewModel>();
+                var loginWindow = new LoginWindow(newMainViewModel);
+                loginWindow.Show();
+
+                // 然后关闭主窗口
+                var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+                if (mainWindow != null)
+                {
+                    mainWindow.Close();
+                }
+            }
+            else
+            {
+                MessageBox.Show("无法获取服务提供者，退出登录失败。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"退出登录失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void ToggleSidebar()
