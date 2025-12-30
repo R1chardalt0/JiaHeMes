@@ -142,7 +142,7 @@ const TableList: React.FC = () => {
 
     // 准备导出数据
     const exportData: string[] = [];
-    
+
     // 分析数据中最大的参数数量
     const maxParamCount = selectedRowsState.reduce((max, row) => {
       const paramCount = row.parameters ? (Array.isArray(row.parameters) ? row.parameters.length : 1) : 0;
@@ -157,7 +157,7 @@ const TableList: React.FC = () => {
         header.push('参数名称', '参数类型', '参数值', '单位');
       } else {
         // 后续组参数列添加序号区分
-        header.push(`参数名称${i+1}`, `参数类型${i+1}`, `参数值${i+1}`, `单位${i+1}`);
+        header.push(`参数名称${i + 1}`, `参数类型${i + 1}`, `参数值${i + 1}`, `单位${i + 1}`);
       }
     }
     exportData.push(header.join(','));
@@ -176,14 +176,14 @@ const TableList: React.FC = () => {
 
       // 参数信息数组
       const params = Array.isArray(row.parameters) ? row.parameters : (row.parameters ? [row.parameters] : []);
-      
+
       // 处理参数信息，将多个参数横向展开为多组参数列
-          const paramColumns: string[] = [];
+      const paramColumns: string[] = [];
       for (let i = 0; i < maxParamCount; i++) {
         if (params[i]) {
           const param = params[i];
-              const displayName = stripDevicePrefix(param.name, row.deviceEnCode);
-              paramColumns.push(`"${(displayName || '').replace(/"/g, '""')}"`);
+          const displayName = stripDevicePrefix(param.name, row.deviceEnCode);
+          paramColumns.push(`"${(displayName || '').replace(/"/g, '""')}"`);
           paramColumns.push(`"${getParamTypeName(param.type).replace(/"/g, '""')}"`);
           paramColumns.push(`"${(param.value || '').replace(/"/g, '""')}"`);
           paramColumns.push(`"${(param.unit || '').replace(/"/g, '""')}"`);
@@ -248,7 +248,7 @@ const TableList: React.FC = () => {
 
       // 准备导出数据
       const exportData: string[] = [];
-      
+
       // 分析数据中最大的参数数量
       const maxParamCount = allData.reduce((max, row) => {
         const paramCount = row.parameters ? (Array.isArray(row.parameters) ? row.parameters.length : 1) : 0;
@@ -263,7 +263,7 @@ const TableList: React.FC = () => {
           header.push('参数名称', '参数类型', '参数值', '单位');
         } else {
           // 后续组参数列添加序号区分
-          header.push(`参数名称${i+1}`, `参数类型${i+1}`, `参数值${i+1}`, `单位${i+1}`);
+          header.push(`参数名称${i + 1}`, `参数类型${i + 1}`, `参数值${i + 1}`, `单位${i + 1}`);
         }
       }
       exportData.push(header.join(','));
@@ -282,7 +282,7 @@ const TableList: React.FC = () => {
 
         // 参数信息数组
         const params = Array.isArray(row.parameters) ? row.parameters : (row.parameters ? [row.parameters] : []);
-        
+
         // 处理参数信息，将多个参数横向展开为多组参数列
         const paramColumns: string[] = [];
         for (let i = 0; i < maxParamCount; i++) {
@@ -387,10 +387,10 @@ const TableList: React.FC = () => {
         columns={columns}
         // 替换现有的 pagination 配置
         pagination={{
-        pageSize: currentSearchParams.pageSize,
-        pageSizeOptions: ['10', '20', '50', '100'],
-        showSizeChanger: true,
-        showTotal: (total) => `共 ${total} 条数据`,
+          pageSize: currentSearchParams.pageSize,
+          pageSizeOptions: ['10', '20', '50', '100'],
+          showSizeChanger: true,
+          showTotal: (total) => `共 ${total} 条数据`,
         }}
         toolBarRender={false}
         onRow={(record) => ({
