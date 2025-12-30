@@ -636,8 +636,6 @@ const EquipmentPage: React.FC = () => {
         open={detailDrawerVisible}
         className="device-info-drawer"
         rootClassName="device-info-drawer"
-        className="device-info-drawer"
-        rootClassName="device-info-drawer"
         styles={{
           content: {
             background: '#ffffff',

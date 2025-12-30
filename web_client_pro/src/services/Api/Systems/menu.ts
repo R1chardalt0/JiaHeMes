@@ -87,17 +87,35 @@ export async function getMenuDetail(
     }
   );
 }
+/**
+ * 删除菜单
+ * 后端删除接口：/api/SysMenu/DeleteMenu/{id}
+ * 说明：后端为单个删除接口，这里前端支持传入数组 ids，内部逐个调用并汇总结果。
+ */
 export async function deleteMenu(
-  ids: number[], // 修改为数组类型
-  options?: Record<string, any>
+  ids: number[],
+  options?: Record<string, any>,
 ) {
-  return request<{ code: number; msg: string; data: {} }>(
-    '/api/sysMenu/batch', // 使用批量删除接口
-    {
-      method: 'DELETE',
-      data: { ids }, // 发送ID数组到请求体
-      ...(options || {})
-    }
+  const results = await Promise.all(
+    ids.map((id) =>
+      request<{ code: number; msg: string; data?: any }>(
+        `/api/SysMenu/DeleteMenu/${id}`,
+        {
+          method: 'Post',
+          ...(options || {}),
+        },
+        
+      ),
+      
+    ),
   );
+
+  const failed = results.find((r) => (r as any)?.code !== 200);
+  if (failed) {
+    return failed as any;
+  }
+
+  return { code: 200, msg: 'ok', data: {} } as any;
 }
+
 

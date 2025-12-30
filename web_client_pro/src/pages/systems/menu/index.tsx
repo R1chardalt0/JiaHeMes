@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
-    Modal, Form, Input, Select, InputNumber, Switch, Button, message,
+    Modal, Form, Input, Select, InputNumber, Button, message,
     TreeSelect, Space, Radio, Drawer
 } from 'antd';
 import { 
@@ -13,15 +13,23 @@ import {
 } from '@ant-design/icons';
 import { ProTable, PageContainer, FooterToolbar, ProDescriptions } from '@ant-design/pro-components';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
-import { useRequest } from '@umijs/max';
+import { useRequest, useModel } from '@umijs/max';
 import { getMenuTree, createMenu, deleteMenu, updateMenu } from '@/services/Api/Systems/menu';
 import { MenuItem, MenuTreeResult } from '@/services/Model/Systems/menu';
 import * as Icons from '@ant-design/icons';
 
-const { Option } = Select;
 
 const MenuManagement: React.FC = () => {
     const [form] = Form.useForm();
+    const { initialState } = useModel('@@initialState');
+    // 仅允许用户表中 UserId=1 的用户执行删除（含批量删除）
+    // 注意：不同后端/登录接口字段可能是 userId/UserId/id 等，这里做一次兼容读取
+    const currentUserId =
+        (initialState as any)?.currentUser?.UserId ??
+        (initialState as any)?.currentUser?.userId ??
+        (initialState as any)?.currentUser?.id ??
+        (initialState as any)?.currentUser?.Id;
+    const isSuperAdmin = Number(currentUserId) === 1;
     const actionRef = useRef<ActionType>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [currentMenu, setCurrentMenu] = useState<MenuItem | null>(null);
@@ -430,8 +438,33 @@ const MenuManagement: React.FC = () => {
      * @param id 菜单ID
      */
     const handleDelete = async (id: number) => {
-        // 提示菜单无法删除
-        message.warning('您权限不足！');
+        // 前端兜底：仅 UserId=1 允许删除
+        if (!isSuperAdmin) {
+            message.warning('您权限不足！');
+            return;
+        }
+
+        Modal.confirm({
+            title: '确认删除？',
+            content: '删除后不可恢复，请确认是否继续。',
+            okText: '删除',
+            okButtonProps: { danger: true },
+            cancelText: '取消',
+            onOk: async () => {
+                try {
+                    const res = await deleteMenu([id]);
+                    if ((res as any)?.code === 200) {
+                        message.success('删除成功');
+                        refreshTree();
+                        actionRef.current?.reload();
+                    } else {
+                        message.error((res as any)?.msg || '删除失败');
+                    }
+                } catch (e: any) {
+                    message.error(e?.message || '删除失败');
+                }
+            },
+        });
     };
 
     const handleBatchDelete = async () => {
@@ -439,10 +472,35 @@ const MenuManagement: React.FC = () => {
             message.warning('请选择要删除的项');
             return;
         }
-        await deleteMenu(selectedRows.map(row => row.menuId));
-        message.success('批量删除成功');
-        setSelectedRows([]);
-        actionRef.current?.reload();
+        // 前端兜底：仅 UserId=1 允许批量删除
+        if (!isSuperAdmin) {
+            message.warning('您权限不足！');
+            return;
+        }
+
+        const ids = selectedRows.map((row) => row.menuId);
+        Modal.confirm({
+            title: '确认批量删除？',
+            content: `本次将删除 ${ids.length} 项，删除后不可恢复，请确认是否继续。`,
+            okText: '删除',
+            okButtonProps: { danger: true },
+            cancelText: '取消',
+            onOk: async () => {
+                try {
+                    const res = await deleteMenu(ids);
+                    if ((res as any)?.code === 200) {
+                        message.success('批量删除成功');
+                        setSelectedRows([]);
+                        refreshTree();
+                        actionRef.current?.reload();
+                    } else {
+                        message.error((res as any)?.msg || '批量删除失败');
+                    }
+                } catch (e: any) {
+                    message.error(e?.message || '批量删除失败');
+                }
+            },
+        });
     };
 
     return (
