@@ -14,6 +14,7 @@ namespace DeviceManage.Models
     /// <summary>
     /// 数据点位实体
     /// </summary>
+    [Table("dm_tag")]
     public class Tag
     {
         /// <summary>
@@ -47,25 +48,25 @@ namespace DeviceManage.Models
         /// <summary>
         /// 点位映射实体
         /// </summary>
-        public ICollection<TagDetail>? TagDetailDataArray { get; set; } = new List<TagDetail>();
+        public List<TagDetail>? TagDetailDataArray { get; set; } = new List<TagDetail>();
     }
 
-    //public class TagClaimEntityConfiguration : IEntityTypeConfiguration<Tag>
-    //{
-    //    public void Configure(EntityTypeBuilder<Tag> builder)
-    //    {
-    //        builder.HasKey(e => e.Id);
+    public class TagClaimEntityConfiguration : IEntityTypeConfiguration<Tag>
+    {
+        public void Configure(EntityTypeBuilder<Tag> builder)
+        {
+            builder.HasKey(e => e.Id);
 
-    //        builder.Property(e => e.TagDetailDataArray)
-    //              .HasConversion(
-    //                  v => v == null ? "[]" : JsonSerializer.Serialize<List<TagDetail>>(v, new JsonSerializerOptions()),
-    //                  v => string.IsNullOrEmpty(v)
-    //                       ? new List<TagDetail>()
-    //                       : JsonSerializer.Deserialize<List<TagDetail>>(v, new JsonSerializerOptions())
-    //                         ?? new List<TagDetail>()
-    //              );
-    //    }
-    //}
+            builder.Property(e => e.TagDetailDataArray)
+                  .HasConversion(
+                      v => v == null ? "[]" : JsonSerializer.Serialize<List<TagDetail>>(v, new JsonSerializerOptions()),
+                      v => string.IsNullOrEmpty(v)
+                           ? new List<TagDetail>()
+                           : JsonSerializer.Deserialize<List<TagDetail>>(v, new JsonSerializerOptions())
+                             ?? new List<TagDetail>()
+                  );
+        }
+    }
 
     public class TagDetail
     {
