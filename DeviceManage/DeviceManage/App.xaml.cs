@@ -36,8 +36,12 @@ namespace DeviceManage
                 // 配置依赖注入
                 var services = new ServiceCollection();
                 ConfigureServices(services);
-                _serviceProvider = services.BuildServiceProvider();
+                // 先注册应用自身的服务，再构建 ServiceProvider
                 services.AddDeviceManageServices(_configuration);
+                _serviceProvider = services.BuildServiceProvider();
+
+                // 初始化 ViewModelLocator，提供全局的 ServiceProvider
+                DeviceManage.Helpers.ViewModelLocator.SetServiceProvider(_serviceProvider);
                 //使用pgSql
                 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
                 InitializeDatabaseAndStartServices(_serviceProvider);

@@ -1,9 +1,10 @@
-using System.Windows.Input;
 using DeviceManage.Commands;
 using DeviceManage.Services;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Input;
 
 namespace DeviceManage.ViewModels;
 
@@ -16,19 +17,19 @@ public class MainViewModel : ViewModelBase
     public ReactiveProperty<string> CurrentPageTitle { get; }
     public ReactiveProperty<object?> CurrentView { get; }
     public ReactiveProperty<bool> SidebarVisible { get; }
-    
+
     // 页面映射字典
     private readonly Dictionary<string, PageInfo> _pageMap;
 
     public MainViewModel(ApiClient apiClient)
     {
         _apiClient = apiClient;
-        
+
         // 初始化ReactiveProperty
         CurrentPageTitle = new ReactiveProperty<string>("仪表盘");
         CurrentView = new ReactiveProperty<object?>();
         SidebarVisible = new ReactiveProperty<bool>(true);
-        
+
         // 初始化页面映射
         _pageMap = new Dictionary<string, PageInfo>
         {
@@ -40,15 +41,15 @@ public class MainViewModel : ViewModelBase
             { "LogManagement", new PageInfo("日志管理", typeof(LogManagementViewModel)) },
             { "UserManagement", new PageInfo("用户管理", typeof(UserManagementViewModel)) }
         };
-        
+
         NavigateToCommand = new ReactiveCommand<string>().WithSubscribe(NavigateTo);
         LogoutCommand = new ReactiveCommand().WithSubscribe(Logout);
         ToggleSidebarCommand = new ReactiveCommand().WithSubscribe(ToggleSidebar);
-        
+
         // 默认加载仪表盘
         NavigateTo("Dashboard");
     }
-    
+
     /// <summary>
     /// 页面信息类
     /// </summary>
@@ -56,7 +57,7 @@ public class MainViewModel : ViewModelBase
     {
         public string Title { get; }
         public Type ViewModelType { get; }
-        
+
         public PageInfo(string title, Type viewModelType)
         {
             Title = title;
@@ -83,33 +84,48 @@ public class MainViewModel : ViewModelBase
 
         var pageInfo = _pageMap[pageName];
         CurrentPageTitle.Value = pageInfo.Title;
-        
+
         try
         {
             // 根据页面名称加载对应的视图
             object? view = null;
-            
+
             switch (pageName)
             {
                 case "Dashboard":
-                    view = new Views.DashboardView();
-                    break;
+                    {
+                        // 仪表盘目前没有复杂交互，这里仅加载视图
+                        view = new Views.DashboardView();
+                        break;
+                    }
                 case "PLCDeviceManagement":
-                    view = new Views.PlcDeviceView();
-                    break;
+                    {
+                        // 为 PLC 设备管理页面显式设置对应的 ViewModel，确保命令可以正确触发
+                        var plcVm = (PlcDeviceViewModel)DeviceManage.Helpers.ViewModelLocator
+                            .Instance
+                            .GetViewModel(typeof(PlcDeviceViewModel));
+
+                        var plcView = new Views.PlcDeviceView();
+                        // 在 InitializeComponent() 之后设置 DataContext
+                        plcView.DataContext = plcVm;
+
+                        view = plcView;
+                        break;
+                    }
                 default:
-                    // 对于其他页面，使用ViewModelLocator获取ViewModel实例
-                    var viewModel = DeviceManage.Helpers.ViewModelLocator.Instance.GetViewModel(pageInfo.ViewModelType);
-                    view = viewModel;
-                    break;
+                    {
+                        // 对于其他页面，使用 ViewModelLocator 获取 ViewModel 实例
+                        var viewModel = DeviceManage.Helpers.ViewModelLocator.Instance.GetViewModel(pageInfo.ViewModelType);
+                        view = viewModel;
+                        break;
+                    }
             }
-            
+
             CurrentView.Value = view;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // 处理导航错误
-            CurrentView.Value = null;
+            MessageBox.Show($"页面切换失败: {ex.Message}\n\n异常详情: {ex.StackTrace}", "启动错误", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

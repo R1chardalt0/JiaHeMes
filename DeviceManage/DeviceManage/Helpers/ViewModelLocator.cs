@@ -29,7 +29,8 @@ public class ViewModelLocator
     {
         if (_serviceProvider == null)
             throw new InvalidOperationException("ServiceProvider not initialized");
-            
+        
+        // 直接解析 ViewModel，其依赖的服务（如 IPlcDeviceService）现在都是 Transient
         return _serviceProvider.GetRequiredService(viewModelType);
     }
 

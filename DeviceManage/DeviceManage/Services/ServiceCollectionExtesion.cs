@@ -1,4 +1,5 @@
-﻿using DeviceManage.Services.DeviceMagService;
+﻿using DeviceManage.DBContext.Repository;
+using DeviceManage.Services.DeviceMagService;
 using DeviceManage.Services.DeviceMagService.Impl;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,11 @@ namespace DeviceManage.Services
     {
         public static IServiceCollection AddDeviceManageServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IPlcDeviceService, PlcDeviceService>();
+            // 注册泛型 Repository
+            services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+            
+            // 对于 WPF 应用，使用 Transient 而不是 Scoped，因为 WPF 没有请求 scope 的概念
+            services.AddTransient<IPlcDeviceService, PlcDeviceService>();
             return services;
         }
     }
