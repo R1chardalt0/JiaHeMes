@@ -23,17 +23,20 @@ namespace ChargePadLine.Service.Trace.Impl
     private readonly IRepository<BomRecipe> _bomRecipeRepo;
     private readonly IRepository<Material> _materialRepo;
     private readonly ILogger<WorkOrderService> _logger;
+    private readonly AppDbContext _dbContext;
 
     public WorkOrderService(
         IRepository<WorkOrder> workOrderRepo,
         IRepository<BomRecipe> bomRecipeRepo,
         IRepository<Material> materialRepo,
-        ILogger<WorkOrderService> logger)
+        ILogger<WorkOrderService> logger,
+        AppDbContext dbContext)
     {
       _workOrderRepo = workOrderRepo;
       _bomRecipeRepo = bomRecipeRepo;
       _materialRepo = materialRepo;
       _logger = logger;
+      _dbContext = dbContext;
     }
 
     /// <summary>
@@ -149,7 +152,7 @@ namespace ChargePadLine.Service.Trace.Impl
 
         // 验证工单编码唯一性
         var workOrderCode = new WorkOrderCode(dto.Code);
-        var existingWorkOrder = await _workOrderRepo.GetAsync(w => w.Code == workOrderCode);
+        var existingWorkOrder = await _workOrderRepo.GetAsync(w => w.Code.Value == dto.Code);
         if (existingWorkOrder != null)
         {
           _logger.LogError("工单编码已存在: {Code}", dto.Code);
@@ -262,14 +265,15 @@ namespace ChargePadLine.Service.Trace.Impl
           return false; // 工单不存在
 
         // 开始事务
-        using var transaction = await _workOrderRepo.BeginTransactionAsync();
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
         try
         {
           // 真正删除工单记录
           await _workOrderRepo.DeleteAsync(workOrder);
 
-          // 事务会在using块结束时自动提交或回滚
+          // 提交事务
+          await transaction.CommitAsync();
 
           _logger.LogInformation($"成功删除工单，ID: {workOrder.Id}");
           return true; // 删除成功
@@ -298,7 +302,7 @@ namespace ChargePadLine.Service.Trace.Impl
       try
       {
         // 开始事务
-        using var transaction = await _workOrderRepo.BeginTransactionAsync();
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
         try
         {
@@ -330,7 +334,8 @@ namespace ChargePadLine.Service.Trace.Impl
 
           var deletedCount = workOrdersToDelete.Count;
 
-          // 事务会在using块结束时自动提交或回滚
+          // 提交事务
+          await transaction.CommitAsync();
 
           _logger.LogInformation($"成功批量删除工单，共删除 {deletedCount} 个");
           return deletedCount; // 返回实际删除数量

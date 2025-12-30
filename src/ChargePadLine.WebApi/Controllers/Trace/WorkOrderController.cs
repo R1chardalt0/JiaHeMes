@@ -65,29 +65,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
       }
     }
 
-    /// <summary>
-    /// 根据工单编码获取工单详情
-    /// </summary>
-    /// <param name="code">工单编码</param>
-    /// <returns>工单详情</returns>
-    [HttpGet("code/{code}")]
-    public async Task<ActionResult<WorkOrderDto>> GetWorkOrderByCode(string code)
-    {
-      try
-      {
-        var workOrder = await _workOrderService.GetWorkOrderByCodeAsync(code);
-        if (workOrder == null)
-        {
-          return NotFound($"未找到编码为 {code} 的工单");
-        }
-        return Ok(workOrder);
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, "根据编码获取工单详情时发生错误，编码: {WorkOrderCode}", code);
-        return StatusCode(500, "获取工单详情失败");
-      }
-    }
+
 
     /// <summary>
     /// 创建工单
