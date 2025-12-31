@@ -24,10 +24,10 @@ namespace DeviceManage.Models
         public int Id { get; set; }
 
         /// <summary>
-        /// 点位名称
+        /// Plc点位名称
         /// </summary>
         [Required]
-        public string TagName { get; set; }= string.Empty;
+        public string PlcTagName { get; set; }= string.Empty;
         /// <summary>
         /// plc设备ID
         /// </summary>
@@ -48,6 +48,10 @@ namespace DeviceManage.Models
         /// <summary>
         /// 对应配方实体ID
         /// </summary>
+        [Required]
+        public int RecipeId { get; set; }
+
+
         public Recipe Recipe { get; set; } = null!;
 
         /// <summary>

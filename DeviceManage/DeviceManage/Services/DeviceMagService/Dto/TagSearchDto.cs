@@ -13,6 +13,6 @@ namespace DeviceManage.Services.DeviceMagService.Dto
         public int pageSize { get; set; } = 20;
         public string RecipeName { get; set; } = string.Empty;
         public string PLCName { get; set; } = string.Empty;
-        public string TagName { get; set; } = string.Empty;
+        public string PlcTagName { get; set; } = string.Empty;
     }
 }

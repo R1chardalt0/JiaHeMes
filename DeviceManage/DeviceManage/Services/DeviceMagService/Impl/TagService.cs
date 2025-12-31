@@ -6,6 +6,7 @@ using DeviceManage.Services.DeviceMagService.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DeviceManage.Services.DeviceMagService.Impl
@@ -29,21 +30,25 @@ namespace DeviceManage.Services.DeviceMagService.Impl
 
         public async Task<PaginatedList<Tag>> GetAllTagsAsync(TagSearchDto dto)
         {
-            var query = _db.Tags.OrderByDescending(s => s.CreatedAt).AsQueryable();
+            var query = _db.Tags
+                .Include(t => t.PlcDevice)
+                .Include(t => t.Recipe)
+                .OrderByDescending(s => s.CreatedAt)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(dto.PLCName))
             {
-                query = query.Where(p => p.PlcDevice.PLCName != null && p.PlcDevice.PLCName.Contains(dto.PLCName));
+                query = query.Where(p => p.PlcDevice != null && p.PlcDevice.PLCName != null && p.PlcDevice.PLCName.Contains(dto.PLCName));
             }
 
             if (!string.IsNullOrEmpty(dto.RecipeName))
             {
-                query = query.Where(p => p.Recipe.RecipeName != null && p.PlcDevice.PLCName.Contains(dto.RecipeName));
+                query = query.Where(p => p.Recipe != null && p.Recipe.RecipeName != null && p.Recipe.RecipeName.Contains(dto.RecipeName));
             }
 
-            if (!string.IsNullOrEmpty(dto.TagName))
+            if (!string.IsNullOrEmpty(dto.PlcTagName))
             {
-                query = query.Where(p => p.TagName != null && p.TagName.Contains(dto.TagName));
+                query = query.Where(p => p.PlcTagName != null && p.PlcTagName.Contains(dto.PlcTagName));
             }
 
             // 分页查询
@@ -51,12 +56,19 @@ namespace DeviceManage.Services.DeviceMagService.Impl
             return list;
         }
 
-        public async Task<Tag?> GetTagByIdAsync(int id) => await _repo.GetAsync(t => t.Id == id);
+        public async Task<Tag?> GetTagByIdAsync(int id)
+        {
+            return await _db.Tags
+                .Include(t => t.PlcDevice)
+                .Include(t => t.Recipe)
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
 
         public async Task<Tag> AddTagAsync(Tag tag)
         {
             // 确保导航属性为 null，避免 EF 尝试插入关联实体
             tag.PlcDevice = null;
+            tag.Recipe = null;
 
             await _repo.InsertAsync(tag);
             await _db.SaveChangesAsync();
@@ -68,7 +80,9 @@ namespace DeviceManage.Services.DeviceMagService.Impl
             var exist = await _repo.GetAsync(t => t.Id == tag.Id);
             if (exist == null) return tag;
 
+            exist.PlcTagName=tag.PlcTagName;
             exist.PlcDeviceId = tag.PlcDeviceId;
+            exist.RecipeId = tag.RecipeId;
             exist.Remarks = tag.Remarks;
             exist.TagDetailDataArray = tag.TagDetailDataArray;
 

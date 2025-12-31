@@ -12,6 +12,7 @@ namespace DeviceManage.ViewModels
         public ReactiveProperty<string> TagName { get; } = new ReactiveProperty<string>();
         public ReactiveProperty<string> Address { get; } = new ReactiveProperty<string>();
         public ReactiveProperty<DataType> DataType { get; } = new ReactiveProperty<DataType>();
+        public ReactiveProperty<string> Value { get; } = new ReactiveProperty<string>();
         public ReactiveProperty<string?> Unit { get; } = new ReactiveProperty<string?>();
         public ReactiveProperty<string> Remarks { get; } = new ReactiveProperty<string>();
 
@@ -20,6 +21,7 @@ namespace DeviceManage.ViewModels
             TagName.Value = string.Empty;
             Address.Value = string.Empty;
             DataType.Value = Models.DataType.Float;
+            Value.Value = string.Empty;
             Unit.Value = null;
             Remarks.Value = string.Empty;
         }
@@ -29,6 +31,7 @@ namespace DeviceManage.ViewModels
             TagName.Value = detail.TagName;
             Address.Value = detail.Address;
             DataType.Value = detail.DataType;
+            Value.Value = detail.Value;
             Unit.Value = detail.Unit;
             Remarks.Value = detail.Remarks;
         }
@@ -38,6 +41,7 @@ namespace DeviceManage.ViewModels
             TagName = TagName.Value,
             Address = Address.Value,
             DataType = DataType.Value,
+            Value = Value.Value ?? string.Empty,
             Unit = Unit.Value,
             Remarks = Remarks.Value ?? string.Empty
         };
