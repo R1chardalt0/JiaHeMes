@@ -78,7 +78,7 @@
                 <DataGridTemplateColumn Header="操作" Width="180">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                 <Button Content="编辑" Style="{StaticResource ButtonDashedSuccess}" Margin="0,0,10,0"
                                         Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                         CommandParameter="{Binding}"/>
@@ -205,7 +205,9 @@
                                   HeadersVisibility="Column"
                                   GridLinesVisibility="All"
                                   BorderThickness="1"
-                                  BorderBrush="#DDDDDD" SelectionChanged="DataGrid_SelectionChanged">
+                                  BorderBrush="#DDDDDD" 
+                                  SelectionUnit="FullRow"
+                                  SelectionChanged="DataGrid_SelectionChanged">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="点位名称" 
                                                     Binding="{Binding TagName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
