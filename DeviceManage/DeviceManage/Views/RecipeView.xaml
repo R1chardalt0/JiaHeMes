@@ -89,8 +89,5 @@
                 </Grid>
             </Border>
         </Border>
-
-        <!-- 嵌入配方项对话框 -->
-        <views:RecipeItemDialog DataContext="{Binding ItemsDialogVM}"/>
     </Grid>
 </UserControl>

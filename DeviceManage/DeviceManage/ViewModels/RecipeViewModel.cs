@@ -1,5 +1,4 @@
 using DeviceManage.Models;
-using DeviceManage.Services.RecipeMagService;
 using Reactive.Bindings;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -7,6 +6,7 @@ using HandyControl.Controls;
 using Microsoft.Extensions.Logging;
 using System.Windows;
 using MessageBox = HandyControl.Controls.MessageBox;
+using DeviceManage.Services.DeviceMagService;
 
 namespace DeviceManage.ViewModels
 {
@@ -17,7 +17,6 @@ namespace DeviceManage.ViewModels
     {
         private readonly IRecipeService _recipeSvc;
         private readonly ILogger<RecipeViewModel> _logger;
-        private readonly RecipeItemDialogViewModel _itemDialogVm;
 
         public ReactiveProperty<ObservableCollection<Recipe>> Recipes { get; }
         public ReactiveProperty<Recipe> SelectedRecipe { get; }
@@ -25,14 +24,13 @@ namespace DeviceManage.ViewModels
         public ReactiveProperty<bool> IsEditing { get; }
         public ReactiveProperty<bool> IsDialogOpen { get; }
 
-        public RecipeItemDialogViewModel ItemsDialogVM => _itemDialogVm;
-
+    
         public RecipeViewModel(IRecipeService recipeService,
-                                RecipeItemDialogViewModel itemDialogVm,
+                              
                                 ILogger<RecipeViewModel> logger)
         {
             _recipeSvc = recipeService;
-            _itemDialogVm = itemDialogVm;
+
             _logger = logger;
 
             Recipes = new ReactiveProperty<ObservableCollection<Recipe>>(new ObservableCollection<Recipe>());
@@ -47,7 +45,7 @@ namespace DeviceManage.ViewModels
             DeleteRecipeCommand = new ReactiveCommand<Recipe>().WithSubscribe(async r => await DeleteRecipeAsync(r));
             EditCommand = new ReactiveCommand<Recipe>().WithSubscribe(r => OpenEditDialog(r));
             CancelCommand = new ReactiveCommand().WithSubscribe(() => CloseDialog());
-            OpenItemsDialogCommand = new ReactiveCommand<Recipe>().WithSubscribe(async r => await OpenItemsDialogAsync(r));
+         
 
             Task.Run(async () => await LoadRecipesAsync());
         }
@@ -146,14 +144,6 @@ namespace DeviceManage.ViewModels
         {
             IsDialogOpen.Value = false;
             EditingRecipe.Value = new Recipe();
-        }
-
-        private async Task OpenItemsDialogAsync(Recipe recipe)
-        {
-            if (recipe == null) return;
-            _itemDialogVm.RecipeId = recipe.RecipeId;
-            await _itemDialogVm.LoadAsync();
-            _itemDialogVm.IsDialogOpen.Value = true;
         }
     }
 }

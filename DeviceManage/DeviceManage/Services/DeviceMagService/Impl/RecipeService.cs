@@ -5,8 +5,9 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using DeviceManage.Services.DeviceMagService;
 
-namespace DeviceManage.Services.RecipeMagService.Impl
+namespace DeviceManage.Services.DeviceMagService.Impl
 {
     /// <summary>
     /// 配方（Recipe）业务实现类
@@ -30,17 +31,15 @@ namespace DeviceManage.Services.RecipeMagService.Impl
         /// <summary>
         /// 获取全部配方，包含导航属性 Items
         /// </summary>
-        public async Task<List<Recipe>> GetAllRecipesAsync()
-        {
-            return await _db.Recipes.Include(r => r.Items).ToListAsync();
-        }
+        public async Task<List<Recipe>> GetAllRecipesAsync() => await _recipeRepo.GetListAsync();
+
 
         /// <summary>
-        /// 根据主键获取配方（包含 Items）
+        /// 根据主键获取配方
         /// </summary>
         public async Task<Recipe?> GetRecipeByIdAsync(int id)
         {
-            return await _db.Recipes.Include(r=>r.Items).FirstOrDefaultAsync(r=>r.RecipeId==id);
+            return await _recipeRepo.GetAsync(r => r.RecipeId == id);
         }
 
         /// <summary>
@@ -59,11 +58,11 @@ namespace DeviceManage.Services.RecipeMagService.Impl
         public async Task<Recipe> UpdateRecipeAsync(Recipe recipe)
         {
             var existing = await _recipeRepo.GetAsync(r => r.RecipeId == recipe.RecipeId);
-            if (existing == null) return recipe; // 理论上不应出现
+            if (existing == null) return recipe;
 
             existing.RecipeName = recipe.RecipeName;
-            existing.Remarks     = recipe.Remarks;
-            existing.Version     = recipe.Version;
+            existing.Remarks = recipe.Remarks;
+            existing.Version = recipe.Version;
 
             _recipeRepo.Update(existing);
             await _db.SaveChangesAsync();

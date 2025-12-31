@@ -2,7 +2,7 @@ using DeviceManage.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace DeviceManage.Services.RecipeMagService
+namespace DeviceManage.Services.DeviceMagService
 {
     /// <summary>
     /// 配方（Recipe）业务接口

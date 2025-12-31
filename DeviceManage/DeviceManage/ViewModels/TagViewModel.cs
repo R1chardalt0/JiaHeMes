@@ -1,5 +1,4 @@
 using DeviceManage.Models;
-using DeviceManage.Services.TagMagService;
 using DeviceManage.Services.DeviceMagService;
 using Microsoft.Extensions.Logging;
 using Reactive.Bindings;
@@ -10,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using MessageBox = HandyControl.Controls.MessageBox;
+using DeviceManage.Services.DeviceMagService.Dto;
 
 namespace DeviceManage.ViewModels
 {
@@ -79,7 +79,7 @@ namespace DeviceManage.ViewModels
         {
             try
             {
-                var list = await _tagSvc.GetAllTagsAsync();
+                var list = await _tagSvc.GetAllTagsAsync(new TagSearchDto());
                 Tags.Value = new ObservableCollection<Tag>(list);
 
                 // 加载 PLC 设备列表
@@ -187,7 +187,7 @@ namespace DeviceManage.ViewModels
                 {
                     // 新增：确保导航属性为 null，避免 EF 尝试插入关联实体
                     entity.PlcDevice = null;
-                    entity.RecipeItems = null;
+                    
                     await _tagSvc.AddTagAsync(entity);
                 }
                 else

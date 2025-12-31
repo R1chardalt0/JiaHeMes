@@ -101,7 +101,6 @@ namespace DeviceManage
             services.AddTransient<LogManagementViewModel>();
             services.AddTransient<UserManagementViewModel>();
             services.AddTransient<RecipeViewModel>();
-            services.AddTransient<RecipeItemDialogViewModel>();
             services.AddTransient<TagViewModel>();
 
             // 注册Windows

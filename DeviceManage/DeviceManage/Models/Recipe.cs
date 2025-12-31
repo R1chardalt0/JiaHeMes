@@ -24,13 +24,13 @@ namespace DeviceManage.Models
         /// 配方名称
         /// </summary>
         [MaxLength(20)]
-        public string RecipeName { get; set; }
+        public string RecipeName { get; set; }=string.Empty;
 
         /// <summary>
         /// 配方描述
         /// </summary>
         [MaxLength(200)]
-        public string Remarks { get; set; }
+        public string Remarks { get; set; } = string.Empty;
 
         /// <summary>
         /// 配方版本

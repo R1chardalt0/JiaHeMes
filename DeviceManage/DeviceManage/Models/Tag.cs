@@ -15,7 +15,7 @@ namespace DeviceManage.Models
     /// 数据点位实体
     /// </summary>
     [Table("dm_tag")]
-    public class Tag
+    public class Tag : BaseModel
     {
         /// <summary>
         /// 点位实体ID
@@ -23,6 +23,11 @@ namespace DeviceManage.Models
         [Key]
         public int Id { get; set; }
 
+        /// <summary>
+        /// 点位名称
+        /// </summary>
+        [Required]
+        public string TagName { get; set; }= string.Empty;
         /// <summary>
         /// plc设备ID
         /// </summary>

@@ -21,12 +21,12 @@ namespace DeviceManage.Models
         ///  PLC名称
         /// </summary>
         [MaxLength(20)]
-        public string PLCName { get; set; }
+        public string PLCName { get; set; } = string.Empty;
 
         /// <summary>
         /// IP地址
         /// </summary>
-        public string IPAddress { get; set; }
+        public string IPAddress { get; set; } = string.Empty;
 
         /// <summary>
         /// 端口号
@@ -38,18 +38,18 @@ namespace DeviceManage.Models
         ///  Modbus TCP、S7
         /// </summary>
         [MaxLength(20)]
-        public string Protocolc { get; set; }
+        public string Protocolc { get; set; } = string.Empty;
 
         /// <summary>
         /// 型号
         /// </summary>
         [MaxLength(20)]
-        public string Model { get; set; }
+        public string Model { get; set; } = string.Empty;
 
         /// <summary>
         /// 描述信息
         /// </summary>
         [MaxLength(200)]
-        public string Remarks { get; set; }
+        public string Remarks { get; set; } = string.Empty;
     }
 }
