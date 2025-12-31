@@ -9,7 +9,7 @@ import { WorkOrderDto, WorkOrderQueryDto, CreateWorkOrderDto, UpdateWorkOrderDto
 export async function getWorkOrderList(
   params: WorkOrderQueryDto
 ): Promise<any> {
-  const result = await request('/api/WorkOrder', {
+  const result = await request('/api/WorkOrder/GetWorkOrderList', {
     method: 'GET',
     params,
   });
@@ -36,8 +36,9 @@ export async function getWorkOrderList(
 export async function getWorkOrderDetail(
   id: number
 ): Promise<WorkOrderDto> {
-  return request(`/api/WorkOrder/${id}`, {
+  return request('/api/WorkOrder/GetWorkOrderById', {
     method: 'GET',
+    params: { id },
   });
 }
 
@@ -49,7 +50,7 @@ export async function getWorkOrderDetail(
 export async function createWorkOrder(
   data: CreateWorkOrderDto
 ): Promise<WorkOrderDto> {
-  return request('/api/WorkOrder', {
+  return request('/api/WorkOrder/CreateWorkOrder', {
     method: 'POST',
     data,
   });
@@ -65,35 +66,25 @@ export async function updateWorkOrder(
   id: number,
   data: UpdateWorkOrderDto
 ): Promise<WorkOrderDto> {
-  return request(`/api/WorkOrder/${id}`, {
-    method: 'PUT',
+  return request('/api/WorkOrder/UpdateWorkOrderById', {
+    method: 'POST',
+    params: { id },
     data,
   });
 }
 
 /**
- * 删除工单
- * @param id 工单ID
+ * 删除工单（支持单个删除和批量删除）
+ * @param ids 工单ID数组
  * @returns 删除结果
  */
 export async function deleteWorkOrder(
-  id: number
-): Promise<any> {
-  return request(`/api/WorkOrder/${id}`, {
-    method: 'DELETE',
-  });
-}
-
-/**
- * 批量删除工单
- * @param ids 工单ID数组
- * @returns 实际删除的工单数量
- */
-export async function batchDeleteWorkOrder(
   ids: number[]
 ): Promise<any> {
-  return request('/api/WorkOrder', {
-    method: 'DELETE',
+  return request('/api/WorkOrder/DeleteWorkOrderByIds', {
+    method: 'POST',
     data: ids,
   });
 }
+
+

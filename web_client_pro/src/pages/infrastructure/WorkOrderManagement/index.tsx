@@ -17,6 +17,7 @@ const WorkOrderManagement: React.FC = () => {
   const [messageApi] = message.useMessage();
   const [form] = Form.useForm<CreateWorkOrderDto>();
   const [editForm] = Form.useForm<UpdateWorkOrderDto>();
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [currentSearchParams, setCurrentSearchParams] = useState<WorkOrderQueryDto>({
     current: 1,
     pageSize: 50
@@ -52,11 +53,27 @@ const WorkOrderManagement: React.FC = () => {
   // 处理删除工单
   const handleDeleteWorkOrder = async (id: number) => {
     try {
-      await deleteWorkOrder(id);
+      await deleteWorkOrder([id]);
       messageApi.success('工单删除成功');
       actionRef.current?.reload();
     } catch (error) {
       messageApi.error('工单删除失败');
+    }
+  };
+
+  // 处理批量删除工单
+  const handleBatchDeleteWorkOrder = async () => {
+    try {
+      // 将selectedRowKeys转换为number[]类型
+      const ids = selectedRowKeys.map(key => Number(key));
+      await deleteWorkOrder(ids);
+      messageApi.success(`成功删除${ids.length}个工单`);
+      // 清空选中的行
+      setSelectedRowKeys([]);
+      // 刷新表格
+      actionRef.current?.reload();
+    } catch (error) {
+      messageApi.error('批量删除工单失败');
     }
   };
 
@@ -184,7 +201,7 @@ const WorkOrderManagement: React.FC = () => {
       <ProTable<WorkOrderDto>
         headerTitle="工单管理列表"
         actionRef={actionRef}
-        rowKey={(record, index = 0) => index.toString()}
+        rowKey="id"
         className="work-order-glass-table"
         search={{
           labelWidth: 120,
@@ -257,8 +274,33 @@ const WorkOrderManagement: React.FC = () => {
             }}
           >
             新建工单
-          </Button>
+          </Button>,
+          <Popconfirm
+            title="批量删除"
+            description="确定要删除选中的所有工单吗？"
+            onConfirm={() => {
+              // 调用批量删除处理函数
+              handleBatchDeleteWorkOrder();
+            }}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button
+              key="batchDelete"
+              danger
+              disabled={selectedRowKeys.length === 0}
+              icon={<DeleteOutlined />}
+            >
+              批量删除
+            </Button>
+          </Popconfirm>
         ]}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: (newSelectedRowKeys) => {
+            setSelectedRowKeys(newSelectedRowKeys);
+          },
+        }}
         onRow={(record) => ({
           onClick: () => {
             setCurrentRow(record);
@@ -379,7 +421,7 @@ const WorkOrderManagement: React.FC = () => {
             <Input placeholder="请输入工单编号" />
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             label="产品编码"
             name="productCode"
             rules={[
@@ -387,7 +429,7 @@ const WorkOrderManagement: React.FC = () => {
             ]}
           >
             <Input placeholder="请输入产品编码" />
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item
             label="BOM配方ID"
@@ -502,7 +544,7 @@ const WorkOrderManagement: React.FC = () => {
             <Input placeholder="请输入工单编号" />
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             label="产品编码"
             name="productCode"
             rules={[
@@ -510,7 +552,7 @@ const WorkOrderManagement: React.FC = () => {
             ]}
           >
             <Input placeholder="请输入产品编码" />
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item
             label="BOM配方ID"

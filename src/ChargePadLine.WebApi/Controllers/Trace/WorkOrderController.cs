@@ -26,7 +26,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// </summary>
     /// <param name="queryDto">查询参数</param>
     /// <returns>分页工单列表</returns>
-    [HttpGet]
+    [HttpGet("GetWorkOrderList")]
     public async Task<ActionResult<PaginatedList<WorkOrderDto>>> GetWorkOrders([FromQuery] WorkOrderQueryDto queryDto)
     {
       try
@@ -44,9 +44,8 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <summary>
     /// 根据ID获取工单详情
     /// </summary>
-    /// <param name="id">工单ID</param>
-    /// <returns>工单详情</returns>
-    [HttpGet("{id}")]
+
+    [HttpGet("GetWorkOrderById")]
     public async Task<ActionResult<WorkOrderDto>> GetWorkOrder(int id)
     {
       try
@@ -65,14 +64,11 @@ namespace ChargePadLine.WebApi.Controllers.Trace
       }
     }
 
-
-
     /// <summary>
     /// 创建工单
     /// </summary>
-    /// <param name="dto">创建工单DTO</param>
-    /// <returns>创建成功的工单信息</returns>
-    [HttpPost]
+
+    [HttpPost("CreateWorkOrder")]
     public async Task<ActionResult<WorkOrderDto>> CreateWorkOrder([FromBody] CreateWorkOrderDto dto)
     {
       try
@@ -96,10 +92,8 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <summary>
     /// 更新工单
     /// </summary>
-    /// <param name="id">工单ID</param>
-    /// <param name="dto">更新工单DTO</param>
-    /// <returns>更新后的工单信息</returns>
-    [HttpPut("{id}")]
+
+    [HttpPost("UpdateWorkOrderById")]
     public async Task<ActionResult<WorkOrderDto>> UpdateWorkOrder(int id, [FromBody] UpdateWorkOrderDto dto)
     {
       try
@@ -126,54 +120,25 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     }
 
     /// <summary>
-    /// 删除工单
+    /// 删除工单（支持单个删除和批量删除）
     /// </summary>
-    /// <param name="id">工单ID</param>
-    /// <returns>删除结果</returns>
-    [HttpDelete("{id}")]
-    public async Task<ActionResult<bool>> DeleteWorkOrder(int id)
+
+    [HttpPost("DeleteWorkOrderByIds")]
+    public async Task<ActionResult<object>> DeleteWorkOrderByIds([FromBody] List<int> ids)
     {
       try
       {
-        var result = await _workOrderService.DeleteWorkOrderAsync(id);
-        if (result)
+        if (ids == null || ids.Count == 0)
         {
-          return Ok(new { success = true, message = "工单删除成功" });
+          return BadRequest("工单ID列表不能为空");
         }
-        else
-        {
-          return NotFound(new { success = false, message = $"未找到ID为 {id} 的工单" });
-        }
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, "删除工单时发生错误，ID: {WorkOrderId}", id);
-        return StatusCode(500, "删除工单失败");
-      }
-    }
-
-    /// <summary>
-    /// 批量删除工单
-    /// </summary>
-    /// <param name="ids">工单ID数组</param>
-    /// <returns>实际删除的工单数量</returns>
-    [HttpDelete]
-    public async Task<ActionResult<int>> DeleteWorkOrders([FromBody] int[] ids)
-    {
-      try
-      {
-        if (ids == null || ids.Length == 0)
-        {
-          return BadRequest("工单ID数组不能为空");
-        }
-
-        var result = await _workOrderService.DeleteWorkOrdersAsync(ids);
+        var result = await _workOrderService.DeleteWorkOrdersAsync(ids.ToArray());
         return Ok(new { deletedCount = result, message = $"成功删除 {result} 个工单" });
       }
       catch (Exception ex)
       {
-        _logger.LogError(ex, "批量删除工单时发生错误");
-        return StatusCode(500, "批量删除工单失败");
+        _logger.LogError(ex, "删除工单时发生错误,IDs:{@WorkOrderIds}", ids);
+        return StatusCode(500, "删除工单失败");
       }
     }
   }
