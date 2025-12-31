@@ -320,20 +320,17 @@ const WorkOrderManagement: React.FC = () => {
         rootClassName="work-order-info-drawer"
         styles={{
           content: {
-            background:
-              'radial-gradient(120% 120% at 0% 0%, rgba(54,78,148,0.16) 0%, rgba(10,18,35,0) 60%), linear-gradient(180deg, rgba(7,16,35,0.52) 0%, rgba(7,16,35,0.34) 100%)',
-            backdropFilter: 'blur(14px) saturate(115%)',
-            WebkitBackdropFilter: 'blur(14px) saturate(115%)',
+            background: '#fff',
             borderLeft: '1px solid rgba(72,115,255,0.32)',
             boxShadow:
               '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
           },
           header: {
-            background: 'transparent',
+            background: '#fff',
             borderBottom: '1px solid rgba(72,115,255,0.22)'
           },
           body: {
-            background: 'transparent'
+            background: '#fff'
           },
           mask: {
             background: 'rgba(4,10,22,0.35)',
