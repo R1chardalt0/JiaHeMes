@@ -62,6 +62,7 @@ namespace DeviceManage.Services.DeviceMagService.Impl
 
             existing.RecipeName = recipe.RecipeName;
             existing.Remarks = recipe.Remarks;
+            existing.Status = recipe.Status;
             existing.Version = recipe.Version;
 
             _recipeRepo.Update(existing);

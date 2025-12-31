@@ -1,6 +1,7 @@
 using DeviceManage.Models;
 using Reactive.Bindings;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using HandyControl.Controls;
 using Microsoft.Extensions.Logging;
@@ -24,13 +25,10 @@ namespace DeviceManage.ViewModels
         public ReactiveProperty<bool> IsEditing { get; }
         public ReactiveProperty<bool> IsDialogOpen { get; }
 
-    
-        public RecipeViewModel(IRecipeService recipeService,
-                              
-                                ILogger<RecipeViewModel> logger)
+
+        public RecipeViewModel(IRecipeService recipeService, ILogger<RecipeViewModel> logger)
         {
             _recipeSvc = recipeService;
-
             _logger = logger;
 
             Recipes = new ReactiveProperty<ObservableCollection<Recipe>>(new ObservableCollection<Recipe>());
@@ -45,7 +43,7 @@ namespace DeviceManage.ViewModels
             DeleteRecipeCommand = new ReactiveCommand<Recipe>().WithSubscribe(async r => await DeleteRecipeAsync(r));
             EditCommand = new ReactiveCommand<Recipe>().WithSubscribe(r => OpenEditDialog(r));
             CancelCommand = new ReactiveCommand().WithSubscribe(() => CloseDialog());
-         
+
 
             Task.Run(async () => await LoadRecipesAsync());
         }
@@ -84,9 +82,22 @@ namespace DeviceManage.ViewModels
                     return;
                 }
 
+                // 如果当前配方的状态设置为 true（使用中），则将其他所有配方的状态设置为 false（停用）
+                if (recipe.Status)
+                {
+                    var allRecipes = await _recipeSvc.GetAllRecipesAsync();
+                    foreach (var existingRecipe in allRecipes)
+                    {
+                        if (existingRecipe.RecipeId != recipe.RecipeId && existingRecipe.Status)
+                        {
+                            existingRecipe.Status = false;
+                            await _recipeSvc.UpdateRecipeAsync(existingRecipe);
+                        }
+                    }
+                }
+
                 if (recipe.RecipeId == 0)
                 {
-                    recipe.Version = 1;
                     await _recipeSvc.AddRecipeAsync(recipe);
                 }
                 else
@@ -110,6 +121,19 @@ namespace DeviceManage.ViewModels
             if (result != MessageBoxResult.Yes) return;
             try
             {
+                if (recipe.Status)
+                {
+                    var allRecipes = await _recipeSvc.GetAllRecipesAsync();
+                    var otherRecipes = allRecipes.Where(r => r.RecipeId != recipe.RecipeId).ToList();
+
+                    if (otherRecipes.Any())
+                    {
+                        var firstAvailableRecipe = otherRecipes.First();
+                        firstAvailableRecipe.Status = true;
+                        await _recipeSvc.UpdateRecipeAsync(firstAvailableRecipe);
+                    }
+                }
+
                 await _recipeSvc.DeleteRecipeAsync(recipe.RecipeId);
                 await LoadRecipesAsync();
             }
@@ -133,6 +157,7 @@ namespace DeviceManage.ViewModels
             {
                 RecipeId = recipe.RecipeId,
                 RecipeName = recipe.RecipeName,
+                Status = recipe.Status,
                 Remarks = recipe.Remarks,
                 Version = recipe.Version
             };
