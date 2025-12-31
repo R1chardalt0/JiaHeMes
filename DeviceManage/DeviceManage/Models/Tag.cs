@@ -41,9 +41,9 @@ namespace DeviceManage.Models
         public string? Remarks { get; set; }
 
         /// <summary>
-        /// 被哪些配方项引用（可选，用于反向查询）
+        /// 对应配方实体ID
         /// </summary>
-        public ICollection<RecipeItem>? RecipeItems { get; set; } = new List<RecipeItem>();
+        public Recipe Recipe { get; set; } = null!;
 
         /// <summary>
         /// 点位映射实体
