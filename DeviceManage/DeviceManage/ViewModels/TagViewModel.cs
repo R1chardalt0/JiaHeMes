@@ -97,6 +97,14 @@ namespace DeviceManage.ViewModels
                 PageListViewModel.PageIndex = 1;
                 await LoadAsync();
             });
+            ResetCommand = new ReactiveCommand().WithSubscribe(async () =>
+            {
+                SearchTagName.Value = string.Empty;
+                SearchPLCName.Value = string.Empty;
+                SearchRecipeName.Value = string.Empty;
+                PageListViewModel.PageIndex = 1;
+                await LoadAsync();
+            });
             AddCommand = new ReactiveCommand().WithSubscribe(OpenAdd);
             EditCommand = new ReactiveCommand<Tag>().WithSubscribe(OpenEdit);
             DeleteCommand = new ReactiveCommand<Tag>().WithSubscribe(async t => await DeleteAsync(t));
@@ -115,6 +123,7 @@ namespace DeviceManage.ViewModels
 
         public ReactiveCommand LoadCommand { get; }
         public ReactiveCommand SearchCommand { get; }
+        public ReactiveCommand ResetCommand { get; }
         public ReactiveCommand AddCommand { get; }
         public ReactiveCommand<Tag> EditCommand { get; }
         public ReactiveCommand<Tag> DeleteCommand { get; }

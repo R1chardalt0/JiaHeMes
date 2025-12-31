@@ -55,9 +55,14 @@
                          Height="30" VerticalContentAlignment="Center"/>
             </StackPanel>
             
-            <Button Grid.Column="3" Content="搜索" Command="{Binding SearchCommand}" 
-                    Style="{StaticResource ButtonInfo}" 
-                    VerticalAlignment="Bottom" Height="30" Padding="20,0"/>
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Bottom">
+                <Button Content="搜索" Command="{Binding SearchCommand}" 
+                        Style="{StaticResource ButtonInfo}" 
+                        Height="30" Padding="20,0" Margin="0,0,10,0"/>
+                <Button Content="重置" Command="{Binding ResetCommand}" 
+                        Style="{StaticResource ButtonWarning}" 
+                        Height="30" Padding="20,0"/>
+            </StackPanel>
         </Grid>
 
         <!-- 数据表格区域 -->
