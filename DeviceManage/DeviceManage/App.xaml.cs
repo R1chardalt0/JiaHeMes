@@ -82,7 +82,7 @@ namespace DeviceManage
             // 注册 DbContext
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseNpgsql(_configuration.GetConnectionString("AppDbContext"));
+                options.UseNpgsql(_configuration!.GetConnectionString("AppDbContext"));
                 options.UseNpgsql(s => s.MigrationsAssembly(typeof(App).Assembly.GetName().Name));
                 //抛出sql文本
                 if (System.Diagnostics.Debugger.IsAttached)
@@ -100,6 +100,9 @@ namespace DeviceManage
             services.AddTransient<SystemSettingsViewModel>();
             services.AddTransient<LogManagementViewModel>();
             services.AddTransient<UserManagementViewModel>();
+            services.AddTransient<RecipeViewModel>();
+            services.AddTransient<RecipeItemDialogViewModel>();
+            services.AddTransient<TagViewModel>();
 
             // 注册Windows
             services.AddTransient<MainWindow>();
@@ -137,4 +140,3 @@ namespace DeviceManage
         #endregion
     }
 }
-

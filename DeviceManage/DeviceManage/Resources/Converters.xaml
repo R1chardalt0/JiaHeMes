@@ -11,5 +11,8 @@
     <!-- 空值转换器 -->
     <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 
+    <!-- TagDetailDataArray 显示转换器 -->
+    <converters:TagDetailsConverter x:Key="TagDetailsConverter"/>
+
 </ResourceDictionary>
 

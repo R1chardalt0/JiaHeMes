@@ -30,8 +30,19 @@ namespace DeviceManage.Models
         [Required]
         public int TagId { get; set; }
 
+        /// <summary>
+        /// 点位标识
+        /// </summary>
         [Required]
-        public string TargetValue { get; set; } = string.Empty; // 存储为字符串，运行时按 DataType 解析
+        [MaxLength(50)]
+        public string TagKey { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 目标值（以字符串存储，保存/下发时按点位 DataType 解析校验）
+        /// </summary>
+        [Required]
+        public string TargetValue { get; set; } = string.Empty;
+
         // 导航属性
         [ForeignKey(nameof(RecipeId))]
         public Recipe Recipe { get; set; } = null!;

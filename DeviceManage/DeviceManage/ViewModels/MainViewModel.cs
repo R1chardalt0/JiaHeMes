@@ -34,6 +34,8 @@ public class MainViewModel : ViewModelBase
         {
             { "Dashboard", new PageInfo("仪表盘", typeof(DashboardViewModel)) },
             { "PLCDeviceManagement", new PageInfo("PLC设备管理", typeof(PlcDeviceViewModel)) },
+            { "RecipeManagement", new PageInfo("配方管理", typeof(RecipeViewModel)) },
+            { "TagManagement", new PageInfo("点位管理", typeof(TagViewModel)) },
             { "DeviceStatus", new PageInfo("设备状态", typeof(DeviceStatusViewModel)) },
             { "Configuration", new PageInfo("配置管理", typeof(ConfigurationViewModel)) },
             { "SystemSettings", new PageInfo("系统设置", typeof(SystemSettingsViewModel)) },
@@ -93,27 +95,43 @@ public class MainViewModel : ViewModelBase
             {
                 case "Dashboard":
                     {
-                        // 仪表盘目前没有复杂交互，这里仅加载视图
                         view = new Views.DashboardView();
                         break;
                     }
                 case "PLCDeviceManagement":
                     {
-                        // 为 PLC 设备管理页面显式设置对应的 ViewModel，确保命令可以正确触发
                         var plcVm = (PlcDeviceViewModel)DeviceManage.Helpers.ViewModelLocator
                             .Instance
                             .GetViewModel(typeof(PlcDeviceViewModel));
 
                         var plcView = new Views.PlcDeviceView();
-                        // 在 InitializeComponent() 之后设置 DataContext
                         plcView.DataContext = plcVm;
 
                         view = plcView;
                         break;
                     }
+                case "RecipeManagement":
+                    {
+                        var recipeVm = (RecipeViewModel)DeviceManage.Helpers.ViewModelLocator
+                            .Instance
+                            .GetViewModel(typeof(RecipeViewModel));
+                        var recipeView = new Views.RecipeView();
+                        recipeView.DataContext = recipeVm;
+                        view = recipeView;
+                        break;
+                    }
+                case "TagManagement":
+                    {
+                        var tagVm = (TagViewModel)DeviceManage.Helpers.ViewModelLocator
+                            .Instance
+                            .GetViewModel(typeof(TagViewModel));
+                        var tagView = new Views.TagView();
+                        tagView.DataContext = tagVm;
+                        view = tagView;
+                        break;
+                    }
                 default:
                     {
-                        // 对于其他页面，使用 ViewModelLocator 获取 ViewModel 实例
                         var viewModel = DeviceManage.Helpers.ViewModelLocator.Instance.GetViewModel(pageInfo.ViewModelType);
                         view = viewModel;
                         break;
@@ -132,16 +150,13 @@ public class MainViewModel : ViewModelBase
     {
         try
         {
-            // 通过 ViewModelLocator 获取 ServiceProvider，创建新的登录窗口
             var serviceProvider = DeviceManage.Helpers.ViewModelLocator.Instance.GetServiceProvider();
             if (serviceProvider != null)
             {
-                // 先创建并显示登录窗口（避免主窗口关闭后应用退出）
                 var newMainViewModel = serviceProvider.GetRequiredService<MainViewModel>();
                 var loginWindow = new LoginWindow(newMainViewModel);
                 loginWindow.Show();
 
-                // 然后关闭主窗口
                 var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
                 if (mainWindow != null)
                 {
@@ -166,4 +181,3 @@ public class MainViewModel : ViewModelBase
 
     #endregion
 }
-

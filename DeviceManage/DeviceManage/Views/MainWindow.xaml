@@ -202,6 +202,10 @@
                                    Background="#673AB7"/>
                             <Button Content="🔌 PLC设备管理" Command="{Binding NavigateToCommand}"
                                    CommandParameter="PLCDeviceManagement" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
+                            <Button Content="🧪 配方管理" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="RecipeManagement" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
+                            <Button Content="🏷️ 点位管理" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="TagManagement" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
                             <Button Content="📊 设备状态" Command="{Binding NavigateToCommand}"
                                    CommandParameter="DeviceStatus" Style="{StaticResource ModernButton}" Margin="0,5"/>
                             <Button Content="⚙️ 配置管理" Command="{Binding NavigateToCommand}"
@@ -241,3 +245,4 @@
         </Grid>
     </Grid>
 </Window>
+

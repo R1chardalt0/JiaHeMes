@@ -91,10 +91,17 @@ namespace DeviceManage.Models
         public DataType DataType { get; set; }
 
         /// <summary>
+        /// 值
+        /// </summary>
+        [Required]
+        public string Value { get; set; } = string.Empty;
+
+        /// <summary>
         /// 单位
         /// </summary>
         [MaxLength(20)]
         public string? Unit { get; set; } // 如 "RPM", "°C"
+
         /// <summary>
         /// 描述信息
         /// </summary>
