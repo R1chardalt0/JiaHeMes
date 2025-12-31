@@ -51,8 +51,5 @@ namespace DeviceManage.Models
         /// </summary>
         [MaxLength(200)]
         public string Remarks { get; set; }
-
-
-
     }
 }

@@ -12,7 +12,7 @@ namespace DeviceManage.DBContext
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options): base(options)
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
 
@@ -31,16 +31,10 @@ namespace DeviceManage.DBContext
             {
                 entity.HasKey(e => e.RecipeId);
             });
-
-            modelBuilder.Entity<RecipeItem>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-            });
         }
 
         public DbSet<PlcDevice> PlcDevices { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
-        public DbSet<RecipeItem> RecipeItems { get; set; }
         public DbSet<Tag> Tags { get; set; }
     }
 }
