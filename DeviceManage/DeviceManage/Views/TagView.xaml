@@ -1,0 +1,271 @@
+<UserControl x:Class="DeviceManage.Views.TagView"
+             x:Name="TagViewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:DeviceManage.Converters"
+             xmlns:customerControl="clr-namespace:DeviceManage.CustomerControl"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1000">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:TagDetailsConverter x:Key="TagDetailsConverter"/>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部按钮区域 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="刷新" Command="{Binding LoadCommand}" Style="{StaticResource ButtonDashedInfo}" Margin="0,0,15,0"/>
+            <Button Content="新增" Command="{Binding AddCommand}" Style="{StaticResource ButtonDashedSuccess}" Margin="0,0,15,0"/>
+        </StackPanel>
+
+        <!-- 搜索区域 -->
+        <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <Label Content="点位名称:" FontSize="12" Margin="0,0,0,5"/>
+                <TextBox Text="{Binding SearchTagName.Value, UpdateSourceTrigger=PropertyChanged}" 
+                         Height="30" VerticalContentAlignment="Center"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                <Label Content="PLC设备名称:" FontSize="12" Margin="0,0,0,5"/>
+                <TextBox Text="{Binding SearchPLCName.Value, UpdateSourceTrigger=PropertyChanged}" 
+                         Height="30" VerticalContentAlignment="Center"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                <Label Content="配方名称:" FontSize="12" Margin="0,0,0,5"/>
+                <TextBox Text="{Binding SearchRecipeName.Value, UpdateSourceTrigger=PropertyChanged}" 
+                         Height="30" VerticalContentAlignment="Center"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Bottom">
+                <Button Content="搜索" Command="{Binding SearchCommand}" 
+                        Style="{StaticResource ButtonInfo}" 
+                        Height="30" Padding="20,0" Margin="0,0,10,0"/>
+                <Button Content="重置" Command="{Binding ResetCommand}" 
+                        Style="{StaticResource ButtonWarning}" 
+                        Height="30" Padding="20,0"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- 数据表格区域 -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Tags.Value}" SelectedItem="{Binding SelectedTag.Value, Mode=TwoWay}"
+                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                <DataGridTextColumn Header="点位名称" Binding="{Binding PlcTagName}" Width="*"/>
+                <DataGridTextColumn Header="PLC设备名称" Binding="{Binding PlcDevice.PLCName}" Width="*"/>
+                <DataGridTextColumn Header="配方名称" Binding="{Binding Recipe.RecipeName}" Width="*"/>
+                <DataGridTextColumn Header="描述" Binding="{Binding Remarks}" Width="*"/>
+                <DataGridTextColumn Header="点位映射实体" Binding="{Binding TagDetailDataArray, Converter={StaticResource TagDetailsConverter}}" Width="2*"/>
+                <DataGridTemplateColumn Header="操作" Width="180">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <Button Content="编辑" Style="{StaticResource ButtonDashedSuccess}" Margin="0,0,10,0"
+                                        Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"/>
+                                <Button Content="删除" Style="{StaticResource ButtonDashedDanger}"
+                                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- 分页组件 -->
+        <customerControl:PageListView Grid.Row="3" DataContext="{Binding PageListViewModel}" Margin="0,10,0,0"/>
+
+        <!-- 弹窗：新增/编辑 Tag -->
+        <Border Grid.RowSpan="4" Background="#80000000"
+                Visibility="{Binding IsDialogOpen.Value, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Width="1000" MaxHeight="800" Background="White" CornerRadius="8" Padding="20" 
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 标题 -->
+                    <TextBlock FontSize="16" FontWeight="Bold" Grid.Row="0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="新增点位组"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing.Value}" Value="True">
+                                        <Setter Property="Text" Value="编辑点位组"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <!-- 基本信息编辑区域 -->
+                    <Grid Grid.Row="1" Margin="0,15,0,15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 第一行 -->
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,10">
+                            <Label Content="Plc点位名称:" FontSize="12" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding EditingTag.Value.PlcTagName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                                     Height="30" VerticalContentAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
+                            <Label Content="描述:" FontSize="12" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding EditingTag.Value.Remarks, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                                     Height="30" VerticalContentAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- 第二行 -->
+                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,0">
+                            <Label Content="PLC设备:" FontSize="12" Margin="0,0,0,5"/>
+                            <ComboBox ItemsSource="{Binding PlcDevices.Value}" 
+                                      SelectedValuePath="Id"
+                                      SelectedValue="{Binding EditingTag.Value.PlcDeviceId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Height="30" VerticalContentAlignment="Center">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock>
+                                            <Run Text="{Binding Id}"/>
+                                            <Run Text=" - "/>
+                                            <Run Text="{Binding PLCName}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="1">
+                            <Label Content="配方名称:" FontSize="12" Margin="0,0,0,5"/>
+                            <ComboBox ItemsSource="{Binding Recipes.Value}" 
+                                      SelectedValuePath="RecipeId"
+                                      SelectedValue="{Binding EditingTag.Value.RecipeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Height="30" VerticalContentAlignment="Center">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock>
+                                            <Run Text="{Binding RecipeId}"/>
+                                            <Run Text=" - "/>
+                                            <Run Text="{Binding RecipeName}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- 点位详情表格编辑区域（流体高度） -->
+                    <Grid Grid.Row="2" Margin="0,0,0,15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Label Grid.Row="0" Content="点位映射实体:" FontSize="12" Margin="0,0,0,5"/>
+                        
+                        <!-- 表格区域（设置最大高度，超出时显示滚动条） -->
+                        <DataGrid Grid.Row="1" 
+                                  ItemsSource="{Binding TagDetailRows.Value}" 
+                                  AutoGenerateColumns="False" 
+                                  CanUserAddRows="False"
+                                  MaxHeight="250"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="All"
+                                  BorderThickness="1"
+                                  BorderBrush="#DDDDDD" 
+                                  SelectionUnit="FullRow"
+                                  SelectionChanged="DataGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="点位名称" 
+                                                    Binding="{Binding TagName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                    Width="*"/>
+                                <DataGridTextColumn Header="地址" 
+                                                    Binding="{Binding Address.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                    Width="*"/>
+                                <DataGridTemplateColumn Header="数据类型" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DataType.Value}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding DataContext.DataTypes.Value, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      SelectedItem="{Binding DataType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="值" 
+                                                    Binding="{Binding Value.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                    Width="*"/>
+                                <DataGridTextColumn Header="单位" 
+                                                    Binding="{Binding Unit.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                    Width="100"/>
+                                <DataGridTextColumn Header="描述" 
+                                                    Binding="{Binding Remarks.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                    Width="*"/>
+                                <DataGridTemplateColumn Header="操作" Width="100">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="删除" 
+                                                    Style="{StaticResource ButtonDashedDanger}"
+                                                    Command="{Binding DataContext.RemoveDetailCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        
+                        <!-- 添加按钮 -->
+                        <Button Grid.Row="2" 
+                                Content="新增点位映射实体" 
+                                Command="{Binding AddDetailCommand}" 
+                                Style="{StaticResource ButtonDashedSuccess}" 
+                                Margin="0,10,0,0"
+                                HorizontalAlignment="Stretch"/>
+                    </Grid>
+
+                    <!-- 按钮区域 -->
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                        <Button Content="取消" Command="{Binding CancelCommand}" Style="{StaticResource ButtonDanger}" Margin="0,0,10,0"/>
+                        <Button Content="保存" Command="{Binding SaveCommand}" Style="{StaticResource ButtonInfo}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

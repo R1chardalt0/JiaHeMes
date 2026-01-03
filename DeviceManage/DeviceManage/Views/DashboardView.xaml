@@ -1,0 +1,177 @@
+<UserControl x:Class="DeviceManage.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000"
+             Background="{StaticResource BackgroundBrush}">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- 本地卡片样式 -->
+        <Style x:Key="DashboardCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" 
+                                      Opacity="0.1" 
+                                      BlurRadius="10" 
+                                      ShadowDepth="2"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 页面标题 -->
+            <!--<StackPanel Grid.Row="0" Margin="0,0,0,30">
+                <TextBlock Text="仪表盘" FontSize="28" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,10"/>
+                <TextBlock Text="设备运行状态总览" FontSize="14" Foreground="#666"/>
+            </StackPanel>-->
+
+            <!-- 统计卡片 -->
+            <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,30">
+                <!-- 总设备数 -->
+                <Border Style="{StaticResource DashboardCard}" Margin="0,0,15,0">
+                    <StackPanel Margin="20">
+                        <TextBlock Text="📊" FontSize="24" Margin="0,0,0,10"/>
+                        <TextBlock Text="总设备数" FontSize="14" Foreground="#666" Margin="0,0,0,5"/>
+                        <TextBlock Text="128" FontSize="28" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Text="+5% 较上月" FontSize="12" Foreground="#4CAF50" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 在线设备 -->
+                <Border Style="{StaticResource DashboardCard}" Margin="0,0,15,0">
+                    <StackPanel Margin="20">
+                        <TextBlock Text="✅" FontSize="24" Margin="0,0,0,10"/>
+                        <TextBlock Text="在线设备" FontSize="14" Foreground="#666" Margin="0,0,0,5"/>
+                        <TextBlock Text="112" FontSize="28" FontWeight="Bold" Foreground="#4CAF50"/>
+                        <TextBlock Text="87.5% 在线率" FontSize="12" Foreground="#4CAF50" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 离线设备 -->
+                <Border Style="{StaticResource DashboardCard}" Margin="0,0,15,0">
+                    <StackPanel Margin="20">
+                        <TextBlock Text="❌" FontSize="24" Margin="0,0,0,10"/>
+                        <TextBlock Text="离线设备" FontSize="14" Foreground="#666" Margin="0,0,0,5"/>
+                        <TextBlock Text="16" FontSize="28" FontWeight="Bold" Foreground="#F44336"/>
+                        <TextBlock Text="12.5% 离线率" FontSize="12" Foreground="#F44336" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 告警数量 -->
+                <Border Style="{StaticResource DashboardCard}">
+                    <StackPanel Margin="20">
+                        <TextBlock Text="⚠️" FontSize="24" Margin="0,0,0,10"/>
+                        <TextBlock Text="当前告警" FontSize="14" Foreground="#666" Margin="0,0,0,5"/>
+                        <TextBlock Text="3" FontSize="28" FontWeight="Bold" Foreground="#FF9800"/>
+                        <TextBlock Text="需要处理" FontSize="12" Foreground="#FF9800" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- 详细内容区 -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 左侧：设备状态图表 -->
+                <Border Grid.Column="0" Style="{StaticResource DashboardCard}" Margin="0,0,15,0">
+                    <StackPanel Margin="20">
+                        <TextBlock Text="设备状态分布" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,20" Foreground="{StaticResource PrimaryBrush}"/>
+                        
+                        <!-- 模拟图表 -->
+                        <Grid Height="200">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- 图表区域 -->
+                            <Canvas Grid.Row="0" Background="#F8F9FA" Margin="0,0,0,10">
+                                <Rectangle Canvas.Left="10" Canvas.Top="50" Width="60" Height="100" Fill="{StaticResource SuccessBrush}" RadiusX="4" RadiusY="4"/>
+                                <Rectangle Canvas.Left="80" Canvas.Top="80" Width="60" Height="70" Fill="{StaticResource ErrorBrush}" RadiusX="4" RadiusY="4"/>
+                                <Rectangle Canvas.Left="150" Canvas.Top="30" Width="60" Height="120" Fill="{StaticResource SecondaryBrush}" RadiusX="4" RadiusY="4"/>
+                                <Rectangle Canvas.Left="220" Canvas.Top="60" Width="60" Height="90" Fill="#9C27B0" RadiusX="4" RadiusY="4"/>
+                            </Canvas>
+                            
+                            <!-- 图例 -->
+                            <UniformGrid Grid.Row="1" Columns="4" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Rectangle Width="12" Height="12" Fill="{StaticResource SuccessBrush}" Margin="0,0,5,0"/>
+                                    <TextBlock Text="正常" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Rectangle Width="12" Height="12" Fill="{StaticResource ErrorBrush}" Margin="0,0,5,0"/>
+                                    <TextBlock Text="故障" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Rectangle Width="12" Height="12" Fill="{StaticResource SecondaryBrush}" Margin="0,0,5,0"/>
+                                    <TextBlock Text="维护" FontSize="12"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Rectangle Width="12" Height="12" Fill="#9C27B0" Margin="0,0,5,0"/>
+                                    <TextBlock Text="离线" FontSize="12"/>
+                                </StackPanel>
+                            </UniformGrid>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 右侧：最近活动 -->
+                <Border Grid.Column="1" Style="{StaticResource DashboardCard}">
+                    <StackPanel Margin="20">
+                        <TextBlock Text="最近活动" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,20" Foreground="{StaticResource PrimaryBrush}"/>
+                        
+                        <StackPanel>
+                            <Border Background="#F8F9FA" CornerRadius="6" Padding="15" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="设备 PLC-001 上线" FontSize="14" FontWeight="Medium" Margin="0,0,0,5"/>
+                                    <TextBlock Text="2分钟前" FontSize="12" Foreground="#666"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <Border Background="#F8F9FA" CornerRadius="6" Padding="15" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="设备 PLC-002 发生告警" FontSize="14" FontWeight="Medium" Margin="0,0,0,5"/>
+                                    <TextBlock Text="5分钟前" FontSize="12" Foreground="#666"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <Border Background="#F8F9FA" CornerRadius="6" Padding="15" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="设备 PLC-003 维护完成" FontSize="14" FontWeight="Medium" Margin="0,0,0,5"/>
+                                    <TextBlock Text="15分钟前" FontSize="12" Foreground="#666"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <Border Background="#F8F9FA" CornerRadius="6" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="系统定时任务执行成功" FontSize="14" FontWeight="Medium" Margin="0,0,0,5"/>
+                                    <TextBlock Text="30分钟前" FontSize="12" Foreground="#666"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

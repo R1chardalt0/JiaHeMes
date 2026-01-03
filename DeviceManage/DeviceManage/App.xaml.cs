@@ -1,4 +1,4 @@
-﻿using DeviceManage.DBContext;
+using DeviceManage.DBContext;
 using DeviceManage.Services;
 using DeviceManage.ViewModels;
 using DeviceManage.Views;
@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using System.Configuration;
 using System.Data;
 using System.Windows;
+using HandyControl.Controls;
+using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace DeviceManage
 {
@@ -23,25 +25,42 @@ namespace DeviceManage
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
+            try
+            {
+                base.OnStartup(e);
 
-            // 加载配置
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            _configuration = builder.Build();
+                // 加载配置
+                var builder = new ConfigurationBuilder()
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                _configuration = builder.Build();
 
-            // 配置依赖注入
-            var services = new ServiceCollection();
-            ConfigureServices(services);
-            _serviceProvider = services.BuildServiceProvider();
+                // 配置依赖注入
+                var services = new ServiceCollection();
+                ConfigureServices(services);
+                // 先注册应用自身的服务，再构建 ServiceProvider
+                services.AddDeviceManageServices(_configuration);
+                _serviceProvider = services.BuildServiceProvider();
 
-            //使用pgSql
-            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-            InitializeDatabaseAndStartServices(_serviceProvider);
-            // 创建主窗口
-            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
-            mainWindow.Show();
+                // 初始化 ViewModelLocator，提供全局的 ServiceProvider
+                DeviceManage.Helpers.ViewModelLocator.SetServiceProvider(_serviceProvider);
+                //使用pgSql
+                AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+                InitializeDatabaseAndStartServices(_serviceProvider);
+
+                var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
+                loginWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = $"应用程序启动失败！\n\n错误信息: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    errorMessage += $"\n\n内部异常: {ex.InnerException.Message}";
+                }
+                MessageBox.Show(errorMessage, "启动错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown(1);
+            }
         }
 
         private void ConfigureServices(IServiceCollection services)
@@ -63,7 +82,7 @@ namespace DeviceManage
             // 注册 DbContext
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseNpgsql(_configuration.GetConnectionString("AppDbContext"));
+                options.UseNpgsql(_configuration!.GetConnectionString("AppDbContext"));
                 options.UseNpgsql(s => s.MigrationsAssembly(typeof(App).Assembly.GetName().Name));
                 //抛出sql文本
                 if (System.Diagnostics.Debugger.IsAttached)
@@ -74,10 +93,19 @@ namespace DeviceManage
 
             // 注册ViewModels
             services.AddTransient<MainViewModel>();
+            services.AddTransient<DashboardViewModel>();
+            services.AddTransient<PlcDeviceViewModel>();
+            services.AddTransient<DeviceStatusViewModel>();
+            services.AddTransient<ConfigurationViewModel>();
+            services.AddTransient<SystemSettingsViewModel>();
+            services.AddTransient<LogManagementViewModel>();
+            services.AddTransient<UserManagementViewModel>();
+            services.AddTransient<RecipeViewModel>();
+            services.AddTransient<TagViewModel>();
 
             // 注册Windows
             services.AddTransient<MainWindow>();
-
+            services.AddTransient<LoginWindow>();
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -111,4 +139,3 @@ namespace DeviceManage
         #endregion
     }
 }
-

@@ -15,7 +15,7 @@ namespace DeviceManage.Models
     /// 数据点位实体
     /// </summary>
     [Table("dm_tag")]
-    public class Tag
+    public class Tag : BaseModel
     {
         /// <summary>
         /// 点位实体ID
@@ -23,6 +23,11 @@ namespace DeviceManage.Models
         [Key]
         public int Id { get; set; }
 
+        /// <summary>
+        /// Plc点位名称
+        /// </summary>
+        [Required]
+        public string PlcTagName { get; set; }= string.Empty;
         /// <summary>
         /// plc设备ID
         /// </summary>
@@ -41,9 +46,13 @@ namespace DeviceManage.Models
         public string? Remarks { get; set; }
 
         /// <summary>
-        /// 被哪些配方项引用（可选，用于反向查询）
+        /// 对应配方实体ID
         /// </summary>
-        public ICollection<RecipeItem>? RecipeItems { get; set; } = new List<RecipeItem>();
+        [Required]
+        public int RecipeId { get; set; }
+
+
+        public Recipe Recipe { get; set; } = null!;
 
         /// <summary>
         /// 点位映射实体
@@ -91,10 +100,17 @@ namespace DeviceManage.Models
         public DataType DataType { get; set; }
 
         /// <summary>
+        /// 值
+        /// </summary>
+        [Required]
+        public string Value { get; set; } = string.Empty;
+
+        /// <summary>
         /// 单位
         /// </summary>
         [MaxLength(20)]
         public string? Unit { get; set; } // 如 "RPM", "°C"
+
         /// <summary>
         /// 描述信息
         /// </summary>
