@@ -582,7 +582,7 @@ const UserList: React.FC = () => {
           userName: values.userName,
           nickName: values.nickName,
           deptId: deptId,
-          status: values.status ? '1' : '0',
+          status: values.status ? '0' : '1',
           userId: currentRow.userId,
         };
 
@@ -619,7 +619,7 @@ const UserList: React.FC = () => {
           password: values.password,
           nickName: values.nickName,
           deptId: deptId,
-          status: values.status ? '1' : '0',
+          status: values.status ? '0' : '1',
         };
 
         if (normalizedEmail !== undefined) {

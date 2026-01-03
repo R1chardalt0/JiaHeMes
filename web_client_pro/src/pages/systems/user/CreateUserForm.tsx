@@ -161,7 +161,8 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
                 return undefined;
               })(),
         roleIds: roleIdsValue,
-        status: currentRow.status === '1',
+        // 后端：0=正常(启用)，1=停用(禁用)；Switch: true=正常
+        status: String(currentRow.status ?? '0') === '0',
       });
       
       // 调试日志
@@ -347,6 +348,13 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange, cur
           checkedChildren="正常"
           unCheckedChildren="停用"
           initialValue={true}
+          fieldProps={{
+            checkedChildren: '正常',
+            unCheckedChildren: '停用',
+          }}
+          transform={(value) => ({
+            status: value ? '0' : '1'
+          })}
         />
 
         <ProFormTextArea

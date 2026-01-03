@@ -108,6 +108,18 @@ export async function deleteMenu(
       ),
       
     ),
+/** 删除菜单（后端为 /api/SysMenu/DeleteMenu/{menuId}） */
+export async function deleteMenu(
+  menuId: number,
+  options?: Record<string, any>
+) {
+  return request<{ code: number; msg: string; data: any }>(
+    `/api/SysMenu/DeleteMenu/${menuId}`,
+    {
+      // 后端控制器 DeleteMenu 使用的是 [HttpPost("{menuId}")]，这里需使用 POST
+      method: 'POST',
+      ...(options || {}),
+    }
   );
 
   const failed = results.find((r) => (r as any)?.code !== 200);

@@ -36,28 +36,37 @@ const MenuManagement: React.FC = () => {
     const [menuType, setMenuType] = useState<'M' | 'C' | 'F'>('C');
     const [showDetail, setShowDetail] = useState(false);
     const [selectedRows, setSelectedRows] = useState<MenuItem[]>([]);
-    // 树形表格展开的行keys
     const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
-    // 是否全部展开
     const [allExpanded, setAllExpanded] = useState(false);
-    // 搜索条件
     const [searchParams, setSearchParams] = useState<{
         menuName?: string;
         status?: string;
         menuType?: string;
     }>({});
+    const [isEdit, setIsEdit] = useState(false);
 
-    /**
-     * 获取菜单树数据
-     * 使用 getMenuTree 接口获取完整的树形结构
-     */
+    // 权限校验：判断是否为超级管理员（UserID=1）
+    const { initialState } = useModel('@@initialState');
+    const isSuperAdmin = () => {
+        if (!initialState?.currentUser) return false;
+        const currentUserId = Number(
+            (initialState as any)?.currentUser?.userId ??
+            (initialState as any)?.currentUser?.UserId ??
+            (initialState as any)?.currentUser?.userid ??
+            (initialState as any)?.currentUser?.UserID ??
+            (initialState as any)?.currentUser?.id ??
+            -1
+        );
+        return currentUserId === 1;
+    };
+
+    // 获取菜单树数据
     const { data: menuTreeData, loading: treeLoading, run: refreshTree } = useRequest(
         getMenuTree,
         {
             formatResult: (res: MenuTreeResult) => res,
             onSuccess: (res: MenuTreeResult) => {
                 if (res.code === 200 && res.data) {
-                    // 页面初始化时默认收起所有菜单
                     setExpandedRowKeys([]);
                     setAllExpanded(false);
                 }
@@ -68,9 +77,7 @@ const MenuManagement: React.FC = () => {
         }
     );
 
-    /**
-     * 获取菜单树数据（用于TreeSelect）
-     */
+    // 获取菜单树（用于TreeSelect）
     const { data: menuTree } = useRequest(getMenuTree, {
         formatResult: (res: MenuTreeResult) => res,
         onSuccess: (res: MenuTreeResult) => {
@@ -85,83 +92,50 @@ const MenuManagement: React.FC = () => {
         }
     });
 
-    /**
-     * 获取图标组件
-     * @param iconName 图标名称（可能是小写如 "smile"，也可能是完整组件名如 "PieChartOutlined"）
-     * @returns 图标组件或null
-     */
+    // 获取图标组件
     const getIconComponent = (iconName?: string) => {
         if (!iconName) return null;
         
-        // 尝试直接匹配（如果已经是完整的组件名，如 "PieChartOutlined", "SmileOutlined"）
         let Icon = (Icons as any)[iconName];
-        if (Icon) {
-            return <Icon />;
-        }
+        if (Icon) return <Icon />;
         
-        // 如果名称已经包含 Outlined/Filled/TwoTone 后缀，说明格式正确但可能大小写不对
-        // 尝试转换为 PascalCase
         if (iconName.includes('Outlined') || iconName.includes('Filled') || iconName.includes('TwoTone')) {
-            // 已经是完整格式，尝试首字母大写
             const pascalCaseName = iconName.charAt(0).toUpperCase() + iconName.slice(1);
             Icon = (Icons as any)[pascalCaseName];
-            if (Icon) {
-                return <Icon />;
-            }
+            if (Icon) return <Icon />;
         }
         
-        // 处理小写或驼峰格式（如 "smile", "pieChart" -> "SmileOutlined", "PieChartOutlined"）
-        // 将字符串转换为 PascalCase（首字母大写，其他保持原样）
         const toPascalCase = (str: string) => {
-            // 如果已经是 PascalCase（首字母大写），直接使用
-            if (str.charAt(0) === str.charAt(0).toUpperCase()) {
-                return str;
-            }
-            // 否则首字母大写
+            if (str.charAt(0) === str.charAt(0).toUpperCase()) return str;
             return str.charAt(0).toUpperCase() + str.slice(1);
         };
-        
         const baseName = toPascalCase(iconName);
         
-        // 尝试添加 Outlined 后缀（最常用）
         const outlinedName = `${baseName}Outlined`;
         Icon = (Icons as any)[outlinedName];
-        if (Icon) {
-            return <Icon />;
-        }
+        if (Icon) return <Icon />;
         
-        // 尝试添加 Filled 后缀
         const filledName = `${baseName}Filled`;
         Icon = (Icons as any)[filledName];
-        if (Icon) {
-            return <Icon />;
-        }
+        if (Icon) return <Icon />;
         
-        // 尝试添加 TwoTone 后缀
         const twoToneName = `${baseName}TwoTone`;
         Icon = (Icons as any)[twoToneName];
-        if (Icon) {
-            return <Icon />;
-        }
+        if (Icon) return <Icon />;
         
-        // 如果都不匹配，返回null
         return null;
     };
 
-    /**
-     * 展开/折叠所有菜单
-     */
+    // 展开/折叠所有菜单
     const handleExpandAll = () => {
         if (!menuTreeData || !('code' in menuTreeData) || menuTreeData.code !== 200 || !('data' in menuTreeData) || !menuTreeData.data) {
             return;
         }
 
         if (allExpanded) {
-            // 折叠所有
             setExpandedRowKeys([]);
             setAllExpanded(false);
         } else {
-            // 展开所有
             const getAllKeys = (menus: MenuItem[]): React.Key[] => {
                 let keys: React.Key[] = [];
                 menus.forEach((menu) => {
@@ -178,17 +152,11 @@ const MenuManagement: React.FC = () => {
         }
     };
 
-    /**
-     * 过滤树形数据
-     * @param menus 菜单数组
-     * @returns 过滤后的菜单数组
-     */
+    // 过滤树形数据
     const filterTreeData = (menus: MenuItem[]): MenuItem[] => {
         return menus
             .filter((menu) => {
-                // 根据搜索条件过滤
                 if (searchParams.menuName && !menu.menuName.toLowerCase().includes(searchParams.menuName.toLowerCase())) {
-                    // 如果子节点匹配，父节点也要显示
                     const hasMatchingChild = menu.children && filterTreeData(menu.children).length > 0;
                     return hasMatchingChild;
                 }
@@ -208,9 +176,7 @@ const MenuManagement: React.FC = () => {
             }));
     };
 
-    /**
-     * 表格列定义
-     */
+    // 表格列定义
     const columns: ProColumns<MenuItem>[] = [
         {
             title: '菜单名称',
@@ -283,52 +249,55 @@ const MenuManagement: React.FC = () => {
             dataIndex: 'createTime',
             width: 180,
             hideInSearch: true,
-            hideInTable: true, // 隐藏创建时间列
+            hideInTable: true,
             valueType: 'dateTime',
         },
         {
             title: '操作',
             valueType: 'option',
-            width: 260,
+            width: isSuperAdmin() ? 260 : 180, // 超级管理员显示更多操作
             align: 'center',
-            render: (_, record) => [
-                <Button 
-                    type="link" 
-                    key="edit" 
-                    size="small"
-                    onClick={() => showEditModal(record)}
-                >
-                    <EditOutlined /> 修改
-                </Button>,
-                <Button 
-                    type="link" 
-                    key="add" 
-                    size="small"
-                    onClick={() => showEditModal(undefined, record.menuId)}
-                >
-                    <PlusOutlined /> 新增
-                </Button>,
-                <Button 
-                    danger 
-                    type="link" 
-                    key="delete" 
-                    size="small"
-                    onClick={() => handleDelete(record.menuId)}
-                >
-                    <DeleteOutlined /> 删除
-                </Button>
-            ]
+            render: (_, record) => {
+                const actions = [
+                    <Button 
+                        type="link" 
+                        key="edit" 
+                        size="small"
+                        onClick={() => showEditModal(record)}
+                    >
+                        <EditOutlined /> 修改
+                    </Button>,
+                    <Button 
+                        type="link" 
+                        key="add" 
+                        size="small"
+                        onClick={() => showEditModal(undefined, record.menuId)}
+                    >
+                        <PlusOutlined /> 新增
+                    </Button>
+                ];
+                // 仅超级管理员显示删除按钮
+                if (isSuperAdmin()) {
+                    actions.push(
+                        <Button 
+                            danger 
+                            type="link" 
+                            key="delete" 
+                            size="small"
+                            onClick={() => handleDelete(record.menuId)}
+                        >
+                            <DeleteOutlined /> 删除
+                        </Button>
+                    );
+                }
+                return actions;
+            }
         }
     ];
 
-    /**
-     * 显示编辑/新增弹窗
-     * @param record 要编辑的菜单项，如果为空则新增
-     * @param parentId 父菜单ID，用于新增子菜单
-     */
+    // 显示编辑/新增弹窗
     const showEditModal = (record?: MenuItem, parentId?: number) => {
         if (record) {
-            // 编辑模式：直接使用 record 数据填充表单
             setCurrentMenu(record);
             setIsEdit(true);
             setMenuType(record.menuType);
@@ -342,7 +311,7 @@ const MenuManagement: React.FC = () => {
                 component: record.component,
                 perms: record.perms,
                 icon: record.icon,
-                isFrame: record.isFrame || '1', // 默认选择"否"（不是外链）
+                isFrame: record.isFrame || '1',
                 visible: record.visible || '0',
                 status: record.status || '0',
                 isCache: record.isCache || '0',
@@ -350,7 +319,6 @@ const MenuManagement: React.FC = () => {
                 routeName: record.routeName,
             });
         } else {
-            // 新增模式
             setCurrentMenu(null);
             setIsEdit(false);
             setMenuType('C');
@@ -359,7 +327,7 @@ const MenuManagement: React.FC = () => {
                 parentId: parentId || 0,
                 menuType: 'C',
                 orderNum: 0,
-                isFrame: '1', // 默认选择"否"（不是外链）
+                isFrame: '1',
                 visible: '0',
                 status: '0',
                 isCache: '0',
@@ -368,24 +336,17 @@ const MenuManagement: React.FC = () => {
         setModalVisible(true);
     };
 
-    // 编辑状态
-    const [isEdit, setIsEdit] = useState(false);
-
-    /**
-     * 表单提交处理
-     */
+    // 表单提交处理
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
             
-            // 根据菜单类型清理不需要的字段
             const submitData: MenuItem = {
                 ...values,
                 menuType,
                 menuId: isEdit ? currentMenu?.menuId : undefined,
             };
 
-            // 按钮类型：只保留必要的字段
             if (menuType === 'F') {
                 submitData.path = undefined;
                 submitData.component = undefined;
@@ -395,24 +356,19 @@ const MenuManagement: React.FC = () => {
                 submitData.visible = undefined;
                 submitData.isCache = undefined;
                 submitData.icon = undefined;
-            }
-            // 目录类型：清空组件路径、路由名称、路由参数
-            else if (menuType === 'M') {
+            } else if (menuType === 'M') {
                 submitData.component = undefined;
                 submitData.routeName = undefined;
                 submitData.query = undefined;
             }
-            // 菜单类型：保留所有字段
 
             let res;
             if (isEdit && currentMenu) {
-                // 更新菜单
                 res = await updateMenu({
                     ...submitData,
                     menuId: currentMenu.menuId,
                 } as MenuItem);
             } else {
-                // 创建菜单
                 res = await createMenu(submitData);
             }
 
@@ -421,6 +377,7 @@ const MenuManagement: React.FC = () => {
                 setModalVisible(false);
                 refreshTree();
                 actionRef.current?.reload();
+                setTimeout(() => actionRef.current?.reload(), 200);
             } else {
                 message.error(res.msg || '操作失败');
             }
@@ -433,14 +390,14 @@ const MenuManagement: React.FC = () => {
         }
     };
 
-    /**
-     * 删除菜单
-     * @param id 菜单ID
-     */
+    // 删除单个菜单（仅超级管理员可执行）
     const handleDelete = async (id: number) => {
         // 前端兜底：仅 UserId=1 允许删除
         if (!isSuperAdmin) {
             message.warning('您权限不足！');
+        if (!isSuperAdmin()) {
+            message.warning('您无菜单删除权限，仅超级管理员可执行此操作！');
+
             return;
         }
 
@@ -454,6 +411,15 @@ const MenuManagement: React.FC = () => {
                 try {
                     const res = await deleteMenu([id]);
                     if ((res as any)?.code === 200) {
+            title: '确认删除',
+            content: '删除后菜单及其子菜单将不可恢复，是否继续？',
+            okType: 'danger',
+            okText: '删除',
+            cancelText: '取消',
+            onOk: async () => {
+                try {
+                    const res = await deleteMenu(id);
+                    if (res.code === 200) {
                         message.success('删除成功');
                         refreshTree();
                         actionRef.current?.reload();
@@ -461,15 +427,19 @@ const MenuManagement: React.FC = () => {
                         message.error((res as any)?.msg || '删除失败');
                     }
                 } catch (e: any) {
-                    message.error(e?.message || '删除失败');
+                    message.error(e?.mes
+                    }
+                } catch (error) {
+                    message.error('删除接口调用失败，请稍后重试');
                 }
             },
         });
     };
 
+    // 批量删除菜单（仅超级管理员可执行）
     const handleBatchDelete = async () => {
         if (!selectedRows.length) {
-            message.warning('请选择要删除的项');
+            message.warning('请选择要删除的菜单！');
             return;
         }
         // 前端兜底：仅 UserId=1 允许批量删除
@@ -489,6 +459,26 @@ const MenuManagement: React.FC = () => {
                 try {
                     const res = await deleteMenu(ids);
                     if ((res as any)?.code === 200) {
+
+        if (!isSuperAdmin()) {
+            message.warning('您无菜单批量删除权限，仅超级管理员可执行此操作！');
+            return;
+        }
+
+        Modal.confirm({
+            title: '确认批量删除',
+            content: '删除后所选菜单及其子菜单将不可恢复，是否继续？',
+            okType: 'danger',
+            okText: '批量删除',
+            cancelText: '取消',
+            onOk: async () => {
+                try {
+                    // 后端当前仅提供按单个 menuId 删除的接口：这里并发删除全部选中项，避免只执行第一条
+                    const ids = selectedRows.map((row) => row.menuId);
+                    const results = await Promise.all(ids.map((id) => deleteMenu(id)));
+
+                    const failed = results.filter((r) => r?.code !== 200);
+                    if (failed.length === 0) {
                         message.success('批量删除成功');
                         setSelectedRows([]);
                         refreshTree();
@@ -497,7 +487,12 @@ const MenuManagement: React.FC = () => {
                         message.error((res as any)?.msg || '批量删除失败');
                     }
                 } catch (e: any) {
-                    message.error(e?.message || '批量删除失败');
+                        message.error(`批量删除失败：成功 ${results.length - failed.length} 条，失败 ${failed.length} 条`);
+                        refreshTree();
+                        actionRef.current?.reload();
+                    }
+                } catch (error) {
+                    message.error('批量删除接口调用失败，请稍后重试');
                 }
             },
         });
@@ -515,25 +510,17 @@ const MenuManagement: React.FC = () => {
                 columns={columns}
                 loading={treeLoading}
                 cardProps={{
-                    // 局部内联样式，避免被全局注入覆盖
                     style: (window as any).__panelStyles?.panelStyle,
                     headStyle: (window as any).__panelStyles?.headStyle,
                     bodyStyle: (window as any).__panelStyles?.bodyStyle,
                     bordered: false,
-                    // 禁用全局自动样式注入，彻底隔离，防止抖动
                     ['data-panel-exempt']: 'true'
                 } as any}
                 request={async () => {
-                    // 直接调用 getMenuTree 获取树形数据，确保每次都能获取最新数据
                     try {
                         const res = await getMenuTree();
                         if (res.code === 200 && res.data) {
-                            // 过滤数据
                             const filteredData = filterTreeData(res.data);
-                            
-                            // 注意：展开/收起状态在 useRequest 的 onSuccess 中已经处理
-                            // 这里不再重复设置，避免覆盖用户的手动操作
-                            
                             return {
                                 data: filteredData,
                                 success: true,
@@ -557,31 +544,24 @@ const MenuManagement: React.FC = () => {
                 rowKey="menuId"
                 search={{
                     labelWidth: 120,
-                    defaultCollapsed: true, // 默认收起搜索/筛选区域
+                    defaultCollapsed: true,
                 }}
-                // 监听搜索表单变化
                 form={{
                     onValuesChange: (changedValues: any) => {
                         setSearchParams({
                             ...searchParams,
                             ...changedValues,
                         });
-                        // 延迟执行，等待状态更新
                         setTimeout(() => {
                             actionRef.current?.reload();
                         }, 0);
                     },
                 }}
-                // 取消强制横向滚动，自适应容器宽度
-                // scroll={{ x: 'max-content' }}
-                // 树形表格配置：移除分页，使用展开/折叠
                 pagination={false}
-                // 展开/折叠配置
                 expandable={{
                     expandedRowKeys,
                     onExpandedRowsChange: (keys) => {
                         setExpandedRowKeys(keys as React.Key[]);
-                        // 计算是否全部展开
                         if (!menuTreeData || !('code' in menuTreeData) || menuTreeData.code !== 200 || !('data' in menuTreeData) || !menuTreeData.data) {
                             return;
                         }
@@ -598,10 +578,8 @@ const MenuManagement: React.FC = () => {
                         const allExpandableKeys = getAllExpandableKeys(menuTreeData.data);
                         setAllExpanded(keys.length > 0 && keys.length >= allExpandableKeys.length);
                     },
-                    indentSize: 24, // 子级缩进大小
-                    // 自定义展开/收起图标
+                    indentSize: 24,
                     expandIcon: ({ expanded, onExpand, record }) => {
-                        // 只有有子菜单的项才显示展开图标
                         const hasChildren = record.children && record.children.length > 0;
                         if (!hasChildren) {
                             return null;
@@ -627,11 +605,11 @@ const MenuManagement: React.FC = () => {
                         );
                     },
                 }}
-                rowSelection={{
+                rowSelection={isSuperAdmin() ? { // 仅超级管理员显示多选框
                     onChange: (_, selectedRows) => {
                         setSelectedRows(selectedRows);
                     },
-                }}
+                } : undefined}
                 toolBarRender={() => [
                     <Button
                         type="primary"
@@ -652,7 +630,8 @@ const MenuManagement: React.FC = () => {
                 ]}
             />
 
-            {selectedRows.length > 0 && (
+            {/* 仅超级管理员显示批量删除栏 */}
+            {isSuperAdmin() && selectedRows.length > 0 && (
                 <FooterToolbar
                     extra={
                         <div>
@@ -710,7 +689,6 @@ const MenuManagement: React.FC = () => {
                         <Input />
                     </Form.Item>
 
-                    {/* 上级菜单 - 所有类型都显示 */}
                     <Form.Item
                         name="parentId"
                         label="上级菜单"
@@ -749,7 +727,6 @@ const MenuManagement: React.FC = () => {
                         />
                     </Form.Item>
 
-                    {/* 菜单类型 - 所有类型都显示 */}
                     <Form.Item
                         name="menuType"
                         label="菜单类型"
@@ -760,7 +737,6 @@ const MenuManagement: React.FC = () => {
                             onChange={(e) => {
                                 setMenuType(e.target.value);
                                 form.setFieldsValue({ menuType: e.target.value });
-                                // 切换类型时清空相关字段
                                 if (e.target.value === 'F') {
                                     form.setFieldsValue({ 
                                         path: undefined, 
@@ -773,7 +749,6 @@ const MenuManagement: React.FC = () => {
                                         icon: undefined,
                                     });
                                 } else if (e.target.value === 'M') {
-                                    // 目录类型：清空组件路径、路由名称、路由参数
                                     form.setFieldsValue({ 
                                         component: undefined,
                                         routeName: undefined,
@@ -788,7 +763,6 @@ const MenuManagement: React.FC = () => {
                         </Radio.Group>
                     </Form.Item>
 
-                    {/* 菜单图标 - 目录和菜单显示，按钮不显示 */}
                     {menuType !== 'F' && (
                         <Form.Item
                             name="icon"
@@ -801,7 +775,6 @@ const MenuManagement: React.FC = () => {
                         </Form.Item>
                     )}
 
-                    {/* 显示排序 - 所有类型都显示 */}
                     <Form.Item
                         name="orderNum"
                         label="显示排序"
@@ -810,7 +783,6 @@ const MenuManagement: React.FC = () => {
                         <InputNumber min={0} style={{ width: '100%' }} />
                     </Form.Item>
 
-                    {/* 菜单名称 - 所有类型都显示 */}
                     <Form.Item
                         name="menuName"
                         label="菜单名称"
@@ -819,7 +791,6 @@ const MenuManagement: React.FC = () => {
                         <Input placeholder="请输入菜单名称" autoComplete="off" name="menuName_no_autofill" autoCorrect="off" autoCapitalize="off" spellCheck={false} />
                     </Form.Item>
 
-                    {/* 是否外链 - 目录和菜单显示，按钮不显示 */}
                     {menuType !== 'F' && (
                         <Form.Item
                             name="isFrame"
@@ -833,7 +804,6 @@ const MenuManagement: React.FC = () => {
                         </Form.Item>
                     )}
 
-                    {/* 路由地址 - 目录和菜单显示，按钮不显示 */}
                     {menuType !== 'F' && (
                         <Form.Item
                             name="path"
@@ -847,7 +817,6 @@ const MenuManagement: React.FC = () => {
                         </Form.Item>
                     )}
 
-                    {/* 组件路径 - 仅菜单类型显示 */}
                     {menuType === 'C' && (
                         <Form.Item
                             name="component"
@@ -861,7 +830,6 @@ const MenuManagement: React.FC = () => {
                         </Form.Item>
                     )}
 
-                    {/* 路由名称 - 仅菜单类型显示 */}
                     {menuType === 'C' && (
                         <Form.Item
                             name="routeName"
@@ -872,7 +840,6 @@ const MenuManagement: React.FC = () => {
                         </Form.Item>
                     )}
 
-                    {/* 路由参数 - 仅菜单类型显示 */}
                     {menuType === 'C' && (
                         <Form.Item
                             name="query"
@@ -883,7 +850,6 @@ const MenuManagement: React.FC = () => {
                         </Form.Item>
                     )}
 
-                    {/* 权限标识 - 菜单和按钮显示，目录不显示 */}
                     {(menuType === 'C' || menuType === 'F') && (
                         <Form.Item
                             name="perms"
@@ -894,7 +860,6 @@ const MenuManagement: React.FC = () => {
                         </Form.Item>
                     )}
 
-                    {/* 是否缓存 - 仅菜单类型显示 */}
                     {menuType === 'C' && (
                         <Form.Item
                             name="isCache"
@@ -908,7 +873,6 @@ const MenuManagement: React.FC = () => {
                         </Form.Item>
                     )}
 
-                    {/* 显示状态 - 目录和菜单显示，按钮不显示 */}
                     {menuType !== 'F' && (
                         <Form.Item
                             name="visible"
@@ -922,7 +886,6 @@ const MenuManagement: React.FC = () => {
                         </Form.Item>
                     )}
 
-                    {/* 菜单状态 - 所有类型都显示 */}
                     <Form.Item
                         name="status"
                         label="菜单状态"
