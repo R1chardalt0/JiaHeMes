@@ -43,19 +43,6 @@ const TraceInfoPage: React.FC = () => {
       search: true
     },
     {
-      title: '产品编码',
-      dataIndex: 'productCode',
-      key: 'productCode',
-      width: 120,
-      search: true,
-      render: (text) => {
-        if (isValueObject(text)) {
-          return text.value || '';
-        }
-        return text || '';
-      },
-    },
-    {
       title: 'PIN',
       dataIndex: 'pin',
       key: 'pin',
@@ -77,28 +64,18 @@ const TraceInfoPage: React.FC = () => {
       render: (text) => text?.toString() || ''
     },
     {
-      title: 'BOM Id',
-      dataIndex: 'bomRecipeId',
-      key: 'bomRecipeId',
-      width: 80,
-      render: (text) => text?.toString() || ''
+      title: '产品编码',
+      dataIndex: 'productCode',
+      key: 'productCode',
+      width: 120,
+      search: true,
+      render: (text) => {
+        if (isValueObject(text)) {
+          return text.value || '';
+        }
+        return text || '';
+      },
     },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 160,
-      valueType: 'dateTime'
-    },
-    {
-      title: '操作',
-      key: 'operation',
-      width: 80,
-      fixed: 'right',
-      render: (_, record) => (
-        <a onClick={() => handleShowDetail(record)}>查看</a>
-      )
-    }
   ];
 
   // 物料表格列定义
