@@ -14,6 +14,7 @@ namespace DeviceManage.Services
             services.AddTransient<IPlcDeviceService, PlcDeviceService>();
             services.AddTransient<IRecipeService, RecipeService>();
             services.AddTransient<ITagService, TagService>();
+            services.AddTransient<IUserService, UserService>();
 
             return services;
         }

@@ -100,6 +100,7 @@ namespace DeviceManage
             services.AddTransient<SystemSettingsViewModel>();
             services.AddTransient<LogManagementViewModel>();
             services.AddTransient<UserManagementViewModel>();
+            services.AddTransient<UserViewModel>();
             services.AddTransient<RecipeViewModel>();
             services.AddTransient<TagViewModel>();
 
@@ -124,8 +125,13 @@ namespace DeviceManage
                 {
                     // 初始化AppDbContext数据库
                     var dbContext = scopedServices.GetRequiredService<AppDbContext>();
-                    dbContext.Database.EnsureCreated();
                     var logger = scopedServices.GetRequiredService<ILogger<App>>();
+                    
+                    dbContext.Database.EnsureCreated();
+                    
+                    // 确保默认管理员用户存在
+                    SeedDefaultUser(dbContext, logger);
+                    
                     logger.LogInformation("数据库创建成功");
                 }
                 catch (Exception ex)
@@ -134,6 +140,53 @@ namespace DeviceManage
                     logger.LogError(ex, "初始化过程中发生错误");
                     throw;
                 }
+            }
+        }
+
+        /// <summary>
+        /// 初始化默认管理员用户
+        /// </summary>
+        private void SeedDefaultUser(DBContext.AppDbContext dbContext, ILogger<App> logger)
+        {
+            try
+            {
+                // 检查是否已存在admin用户
+                var existingAdmin = dbContext.Users.FirstOrDefault(u => u.Username == "admin" && !u.IsDeleted);
+                
+                if (existingAdmin == null)
+                {
+                    // 创建默认管理员用户
+                    var defaultUser = new Models.User
+                    {
+                        Id = 1,
+                        Username = "admin",
+                        Password = Helpers.MD5Helper.Encrypt("admin123"), // admin123的MD5加密值
+                        RoleString = "管理员", // 对应UserRole.admin的描述
+                        RealName = "系统管理员",
+                        Email = "admin@example.com",
+                        Phone = "15195028555",
+                        IsEnabled = true,
+                        IsDeleted = false,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = null,
+                        DeletedAt = null,
+                        LastLoginAt = null,
+                        Remarks = "系统默认管理员账户"
+                    };
+
+                    dbContext.Users.Add(defaultUser);
+                    dbContext.SaveChanges();
+                    logger.LogInformation("默认管理员用户初始化成功");
+                }
+                else
+                {
+                    logger.LogInformation("默认管理员用户已存在，跳过初始化");
+                }
+            }
+            catch (Exception ex)
+            {
+                // 如果插入失败（例如ID冲突），记录日志但不抛出异常，避免影响程序启动
+                logger.LogWarning(ex, "初始化默认管理员用户失败，可能用户已存在");
             }
         }
         #endregion

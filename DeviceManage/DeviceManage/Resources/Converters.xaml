@@ -14,5 +14,11 @@
     <!-- TagDetailDataArray 显示转换器 -->
     <converters:TagDetailsConverter x:Key="TagDetailsConverter"/>
 
+    <!-- 用户管理相关转换器 -->
+    <converters:BoolToTextConverter x:Key="BoolToTextConverter"/>
+    <converters:BooleanToColorConverter x:Key="BooleanToColorConverter"/>
+    <converters:BooleanToIndexConverter x:Key="BooleanToIndexConverter"/>
+    <converters:SearchStatusToIndexConverter x:Key="SearchStatusToIndexConverter"/>
+
 </ResourceDictionary>
 

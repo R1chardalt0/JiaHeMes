@@ -1,4 +1,5 @@
 using DeviceManage.Services;
+using DeviceManage.Services.DeviceMagService;
 using Reactive.Bindings;
 using System.Windows;
 using DeviceManage.Views;
@@ -40,7 +41,7 @@ public class MainViewModel : ViewModelBase
             { "Configuration", new PageInfo("配置管理", typeof(ConfigurationViewModel)) },
             { "SystemSettings", new PageInfo("系统设置", typeof(SystemSettingsViewModel)) },
             { "LogManagement", new PageInfo("日志管理", typeof(LogManagementViewModel)) },
-            { "UserManagement", new PageInfo("用户管理", typeof(UserManagementViewModel)) }
+            { "UserManagement", new PageInfo("用户管理", typeof(UserViewModel)) }
         };
 
         NavigateToCommand = new ReactiveCommand<string>().WithSubscribe(NavigateTo);
@@ -130,6 +131,16 @@ public class MainViewModel : ViewModelBase
                         view = tagView;
                         break;
                     }
+                case "UserManagement":
+                    {
+                        var userVm = (UserViewModel)DeviceManage.Helpers.ViewModelLocator
+                            .Instance
+                            .GetViewModel(typeof(UserViewModel));
+                        var userView = new Views.UserView();
+                        userView.DataContext = userVm;
+                        view = userView;
+                        break;
+                    }
                 default:
                     {
                         var viewModel = DeviceManage.Helpers.ViewModelLocator.Instance.GetViewModel(pageInfo.ViewModelType);
@@ -154,7 +165,8 @@ public class MainViewModel : ViewModelBase
             if (serviceProvider != null)
             {
                 var newMainViewModel = serviceProvider.GetRequiredService<MainViewModel>();
-                var loginWindow = new LoginWindow(newMainViewModel);
+                var userService = serviceProvider.GetRequiredService<IUserService>();
+                var loginWindow = new LoginWindow(newMainViewModel, userService);
                 loginWindow.Show();
 
                 var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
