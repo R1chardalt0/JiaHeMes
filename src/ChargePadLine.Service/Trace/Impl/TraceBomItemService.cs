@@ -114,9 +114,12 @@ public class TraceBomItemService : ITraceBomItemService
     var entities = _repository.GetQueryable().Where(x => ids.Contains(x.Id)).ToList();
     if (entities.Any())
     {
+      var now = DateTimeOffset.UtcNow;
       foreach (var entity in entities)
       {
-        await _repository.DeleteAsync(entity);
+        entity.IsDeleted = true;
+        entity.DeletedAt = now;
+        await _repository.UpdateAsync(entity);
       }
       return true;
     }

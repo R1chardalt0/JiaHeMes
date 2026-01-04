@@ -394,38 +394,45 @@ const TraceInfoPage: React.FC = () => {
                     <Card
                       title={`物料信息 - ${isValueObject(material.materialCode) ? material.materialCode.value : (material.materialCode as string)}`}
                       extra={
-                        <Button
-                          type="primary"
-                          danger
-                          onClick={() => {
-                            Modal.confirm({
-                              title: '确认删除',
-                              content: '确认要删除这条物料信息吗？',
-                              onOk: async () => {
-                                try {
-                                  await deleteMaterialInfo(material.id);
-                                  message.success('物料信息删除成功');
-                                  // 重新获取物料信息
-                                  if (currentRow) {
-                                    const newMaterialList = await getMaterialInfoList(currentRow.id);
-                                    setMaterialList(newMaterialList);
+                        !material.isDeleted && (
+                          <Button
+                            type="primary"
+                            danger
+                            onClick={() => {
+                              Modal.confirm({
+                                title: '确认删除',
+                                content: '确认要删除这条物料信息吗？',
+                                onOk: async () => {
+                                  try {
+                                    await deleteMaterialInfo(material.id);
+                                    message.success('物料信息删除成功');
+                                    // 重新获取物料信息
+                                    if (currentRow) {
+                                      const newMaterialList = await getMaterialInfoList(currentRow.id);
+                                      setMaterialList(newMaterialList);
+                                    }
+                                  } catch (error) {
+                                    message.error('物料信息删除失败');
+                                    console.error('Delete material error:', error);
                                   }
-                                } catch (error) {
-                                  message.error('物料信息删除失败');
-                                  console.error('Delete material error:', error);
+                                },
+                                onCancel: () => {
+                                  // 取消删除操作
                                 }
-                              },
-                              onCancel: () => {
-                                // 取消删除操作
-                              }
-                            });
-                          }}
-                        >
-                          删除
-                        </Button>
+                              });
+                            }}
+                          >
+                            删除
+                          </Button>
+                        )
                       }
+                      style={{
+                        backgroundColor: material.isDeleted ? '#f5f5f5' : '',
+                        borderColor: material.isDeleted ? '#d9d9d9' : '',
+                        opacity: material.isDeleted ? 0.6 : 1
+                      }}
                     >
-                      <div style={{ lineHeight: '1.8', fontSize: '14px' }}>
+                      <div style={{ lineHeight: '1.8', fontSize: '14px', color: material.isDeleted ? '#8c8c8c' : '' }}>
                         <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>ID:</strong> {material.id}</p>
                         <p style={{ marginBottom: '8px' }}><strong>VSN:</strong> {material.vsn}</p>
                         <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>追溯信息ID:</strong> {material.traceInfoId}</p>
@@ -452,38 +459,45 @@ const TraceInfoPage: React.FC = () => {
                     <Card
                       title={`过程信息 - ${process.station}`}
                       extra={
-                        <Button
-                          type="primary"
-                          danger
-                          onClick={() => {
-                            Modal.confirm({
-                              title: '确认删除',
-                              content: '确认要删除这条过程信息吗？',
-                              onOk: async () => {
-                                try {
-                                  await deleteProcessInfo(process.id);
-                                  message.success('过程信息删除成功');
-                                  // 重新获取过程信息
-                                  if (currentRow) {
-                                    const newProcessList = await getProcessInfoList(currentRow.id);
-                                    setProcessList(newProcessList);
+                        !process.isDeleted && (
+                          <Button
+                            type="primary"
+                            danger
+                            onClick={() => {
+                              Modal.confirm({
+                                title: '确认删除',
+                                content: '确认要删除这条过程信息吗？',
+                                onOk: async () => {
+                                  try {
+                                    await deleteProcessInfo(process.id);
+                                    message.success('过程信息删除成功');
+                                    // 重新获取过程信息
+                                    if (currentRow) {
+                                      const newProcessList = await getProcessInfoList(currentRow.id);
+                                      setProcessList(newProcessList);
+                                    }
+                                  } catch (error) {
+                                    message.error('过程信息删除失败');
+                                    console.error('Delete process error:', error);
                                   }
-                                } catch (error) {
-                                  message.error('过程信息删除失败');
-                                  console.error('Delete process error:', error);
+                                },
+                                onCancel: () => {
+                                  // 取消删除操作
                                 }
-                              },
-                              onCancel: () => {
-                                // 取消删除操作
-                              }
-                            });
-                          }}
-                        >
-                          删除
-                        </Button>
+                              });
+                            }}
+                          >
+                            删除
+                          </Button>
+                        )
                       }
+                      style={{
+                        backgroundColor: process.isDeleted ? '#f5f5f5' : '',
+                        borderColor: process.isDeleted ? '#d9d9d9' : '',
+                        opacity: process.isDeleted ? 0.6 : 1
+                      }}
                     >
-                      <div style={{ lineHeight: '1.8', fontSize: '14px' }}>
+                      <div style={{ lineHeight: '1.8', fontSize: '14px', color: process.isDeleted ? '#8c8c8c' : '' }}>
                         <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>ID:</strong> {process.id}</p>
                         <p style={{ marginBottom: '8px' }}><strong>VSN:</strong> {process.vsn}</p>
                         <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>追溯信息ID:</strong> {process.traceInfoId}</p>
@@ -491,7 +505,7 @@ const TraceInfoPage: React.FC = () => {
                         <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>Key:</strong> {process.key}</p>
                         <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>Value:</strong>
                           {Array.isArray(process.value) && process.value.length > 0 ?
-                            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', backgroundColor: '#f5f5f5', padding: '8px', borderRadius: '4px', margin: '8px 0', fontSize: '12px' }}>
+                            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', backgroundColor: '#f0f0f0', padding: '8px', borderRadius: '4px', margin: '8px 0', fontSize: '12px', opacity: process.isDeleted ? 0.7 : 1 }}>
                               {JSON.stringify(process.value, null, 2)}
                             </pre> :
                             JSON.stringify(process.value || [])}
