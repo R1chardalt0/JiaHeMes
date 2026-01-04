@@ -64,7 +64,6 @@ namespace DeviceManage.Services.DeviceMagService.Impl
                 }
                 else if (tag.PlcDevice.Protocolc.Contains("Modbus"))
                 {
-                    // TODO: 实现Modbus协议的写入逻辑
                     using (var modbusNet = new ModbusConnect())
                     {
                         var connectResult = modbusNet.Connect(tag.PlcDevice.IPAddress, tag.PlcDevice.Port);
@@ -138,7 +137,10 @@ namespace DeviceManage.Services.DeviceMagService.Impl
                     DataType.UInt64 => s7Net.Write(address, Convert.ToUInt64(value)),
                     DataType.Float => s7Net.Write(address, Convert.ToSingle(value)),
                     DataType.Double => s7Net.Write(address, Convert.ToDouble(value)),
-                    DataType.String60 => s7Net.Write(address, value),
+                    DataType.String30 => s7Net.Write30(address, value),
+                    DataType.String50 => s7Net.Write50(address, value),
+                    DataType.String60 => s7Net.Write60(address, value),
+                    DataType.String100 => s7Net.Write100(address, value),
                     _ => new OperateResult($"不支持的数据类型: {dataType}")
                 };
             }
@@ -163,7 +165,10 @@ namespace DeviceManage.Services.DeviceMagService.Impl
                     DataType.UInt64 => modbus.Write(address, Convert.ToUInt64(value)),
                     DataType.Float => modbus.Write(address, Convert.ToSingle(value)),
                     DataType.Double => modbus.Write(address, Convert.ToDouble(value)),
-                    DataType.String60 => modbus.Write(address, value),
+                    DataType.String30 => modbus.Write30(address, value),
+                    DataType.String50 => modbus.Write50(address, value),
+                    DataType.String60 => modbus.Write60(address, value),
+                    DataType.String100 => modbus.Write100(address, value),
                     _ => new OperateResult($"不支持的数据类型: {dataType}")
                 };
             }

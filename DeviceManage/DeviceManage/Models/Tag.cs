@@ -132,6 +132,9 @@ namespace DeviceManage.Models
         UInt64,
         Float,
         Double,
-        String60
+        String30,
+        String50,
+        String60,
+        String100,
     }
 }
