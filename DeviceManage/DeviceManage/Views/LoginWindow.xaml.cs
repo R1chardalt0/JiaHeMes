@@ -30,6 +30,12 @@ namespace DeviceManage.Views
             // 初始化提示语显示状态
             UpdateUserNamePlaceholder();
             UpdatePasswordPlaceholder();
+
+            // 添加回车键登录功能
+            KeyDown += LoginWindow_KeyDown;
+            UserNameTextBox.KeyDown += InputBox_KeyDown;
+            VisiblePasswordTextBox.KeyDown += InputBox_KeyDown;
+            HiddenPasswordBox.KeyDown += InputBox_KeyDown;
         }
 
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
@@ -210,6 +216,35 @@ namespace DeviceManage.Views
             PasswordPlaceholder.Visibility = string.IsNullOrEmpty(pwd)
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+        }
+
+        /// <summary>
+        /// 窗口级别的回车键处理
+        /// </summary>
+        private void LoginWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                // 如果焦点在登录按钮上，直接触发登录
+                if (e.OriginalSource is Button button && button.Name == "LoginButton")
+                {
+                    LoginButton_Click(LoginButton, new RoutedEventArgs());
+                    e.Handled = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 输入框的回车键处理
+        /// </summary>
+        private void InputBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                // 按回车键时触发登录
+                LoginButton_Click(LoginButton, new RoutedEventArgs());
+                e.Handled = true;
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
 using System.Data;
+using System.Threading;
 using System.Windows;
 using HandyControl.Controls;
 using MessageBox = HandyControl.Controls.MessageBox;
@@ -22,9 +23,24 @@ namespace DeviceManage
     {
         private ServiceProvider? _serviceProvider;
         private IConfiguration? _configuration;
+        private Mutex? _mutex;
+        private const string MutexName = "设备管理软件";
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            // 检查是否已有实例在运行
+            bool createdNew;
+            _mutex = new Mutex(true, MutexName, out createdNew);
+            
+            if (!createdNew)
+            {
+                // 如果 Mutex 已存在，说明程序已在运行
+                MessageBox.Show("当前程序已启动，无法重复运行。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                _mutex?.Dispose();
+                Shutdown(1);
+                return;
+            }
+
             try
             {
                 base.OnStartup(e);
@@ -112,6 +128,8 @@ namespace DeviceManage
         protected override void OnExit(ExitEventArgs e)
         {
             _serviceProvider?.Dispose();
+            _mutex?.ReleaseMutex();
+            _mutex?.Dispose();
             base.OnExit(e);
         }
 
@@ -126,12 +144,8 @@ namespace DeviceManage
                     // 初始化AppDbContext数据库
                     var dbContext = scopedServices.GetRequiredService<AppDbContext>();
                     var logger = scopedServices.GetRequiredService<ILogger<App>>();
-                    
+
                     dbContext.Database.EnsureCreated();
-                    
-                    // 确保默认管理员用户存在
-                    SeedDefaultUser(dbContext, logger);
-                    
                     logger.LogInformation("数据库创建成功");
                 }
                 catch (Exception ex)
@@ -140,53 +154,6 @@ namespace DeviceManage
                     logger.LogError(ex, "初始化过程中发生错误");
                     throw;
                 }
-            }
-        }
-
-        /// <summary>
-        /// 初始化默认管理员用户
-        /// </summary>
-        private void SeedDefaultUser(DBContext.AppDbContext dbContext, ILogger<App> logger)
-        {
-            try
-            {
-                // 检查是否已存在admin用户
-                var existingAdmin = dbContext.Users.FirstOrDefault(u => u.Username == "admin" && !u.IsDeleted);
-                
-                if (existingAdmin == null)
-                {
-                    // 创建默认管理员用户
-                    var defaultUser = new Models.User
-                    {
-                        Id = 1,
-                        Username = "admin",
-                        Password = Helpers.MD5Helper.Encrypt("admin123"), // admin123的MD5加密值
-                        RoleString = "管理员", // 对应UserRole.admin的描述
-                        RealName = "系统管理员",
-                        Email = "admin@example.com",
-                        Phone = "15195028555",
-                        IsEnabled = true,
-                        IsDeleted = false,
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = null,
-                        DeletedAt = null,
-                        LastLoginAt = null,
-                        Remarks = "系统默认管理员账户"
-                    };
-
-                    dbContext.Users.Add(defaultUser);
-                    dbContext.SaveChanges();
-                    logger.LogInformation("默认管理员用户初始化成功");
-                }
-                else
-                {
-                    logger.LogInformation("默认管理员用户已存在，跳过初始化");
-                }
-            }
-            catch (Exception ex)
-            {
-                // 如果插入失败（例如ID冲突），记录日志但不抛出异常，避免影响程序启动
-                logger.LogWarning(ex, "初始化默认管理员用户失败，可能用户已存在");
             }
         }
         #endregion

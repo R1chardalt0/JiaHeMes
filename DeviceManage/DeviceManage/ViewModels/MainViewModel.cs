@@ -22,6 +22,9 @@ namespace DeviceManage.ViewModels;
 
     // 页面映射字典
     private readonly Dictionary<string, PageInfo> _pageMap;
+    
+    // 标记是否是退出登录操作
+    private bool _isLoggingOut = false;
 
     public MainViewModel(ApiClient apiClient)
     {
@@ -168,6 +171,9 @@ namespace DeviceManage.ViewModels;
             var serviceProvider = DeviceManage.Helpers.ViewModelLocator.Instance.GetServiceProvider();
             if (serviceProvider != null)
             {
+                // 标记为退出登录操作，避免弹出关闭确认对话框
+                _isLoggingOut = true;
+                
                 var newMainViewModel = serviceProvider.GetRequiredService<MainViewModel>();
                 var userService = serviceProvider.GetRequiredService<IUserService>();
                 var loginWindow = new LoginWindow(newMainViewModel, userService);
@@ -188,11 +194,37 @@ namespace DeviceManage.ViewModels;
         {
             MessageBox.Show($"退出登录失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+        finally
+        {
+            // 重置标志
+            _isLoggingOut = false;
+        }
     }
 
     private void ToggleSidebar()
     {
         SidebarVisible.Value = !SidebarVisible.Value;
+    }
+
+    /// <summary>
+    /// 确认是否关闭窗口
+    /// </summary>
+    /// <returns>如果用户确认关闭返回 true，否则返回 false</returns>
+    public bool CanCloseWindow()
+    {
+        // 如果是退出登录操作，直接允许关闭，不显示确认对话框
+        if (_isLoggingOut)
+        {
+            return true;
+        }
+
+        var result = MessageBox.Show(
+            "确定要关闭程序吗？",
+            "确认关闭",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        return result == MessageBoxResult.Yes;
     }
 
     #endregion
