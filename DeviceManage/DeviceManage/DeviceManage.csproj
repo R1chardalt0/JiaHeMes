@@ -6,6 +6,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
+		<ApplicationIcon>font\favicon.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -36,16 +37,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Remove="font\logo48X48.ico" />
+	  <None Remove="font\favicon.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="font\logo.ico" />
+	  <Content Include="font\favicon.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Resource Include="font\logo48X48.ico">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Resource>
+	  <Resource Include="font\favicon.ico">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Resource>
 	</ItemGroup>
 </Project>

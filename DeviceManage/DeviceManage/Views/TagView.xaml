@@ -207,7 +207,7 @@
                                   BorderThickness="1"
                                   BorderBrush="#DDDDDD" 
                                   SelectionUnit="FullRow"
-                                  SelectionChanged="DataGrid_SelectionChanged">
+                                 >
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="点位名称" 
                                                     Binding="{Binding TagName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
