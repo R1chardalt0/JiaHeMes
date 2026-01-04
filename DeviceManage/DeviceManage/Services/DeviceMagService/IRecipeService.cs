@@ -14,6 +14,7 @@ namespace DeviceManage.Services.DeviceMagService
         Task<Recipe> AddRecipeAsync(Recipe recipe);
         Task<Recipe> UpdateRecipeAsync(Recipe recipe);
         Task DeleteRecipeAsync(int id);
+        Task<List<Tag>> GetTagListByRecipeIdAsync(int id);
     }
 }
 

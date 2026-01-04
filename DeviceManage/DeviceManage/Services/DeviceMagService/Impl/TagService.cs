@@ -80,11 +80,12 @@ namespace DeviceManage.Services.DeviceMagService.Impl
             var exist = await _repo.GetAsync(t => t.Id == tag.Id);
             if (exist == null) return tag;
 
-            exist.PlcTagName=tag.PlcTagName;
+            exist.PlcTagName = tag.PlcTagName;
             exist.PlcDeviceId = tag.PlcDeviceId;
             exist.RecipeId = tag.RecipeId;
             exist.Remarks = tag.Remarks;
             exist.TagDetailDataArray = tag.TagDetailDataArray;
+            exist.UpdatedAt = DateTime.Now;
 
             _repo.Update(exist);
             await _db.SaveChangesAsync();

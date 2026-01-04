@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Windows;
 using MessageBox = HandyControl.Controls.MessageBox;
 using DeviceManage.Services.DeviceMagService;
+using Tag = DeviceManage.Models.Tag;
 
 namespace DeviceManage.ViewModels
 {
@@ -24,6 +25,9 @@ namespace DeviceManage.ViewModels
         public ReactiveProperty<Recipe> EditingRecipe { get; }
         public ReactiveProperty<bool> IsEditing { get; }
         public ReactiveProperty<bool> IsDialogOpen { get; }
+        public ReactiveProperty<ObservableCollection<Tag>> RecipeTags { get; }
+        public ReactiveProperty<bool> IsTagsListVisible { get; }
+        public ReactiveProperty<string> TagsCountText { get; }
 
 
         public RecipeViewModel(IRecipeService recipeService, ILogger<RecipeViewModel> logger)
@@ -36,6 +40,9 @@ namespace DeviceManage.ViewModels
             EditingRecipe = new ReactiveProperty<Recipe>(new Recipe());
             IsEditing = new ReactiveProperty<bool>(false);
             IsDialogOpen = new ReactiveProperty<bool>(false);
+            RecipeTags = new ReactiveProperty<ObservableCollection<Tag>>(new ObservableCollection<Tag>());
+            IsTagsListVisible = new ReactiveProperty<bool>(false);
+            TagsCountText = new ReactiveProperty<string>("");
 
             LoadRecipesCommand = new ReactiveCommand().WithSubscribe(async () => await LoadRecipesAsync());
             AddRecipeCommand = new ReactiveCommand().WithSubscribe(() => OpenAddDialog());
@@ -43,6 +50,8 @@ namespace DeviceManage.ViewModels
             DeleteRecipeCommand = new ReactiveCommand<Recipe>().WithSubscribe(async r => await DeleteRecipeAsync(r));
             EditCommand = new ReactiveCommand<Recipe>().WithSubscribe(r => OpenEditDialog(r));
             CancelCommand = new ReactiveCommand().WithSubscribe(() => CloseDialog());
+            ViewRecipeTagsCommand = new ReactiveCommand<Recipe>().WithSubscribe(async r => await ViewRecipeTagsAsync(r));
+            CloseTagsListCommand = new ReactiveCommand().WithSubscribe(() => CloseTagsList());
 
 
             Task.Run(async () => await LoadRecipesAsync());
@@ -56,6 +65,8 @@ namespace DeviceManage.ViewModels
         public ReactiveCommand<Recipe> EditCommand { get; }
         public ReactiveCommand CancelCommand { get; }
         public ReactiveCommand<Recipe> OpenItemsDialogCommand { get; }
+        public ReactiveCommand<Recipe> ViewRecipeTagsCommand { get; }
+        public ReactiveCommand CloseTagsListCommand { get; }
         #endregion
 
         private async Task LoadRecipesAsync()
@@ -169,6 +180,52 @@ namespace DeviceManage.ViewModels
         {
             IsDialogOpen.Value = false;
             EditingRecipe.Value = new Recipe();
+        }
+        
+        /// <summary>
+        /// 查看配方对应的标签列表
+        /// </summary>
+        private async Task ViewRecipeTagsAsync(Recipe recipe)
+        {
+            if (recipe == null) return;
+            
+            try
+            {
+                var tags = await GetTagListByRecipeIdAsync(recipe.RecipeId);
+                RecipeTags.Value = new ObservableCollection<Tag>(tags);
+                
+                // Update the tags count text
+                TagsCountText.Value = $"共 {tags.Count} 个标签";
+                
+                // Show the tags list in the UI
+                IsTagsListVisible.Value = true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"查看配方标签失败 (RecipeId: {recipe.RecipeId}): {ex.Message}");
+                MessageBox.Show($"获取配方标签失败：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        /// <summary>
+        /// 根据配方ID获取标签列表
+        /// </summary>
+        public async Task<List<Tag>> GetTagListByRecipeIdAsync(int id)
+        {
+            try
+            {
+                return await _recipeSvc.GetTagListByRecipeIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"根据配方ID获取标签列表失败 (RecipeId: {id}): {ex.Message}");
+                throw;
+            }
+        }
+
+         private void CloseTagsList()
+        {
+            IsTagsListVisible.Value = false;
         }
     }
 }

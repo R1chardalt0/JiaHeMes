@@ -16,14 +16,17 @@ namespace DeviceManage.Services.DeviceMagService.Impl
     public class RecipeService : IRecipeService
     {
         private readonly IRepository<Recipe> _recipeRepo;
+        private readonly IRepository<Tag> _tagRepo;
         private readonly AppDbContext _db;
         private readonly ILogger<RecipeService> _logger;
 
         public RecipeService(IRepository<Recipe> recipeRepo,
+                              IRepository<Tag> tagRepo,
                               AppDbContext db,
                               ILogger<RecipeService> logger)
         {
             _recipeRepo = recipeRepo;
+            _tagRepo = tagRepo;
             _db = db;
             _logger = logger;
         }
@@ -62,7 +65,7 @@ namespace DeviceManage.Services.DeviceMagService.Impl
 
             existing.RecipeName = recipe.RecipeName;
             existing.Remarks = recipe.Remarks;
-            existing.Status = recipe.Status;
+            existing.Status = existing.Status;
             existing.Version = recipe.Version;
 
             _recipeRepo.Update(existing);
@@ -81,6 +84,11 @@ namespace DeviceManage.Services.DeviceMagService.Impl
                 _recipeRepo.Delete(entity);
                 await _db.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<Tag>> GetTagListByRecipeIdAsync(int id)
+        {
+            return await _tagRepo.GetListAsync(t => t.RecipeId == id);
         }
     }
 }
