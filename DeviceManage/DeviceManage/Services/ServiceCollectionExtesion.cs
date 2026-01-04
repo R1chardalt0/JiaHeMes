@@ -1,4 +1,5 @@
-﻿using DeviceManage.DBContext.Repository;
+using DeviceManage.DBContext.Repository;
+using DeviceManage.Helpers;
 using DeviceManage.Services.DeviceMagService;
 using DeviceManage.Services.DeviceMagService.Impl;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +17,9 @@ namespace DeviceManage.Services
             services.AddTransient<ITagService, TagService>();
             services.AddTransient<IUserService, UserService>();
 
+            services.AddTransient<ISwitchRecipeService, SwitchRecipeService>();
+            services.AddTransient<S7NetConnect>();
+            services.AddTransient<ModbusConnect>();
             return services;
         }
     }

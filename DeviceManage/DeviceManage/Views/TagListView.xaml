@@ -15,7 +15,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -27,22 +27,45 @@
                     Style="{StaticResource ButtonDashedDanger}" 
                     Margin="5" Padding="10,2"/>
         </Grid>
-        
+
         <TextBlock Grid.Row="1" Text="{Binding TagsCountText.Value}" Margin="5,0,5,5" HorizontalAlignment="Left" Foreground="Gray" FontStyle="Italic"/>
-        
-        <DataGrid Grid.Row="2" 
-                  ItemsSource="{Binding RecipeTags.Value}" 
-                  AutoGenerateColumns="False" 
-                  CanUserAddRows="False" 
-                  CanUserDeleteRows="False" 
-                  IsReadOnly="True"
-                  Margin="5">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="80"/>
-                <DataGridTextColumn Header="标签名称" Binding="{Binding PlcTagName}" Width="*"/>
-                <DataGridTextColumn Header="标签值" Binding="{Binding TagValue}" Width="120"/>
-                <DataGridTextColumn Header="标签地址" Binding="{Binding TagAddress}" Width="120"/>
-            </DataGrid.Columns>
-        </DataGrid>
+
+        <Grid Grid.Row="2">
+            <DataGrid x:Name="TagDataGrid" 
+                      ItemsSource="{Binding RecipeTags.Value}" 
+                      AutoGenerateColumns="False" 
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False" 
+                      IsReadOnly="True"
+                      Margin="5">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="80"/>
+                    <DataGridTextColumn Header="PLC点位名称" Binding="{Binding PlcTagName}" Width="*"/>
+                    <DataGridTextColumn Header="PLC名称" Binding="{Binding PlcDevice.PLCName}" Width="*"/>
+                    <DataGridTextColumn Header="IP地址" Binding="{Binding PlcDevice.IPAddress}" Width="*"/>
+                    <DataGridTextColumn Header="配方名称" Binding="{Binding Recipe.RecipeName}" Width="120"/>
+                    <DataGridTextColumn Header="描述" Binding="{Binding Remarks}" Width="120"/>
+                    <DataGridTemplateColumn  Header="操作" Width="120" >
+                        <DataGridTemplateColumn.CellTemplate >
+                            <DataTemplate>
+                                <Button Content="切换配方" 
+                                        Style="{StaticResource ButtonDanger}" 
+                                        Margin="2"
+                                        Command="{Binding DataContext.ToggleTagCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Button Content="一键切换配方" 
+                    Style="{StaticResource ButtonDanger}" 
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Bottom" 
+                    Margin="10"
+                    Command="{Binding BatchToggleCommand}" 
+                    Width="100" Height="30"/>
+        </Grid>
     </Grid>
 </UserControl>
