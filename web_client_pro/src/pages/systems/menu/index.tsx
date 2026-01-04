@@ -21,15 +21,7 @@ import * as Icons from '@ant-design/icons';
 
 const MenuManagement: React.FC = () => {
     const [form] = Form.useForm();
-    const { initialState } = useModel('@@initialState');
-    // 仅允许用户表中 UserId=1 的用户执行删除（含批量删除）
-    // 注意：不同后端/登录接口字段可能是 userId/UserId/id 等，这里做一次兼容读取
-    const currentUserId =
-        (initialState as any)?.currentUser?.UserId ??
-        (initialState as any)?.currentUser?.userId ??
-        (initialState as any)?.currentUser?.id ??
-        (initialState as any)?.currentUser?.Id;
-    const isSuperAdmin = Number(currentUserId) === 1;
+
     const actionRef = useRef<ActionType>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [currentMenu, setCurrentMenu] = useState<MenuItem | null>(null);
@@ -48,13 +40,14 @@ const MenuManagement: React.FC = () => {
     // 权限校验：判断是否为超级管理员（UserID=1）
     const { initialState } = useModel('@@initialState');
     const isSuperAdmin = () => {
-        if (!initialState?.currentUser) return false;
+        if (!(initialState as any)?.currentUser) return false;
         const currentUserId = Number(
-            (initialState as any)?.currentUser?.userId ??
             (initialState as any)?.currentUser?.UserId ??
+            (initialState as any)?.currentUser?.userId ??
             (initialState as any)?.currentUser?.userid ??
             (initialState as any)?.currentUser?.UserID ??
             (initialState as any)?.currentUser?.id ??
+            (initialState as any)?.currentUser?.Id ??
             -1
         );
         return currentUserId === 1;
@@ -393,24 +386,12 @@ const MenuManagement: React.FC = () => {
     // 删除单个菜单（仅超级管理员可执行）
     const handleDelete = async (id: number) => {
         // 前端兜底：仅 UserId=1 允许删除
-        if (!isSuperAdmin) {
-            message.warning('您权限不足！');
         if (!isSuperAdmin()) {
             message.warning('您无菜单删除权限，仅超级管理员可执行此操作！');
-
             return;
         }
 
         Modal.confirm({
-            title: '确认删除？',
-            content: '删除后不可恢复，请确认是否继续。',
-            okText: '删除',
-            okButtonProps: { danger: true },
-            cancelText: '取消',
-            onOk: async () => {
-                try {
-                    const res = await deleteMenu([id]);
-                    if ((res as any)?.code === 200) {
             title: '确认删除',
             content: '删除后菜单及其子菜单将不可恢复，是否继续？',
             okType: 'danger',
@@ -419,15 +400,12 @@ const MenuManagement: React.FC = () => {
             onOk: async () => {
                 try {
                     const res = await deleteMenu(id);
-                    if (res.code === 200) {
+                    if ((res as any)?.code === 200) {
                         message.success('删除成功');
                         refreshTree();
                         actionRef.current?.reload();
                     } else {
                         message.error((res as any)?.msg || '删除失败');
-                    }
-                } catch (e: any) {
-                    message.error(e?.mes
                     }
                 } catch (error) {
                     message.error('删除接口调用失败，请稍后重试');
@@ -443,23 +421,6 @@ const MenuManagement: React.FC = () => {
             return;
         }
         // 前端兜底：仅 UserId=1 允许批量删除
-        if (!isSuperAdmin) {
-            message.warning('您权限不足！');
-            return;
-        }
-
-        const ids = selectedRows.map((row) => row.menuId);
-        Modal.confirm({
-            title: '确认批量删除？',
-            content: `本次将删除 ${ids.length} 项，删除后不可恢复，请确认是否继续。`,
-            okText: '删除',
-            okButtonProps: { danger: true },
-            cancelText: '取消',
-            onOk: async () => {
-                try {
-                    const res = await deleteMenu(ids);
-                    if ((res as any)?.code === 200) {
-
         if (!isSuperAdmin()) {
             message.warning('您无菜单批量删除权限，仅超级管理员可执行此操作！');
             return;
@@ -473,26 +434,23 @@ const MenuManagement: React.FC = () => {
             cancelText: '取消',
             onOk: async () => {
                 try {
-                    // 后端当前仅提供按单个 menuId 删除的接口：这里并发删除全部选中项，避免只执行第一条
+                    // 后端当前仅提供按单个 menuId 删除的接口：这里并发删除全部选中项
                     const ids = selectedRows.map((row) => row.menuId);
                     const results = await Promise.all(ids.map((id) => deleteMenu(id)));
 
-                    const failed = results.filter((r) => r?.code !== 200);
+                    const failed = results.filter((r) => (r as any)?.code !== 200);
                     if (failed.length === 0) {
                         message.success('批量删除成功');
                         setSelectedRows([]);
                         refreshTree();
                         actionRef.current?.reload();
                     } else {
-                        message.error((res as any)?.msg || '批量删除失败');
-                    }
-                } catch (e: any) {
                         message.error(`批量删除失败：成功 ${results.length - failed.length} 条，失败 ${failed.length} 条`);
                         refreshTree();
                         actionRef.current?.reload();
                     }
-                } catch (error) {
-                    message.error('批量删除接口调用失败，请稍后重试');
+                } catch (error: any) {
+                    message.error(error?.message || '批量删除接口调用失败，请稍后重试');
                 }
             },
         });
