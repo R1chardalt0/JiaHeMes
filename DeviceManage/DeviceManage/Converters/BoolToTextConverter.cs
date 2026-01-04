@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace DeviceManage.Helpers.Converters
+namespace DeviceManage.Converters
 {
     /// <summary>
     /// 根据 bool 返回两个不同的字符串，中间用 | 分隔
