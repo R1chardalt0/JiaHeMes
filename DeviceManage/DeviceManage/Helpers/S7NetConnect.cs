@@ -711,7 +711,49 @@ namespace DeviceManage.Helpers
         /// <param name="address">寄存器地址</param>
         /// <param name="value">要写入的字符串</param>
         /// <returns>写入结果</returns>
-        public OperateResult Write(string address, string value)
+        public OperateResult Write30(string address, string value)
+        {
+            try
+            {
+                var result = _s7net.Write(address, value, 30);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(string.Format("S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
+                return new OperateResult(ex.Message);
+            }
+        }
+
+        public OperateResult Write50(string address, string value)
+        {
+            try
+            {
+                var result = _s7net.Write(address, value, 50);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(string.Format("S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
+                return new OperateResult(ex.Message);
+            }
+        }
+
+        public OperateResult Write60(string address, string value)
+        {
+            try
+            {
+                var result = _s7net.Write(address, value, 60);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(string.Format("S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
+                return new OperateResult(ex.Message);
+            }
+        }
+
+        public OperateResult Write100(string address, string value)
         {
             try
             {

@@ -220,7 +220,11 @@
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
                         <Label Content="通信协议:" FontSize="12" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding EditingPlcDevice.Value.Protocolc, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                        <ComboBox SelectedValue="{Binding EditingPlcDevice.Value.Protocolc, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                                  SelectedValuePath="Content">
+                            <ComboBoxItem Content="S7"/>
+                            <ComboBoxItem Content="Modbus"/>
+                        </ComboBox>
                     </StackPanel>
 
                     <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,10,0">
