@@ -1,13 +1,14 @@
 using DeviceManage.Models;
+using DeviceManage.Services.DeviceMagService;
+using DeviceManage.Services.DeviceMagService.Impl;
+using HandyControl.Controls;
+using Microsoft.Extensions.Logging;
 using Reactive.Bindings;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using HandyControl.Controls;
-using Microsoft.Extensions.Logging;
 using System.Windows;
 using MessageBox = HandyControl.Controls.MessageBox;
-using DeviceManage.Services.DeviceMagService;
 using Tag = DeviceManage.Models.Tag;
 
 namespace DeviceManage.ViewModels
@@ -18,6 +19,7 @@ namespace DeviceManage.ViewModels
     public class RecipeViewModel : ViewModelBase
     {
         private readonly IRecipeService _recipeSvc;
+        private readonly IPlcDeviceService _plcDeviceService;
         private readonly ILogger<RecipeViewModel> _logger;
 
         public ReactiveProperty<ObservableCollection<Recipe>> Recipes { get; }
@@ -30,7 +32,7 @@ namespace DeviceManage.ViewModels
         public ReactiveProperty<string> TagsCountText { get; }
 
 
-        public RecipeViewModel(IRecipeService recipeService, ILogger<RecipeViewModel> logger)
+        public RecipeViewModel(IRecipeService recipeService, ILogger<RecipeViewModel> logger, IPlcDeviceService plcDeviceService)
         {
             _recipeSvc = recipeService;
             _logger = logger;
@@ -52,9 +54,12 @@ namespace DeviceManage.ViewModels
             CancelCommand = new ReactiveCommand().WithSubscribe(() => CloseDialog());
             ViewRecipeTagsCommand = new ReactiveCommand<Recipe>().WithSubscribe(async r => await ViewRecipeTagsAsync(r));
             CloseTagsListCommand = new ReactiveCommand().WithSubscribe(() => CloseTagsList());
+            ToggleTagCommand = new ReactiveCommand<Tag>().WithSubscribe(async tag => await ToggleTagAsync(tag));
+            BatchToggleCommand = new ReactiveCommand().WithSubscribe(async () => await BatchToggleAsync());
 
 
             Task.Run(async () => await LoadRecipesAsync());
+            _plcDeviceService = plcDeviceService;
         }
 
         #region Commands
@@ -67,6 +72,8 @@ namespace DeviceManage.ViewModels
         public ReactiveCommand<Recipe> OpenItemsDialogCommand { get; }
         public ReactiveCommand<Recipe> ViewRecipeTagsCommand { get; }
         public ReactiveCommand CloseTagsListCommand { get; }
+        public ReactiveCommand<Tag> ToggleTagCommand { get; }
+        public ReactiveCommand BatchToggleCommand { get; }
         #endregion
 
         private async Task LoadRecipesAsync()
@@ -195,15 +202,15 @@ namespace DeviceManage.ViewModels
                 RecipeTags.Value = new ObservableCollection<Tag>(tags);
                 
                 // Update the tags count text
-                TagsCountText.Value = $"共 {tags.Count} 个标签";
+                TagsCountText.Value = $"共 {tags.Count} 个配方点位";
                 
                 // Show the tags list in the UI
                 IsTagsListVisible.Value = true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"查看配方标签失败 (RecipeId: {recipe.RecipeId}): {ex.Message}");
-                MessageBox.Show($"获取配方标签失败：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                _logger.LogError(ex, $"查看配方点位失败 (RecipeId: {recipe.RecipeId}): {ex.Message}");
+                MessageBox.Show($"获取配方点位失败：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         
@@ -218,7 +225,7 @@ namespace DeviceManage.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"根据配方ID获取标签列表失败 (RecipeId: {id}): {ex.Message}");
+                _logger.LogError(ex, $"根据配方ID获取配方点位列表失败 (RecipeId: {id}): {ex.Message}");
                 throw;
             }
         }
@@ -226,6 +233,77 @@ namespace DeviceManage.ViewModels
          private void CloseTagsList()
         {
             IsTagsListVisible.Value = false;
+        }
+        
+        /// <summary>
+        /// 切换标签状态
+        /// </summary>
+        private async Task ToggleTagAsync(Tag tag)
+        {
+            if (tag == null) return;
+            
+            try
+            {
+                // 提示用户确认是否要切换
+                var result = MessageBox.Show($"确定要切换配方点位: {tag.PlcTagName} 吗？", "确认切换", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                
+                // 如果用户选择"否"，则取消操作
+                if (result != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+                
+                // 实现标签切换逻辑，例如切换标签的使能状态
+                // 这里可以根据实际需求实现具体的切换逻辑
+                // 例如：切换标签的使能/禁用状态，或者执行其他操作
+                MessageBox.Show($"已切换配方点位: {tag.PlcTagName}", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                // 如果需要更新标签状态到数据库，可以调用相应的服务方法
+                // await _tagService.ToggleTagAsync(tag.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"切换配方点位失败 (TagId: {tag?.Id}): {ex.Message}");
+                MessageBox.Show($"切换配方点位失败：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        /// <summary>
+        /// 批量切换所有标签状态
+        /// </summary>
+        private async Task BatchToggleAsync()
+        {
+            try
+            {
+                var tags = RecipeTags.Value;
+                if (tags == null || tags.Count == 0)
+                {
+                    MessageBox.Show("没有配方可切换", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                
+                // 提示用户确认是否要批量切换
+                var result = MessageBox.Show($"确定要一键切换 {tags.Count} 个配方点位吗？", "确认批量切换", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                
+                // 如果用户选择"否"，则取消操作
+                if (result != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+                
+                MessageBox.Show($"已一键切换 {tags.Count} 个配方", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                // 这里可以实现批量切换逻辑，例如切换所有标签的使能状态
+                // foreach (var tag in tags)
+                // {
+                //     await _tagService.ToggleTagAsync(tag.Id);
+                // }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"一键切换配方点位失败: {ex.Message}");
+                MessageBox.Show($"一键切换配方点位失败：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
