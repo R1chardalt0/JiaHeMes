@@ -84,9 +84,7 @@ namespace DeviceManage.Services.DeviceMagService.Impl
         /// </summary>
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            return await _db.Users
-                .Where(u => u.Username == username && !u.IsDeleted)
-                .FirstOrDefaultAsync();
+            return await _repo.GetAsync(u => u.Username == username && !u.IsDeleted);
         }
 
         /// <summary>
@@ -94,7 +92,6 @@ namespace DeviceManage.Services.DeviceMagService.Impl
         /// </summary>
         public async Task<User> AddUserAsync(User user)
         {
-            // 验证用户名唯一性
             if (!string.IsNullOrWhiteSpace(user.Username))
             {
                 var existingUser = await GetUserByUsernameAsync(user.Username);
@@ -104,13 +101,10 @@ namespace DeviceManage.Services.DeviceMagService.Impl
                 }
             }
 
-            // 对密码进行MD5加密
             if (!string.IsNullOrWhiteSpace(user.Password))
             {
                 user.Password = MD5Helper.Encrypt(user.Password);
             }
-
-            // 确保软删除字段为false
             user.IsDeleted = false;
             user.DeletedAt = null;
             user.CreatedAt = DateTime.Now;
@@ -140,7 +134,7 @@ namespace DeviceManage.Services.DeviceMagService.Impl
             }
 
             exist.Username = user.Username;
-            
+
             // 如果提供了新密码，则进行MD5加密；否则保持原密码不变
             // 注意：从ViewModel传来的密码是原始密码（从PasswordBox获取），需要加密
             if (!string.IsNullOrWhiteSpace(user.Password))

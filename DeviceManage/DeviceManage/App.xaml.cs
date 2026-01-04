@@ -83,6 +83,11 @@ namespace DeviceManage
         {
             // 注册配置
             services.AddSingleton(_configuration!);
+            // 添加日志服务
+            services.AddLogging(logging =>
+            {
+                logging.AddLog4Net();
+            });
 
             // 从配置读取API地址
             var apiBaseUrl = _configuration!["ApiSettings:BaseUrl"] ?? "http://localhost:5000";
@@ -123,6 +128,8 @@ namespace DeviceManage
             // 注册Windows
             services.AddTransient<MainWindow>();
             services.AddTransient<LoginWindow>();
+
+           
         }
 
         protected override void OnExit(ExitEventArgs e)
