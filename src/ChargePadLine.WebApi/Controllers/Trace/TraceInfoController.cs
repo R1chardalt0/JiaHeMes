@@ -30,6 +30,7 @@ public class TraceInfoController : ControllerBase
   /// <param name="id">ID(模糊匹配)</param>
   /// <param name="pin">产品识别码(模糊匹配)</param>
   /// <param name="vsn">VSN(模糊匹配)</param>
+  /// <param name="productCode">产品编码(模糊匹配)</param>
   /// <returns>分页追溯信息列表</returns>
   [HttpGet("GetTraceInfoList")]
   public async Task<ActionResult<PaginatedList<TraceInfo>>> GetTraceInfosListAsync(
@@ -37,7 +38,8 @@ public class TraceInfoController : ControllerBase
       [FromQuery] int pageSize = 10,
       [FromQuery] string? id = null,
       [FromQuery] string? pin = null,
-      [FromQuery] string? vsn = null)
+      [FromQuery] string? vsn = null,
+      [FromQuery] string? productCode = null)
   {
     try
     {
@@ -48,7 +50,7 @@ public class TraceInfoController : ControllerBase
         guidId = parsedId;
       }
 
-      var result = await _traceInfoService.GetListAsync(guidId, pin, vsn, current, pageSize);
+      var result = await _traceInfoService.GetListAsync(guidId, pin, vsn, productCode, current, pageSize);
       return Ok(result);
     }
     catch (Exception ex)

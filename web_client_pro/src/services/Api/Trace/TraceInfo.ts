@@ -10,7 +10,8 @@ export async function getTraceInfoList(
     current: params.current,
     pageSize: params.pageSize,
     id: params.id,
-    pin: params.productCode || params.pn, // 后端只接受pin参数，使用productCode或pn作为替代
+    productCode: params.productCode,
+    pin: params.pin,
     vsn: params.vsn
   };
 

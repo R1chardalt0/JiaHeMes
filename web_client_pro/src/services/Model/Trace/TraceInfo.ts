@@ -4,7 +4,7 @@ export interface TraceInfoQueryDto {
     pageSize: number;
     id?: string;
     productCode?: string;
-    pn?: string;
+    pin?: string;
     vsn?: string;
 }
 

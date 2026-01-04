@@ -65,10 +65,11 @@ public class TraceInfoService : ITraceInfoService
   /// <param name="id">ID</param>
   /// <param name="pin">产品识别码</param>
   /// <param name="vsn">VSN</param>
+  /// <param name="productCode">产品编码</param>
   /// <param name="page">页码</param>
   /// <param name="size">每页大小</param>
   /// <returns>分页追溯信息列表</returns>
-  public async Task<PaginatedList<TraceInfo>> GetListAsync(Guid? id, string? pin, string? vsn, int page, int size)
+  public async Task<PaginatedList<TraceInfo>> GetListAsync(Guid? id, string? pin, string? vsn, string? productCode, int page, int size)
   {
     var queryable = _repository.GetQueryable();
 
@@ -90,6 +91,9 @@ public class TraceInfoService : ITraceInfoService
         queryable = queryable.Where(x => x.Vsn.ToString().Contains(vsn));
       }
     }
+
+    if (!string.IsNullOrEmpty(productCode))
+      queryable = queryable.Where(x => x.ProductCode.Value.Contains(productCode));
 
     var total = await queryable.CountAsync();
     var items = await queryable.OrderByDescending(x => x.CreatedAt)

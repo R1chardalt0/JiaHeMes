@@ -306,7 +306,7 @@ const TraceInfoPage: React.FC = () => {
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
             id: params.id,
             productCode: params.productCode,
-            pn: params.pn,
+            pin: params.pin,
             vsn: params.vsn,
           });
 
@@ -315,7 +315,7 @@ const TraceInfoPage: React.FC = () => {
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
             id: params.id,
             productCode: params.productCode,
-            pn: params.pn,
+            pin: params.pin,
             vsn: params.vsn,
           };
 
