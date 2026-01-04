@@ -4,18 +4,9 @@ import React, { useRef, useState, useCallback } from 'react';
 import { Table, Button, Tabs, message, Card, Row, Col, Modal } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { getTraceInfoList, getTraceInfoDetail, getMaterialInfoList, getProcessInfoList, deleteMaterialInfo, deleteProcessInfo } from '@/services/Api/Trace/TraceInfo';
-import { TraceInfoDto, TraceInfoQueryDto, TraceInfoDetailDto, MaterialInfoDto, ProcessInfoDto } from '@/services/Model/Trace/TraceInfo';
+import { TraceInfoDto, TraceInfoQueryDto, TraceInfoDetailDto, MaterialInfoDto, ProcessInfoDto, ValueObject, isValueObject, processApiResponse, getValueDisplay } from '@/services/Model/Trace/TraceInfo';
+
 import type { RequestData } from '@ant-design/pro-components';
-
-// 定义可能包含value属性的对象类型
-interface ValueObject {
-  value: string;
-}
-
-// 类型保护函数，检查对象是否包含value属性
-function isValueObject(value: any): value is ValueObject {
-  return typeof value === 'object' && value !== null && 'value' in value;
-}
 
 const { TabPane } = Tabs;
 
@@ -43,17 +34,20 @@ const TraceInfoPage: React.FC = () => {
       search: true
     },
     {
+      title: '产品编码',
+      dataIndex: 'productCode',
+      key: 'productCode',
+      width: 120,
+      search: false,
+      render: getValueDisplay,
+    },
+    {
       title: 'PIN',
       dataIndex: 'pin',
       key: 'pin',
       width: 100,
       search: true,
-      render: (text) => {
-        if (isValueObject(text)) {
-          return text.value || '';
-        }
-        return text || '';
-      },
+      render: getValueDisplay,
     },
     {
       title: 'VSN',
@@ -61,21 +55,33 @@ const TraceInfoPage: React.FC = () => {
       key: 'vsn',
       width: 80,
       search: true,
-      render: (text) => text?.toString() || ''
+      render: getValueDisplay
     },
     {
-      title: '产品编码',
-      dataIndex: 'productCode',
-      key: 'productCode',
-      width: 120,
-      search: true,
-      render: (text) => {
-        if (isValueObject(text)) {
-          return text.value || '';
-        }
-        return text || '';
-      },
+      title: 'BOM Id',
+      dataIndex: 'bomRecipeId',
+      key: 'bomRecipeId',
+      width: 80,
+      search: false,
+      render: getValueDisplay
     },
+    {
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 160,
+      search: false,
+      valueType: 'dateTime'
+    },
+    {
+      title: '操作',
+      key: 'operation',
+      width: 80,
+      fixed: 'right',
+      render: (_, record) => (
+        <a onClick={() => handleShowDetail(record)}>查看</a>
+      )
+    }
   ];
 
   // 物料表格列定义
@@ -90,43 +96,29 @@ const TraceInfoPage: React.FC = () => {
       title: 'VSN',
       dataIndex: 'vsn',
       key: 'vsn',
-      width: 80
+      width: 80,
+      render: getValueDisplay
     },
     {
       title: 'BOM项编码',
       dataIndex: 'bomItemCode',
       key: 'bomItemCode',
       width: 150,
-      render: (text) => {
-        if (isValueObject(text)) {
-          return text.value || '';
-        }
-        return text || '';
-      }
+      render: getValueDisplay
     },
     {
       title: '物料编码',
       dataIndex: 'materialCode',
       key: 'materialCode',
       width: 150,
-      render: (text) => {
-        if (isValueObject(text)) {
-          return text.value || '';
-        }
-        return text || '';
-      }
+      render: getValueDisplay
     },
     {
       title: '计量单位',
       dataIndex: 'measureUnit',
       key: 'measureUnit',
       width: 100,
-      render: (text) => {
-        if (isValueObject(text)) {
-          return text.value || '';
-        }
-        return text || '';
-      }
+      render: getValueDisplay
     },
     {
       title: '定额',
@@ -139,12 +131,7 @@ const TraceInfoPage: React.FC = () => {
       dataIndex: 'sku',
       key: 'sku',
       width: 120,
-      render: (text) => {
-        if (isValueObject(text)) {
-          return text.value || '';
-        }
-        return text || '';
-      }
+      render: getValueDisplay
     },
     {
       title: '消耗量',
@@ -172,7 +159,8 @@ const TraceInfoPage: React.FC = () => {
       title: 'VSN',
       dataIndex: 'vsn',
       key: 'vsn',
-      width: 80
+      width: 80,
+      render: getValueDisplay
     },
     {
       title: '工位',
@@ -225,25 +213,19 @@ const TraceInfoPage: React.FC = () => {
       console.log('TraceInfo - 获取详情信息, ID:', record.id);
       const detailResponse = await getTraceInfoDetail(record.id);
       console.log('TraceInfo - 详情信息返回:', detailResponse);
-      // 适配API返回格式，使用类型断言处理TypeScript类型检查
-      const typedDetailResponse = detailResponse as any;
-      setDetailData(Array.isArray(typedDetailResponse) ? typedDetailResponse[0] : typedDetailResponse);
+      setDetailData(processApiResponse(detailResponse, true) as TraceInfoDetailDto);
 
       // 获取物料信息
       console.log('TraceInfo - 获取物料信息, traceInfoId:', record.id);
       const materialResponse = await getMaterialInfoList(record.id);
       console.log('TraceInfo - 物料信息返回:', materialResponse);
-      // 适配API返回格式，使用类型断言处理TypeScript类型检查
-      const typedMaterialResponse = materialResponse as any;
-      setMaterialList(Array.isArray(typedMaterialResponse) ? typedMaterialResponse : (typedMaterialResponse.data || []));
+      setMaterialList(processApiResponse(materialResponse) as MaterialInfoDto[]);
 
       // 获取过程信息
       console.log('TraceInfo - 获取过程信息, traceInfoId:', record.id);
       const processResponse = await getProcessInfoList(record.id);
       console.log('TraceInfo - 过程信息返回:', processResponse);
-      // 适配API返回格式，使用类型断言处理TypeScript类型检查
-      const typedProcessResponse = processResponse as any;
-      setProcessList(Array.isArray(typedProcessResponse) ? typedProcessResponse : (typedProcessResponse.data || []));
+      setProcessList(processApiResponse(processResponse) as ProcessInfoDto[]);
     } catch (error) {
       messageApi.error('获取详情失败');
       console.error('获取详情失败:', error);
@@ -303,23 +285,13 @@ const TraceInfoPage: React.FC = () => {
             console.log('TraceInfo - API返回数据:', response);
             //console.log('TraceInfo - 第一条数据详情:', JSON.stringify(response[0], null, 2));
 
-            let result;
-            // 检查API返回格式，如果是数组则直接使用
-            if (Array.isArray(response)) {
-              result = {
-                data: response,
-                total: response.length,
-                success: true,
-              };
-            } else {
-              // 否则使用标准格式，使用类型断言处理TypeScript类型检查
-              const typedResponse = response as any;
-              result = {
-                data: typedResponse.data || [],
-                total: typedResponse.total || 0,
-                success: typedResponse.success || false,
-              };
-            }
+            // 使用通用API响应处理函数获取数据
+            const data = processApiResponse(response);
+            const result = {
+              data: data,
+              total: response.total,
+              success: response.success,
+            };
 
             console.log('TraceInfo - 表格数据:', result);
             return result;
@@ -352,10 +324,10 @@ const TraceInfoPage: React.FC = () => {
           >
             <ProDescriptions.Item label="ID">{detailData.id}</ProDescriptions.Item>
             <ProDescriptions.Item label="产品编码">
-              {isValueObject(detailData.productCode) ? detailData.productCode.value || '' : (detailData.productCode as string || '')}
+              {getValueDisplay(detailData.productCode)}
             </ProDescriptions.Item>
             <ProDescriptions.Item label="PIN">
-              {isValueObject(detailData.pin) ? detailData.pin.value || '' : (detailData.pn as string || '')}
+              {getValueDisplay(detailData.pin)}
             </ProDescriptions.Item>
             <ProDescriptions.Item label="VSN">{detailData.vsn}</ProDescriptions.Item>
             <ProDescriptions.Item label="BOM ID">{detailData.bomRecipeId}</ProDescriptions.Item>
@@ -369,7 +341,7 @@ const TraceInfoPage: React.FC = () => {
                 {materialList.map((material) => (
                   <Col xs={24} sm={12} md={8} key={material.id}>
                     <Card
-                      title={`物料信息 - ${isValueObject(material.materialCode) ? material.materialCode.value : (material.materialCode as string)}`}
+                      title={`物料信息 - ${getValueDisplay(material.materialCode)}`}
                       extra={
                         !material.isDeleted && (
                           <Button
@@ -386,7 +358,7 @@ const TraceInfoPage: React.FC = () => {
                                     // 重新获取物料信息
                                     if (currentRow) {
                                       const newMaterialList = await getMaterialInfoList(currentRow.id);
-                                      setMaterialList(newMaterialList);
+                                      setMaterialList(processApiResponse(newMaterialList) as MaterialInfoDto[]);
                                     }
                                   } catch (error) {
                                     message.error('物料信息删除失败');
@@ -413,12 +385,12 @@ const TraceInfoPage: React.FC = () => {
                         <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>ID:</strong> {material.id}</p>
                         <p style={{ marginBottom: '8px' }}><strong>VSN:</strong> {material.vsn}</p>
                         <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>追溯信息ID:</strong> {material.traceInfoId}</p>
-                        <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>BOM项编码:</strong> {isValueObject(material.bomItemCode) ? material.bomItemCode.value || '' : (material.bomItemCode as string || '')}</p>
+                        <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>BOM项编码:</strong> {getValueDisplay(material.bomItemCode)}</p>
                         <p style={{ marginBottom: '8px' }}><strong>BOM ID:</strong> {material.bomId}</p>
-                        <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>物料编码:</strong> {isValueObject(material.materialCode) ? material.materialCode.value || '' : (material.materialCode as string || '')}</p>
-                        <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>计量单位:</strong> {isValueObject(material.measureUnit) ? material.measureUnit.value || '' : (material.measureUnit as string || '')}</p>
+                        <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>物料编码:</strong> {getValueDisplay(material.materialCode)}</p>
+                        <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>计量单位:</strong> {getValueDisplay(material.measureUnit)}</p>
                         <p style={{ marginBottom: '8px' }}><strong>定额:</strong> {material.quota}</p>
-                        <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>SKU:</strong> {isValueObject(material.sku) ? material.sku.value || '' : (material.sku as string || '')}</p>
+                        <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>SKU:</strong> {getValueDisplay(material.sku)}</p>
                         <p style={{ marginBottom: '8px' }}><strong>消耗量:</strong> {material.consumption}</p>
                         <p style={{ marginBottom: '8px' }}><strong>是否删除:</strong> {material.isDeleted ? '是' : '否'}</p>
                         <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>创建时间:</strong> {material.createdAt}</p>
@@ -451,7 +423,7 @@ const TraceInfoPage: React.FC = () => {
                                     // 重新获取过程信息
                                     if (currentRow) {
                                       const newProcessList = await getProcessInfoList(currentRow.id);
-                                      setProcessList(newProcessList);
+                                      setProcessList(processApiResponse(newProcessList) as ProcessInfoDto[]);
                                     }
                                   } catch (error) {
                                     message.error('过程信息删除失败');
