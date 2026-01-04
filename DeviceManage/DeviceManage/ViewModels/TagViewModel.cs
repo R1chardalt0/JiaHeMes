@@ -386,7 +386,6 @@ namespace DeviceManage.ViewModels
             try
             {
                 await _tagSvc.DeleteTagAsync(tag.Id);
-                MessageBox.Show("删除成功！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 await LoadAsync();
             }
             catch (Exception ex)

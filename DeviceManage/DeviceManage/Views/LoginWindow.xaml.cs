@@ -92,6 +92,10 @@ namespace DeviceManage.Views
                 };
                 await _userService.UpdateUserAsync(userToUpdate);
 
+                // 设置当前登录用户信息到MainViewModel
+                _mainViewModel.CurrentUserName.Value = !string.IsNullOrWhiteSpace(user.RealName) ? user.RealName : user.Username;
+                _mainViewModel.CurrentUserRole.Value = user.RoleString;
+
                 _ = ShowTopToastAsync("登录成功");
 
                 var mainWindow = new MainWindow(_mainViewModel);

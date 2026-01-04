@@ -11,12 +11,14 @@ namespace DeviceManage.ViewModels;
 /// <summary>
 /// 主窗口视图模型 - 使用简化的MVVM页面加载
 /// </summary>
-public class MainViewModel : ViewModelBase
-{
-    private readonly ApiClient _apiClient;
-    public ReactiveProperty<string> CurrentPageTitle { get; }
-    public ReactiveProperty<object?> CurrentView { get; }
-    public ReactiveProperty<bool> SidebarVisible { get; }
+    public class MainViewModel : ViewModelBase
+    {
+        private readonly ApiClient _apiClient;
+        public ReactiveProperty<string> CurrentPageTitle { get; }
+        public ReactiveProperty<object?> CurrentView { get; }
+        public ReactiveProperty<bool> SidebarVisible { get; }
+        public ReactiveProperty<string> CurrentUserName { get; }
+        public ReactiveProperty<string> CurrentUserRole { get; }
 
     // 页面映射字典
     private readonly Dictionary<string, PageInfo> _pageMap;
@@ -29,6 +31,8 @@ public class MainViewModel : ViewModelBase
         CurrentPageTitle = new ReactiveProperty<string>("仪表盘");
         CurrentView = new ReactiveProperty<object?>();
         SidebarVisible = new ReactiveProperty<bool>(true);
+        CurrentUserName = new ReactiveProperty<string>("管理员");
+        CurrentUserRole = new ReactiveProperty<string>("管理员");
 
         // 初始化页面映射
         _pageMap = new Dictionary<string, PageInfo>

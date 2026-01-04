@@ -126,8 +126,8 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" 
                            HorizontalAlignment="Right" VerticalAlignment="Center">
                     <StackPanel Margin="0,0,20,0">
-                        <TextBlock Text="管理员" FontSize="14" FontWeight="SemiBold" Foreground="#333"/>
-                        <TextBlock Text="管理员" FontSize="12" Foreground="#999"/>
+                        <TextBlock Text="{Binding CurrentUserName.Value}" FontSize="14" FontWeight="SemiBold" Foreground="#333"/>
+                        <TextBlock Text="{Binding CurrentUserRole.Value}" FontSize="12" Foreground="#999"/>
                     </StackPanel>
 
                     <Button Command="{Binding LogoutCommand}"

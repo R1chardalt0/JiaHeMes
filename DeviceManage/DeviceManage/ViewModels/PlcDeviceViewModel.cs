@@ -198,7 +198,6 @@ namespace DeviceManage.ViewModels
                 await _plcDeviceService.DeletePlcDeviceAsync(device.Id);
                 _logger.LogInformation($"成功删除PLC设备 (ID: {device.Id}, 名称: {deviceName})");
 
-                MessageBox.Show($"PLC设备 \"{deviceName}\" 已成功删除！","删除成功", MessageBoxButton.OK,MessageBoxImage.Information);
                 await LoadPlcDevicesAsync();
                 if (SelectedPlcDevice.Value != null && SelectedPlcDevice.Value.Id == device.Id)
                 {

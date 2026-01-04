@@ -362,7 +362,6 @@ namespace DeviceManage.ViewModels
                 await _userService.DeleteUserAsync(user.Id);
                 _logger.LogInformation($"成功删除用户 (ID: {user.Id}, 用户名: {userName})");
 
-                MessageBox.Show($"用户 \"{userName}\" 已成功删除！", "删除成功", MessageBoxButton.OK, MessageBoxImage.Information);
                 await LoadUsersAsync();
                 if (SelectedUser.Value != null && SelectedUser.Value.Id == user.Id)
                 {
