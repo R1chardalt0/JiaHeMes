@@ -126,9 +126,7 @@ namespace DeviceManage.Services.DeviceMagService.Impl
                 return dataType switch
                 {
                     DataType.Bool => s7Net.Write(address, Convert.ToBoolean(value)),
-                    DataType.Char => s7Net.Write(address, Convert.ToChar(value)),
-                    DataType.Byte => s7Net.Write(address, Convert.ToByte(value)),
-                    DataType.SByte => s7Net.Write(address, Convert.ToSByte(value)),
+                    DataType.Byte => s7Net.Write(address, Convert.ToByte(value)),            
                     DataType.Int16 => s7Net.Write(address, Convert.ToInt16(value)),
                     DataType.UInt16 => s7Net.Write(address, Convert.ToUInt16(value)),
                     DataType.Int32 => s7Net.Write(address, Convert.ToInt32(value)),
