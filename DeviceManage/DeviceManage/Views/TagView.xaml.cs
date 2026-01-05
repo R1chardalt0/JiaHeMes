@@ -79,8 +79,21 @@ namespace DeviceManage.Views
 
                 if (draggedIndex >= 0 && targetIndex >= 0 && draggedIndex != targetIndex)
                 {
+                    // 在可视（过滤后）集合中调整顺序
                     itemsSource.RemoveAt(draggedIndex);
                     itemsSource.Insert(targetIndex, _draggedItem);
+
+                    // 同步调整到原始集合，确保保存时顺序正确
+                    if (DataContext is TagViewModel vm && vm.TagDetailRows?.Value is ObservableCollection<TagDetailRow> allRows)
+                    {
+                        int oldIndexAll = allRows.IndexOf(_draggedItem);
+                        int newIndexAll = allRows.IndexOf(targetItem);
+                        if (oldIndexAll >= 0 && newIndexAll >= 0 && oldIndexAll != newIndexAll)
+                        {
+                            allRows.RemoveAt(oldIndexAll);
+                            allRows.Insert(newIndexAll, _draggedItem);
+                        }
+                    }
                 }
             }
 

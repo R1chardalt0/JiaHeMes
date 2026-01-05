@@ -363,7 +363,10 @@ namespace DeviceManage.ViewModels
                 }
 
                 // 转换为实体
-                entity.TagDetailDataArray = validRows.Select(r => r.ToEntity()).ToList();
+                // 按 UI 顺序保存，保证列表页与编辑弹窗一致
+                entity.TagDetailDataArray = validRows
+                    .Select((r, idx) => r.ToEntity())
+                    .ToList();
 
                 // 保存数据
                 if (entity.Id == 0)
