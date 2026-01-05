@@ -1,0 +1,67 @@
+<UserControl x:Class="DeviceManage.Views.LogManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:customerControl="clr-namespace:DeviceManage.CustomerControl"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1000">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部按钮 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="刷新" Command="{Binding LoadCommand}" Style="{StaticResource ButtonDashedInfo}" />
+        </StackPanel>
+
+        <!-- 搜索区域 -->
+        <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <Label Content="模块:" FontSize="12" Margin="0,0,0,5"/>
+                <TextBox Text="{Binding SearchModule.Value, UpdateSourceTrigger=PropertyChanged}" Height="30" VerticalContentAlignment="Center"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                <Label Content="用户名:" FontSize="12" Margin="0,0,0,5"/>
+                <TextBox Text="{Binding SearchUsername.Value, UpdateSourceTrigger=PropertyChanged}" Height="30" VerticalContentAlignment="Center"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                <Label Content="操作类型:" FontSize="12" Margin="0,0,0,5"/>
+                <ComboBox ItemsSource="{Binding OperationTypeOptions}" SelectedItem="{Binding SearchOperationType.Value, Mode=TwoWay}" Height="30" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Bottom">
+                <Button Content="搜索" Command="{Binding SearchCommand}" Style="{StaticResource ButtonInfo}" Height="30" Padding="20,0" Margin="0,0,10,0"/>
+                <Button Content="重置" Command="{Binding ResetCommand}" Style="{StaticResource ButtonWarning}" Height="30" Padding="20,0"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- 数据表格 -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Logs.Value}" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                <DataGridTextColumn Header="时间" Binding="{Binding CreatedAt}" Width="150"/>
+                <DataGridTextColumn Header="用户" Binding="{Binding Username}" Width="100"/>
+                <DataGridTextColumn Header="模块" Binding="{Binding Module}" Width="150"/>
+                <DataGridTextColumn Header="操作类型" Binding="{Binding OperationTypeString}" Width="100"/>
+                <DataGridTextColumn Header="描述" Binding="{Binding Description}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- 分页 -->
+        <customerControl:PageListView Grid.Row="3" DataContext="{Binding PageVM}" Margin="0,10,0,0"/>
+    </Grid>
+</UserControl>

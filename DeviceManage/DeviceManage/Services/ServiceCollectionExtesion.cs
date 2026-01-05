@@ -16,6 +16,7 @@ namespace DeviceManage.Services
             services.AddTransient<IRecipeService, RecipeService>();
             services.AddTransient<ITagService, TagService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ILogService, LogService>();
 
             services.AddTransient<ISwitchRecipeService, SwitchRecipeService>();
             services.AddTransient<S7NetConnect>();

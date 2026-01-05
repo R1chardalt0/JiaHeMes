@@ -99,11 +99,21 @@ namespace DeviceManage.Views
                     LastLoginAt = DateTime.Now, // 只更新最后登录时间
                     Remarks = user.Remarks
                 };
-                await _userService.UpdateUserAsync(userToUpdate);
+                await _userService.UpdateLastLoginTimeAsync(user.Id);
 
                 // 设置当前登录用户信息到MainViewModel
                 _mainViewModel.CurrentUserName.Value = user.Username;
                 _mainViewModel.CurrentUserRole.Value = GetRoleDescription(user.Role);
+
+                            // 记录登录日志
+                var logService = DeviceManage.Helpers.ViewModelLocator.Instance.GetServiceProvider()?.GetService(typeof(DeviceManage.Services.DeviceMagService.ILogService)) as DeviceManage.Services.DeviceMagService.ILogService;
+                if (logService != null)
+                {
+                    await logService.LogAsync(user.Id, user.Username, DeviceManage.Models.OperationType.Login, "系统", $"用户登录：{user.Username} (ID:{user.Id})");
+                }
+
+                // 设置当前用户上下文（用于操作日志溯源）
+                DeviceManage.Helpers.CurrentUserContext.Set(user.Id, user.Username);
 
                 _ = ShowTopToastAsync("登录成功");
 

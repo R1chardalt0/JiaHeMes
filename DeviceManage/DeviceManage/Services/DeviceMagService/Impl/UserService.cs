@@ -2,7 +2,6 @@ using DeviceManage.DBContext;
 using DeviceManage.DBContext.Repository;
 using DeviceManage.Helpers;
 using DeviceManage.Models;
-using DeviceManage.Services;
 using DeviceManage.Services.DeviceMagService;
 using DeviceManage.Services.DeviceMagService.Dto;
 using Microsoft.EntityFrameworkCore;
@@ -21,18 +20,21 @@ namespace DeviceManage.Services.DeviceMagService.Impl
     {
         private readonly IRepository<User> _repo;
         private readonly AppDbContext _db;
+        private readonly ILogService _logService;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IRepository<User> repo, AppDbContext db, ILogger<UserService> logger)
+        public UserService(IRepository<User> repo,
+                           AppDbContext db,
+                           ILogService logService,
+                           ILogger<UserService> logger)
         {
             _repo = repo;
             _db = db;
+            _logService = logService;
             _logger = logger;
         }
 
-        /// <summary>
-        /// 获取所有用户（分页，排除已删除的用户）
-        /// </summary>
+        #region 查询
         public async Task<PaginatedList<User>> GetAllUsersAsync(UserSearchDto dto)
         {
             var query = _db.Users
@@ -40,109 +42,69 @@ namespace DeviceManage.Services.DeviceMagService.Impl
                 .OrderByDescending(u => u.CreatedAt)
                 .AsQueryable();
 
-            // 用户名搜索
             if (!string.IsNullOrEmpty(dto.Username))
-            {
                 query = query.Where(u => u.Username != null && u.Username.Contains(dto.Username));
-            }
-
-            // 真实姓名搜索
             if (!string.IsNullOrEmpty(dto.RealName))
-            {
                 query = query.Where(u => u.RealName != null && u.RealName.Contains(dto.RealName));
-            }
-
-            // 角色搜索（使用RoleString字段，因为Role是枚举属性）
             if (!string.IsNullOrEmpty(dto.Role))
-            {
                 query = query.Where(u => u.RoleString != null && u.RoleString.Contains(dto.Role));
-            }
-
-            // 是否启用筛选
             if (dto.IsEnabled.HasValue)
-            {
                 query = query.Where(u => u.IsEnabled == dto.IsEnabled.Value);
-            }
 
-            // 分页查询
-            var list = await query.RetrievePagedListAsync(dto.current, dto.pageSize);
-            return list;
+            return await query.RetrievePagedListAsync(dto.current, dto.pageSize);
         }
 
-        /// <summary>
-        /// 根据ID获取用户（排除已删除的用户）
-        /// </summary>
         public async Task<User?> GetUserByIdAsync(int id)
-        {
-            return await _db.Users
-                .Where(u => u.Id == id && !u.IsDeleted)
-                .FirstOrDefaultAsync();
-        }
+            => await _db.Users.Where(u => u.Id == id && !u.IsDeleted).FirstOrDefaultAsync();
 
-        /// <summary>
-        /// 根据用户名获取用户（排除已删除的用户）
-        /// </summary>
         public async Task<User?> GetUserByUsernameAsync(string username)
-        {
-            return await _repo.GetAsync(u => u.Username == username && !u.IsDeleted);
-        }
+            => await _repo.GetAsync(u => u.Username == username && !u.IsDeleted);
+        #endregion
 
-        /// <summary>
-        /// 新增用户
-        /// </summary>
+        #region 新增
         public async Task<User> AddUserAsync(User user)
         {
             if (!string.IsNullOrWhiteSpace(user.Username))
             {
-                var existingUser = await GetUserByUsernameAsync(user.Username);
-                if (existingUser != null)
-                {
-                    throw new InvalidOperationException($"用户名 '{user.Username}' 已存在，请使用其他用户名。");
-                }
+                var existing = await GetUserByUsernameAsync(user.Username);
+                if (existing != null)
+                    throw new InvalidOperationException($"用户名 '{user.Username}' 已存在。");
             }
 
             if (!string.IsNullOrWhiteSpace(user.Password))
-            {
                 user.Password = MD5Helper.Encrypt(user.Password);
-            }
+
             user.IsDeleted = false;
-            user.DeletedAt = null;
             user.CreatedAt = DateTime.Now;
-            user.UpdatedAt = null;
 
             await _repo.InsertAsync(user);
             await _db.SaveChangesAsync();
+
+            await _logService.LogAsync(CurrentUserContext.UserId,
+                                        CurrentUserContext.Username,
+                                        OperationType.Create,
+                                        "用户管理",
+                                        $"新增用户：{user.Username} (ID:{user.Id})");
             return user;
         }
+        #endregion
 
-        /// <summary>
-        /// 更新用户
-        /// </summary>
+        #region 更新
         public async Task<User> UpdateUserAsync(User user)
         {
             var exist = await _repo.GetAsync(u => u.Id == user.Id && !u.IsDeleted);
             if (exist == null) return user;
 
-            // 验证用户名唯一性（如果用户名发生变化）
             if (!string.IsNullOrWhiteSpace(user.Username) && exist.Username != user.Username)
             {
-                var existingUser = await GetUserByUsernameAsync(user.Username);
-                if (existingUser != null && existingUser.Id != user.Id)
-                {
-                    throw new InvalidOperationException($"用户名 '{user.Username}' 已存在，请使用其他用户名。");
-                }
+                var dup = await GetUserByUsernameAsync(user.Username);
+                if (dup != null && dup.Id != user.Id)
+                    throw new InvalidOperationException($"用户名 '{user.Username}' 已存在。");
             }
 
             exist.Username = user.Username;
-
-            // 如果提供了新密码，则进行MD5加密；否则保持原密码不变
-            // 注意：从ViewModel传来的密码是原始密码（从PasswordBox获取），需要加密
             if (!string.IsNullOrWhiteSpace(user.Password))
-            {
                 exist.Password = MD5Helper.Encrypt(user.Password);
-            }
-            // 如果密码为空，保持原密码不变（不更新Password字段）
-
             exist.Role = user.Role;
             exist.RealName = user.RealName;
             exist.Email = user.Email;
@@ -154,25 +116,47 @@ namespace DeviceManage.Services.DeviceMagService.Impl
 
             _repo.Update(exist);
             await _db.SaveChangesAsync();
+
+            await _logService.LogAsync(CurrentUserContext.UserId,
+                                        CurrentUserContext.Username,
+                                        OperationType.Update,
+                                        "用户管理",
+                                        $"修改用户：{exist.Username} (ID:{exist.Id})");
             return exist;
         }
+        #endregion
 
-        /// <summary>
-        /// 软删除用户
-        /// </summary>
+        #region 删除
         public async Task DeleteUserAsync(int id)
         {
             var exist = await _repo.GetAsync(u => u.Id == id && !u.IsDeleted);
-            if (exist != null)
-            {
-                exist.IsDeleted = true;
-                exist.DeletedAt = DateTime.Now;
-                exist.UpdatedAt = DateTime.Now;
+            if (exist == null) return;
 
-                _repo.Update(exist);
-                await _db.SaveChangesAsync();
-            }
+            exist.IsDeleted = true;
+            exist.DeletedAt = DateTime.Now;
+            exist.UpdatedAt = DateTime.Now;
+
+            _repo.Update(exist);
+            await _db.SaveChangesAsync();
+
+            await _logService.LogAsync(CurrentUserContext.UserId,
+                                        CurrentUserContext.Username,
+                                        OperationType.Delete,
+                                        "用户管理",
+                                        $"删除用户：{exist.Username} (ID:{id})");
+        }
+        #endregion
+
+        /// <summary>
+        /// 仅更新最后登录时间，不记录操作日志
+        /// </summary>
+        public async Task UpdateLastLoginTimeAsync(int userId)
+        {
+            var user = await _repo.GetAsync(u => u.Id == userId && !u.IsDeleted);
+            if (user == null) return;
+            user.LastLoginAt = DateTime.Now;
+            _repo.Update(user);
+            await _db.SaveChangesAsync();
         }
     }
 }
-

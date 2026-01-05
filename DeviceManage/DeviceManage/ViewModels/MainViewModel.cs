@@ -148,6 +148,16 @@ namespace DeviceManage.ViewModels;
                         view = userView;
                         break;
                     }
+                case "LogManagement":
+                    {
+                        var logVm = (LogManagementViewModel)DeviceManage.Helpers.ViewModelLocator
+                            .Instance
+                            .GetViewModel(typeof(LogManagementViewModel));
+                        var logView = new Views.LogManagementView();
+                        logView.DataContext = logVm;
+                        view = logView;
+                        break;
+                    }
                 default:
                     {
                         var viewModel = DeviceManage.Helpers.ViewModelLocator.Instance.GetViewModel(pageInfo.ViewModelType);
@@ -215,6 +225,7 @@ namespace DeviceManage.ViewModels;
         // 如果是退出登录操作，直接允许关闭，不显示确认对话框
         if (_isLoggingOut)
         {
+            DeviceManage.Helpers.CurrentUserContext.Clear();
             return true;
         }
 
@@ -224,7 +235,13 @@ namespace DeviceManage.ViewModels;
             MessageBoxButton.YesNo,
             MessageBoxImage.Question);
 
-        return result == MessageBoxResult.Yes;
+        if (result == MessageBoxResult.Yes)
+        {
+            DeviceManage.Helpers.CurrentUserContext.Clear();
+            return true;
+        }
+
+        return false;
     }
 
     #endregion

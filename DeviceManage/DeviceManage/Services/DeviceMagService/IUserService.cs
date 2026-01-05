@@ -16,6 +16,10 @@ namespace DeviceManage.Services.DeviceMagService
         Task<User> AddUserAsync(User user);
         Task<User> UpdateUserAsync(User user);
         Task DeleteUserAsync(int id);
+            /// <summary>
+        /// 仅更新用户最后登录时间（不触发操作日志）
+        /// </summary>
+        Task UpdateLastLoginTimeAsync(int userId);
     }
 }
 
