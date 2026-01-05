@@ -81,6 +81,7 @@ const DynamicRouteLoader: React.FC = () => {
     '/welcome': 'Welcome',
     '/dashboard/analysis': 'dashboard/analysis',
     '/trace/productTraceInfo': 'Trace/ProductTraceInfo',
+    '/trace/traceInfo': 'Trace/TraceInfo',
   };
 
   useEffect(() => {

@@ -89,12 +89,13 @@ app.Run();
 void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
 
-    // 添加控制器
+    // 添加控制器，并配置使用Newtonsoft.Json作为JSON序列化器
     services.AddControllers(options =>
     {
         // 注册操作日志 ActionFilter（全局生效）
         options.Filters.Add<ChargePadLine.WebApi.Filters.OperationLogActionFilter>();
-    });
+    })
+    .AddNewtonsoftJson();
     services.AddEndpointsApiExplorer();
     // 豆包AI代理调用需要 HttpClient 工厂
     services.AddHttpClient();

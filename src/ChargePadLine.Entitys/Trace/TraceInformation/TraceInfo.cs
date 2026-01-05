@@ -1,4 +1,4 @@
-﻿using ChargePadLine.Entitys.Trace.Production;
+using ChargePadLine.Entitys.Trace.Production;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
 using ChargePadLine.Entitys.Trace.WorkOrders;
 using Microsoft.EntityFrameworkCore;
