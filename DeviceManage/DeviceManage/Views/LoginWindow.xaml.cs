@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using DeviceManage.Helpers;
+using DeviceManage.Models;
 using DeviceManage.Services.DeviceMagService;
 using DeviceManage.ViewModels;
 using HandyControl.Controls;
@@ -99,8 +102,8 @@ namespace DeviceManage.Views
                 await _userService.UpdateUserAsync(userToUpdate);
 
                 // 设置当前登录用户信息到MainViewModel
-                _mainViewModel.CurrentUserName.Value = !string.IsNullOrWhiteSpace(user.RealName) ? user.RealName : user.Username;
-                _mainViewModel.CurrentUserRole.Value = user.RoleString;
+                _mainViewModel.CurrentUserName.Value = user.Username;
+                _mainViewModel.CurrentUserRole.Value = GetRoleDescription(user.Role);
 
                 _ = ShowTopToastAsync("登录成功");
 
@@ -245,6 +248,20 @@ namespace DeviceManage.Views
                 LoginButton_Click(LoginButton, new RoutedEventArgs());
                 e.Handled = true;
             }
+        }
+
+        /// <summary>
+        /// 获取角色描述
+        /// </summary>
+        private string GetRoleDescription(UserRole role)
+        {
+            var field = role.GetType().GetField(role.ToString());
+            if (field != null)
+            {
+                var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
+                return attribute?.Description ?? role.ToString();
+            }
+            return role.ToString();
         }
     }
 }
