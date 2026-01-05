@@ -28,6 +28,8 @@ namespace DeviceManage.Views
             if (dataGrid == null) return;
 
             var hit = VisualTreeHelper.HitTest(dataGrid, e.GetPosition(dataGrid));
+            if (hit == null || hit.VisualHit == null) return;
+
             var row = FindParent<DataGridRow>(hit.VisualHit);
             
             if (row != null && row.Item is TagDetailRow item)
@@ -67,6 +69,8 @@ namespace DeviceManage.Views
             if (dataGrid == null || _draggedItem == null) return;
 
             var hit = VisualTreeHelper.HitTest(dataGrid, e.GetPosition(dataGrid));
+            if (hit == null || hit.VisualHit == null) return;
+
             var row = FindParent<DataGridRow>(hit.VisualHit);
             
             if (row != null && row.Item is TagDetailRow targetItem)
