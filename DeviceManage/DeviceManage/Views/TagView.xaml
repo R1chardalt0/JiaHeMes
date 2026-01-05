@@ -1,4 +1,4 @@
-<UserControl x:Class="DeviceManage.Views.TagView"
+<UserControl xmlns:hc="https://handyorg.github.io/handycontrol"  x:Class="DeviceManage.Views.TagView"
              x:Name="TagViewControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -193,6 +193,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
+                        <Border Grid.Row="0" Height="1" Background="#FFD3D3D3" Margin="0,0,0,10"/>
                         <Label Grid.Row="0" Content="点位映射实体:" FontSize="12" Margin="0,0,0,5"/>
                         
                         <!-- 搜索区域 -->
