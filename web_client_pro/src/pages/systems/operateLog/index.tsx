@@ -10,6 +10,7 @@ import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 const { Panel: CollapsePanel } = Collapse;
 
 const OperationLogList: React.FC = () => {
+  const [currentSearchParams, setCurrentSearchParams] = useState<{ current: number; pageSize: number }>({ current: 1, pageSize: 20 });
   const actionRef = useRef<ActionType>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [currentRow, setCurrentRow] = useState<OperationLogItem>();
@@ -327,10 +328,19 @@ const OperationLogList: React.FC = () => {
           }
         }}
         pagination={{
-          defaultPageSize: 20,
+          current: currentSearchParams.current,
+          pageSize: currentSearchParams.pageSize,
           pageSizeOptions: ['10', '20', '50', '100'],
           showSizeChanger: true,
           showTotal: (total) => `共 ${total} 条记录`,
+          onChange: (current, pageSize) => {
+            setCurrentSearchParams({ current, pageSize });
+            actionRef.current?.reload();
+          },
+          onShowSizeChange: (_, pageSize) => {
+            setCurrentSearchParams({ current: 1, pageSize });
+            actionRef.current?.reload();
+          },
         }}
         search={{
           labelWidth: 'auto',

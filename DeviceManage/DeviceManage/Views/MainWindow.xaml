@@ -14,6 +14,7 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:SidebarToggleConverter x:Key="SidebarToggleConverter"/>
         <converters:ColumnWidthConverter x:Key="ColumnWidthConverter"/>
+        <converters:RoleMenuVisibilityConverter x:Key="RoleMenuVisibilityConverter"/>
 
         <!-- 现代按钮样式 -->
         <Style x:Key="ModernButton" TargetType="Button">
@@ -201,24 +202,29 @@
                                    CommandParameter="Dashboard" Style="{StaticResource ModernButton}" Margin="0,5"
                                    Background="#673AB7"/>
                             <Button Content="🔌 PLC设备管理" Command="{Binding NavigateToCommand}"
-                                   CommandParameter="PLCDeviceManagement" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
+                                   CommandParameter="PLCDeviceManagement"
+                                   Visibility="{Binding CurrentUserRole.Value, Converter={StaticResource RoleMenuVisibilityConverter}, ConverterParameter=PLCDeviceManagement}" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
                             <Button Content="🧪 配方管理" Command="{Binding NavigateToCommand}"
-                                   CommandParameter="RecipeManagement" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
+                                   CommandParameter="RecipeManagement"
+                                   Visibility="{Binding CurrentUserRole.Value, Converter={StaticResource RoleMenuVisibilityConverter}, ConverterParameter=RecipeManagement}" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
                             <Button Content="🏷️ 点位管理" Command="{Binding NavigateToCommand}"
-                                   CommandParameter="TagManagement" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
-                            <Button Content="📊 设备状态" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="TagManagement"
+                                   Visibility="{Binding CurrentUserRole.Value, Converter={StaticResource RoleMenuVisibilityConverter}, ConverterParameter=TagManagement}" Style="{StaticResource ModernButton}" Margin="0,5" Cursor="Hand"/>
+                            <!--<Button Content="📊 设备状态" Command="{Binding NavigateToCommand}"
                                    CommandParameter="DeviceStatus" Style="{StaticResource ModernButton}" Margin="0,5"/>
                             <Button Content="⚙️ 配置管理" Command="{Binding NavigateToCommand}"
-                                   CommandParameter="Configuration" Style="{StaticResource ModernButton}" Margin="0,5"/>
+                                   CommandParameter="Configuration" Style="{StaticResource ModernButton}" Margin="0,5"/>-->
 
                             <TextBlock Text="系统管理" FontSize="12" Foreground="#999" Margin="10,20,0,10"/>
 
-                            <Button Content="🔧 系统设置" Command="{Binding NavigateToCommand}"
-                                   CommandParameter="SystemSettings" Style="{StaticResource ModernButton}" Margin="0,5"/>
+                            <!--<Button Content="🔧 系统设置" Command="{Binding NavigateToCommand}"
+                                   CommandParameter="SystemSettings" Style="{StaticResource ModernButton}" Margin="0,5"/>-->
                             <Button Content="📋 日志管理" Command="{Binding NavigateToCommand}"
-                                   CommandParameter="LogManagement" Style="{StaticResource ModernButton}" Margin="0,5"/>
+                                   CommandParameter="LogManagement"
+                                   Visibility="{Binding CurrentUserRole.Value, Converter={StaticResource RoleMenuVisibilityConverter}, ConverterParameter=LogManagement}" Style="{StaticResource ModernButton}" Margin="0,5"/>
                             <Button Content="👥 用户管理" Command="{Binding NavigateToCommand}"
-                                   CommandParameter="UserManagement" Style="{StaticResource ModernButton}" Margin="0,5"/>
+                                   CommandParameter="UserManagement"
+                                   Visibility="{Binding CurrentUserRole.Value, Converter={StaticResource RoleMenuVisibilityConverter}, ConverterParameter=UserManagement}" Style="{StaticResource ModernButton}" Margin="0,5"/>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
