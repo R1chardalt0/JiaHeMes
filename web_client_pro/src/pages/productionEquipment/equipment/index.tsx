@@ -902,6 +902,108 @@ const EquipmentPage: React.FC = () => {
             </div>
           </Form>
         </Modal>
+          )
+        )}
+        toolBarRender={() => [
+          <Button
+            key="add"
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleAdd}
+          >
+            新增设备
+          </Button>,
+        ]}
+      />
+
+      {/* 详情抽屉 */}
+      <Drawer
+        title="设备详情"
+        width={600}
+        placement="right"
+        onClose={() => setDetailDrawerVisible(false)}
+        open={detailDrawerVisible}
+        className="device-info-drawer"
+        rootClassName="device-info-drawer"
+        styles={{
+          content: {
+            background: '#ffffff',
+            borderLeft: '1px solid #f0f0f0',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+          },
+          header: {
+            background: '#ffffff',
+            borderBottom: '1px solid #f0f0f0'
+          },
+          body: {
+            background: '#ffffff'
+          },
+          mask: {
+            background: 'rgba(0,0,0,0.1)'
+          }
+        }}
+      >
+        {detailData && (
+          <ProDescriptions
+            column={2}
+            title="设备信息详情"
+            dataSource={detailData}
+          >
+            <ProDescriptions.Item label="设备ID" dataIndex="deviceId" />
+            <ProDescriptions.Item label="设备名称" dataIndex="deviceName" />
+            <ProDescriptions.Item label="设备编码" dataIndex="deviceEnCode" />
+            <ProDescriptions.Item label="所属生产线" dataIndex="productionLineName">
+              {detailData.productionLineName || '-'}
+            </ProDescriptions.Item>
+            <ProDescriptions.Item label="状态">
+              {detailData.status ? (
+                <Tag color={statusMap[detailData.status as keyof typeof statusMap]?.status === 'Success' ? 'green' : 'default'}>
+                  {statusMap[detailData.status as keyof typeof statusMap]?.text || '未知'}
+                </Tag>
+              ) : '-'}
+            </ProDescriptions.Item>
+            <ProDescriptions.Item label="设备头像" span={2}>
+              {detailData.avatar ? (
+                <Image
+                  src={getImagePath(detailData.avatar)}
+                  alt={detailData.deviceName || '设备头像'}
+                  width={100}
+                  height={100}
+                  style={{ objectFit: 'cover', borderRadius: 4 }}
+                  fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f0f0f0' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E无图片%3C/text%3E%3C/svg%3E"
+                />
+              ) : (
+                <span style={{ color: '#999' }}>无头像</span>
+              )}
+            </ProDescriptions.Item>
+            <ProDescriptions.Item label="设备照片" span={2}>
+              {detailData.devicePicture ? (
+                <Image
+                  src={getImagePath(detailData.devicePicture)}
+                  alt={detailData.deviceName || '设备照片'}
+                  width={200}
+                  height={150}
+                  style={{ objectFit: 'cover', borderRadius: 4 }}
+                  fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect fill='%23f0f0f0' width='200' height='150'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E无图片%3C/text%3E%3C/svg%3E"
+                />
+              ) : (
+                <span style={{ color: '#999' }}>无照片</span>
+              )}
+            </ProDescriptions.Item>
+            <ProDescriptions.Item label="创建时间" dataIndex="createTime" />
+            <ProDescriptions.Item label="更新时间" dataIndex="updateTime" />
+            <ProDescriptions.Item label="设备描述" dataIndex="description" span={2} />
+          </ProDescriptions>
+        )}
+      </Drawer>
+
+      {/* 新增/编辑表单 */}
+      <CreateEquipmentForm
+        visible={formModalVisible}
+        onCancel={handleCancel}
+        onSuccess={handleSuccess}
+        currentRow={currentRow}
+      />
       </div>
     </PageContainer>
   );

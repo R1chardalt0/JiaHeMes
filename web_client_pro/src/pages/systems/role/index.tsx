@@ -69,7 +69,7 @@ const RoleList: React.FC = () => {
       dataIndex: 'status',
       valueEnum: {
         '0': { text: '启用', status: 'Success' },
-        '1': { text: '禁用', status: 'Error' },
+        '1': { text: '禁用', status: 'Error' },       
       },
       hideInSearch: false,
     },
