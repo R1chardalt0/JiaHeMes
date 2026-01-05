@@ -195,7 +195,7 @@
                         <Label Grid.Row="0" Content="点位映射实体:" FontSize="12" Margin="0,0,0,5"/>
                         
                         <!-- 表格区域（设置最大高度，超出时显示滚动条） -->
-                        <DataGrid Grid.Row="1" 
+                        <DataGrid x:Name="TagDetailDataGrid" Grid.Row="1" 
                                   ItemsSource="{Binding TagDetailRows.Value}" 
                                   AutoGenerateColumns="False" 
                                   CanUserAddRows="False"
