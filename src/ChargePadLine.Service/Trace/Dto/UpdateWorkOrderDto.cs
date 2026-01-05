@@ -19,6 +19,11 @@ namespace ChargePadLine.Service.Trace.Dto
     public int Id { get; set; }
 
     /// <summary>
+    /// 工单编码
+    /// </summary>
+    public string? Code { get; set; }
+
+    /// <summary>
     /// BOM配方ID
     /// </summary>
     public int BomRecipeId { get; set; }

@@ -219,6 +219,12 @@ namespace ChargePadLine.Service.Trace.Impl
         existingWorkOrder.IsInfinite = dto.IsInfinite;
         existingWorkOrder.PerTraceInfo = dto.PerTraceInfo;
 
+        // 更新工单编码（如果提供了新的编码）
+        if (!string.IsNullOrEmpty(dto.Code))
+        {
+          existingWorkOrder.Code = dto.Code;
+        }
+
         // 根据是否无限生产设置WorkOrderAmount
         if (dto.IsInfinite)
         {
