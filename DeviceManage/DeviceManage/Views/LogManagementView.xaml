@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:customerControl="clr-namespace:DeviceManage.CustomerControl"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="1000">
     <Grid Margin="10">
@@ -64,7 +65,42 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <!-- 分页 -->
-        <customerControl:PageListView Grid.Row="3" DataContext="{Binding PageVM}" Margin="0,10,0,0"/>
+        <!-- 分页控件（样式与用户管理统一） -->
+        <Border Grid.Row="3" 
+                BorderBrush="#DDDDDD" 
+                BorderThickness="0,1,0,0" 
+                Padding="10,10,10,10"
+                Margin="0,10,0,0">
+            <Grid DataContext="{Binding PageVM}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" 
+                           VerticalAlignment="Center"
+                           Text="{Binding Total, StringFormat='共 {0} 条记录'}"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="上一页" 
+                            Command="{Binding PageChangedCommand}"
+                            CommandParameter="{x:Static sys:Int32.MinValue}"
+                            Style="{StaticResource ButtonDashedInfo}"
+                            Margin="0,0,10,0"/>
+
+                    <TextBlock VerticalAlignment="Center" 
+                               Margin="0,0,10,0"
+                               Text="{Binding PageIndex, StringFormat='第 {0} 页'}"/>
+                    <TextBlock VerticalAlignment="Center" 
+                               Margin="0,0,10,0"
+                               Text="{Binding TotalPage, StringFormat='共 {0} 页'}"/>
+
+                    <Button Content="下一页" 
+                            Command="{Binding PageChangedCommand}"
+                            CommandParameter="{x:Static sys:Int32.MaxValue}"
+                            Style="{StaticResource ButtonDashedInfo}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>
