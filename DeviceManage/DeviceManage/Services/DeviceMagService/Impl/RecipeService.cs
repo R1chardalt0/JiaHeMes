@@ -1,5 +1,6 @@
 using DeviceManage.DBContext;
 using DeviceManage.DBContext.Repository;
+using DeviceManage.Helpers;
 using DeviceManage.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -16,15 +17,21 @@ namespace DeviceManage.Services.DeviceMagService.Impl
     public class RecipeService : IRecipeService
     {
         private readonly IRepository<Recipe> _recipeRepo;
+        private readonly IRepository<Tag> _tagRepo;
         private readonly AppDbContext _db;
+        private readonly ILogService _logService;
         private readonly ILogger<RecipeService> _logger;
 
         public RecipeService(IRepository<Recipe> recipeRepo,
+                              IRepository<Tag> tagRepo,
                               AppDbContext db,
+                              ILogService logService,
                               ILogger<RecipeService> logger)
         {
             _recipeRepo = recipeRepo;
+            _tagRepo = tagRepo;
             _db = db;
+            _logService = logService;
             _logger = logger;
         }
 
@@ -49,6 +56,13 @@ namespace DeviceManage.Services.DeviceMagService.Impl
         {
             await _recipeRepo.InsertAsync(recipe);
             await _db.SaveChangesAsync();
+
+            await _logService.LogAsync(
+                CurrentUserContext.UserId,
+                CurrentUserContext.Username,
+                OperationType.Create,
+                "配方管理",
+                $"新增配方：{recipe.RecipeName} (ID:{recipe.RecipeId})");
             return recipe;
         }
 
@@ -58,15 +72,28 @@ namespace DeviceManage.Services.DeviceMagService.Impl
         public async Task<Recipe> UpdateRecipeAsync(Recipe recipe)
         {
             var existing = await _recipeRepo.GetAsync(r => r.RecipeId == recipe.RecipeId);
-            if (existing == null) return recipe;
+                        if (existing == null)
+            {
+                _logger.LogWarning($"Attempted to update a non-existent recipe with ID: {recipe.RecipeId}");
+                return recipe;
+            }
+
 
             existing.RecipeName = recipe.RecipeName;
             existing.Remarks = recipe.Remarks;
-            existing.Status = recipe.Status;
+            existing.Status = existing.Status;
             existing.Version = recipe.Version;
 
             _recipeRepo.Update(existing);
             await _db.SaveChangesAsync();
+
+            await _logService.LogAsync(
+                CurrentUserContext.UserId,
+                CurrentUserContext.Username,
+                OperationType.Update,
+                "配方管理",
+                $"修改配方：{existing.RecipeName} (ID:{existing.RecipeId})");
+
             return existing;
         }
 
@@ -78,9 +105,24 @@ namespace DeviceManage.Services.DeviceMagService.Impl
             var entity = await _recipeRepo.GetAsync(r => r.RecipeId == id);
             if (entity != null)
             {
+                var recipeName = entity.RecipeName;
+                var recipeId = entity.RecipeId;
+
                 _recipeRepo.Delete(entity);
                 await _db.SaveChangesAsync();
+
+                await _logService.LogAsync(
+                    CurrentUserContext.UserId,
+                    CurrentUserContext.Username,
+                    OperationType.Delete,
+                    "配方管理",
+                    $"删除配方：{recipeName} (ID:{recipeId})");
             }
+        }
+
+        public async Task<List<Tag>> GetTagListByRecipeIdAsync(int id)
+        {
+            return await _tagRepo.GetListAsync(t => t.RecipeId == id);
         }
     }
 }

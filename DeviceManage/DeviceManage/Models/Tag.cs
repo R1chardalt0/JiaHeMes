@@ -121,9 +121,7 @@ namespace DeviceManage.Models
     public enum DataType
     {
         Bool,
-        Char,
         Byte,
-        SByte,
         Int16,
         UInt16,
         Int32,
@@ -132,6 +130,9 @@ namespace DeviceManage.Models
         UInt64,
         Float,
         Double,
-        String60
+        String30,
+        String50,
+        String60,
+        String100,
     }
 }

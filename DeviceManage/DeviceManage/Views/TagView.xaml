@@ -1,9 +1,10 @@
-<UserControl x:Class="DeviceManage.Views.TagView"
+<UserControl xmlns:hc="https://handyorg.github.io/handycontrol"  x:Class="DeviceManage.Views.TagView"
              x:Name="TagViewControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:converters="clr-namespace:DeviceManage.Converters"
              xmlns:customerControl="clr-namespace:DeviceManage.CustomerControl"
              mc:Ignorable="d"
@@ -92,8 +93,43 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <!-- 分页组件 -->
-        <customerControl:PageListView Grid.Row="3" DataContext="{Binding PageListViewModel}" Margin="0,10,0,0"/>
+        <!-- 分页组件（样式与用户管理统一） -->
+        <Border Grid.Row="3" 
+                BorderBrush="#DDDDDD" 
+                BorderThickness="0,1,0,0" 
+                Padding="10,10,10,10"
+                Margin="0,10,0,0">
+            <Grid DataContext="{Binding PageListViewModel}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" 
+                           VerticalAlignment="Center"
+                           Text="{Binding Total, StringFormat='共 {0} 条记录'}"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="上一页" 
+                            Command="{Binding PageChangedCommand}"
+                            CommandParameter="{x:Static sys:Int32.MinValue}"
+                            Style="{StaticResource ButtonDashedInfo}"
+                            Margin="0,0,10,0"/>
+
+                    <TextBlock VerticalAlignment="Center" 
+                               Margin="0,0,10,0"
+                               Text="{Binding PageIndex, StringFormat='第 {0} 页'}"/>
+                    <TextBlock VerticalAlignment="Center" 
+                               Margin="0,0,10,0"
+                               Text="{Binding TotalPage, StringFormat='共 {0} 页'}"/>
+
+                    <Button Content="下一页" 
+                            Command="{Binding PageChangedCommand}"
+                            CommandParameter="{x:Static sys:Int32.MaxValue}"
+                            Style="{StaticResource ButtonDashedInfo}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
 
         <!-- 弹窗：新增/编辑 Tag -->
         <Border Grid.RowSpan="4" Background="#80000000"
@@ -190,13 +226,45 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
+                        <Border Grid.Row="0" Height="1" Background="#FFD3D3D3" Margin="0,0,0,10"/>
                         <Label Grid.Row="0" Content="点位映射实体:" FontSize="12" Margin="0,0,0,5"/>
                         
+                        <!-- 搜索区域 -->
+                        <Grid Grid.Row="1" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <Label Content="点位名称:" FontSize="12" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding SearchDetailTagName.Value, UpdateSourceTrigger=PropertyChanged}" 
+                                         Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                                <Label Content="地址:" FontSize="12" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding SearchDetailAddress.Value, UpdateSourceTrigger=PropertyChanged}" 
+                                         Height="30" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                <Button Content="查询" Command="{Binding SearchDetailCommand}" 
+                                        Style="{StaticResource ButtonInfo}" 
+                                        Height="30" Padding="20,0" Margin="0,0,10,0"/>
+                                <Button Content="重置" Command="{Binding ResetDetailCommand}" 
+                                        Style="{StaticResource ButtonWarning}" 
+                                        Height="30" Padding="20,0"/>
+                            </StackPanel>
+                        </Grid>
+                        
                         <!-- 表格区域（设置最大高度，超出时显示滚动条） -->
-                        <DataGrid Grid.Row="1" 
-                                  ItemsSource="{Binding TagDetailRows.Value}" 
+                        <DataGrid x:Name="TagDetailDataGrid" Grid.Row="2" 
+                                  ItemsSource="{Binding FilteredTagDetailRows.Value}" 
                                   AutoGenerateColumns="False" 
                                   CanUserAddRows="False"
                                   MaxHeight="250"
@@ -206,8 +274,32 @@
                                   GridLinesVisibility="All"
                                   BorderThickness="1"
                                   BorderBrush="#DDDDDD" 
-                                  SelectionUnit="FullRow"
-                                  SelectionChanged="DataGrid_SelectionChanged">
+                                  SelectionUnit="FullRow">
+                            <DataGrid.Resources>
+                                <!-- 修复 DataGridCell 中的 RelativeSource 绑定错误 -->
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="DataGridCell">
+                                                <Border Padding="5,3" 
+                                                        BorderThickness="0"
+                                                        Background="{TemplateBinding Background}">
+                                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#E3F2FD"/>
+                                            <Setter Property="Foreground" Value="#1976D2"/>
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.Resources>
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="点位名称" 
                                                     Binding="{Binding TagName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
@@ -251,7 +343,7 @@
                         </DataGrid>
                         
                         <!-- 添加按钮 -->
-                        <Button Grid.Row="2" 
+                        <Button Grid.Row="3" 
                                 Content="新增点位映射实体" 
                                 Command="{Binding AddDetailCommand}" 
                                 Style="{StaticResource ButtonDashedSuccess}" 

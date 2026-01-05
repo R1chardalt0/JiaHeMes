@@ -12,5 +12,17 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
+        Closing += MainWindow_Closing;
+    }
+
+    private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel)
+        {
+            if (!viewModel.CanCloseWindow())
+            {
+                e.Cancel = true; // 取消关闭
+            }
+        }
     }
 }

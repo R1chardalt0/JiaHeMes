@@ -83,6 +83,30 @@
                   GridLinesVisibility="None"
                   BorderThickness="1"
                   BorderBrush="#DDDDDD">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridCell">
+                    <!-- Override any implicit style that might be causing the SelectionUnit binding issue -->
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridCell">
+                                <Border Padding="5,3" 
+                                        BorderThickness="0"
+                                        Background="{TemplateBinding Background}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#E3F2FD"/>
+                            <Setter Property="Foreground" Value="#1976D2"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" 
                                     Binding="{Binding Id}" 
@@ -196,7 +220,11 @@
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
                         <Label Content="通信协议:" FontSize="12" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding EditingPlcDevice.Value.Protocolc, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                        <ComboBox SelectedValue="{Binding EditingPlcDevice.Value.Protocolc, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                                  SelectedValuePath="Content">
+                            <ComboBoxItem Content="S7"/>
+                            <ComboBoxItem Content="Modbus"/>
+                        </ComboBox>
                     </StackPanel>
 
                     <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,10,0">
