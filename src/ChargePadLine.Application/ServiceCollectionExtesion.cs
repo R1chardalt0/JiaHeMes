@@ -46,6 +46,9 @@ namespace ChargePadLine.Application
             // VSN控制服务
             services.AddScoped<ICtrlVsnsService, CtrlVsnsService>();
 
+
+            services.AddScoped<IStationListService, StationListService>();
+
             return services;
         }
     }
