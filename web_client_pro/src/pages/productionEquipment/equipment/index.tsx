@@ -1,6 +1,6 @@
 import { useRequest, useNavigate } from '@umijs/max';
 import React, { useRef, useState, useEffect } from 'react';
-import { Button, message, Modal, Space, Drawer, Tag, Image } from 'antd';
+import { Button, message, Modal, Space, Drawer, Tag, Image, Form, Select } from 'antd';
 import { ProTable, ProDescriptions, ProColumns, RequestData, PageContainer } from '@ant-design/pro-components';
 import type { ActionType } from '@ant-design/pro-components';
 import { PlusOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
@@ -9,11 +9,14 @@ import {
   getDeviceInfoList,
   deleteDeviceInfoByIds,
   getDeviceInfoById,
+  updateDeviceInfo
 } from '@/services/Api/Trace/ProductionEquipment‌/equipmentInfo';
+import { getWorkOrderList } from '@/services/Api/Infrastructure/WorkOrder';
 import type {
   DeviceInfo,
   DeviceInfoQueryParams,
 } from '@/services/Model/Trace/ProductionEquipment‌/equipmentInfo';
+import type { WorkOrderDto } from '@/services/Model/Infrastructure/WorkOrder';
 
 // 设备状态映射
 const statusMap = {
@@ -85,6 +88,7 @@ const statusMap = {
 
 const EquipmentPage: React.FC = () => {
   const navigate = useNavigate();
+  const { Option } = Select;
 
   const [formModalVisible, setFormModalVisible] = useState(false);
   const [currentRow, setCurrentRow] = useState<DeviceInfo | null>(null);
@@ -93,6 +97,15 @@ const EquipmentPage: React.FC = () => {
   const actionRef = useRef<ActionType>(null); // 使用正确的 ActionType ref 并传入初始值 null
   // 受控分页：确保“每页条数”选择器显示与实际一致
   const [pager, setPager] = useState({ current: 1, pageSize: 50 });
+
+  // 批量修改工单编码相关状态
+  const [batchModalVisible, setBatchModalVisible] = useState(false);
+  const [selectedDevices, setSelectedDevices] = useState<DeviceInfo[]>([]);
+  const [workOrders, setWorkOrders] = useState<WorkOrderDto[]>([]);
+  const [workOrderLoading, setWorkOrderLoading] = useState(false);
+  const [batchForm] = Form.useForm();
+  const [selectedWorkOrderCode, setSelectedWorkOrderCode] = useState<string>('');
+  const [canBatchEdit, setCanBatchEdit] = useState(false);
 
   // 跳转到设备监控页面
   const handleNavigateToMonitor = (device: DeviceInfo) => {
@@ -292,11 +305,119 @@ const EquipmentPage: React.FC = () => {
     setCurrentRow(null);
   };
 
+  // 检查选中设备的工单编码是否相同
+  const checkSelectedDevices = (devices: DeviceInfo[]) => {
+    if (devices.length === 0) {
+      setCanBatchEdit(false);
+      setSelectedWorkOrderCode('');
+      return;
+    }
+
+    // 获取第一个设备的工单编码
+    const firstWorkOrderCode = devices[0].workOrderCode;
+
+    // 检查所有设备的工单编码是否与第一个相同
+    const allSame = devices.every(device => device.workOrderCode === firstWorkOrderCode);
+
+    setCanBatchEdit(allSame);
+    setSelectedWorkOrderCode(firstWorkOrderCode || '');
+  };
+
+  // 批量修改工单编码入口函数
+  const handleBatchUpdateWorkOrder = async (devices: DeviceInfo[]) => {
+    if (devices.length === 0) {
+      message.warning('请先选择要修改的设备');
+      return;
+    }
+
+    if (!canBatchEdit) {
+      message.error('选中的设备工单编码不一致，无法批量修改');
+      return;
+    }
+
+    // 加载工单列表
+    try {
+      setWorkOrderLoading(true);
+      const res = await getWorkOrderList({ pageSize: 1000 });
+      if (res.data) {
+        setWorkOrders(res.data);
+      }
+    } catch (error) {
+      message.error('获取工单列表失败');
+    } finally {
+      setWorkOrderLoading(false);
+    }
+
+    // 设置选中设备和打开弹窗
+    setSelectedDevices(devices);
+    setBatchModalVisible(true);
+    // 重置表单
+    batchForm.resetFields();
+  };
+
   // 表单提交成功
   const handleSuccess = () => {
     setFormModalVisible(false);
     setCurrentRow(null);
     actionRef.current?.reload(); // 使用 actionRef 重新加载
+  };
+
+  // 批量修改工单编码弹窗关闭
+  const handleBatchModalCancel = () => {
+    setBatchModalVisible(false);
+    batchForm.resetFields();
+    setSelectedDevices([]);
+  };
+
+  // 批量修改工单编码提交
+  const handleBatchSubmit = async () => {
+    try {
+      // 验证表单
+      await batchForm.validateFields();
+
+      // 获取新的工单编码
+      const newWorkOrderCode = batchForm.getFieldValue('workOrderCode');
+
+      if (!newWorkOrderCode) {
+        message.error('请选择新的工单编码');
+        return;
+      }
+
+      // 批量修改每个设备的工单编码
+      const updatePromises = selectedDevices.map(async (device) => {
+        try {
+          await updateDeviceInfo({
+            ...device,
+            workOrderCode: newWorkOrderCode,
+          });
+          return true;
+        } catch (error) {
+          console.error(`修改设备 ${device.deviceId} 失败:`, error);
+          return false;
+        }
+      });
+
+      // 等待所有修改完成
+      const results = await Promise.all(updatePromises);
+
+      // 统计成功和失败的数量
+      const successCount = results.filter(result => result).length;
+      const failCount = results.filter(result => !result).length;
+
+      // 显示结果
+      if (failCount === 0) {
+        message.success(`成功修改 ${successCount} 台设备的工单编码`);
+      } else {
+        message.warning(`成功修改 ${successCount} 台设备，失败 ${failCount} 台`);
+      }
+
+      // 关闭弹窗并重新加载表格数据
+      handleBatchModalCancel();
+      actionRef.current?.reload();
+    } catch (error) {
+      console.error('批量修改工单编码失败:', error);
+      message.error('批量修改工单编码失败');
+    }
   };
 
   // 批量删除
@@ -604,7 +725,12 @@ const EquipmentPage: React.FC = () => {
             },
           }}
           headerTitle="设备管理"
-          rowSelection={{}} // 添加 rowSelection 以支持批量操作
+          rowSelection={{ // 添加 rowSelection 以支持批量操作
+            onChange: (selectedRowKeys, selectedRows) => {
+              setSelectedDevices(selectedRows as DeviceInfo[]);
+              checkSelectedDevices(selectedRows as DeviceInfo[]);
+            },
+          }}
           tableAlertRender={({ selectedRowKeys, selectedRows }) => (
             selectedRowKeys.length > 0 && (
               <div style={{ marginBottom: 16 }}>
@@ -616,6 +742,13 @@ const EquipmentPage: React.FC = () => {
                     onClick={() => handleBatchDelete(selectedRows)}
                   >
                     批量删除
+                  </Button>
+                  <Button
+                    type="primary"
+                    onClick={() => handleBatchUpdateWorkOrder(selectedRows as DeviceInfo[])}
+                    disabled={!canBatchEdit}
+                  >
+                    批量修改工单编码
                   </Button>
                 </Space>
               </div>
@@ -714,13 +847,61 @@ const EquipmentPage: React.FC = () => {
           )}
         </Drawer>
 
-        {/* 新增/编辑表单 */}
+        {/* 表单弹窗 */}
         <CreateEquipmentForm
           visible={formModalVisible}
           onCancel={handleCancel}
           onSuccess={handleSuccess}
           currentRow={currentRow}
         />
+
+        {/* 批量修改工单编码弹窗 */}
+        <Modal
+          title="批量修改工单编码"
+          visible={batchModalVisible}
+          onCancel={handleBatchModalCancel}
+          footer={[
+            <Button key="cancel" onClick={handleBatchModalCancel}>
+              取消
+            </Button>,
+            <Button key="submit" type="primary" onClick={handleBatchSubmit}>
+              确认修改
+            </Button>,
+          ]}
+          width={500}
+        >
+          <Form
+            form={batchForm}
+            layout="vertical"
+            initialValues={{ workOrderCode: selectedWorkOrderCode }}
+          >
+            <Form.Item
+              name="workOrderCode"
+              label="新工单编码"
+              rules={[{ required: true, message: '请选择工单编码' }]}
+            >
+              <Select
+                placeholder="请选择工单编码"
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+                }
+                loading={workOrderLoading}
+                style={{ width: '100%' }}
+              >
+                {workOrders.map((workOrder) => (
+                  <Option key={workOrder.code} value={workOrder.code}>
+                    {workOrder.code}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <div style={{ marginBottom: 16 }}>
+              <p>当前选中 {selectedDevices.length} 台设备</p>
+              <p>当前工单编码：{selectedWorkOrderCode || '无'}</p>
+            </div>
+          </Form>
+        </Modal>
       </div>
     </PageContainer>
   );
