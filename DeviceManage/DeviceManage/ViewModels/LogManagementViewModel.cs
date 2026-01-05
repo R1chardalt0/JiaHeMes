@@ -10,6 +10,7 @@ using HandyControl.Controls;
 using Prism.Commands;
 using Reactive.Bindings;
 using DeviceManage.CustomerControl;
+using DeviceManage.ViewModels;
 
 namespace DeviceManage.ViewModels
 {
@@ -29,8 +30,8 @@ namespace DeviceManage.ViewModels
         public ReactiveProperty<string> SearchUsername { get; } = new(string.Empty);
         public ReactiveProperty<string> SearchOperationType { get; } = new(string.Empty); // OperationTypeString
 
-        // 操作类型下拉
-        public ObservableCollection<string> OperationTypeOptions { get; }
+            // 操作类型下拉项
+        public ObservableCollection<OperationTypeOption> OperationTypeOptions { get; }
 
         // 分页
         public PageListViewModel PageVM { get; }
@@ -44,8 +45,9 @@ namespace DeviceManage.ViewModels
         {
             _logService = logService;
 
-            OperationTypeOptions = new ObservableCollection<string>(
-                Enum.GetValues(typeof(OperationType)).Cast<OperationType>().Select(o => o.ToString()));
+                        OperationTypeOptions = new ObservableCollection<OperationTypeOption>(
+                Enum.GetValues(typeof(OperationType)).Cast<OperationType>()
+                    .Select(o => new OperationTypeOption { Display = EnumDescriptionHelper.GetDescription(o), Value = o.ToString() }));
 
             PageVM = new PageListViewModel
             {

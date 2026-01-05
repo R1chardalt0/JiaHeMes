@@ -11,26 +11,14 @@ namespace DeviceManage.Models
     [Table("dm_operation_log")]
     public class OperationLog : BaseModel
     {
-        /// <summary>
-        /// 日志ID
-        /// </summary>
         [Key]
         public int Id { get; set; }
 
-        /// <summary>
-        /// 用户ID（关联用户表）
-        /// </summary>
         public int? UserId { get; set; }
 
-        /// <summary>
-        /// 用户名（冗余字段，方便查询）
-        /// </summary>
         [MaxLength(50)]
         public string? Username { get; set; }
 
-        /// <summary>
-        /// 操作类型（枚举类型，不映射到数据库）
-        /// </summary>
         [NotMapped]
         public OperationType OperationType
         {
@@ -50,54 +38,45 @@ namespace DeviceManage.Models
             }
         }
 
-        /// <summary>
-        /// 操作类型（数据库存储字符串）
-        /// </summary>
         [Required]
         [MaxLength(50)]
         [Column("OperationType")]
         public string OperationTypeString { get; set; } = string.Empty;
 
-        /// <summary>
-        /// 模块名称（如：用户管理、设备管理等）
-        /// </summary>
+        [NotMapped]
+        public string OperationTypeDisplay => EnumDescriptionHelper.GetDescription(OperationType);
+
         [MaxLength(100)]
         public string? Module { get; set; }
 
-        /// <summary>
-        /// 操作描述
-        /// </summary>
         [MaxLength(500)]
         public string? Description { get; set; }
 
-        /// <summary>
-        /// IP地址
-        /// </summary>
         [MaxLength(50)]
         public string? IpAddress { get; set; }
 
-        /// <summary>
-        /// 操作结果（成功/失败）
-        /// </summary>
         [MaxLength(20)]
         public string? Result { get; set; }
 
-        /// <summary>
-        /// 请求参数（JSON格式，存储操作相关的参数）
-        /// </summary>
         [Column(TypeName = "text")]
         public string? RequestParams { get; set; }
 
-        /// <summary>
-        /// 错误信息（如果操作失败，记录错误信息）
-        /// </summary>
         [Column(TypeName = "text")]
         public string? ErrorMessage { get; set; }
     }
 
-    /// <summary>
-    /// 操作类型枚举
-    /// </summary>
+    public static class EnumDescriptionHelper
+    {
+        public static string GetDescription(Enum value)
+        {
+            var field = value.GetType().GetField(value.ToString());
+            if (field == null) return value.ToString();
+
+            var attr = (DescriptionAttribute?)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
+            return attr?.Description ?? value.ToString();
+        }
+    }
+
     public enum OperationType
     {
         [Description("登录")]
@@ -128,4 +107,3 @@ namespace DeviceManage.Models
         Other = 99
     }
 }
-
