@@ -222,6 +222,13 @@ namespace ChargePadLine.Service.Trace.Impl
         // 更新工单编码（如果提供了新的编码）
         if (!string.IsNullOrEmpty(dto.Code))
         {
+          // 验证工单编码唯一性（排除当前工单）
+          var existingWorkOrderWithSameCode = await _workOrderRepo.GetAsync(w => w.Code.Value == dto.Code && w.Id != dto.Id);
+          if (existingWorkOrderWithSameCode != null)
+          {
+            _logger.LogError("工单编码已存在: {Code}", dto.Code);
+            throw new InvalidOperationException($"工单编码已存在: {dto.Code}");
+          }
           existingWorkOrder.Code = dto.Code;
         }
 

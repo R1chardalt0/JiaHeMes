@@ -9,72 +9,77 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Trace
 {
+  /// <summary>
+  /// 设备信息
+  /// </summary>
+  [Table("mes_deviceInfo")]
+  public class Deviceinfo : BaseEntity
+  {
     /// <summary>
-    /// 设备信息
+    /// 设备ID
     /// </summary>
-    [Table("mes_deviceInfo")]
-    public class Deviceinfo : BaseEntity
+    [Key]
+    public Guid ResourceId { get; set; }
+    /// <summary>
+    /// 图标
+    /// </summary>
+    public string Avatar { get; set; }
+    /// <summary>
+    /// 设备图片
+    /// </summary>
+    public string ResourcePicture { get; set; }
+    /// <summary>
+    /// 生产线ID
+    /// </summary>
+    public Guid ProductionLineId { get; set; }
+    /// <summary>
+    /// 生产线导航属性
+    /// </summary>
+    public virtual ProductionLine? ProductionLine { get; set; }
+    /// <summary>
+    /// 生产线名称（从生产线导航属性获取）
+    /// </summary>
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public string? ProductionLineName
     {
-        /// <summary>
-        /// 设备ID
-        /// </summary>
-        [Key]
-        public Guid ResourceId { get; set; }
-        /// <summary>
-        /// 图标
-        /// </summary>
-        public string Avatar { get; set; }
-        /// <summary>
-        /// 设备图片
-        /// </summary>
-        public string ResourcePicture { get; set; }
-        /// <summary>
-        /// 生产线ID
-        /// </summary>
-        public Guid ProductionLineId { get; set; }
-        /// <summary>
-        /// 生产线导航属性
-        /// </summary>
-        public virtual ProductionLine? ProductionLine { get; set; }
-        /// <summary>
-        /// 生产线名称（从生产线导航属性获取）
-        /// </summary>
-        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
-        public string? ProductionLineName
-        {
-            get => ProductionLine?.ProductionLineName ?? _productionLineName;
-            set => _productionLineName = value;
-        }
-        private string? _productionLineName;
-        /// <summary>
-        /// 设备名称
-        /// </summary>
-        public string? ResourceName { get; set; }
-        /// <summary>
-        /// 设备类型
-        /// </summary>
-        public string ResourceType { get; set; }
-        /// <summary>
-        /// 设备编码
-        /// </summary>
-        public string Resource { get; set; }
-        /// <summary>
-        /// 设备制造商
-        /// </summary>
-        /// 
-        public string ResourceManufacturer { get; set; }
-        /// <summary>
-        /// 描述信息
-        /// </summary>
-        public string Description { get; set; }
-        /// <summary>
-        /// 设备状态
-        /// </summary>
-        public string Status { get; set; }
-        /// <summary>
-        /// 心跳同步时间
-        /// </summary>
-        public int ExpireTime { get; set; } // 心跳过期时间（秒）
-
+      get => ProductionLine?.ProductionLineName ?? _productionLineName;
+      set => _productionLineName = value;
     }
+    private string? _productionLineName;
+    /// <summary>
+    /// 设备名称
+    /// </summary>
+    public string? ResourceName { get; set; }
+    /// <summary>
+    /// 设备类型
+    /// </summary>
+    public string ResourceType { get; set; }
+    /// <summary>
+    /// 设备编码
+    /// </summary>
+    public string Resource { get; set; }
+    /// <summary>
+    /// 设备制造商
+    /// </summary>
+    /// 
+    public string ResourceManufacturer { get; set; }
+    /// <summary>
+    /// 描述信息
+    /// </summary>
+    public string Description { get; set; }
+    /// <summary>
+    /// 设备状态
+    /// </summary>
+    public string Status { get; set; }
+    /// <summary>
+    /// 心跳同步时间
+    /// </summary>
+    public int ExpireTime { get; set; } // 心跳过期时间（秒）
+
+    /// <summary>
+    /// 工单编码
+    /// </summary>
+    public string? WorkOrderCode { get; set; }
+
+  }
 }

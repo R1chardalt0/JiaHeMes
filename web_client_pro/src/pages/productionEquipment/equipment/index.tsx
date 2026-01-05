@@ -21,71 +21,71 @@ const statusMap = {
   '1': { text: '启用', status: 'Success' },
 };
 
-// 获取图片路径的辅助函数
-const getImagePath = (imageName?: string): string | undefined => {
-  if (!imageName) return undefined;
-  
-  // 如果已经是完整的 HTTP/HTTPS URL，直接返回
-  if (imageName.startsWith('http://') || imageName.startsWith('https://')) {
-    return imageName;
-  }
-  
-  // 如果已经是 /images/ 开头的路径，直接返回
-  if (imageName.startsWith('/images/')) {
-    return imageName;
-  }
-  
-  // 检查是否是本地文件路径（Windows 路径格式，如 D:\ 或 D:/）
-  const isLocalPath = /^[A-Za-z]:[\\/]/.test(imageName) || // Windows 绝对路径 D:\ 或 D:/
-                      imageName.startsWith('\\') || // Windows 网络路径 \\server\share
-                      imageName.startsWith('file://'); // file:// 协议
-  
-  if (isLocalPath) {
-    // 从本地路径提取文件名
-    try {
-      const normalizedPath = imageName.replace(/\\/g, '/');
-      const pathParts = normalizedPath.split('/');
-      const fileName = pathParts[pathParts.length - 1] || '';
-      if (fileName && fileName.includes('.')) {
-        // 直接使用文件名，浏览器会自动处理中文编码
-        return `/images/${fileName}`;
-      }
-    } catch (e) {
-      console.error('路径转换出错:', e);
-      return undefined;
-    }
-  }
-  
-  // 检查是否包含路径分隔符（相对路径）
-  const hasPathSeparator = imageName.includes('/') || imageName.includes('\\');
-  
-  if (hasPathSeparator && !isLocalPath) {
-    // 相对路径，提取文件名
-    try {
-      const normalizedPath = imageName.replace(/\\/g, '/');
-      const pathParts = normalizedPath.split('/');
-      const fileName = pathParts[pathParts.length - 1] || '';
-      if (fileName && fileName.includes('.')) {
-        return `/images/${fileName}`;
-      }
-    } catch (e) {
-      console.error('路径转换出错:', e);
-      return undefined;
-    }
-  }
-  
-  // 纯文件名（如 "催化炉.png"），使用 /images/ 路径
-  if (imageName.includes('.')) {
-    // 直接使用文件名，浏览器会自动处理中文编码
-    return `/images/${imageName}`;
-  }
-  
-  return undefined;
-};
+// // 获取图片路径的辅助函数
+// const getImagePath = (imageName?: string): string | undefined => {
+//   if (!imageName) return undefined;
+
+//   // 如果已经是完整的 HTTP/HTTPS URL，直接返回
+//   if (imageName.startsWith('http://') || imageName.startsWith('https://')) {
+//     return imageName;
+//   }
+
+//   // 如果已经是 /images/ 开头的路径，直接返回
+//   if (imageName.startsWith('/images/')) {
+//     return imageName;
+//   }
+
+//   // 检查是否是本地文件路径（Windows 路径格式，如 D:\ 或 D:/）
+//   const isLocalPath = /^[A-Za-z]:[\\/]/.test(imageName) || // Windows 绝对路径 D:\ 或 D:/
+//                       imageName.startsWith('\\') || // Windows 网络路径 \\server\share
+//                       imageName.startsWith('file://'); // file:// 协议
+
+//   if (isLocalPath) {
+//     // 从本地路径提取文件名
+//     try {
+//       const normalizedPath = imageName.replace(/\\/g, '/');
+//       const pathParts = normalizedPath.split('/');
+//       const fileName = pathParts[pathParts.length - 1] || '';
+//       if (fileName && fileName.includes('.')) {
+//         // 直接使用文件名，浏览器会自动处理中文编码
+//         return `/images/${fileName}`;
+//       }
+//     } catch (e) {
+//       console.error('路径转换出错:', e);
+//       return undefined;
+//     }
+//   }
+
+//  // 检查是否包含路径分隔符（相对路径）
+//   const hasPathSeparator = imageName.includes('/') || imageName.includes('\\');
+
+//   if (hasPathSeparator && !isLocalPath) {
+//     // 相对路径，提取文件名
+//     try {
+//       const normalizedPath = imageName.replace(/\\/g, '/');
+//       const pathParts = normalizedPath.split('/');
+//       const fileName = pathParts[pathParts.length - 1] || '';
+//       if (fileName && fileName.includes('.')) {
+//         return `/images/${fileName}`;
+//       }
+//     } catch (e) {
+//       console.error('路径转换出错:', e);
+//       return undefined;
+//     }
+//   }
+
+//   // 纯文件名（如 "催化炉.png"），使用 /images/ 路径
+//   if (imageName.includes('.')) {
+//     // 直接使用文件名，浏览器会自动处理中文编码
+//     return `/images/${imageName}`;
+//   }
+
+//   return undefined;
+// };
 
 const EquipmentPage: React.FC = () => {
   const navigate = useNavigate();
-  
+
   const [formModalVisible, setFormModalVisible] = useState(false);
   const [currentRow, setCurrentRow] = useState<DeviceInfo | null>(null);
   const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
@@ -110,14 +110,14 @@ const EquipmentPage: React.FC = () => {
     setDetailDrawerVisible(false);
     setCurrentRow(null);
     setFormModalVisible(false);
-    
+
     // 延迟重新加载表格数据，避免立即触发导致卡顿
     const timer = setTimeout(() => {
       if (actionRef.current) {
         actionRef.current.reload();
       }
     }, 100);
-    
+
     return () => {
       clearTimeout(timer);
     };
@@ -140,13 +140,13 @@ const EquipmentPage: React.FC = () => {
       console.log('📤 设备管理 - 发送给后端的参数:', requestParams);
 
       const response = await getDeviceInfoList(requestParams);
-      
+
       // 调试日志：检查后端返回的数据
       console.log('📥 设备管理 - 后端返回数据:', {
         dataCount: response.data?.length || 0,
         firstItem: response.data?.[0],
       });
-      
+
       // 映射字段名：后端可能返回 resourceId/resourceName/resource 等，前端期望 deviceId/deviceName/deviceEnCode
       const mappedData = (response.data || []).map((item: any) => ({
         ...item,
@@ -161,9 +161,9 @@ const EquipmentPage: React.FC = () => {
         // 映射设备制造商
         deviceManufacturer: item.deviceManufacturer || item.resourceManufacturer || '',
         // 映射设备图片
-        devicePicture: item.devicePicture || item.resourcePicture || '',
+        //devicePicture: item.devicePicture || item.resourcePicture || '',
       }));
-      
+
       return {
         data: mappedData,
         success: true,
@@ -227,7 +227,7 @@ const EquipmentPage: React.FC = () => {
     try {
       // 获取设备ID，支持多种字段名（deviceId 或 resourceId）
       const deviceId = row.deviceId || (row as any).resourceId || '';
-      
+
       if (!deviceId) {
         message.error('设备ID不存在，无法获取详情');
         return;
@@ -238,7 +238,7 @@ const EquipmentPage: React.FC = () => {
       console.log('📤 获取设备详情 - 行数据:', row);
 
       const response = await getDeviceInfoById(deviceId);
-      
+
       // 调试日志：检查响应数据
       console.log('📥 获取设备详情 - 响应数据:', response);
 
@@ -257,11 +257,11 @@ const EquipmentPage: React.FC = () => {
           // 映射设备制造商
           deviceManufacturer: (response.data as any).deviceManufacturer || (response.data as any).resourceManufacturer || '',
           // 映射设备图片
-          devicePicture: (response.data as any).devicePicture || (response.data as any).resourcePicture || '',
+          //devicePicture: (response.data as any).devicePicture || (response.data as any).resourcePicture || '',
           // 确保生产线名称被正确设置
           productionLineName: (response.data as any).productionLineName || row.productionLineName || (response.data as any).productionLine?.productionLineName || '-',
         };
-        
+
         setDetailData(detailData);
         setDetailDrawerVisible(true);
       } else {
@@ -344,30 +344,30 @@ const EquipmentPage: React.FC = () => {
 
   // 表格列配置
   const columns: ProColumns<DeviceInfo>[] = [
-    {
-      title: '设备头像',
-      dataIndex: 'avatar',
-      key: 'avatar',
-      width: 100,
-      search: false,
-      render: (dom: React.ReactNode, record: DeviceInfo) => {
-        const imagePath = getImagePath(record.avatar);
-        return imagePath ? (
-          <Image
-            src={imagePath}
-            alt={record.deviceName || '设备头像'}
-            width={50}
-            height={50}
-            style={{ objectFit: 'cover', borderRadius: 4, cursor: 'pointer' }}
-            fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Crect fill='%23f0f0f0' width='50' height='50'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E无图片%3C/text%3E%3C/svg%3E"
-            onClick={() => handleNavigateToMonitor(record)}
-            preview={false}
-          />
-        ) : (
-          <span style={{ color: '#999', cursor: 'pointer' }} onClick={() => handleNavigateToMonitor(record)}>无头像</span>
-        );
-      },
-    },
+    // {
+    //   title: '设备头像',
+    //   dataIndex: 'avatar',
+    //   key: 'avatar',
+    //   width: 100,
+    //   search: false,
+    //   render: (dom: React.ReactNode, record: DeviceInfo) => {
+    //     const imagePath = getImagePath(record.avatar);
+    //     return imagePath ? (
+    //       <Image
+    //         src={imagePath}
+    //         alt={record.deviceName || '设备头像'}
+    //         width={50}
+    //         height={50}
+    //         style={{ objectFit: 'cover', borderRadius: 4, cursor: 'pointer' }}
+    //         fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Crect fill='%23f0f0f0' width='50' height='50'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E无图片%3C/text%3E%3C/svg%3E"
+    //         onClick={() => handleNavigateToMonitor(record)}
+    //         preview={false}
+    //       />
+    //     ) : (
+    //       <span style={{ color: '#999', cursor: 'pointer' }} onClick={() => handleNavigateToMonitor(record)}>无头像</span>
+    //     );
+    //   },
+    // },
     {
       title: '设备ID',
       dataIndex: 'deviceId',
@@ -382,7 +382,7 @@ const EquipmentPage: React.FC = () => {
       key: 'deviceName',
       ellipsis: true,
       render: (dom: React.ReactNode, record: DeviceInfo) => (
-        <a 
+        <a
           onClick={() => handleNavigateToMonitor(record)}
           style={{ cursor: 'pointer' }}
         >
@@ -406,33 +406,33 @@ const EquipmentPage: React.FC = () => {
         return entity.productionLineName || '-';
       },
     },
-    {
-      title: '设备照片',
-      dataIndex: 'devicePicture',
-      key: 'devicePicture',
-      width: 100,
-      search: false,
-      render: (dom: React.ReactNode, record: DeviceInfo) => {
-        const imagePath = getImagePath(record.devicePicture);
-        return imagePath ? (
-          <Image
-            src={imagePath}
-            alt={record.deviceName || '设备照片'}
-            width={50}
-            height={50}
-            style={{ objectFit: 'cover', borderRadius: 4 }}
-            fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Crect fill='%23f0f0f0' width='50' height='50'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E无图片%3C/text%3E%3C/svg%3E"
-          />
-        ) : (
-          <span style={{ color: '#999' }}>无照片</span>
-        );
-      },
-    },
+    // {
+    //   title: '设备照片',
+    //   dataIndex: 'devicePicture',
+    //   key: 'devicePicture',
+    //   width: 100,
+    //   search: false,
+    //   render: (dom: React.ReactNode, record: DeviceInfo) => {
+    //     const imagePath = getImagePath(record.devicePicture);
+    //     return imagePath ? (
+    //       <Image
+    //         src={imagePath}
+    //         alt={record.deviceName || '设备照片'}
+    //         width={50}
+    //         height={50}
+    //         style={{ objectFit: 'cover', borderRadius: 4 }}
+    //         fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Crect fill='%23f0f0f0' width='50' height='50'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E无图片%3C/text%3E%3C/svg%3E"
+    //       />
+    //     ) : (
+    //       <span style={{ color: '#999' }}>无照片</span>
+    //     );
+    //   },
+    // },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      valueType: 'select', 
+      valueType: 'select',
       search: false,
       valueEnum: statusMap,
       render: (dom, entity) => ( // 修正 render 函数签名
@@ -440,6 +440,12 @@ const EquipmentPage: React.FC = () => {
           {statusMap[entity.status as keyof typeof statusMap]?.text}
         </Tag>
       )
+    },
+    {
+      title: '工单编码',
+      dataIndex: 'workOrderCode',
+      key: 'workOrderCode',
+      ellipsis: true,
     },
     {
       title: '创建时间',
@@ -525,198 +531,196 @@ const EquipmentPage: React.FC = () => {
     >
       <div className="system-settings-page" style={{ padding: 24 }}>
         <ProTable<DeviceInfo>
-        columns={columns}
-        actionRef={actionRef} // 添加 actionRef
-        key={'default'}
-        scroll={{ x: 'max-content' }} // 添加横向滚动
-        cardProps={{
-          style: (window as any).__panelStyles?.panelStyle,
-          headStyle: (window as any).__panelStyles?.headStyle,
-          bodyStyle: (window as any).__panelStyles?.bodyStyle,
-          bordered: false,
-          ['data-panel-exempt']: 'true'
-        } as any}
-        request={async (params: DeviceInfoQueryParams) => {
-          try {
-            // 处理时间范围参数
-            const requestParams: DeviceInfoQueryParams = {
-              ...params,
-              // 处理标准的时间范围参数
-              startTime: params.startTime,
-              endTime: params.endTime,
-            };
-            
-            // 调试日志：检查查询参数
-            console.log('📊 设备管理 - 查询参数:', {
-              requestParams,
-              pathname: window.location.pathname,
-            });
-            
-            // 同步受控分页到状态，确保显示正确
-            if (params.current && params.current !== pager.current || params.pageSize && params.pageSize !== pager.pageSize) {
-              setPager({ current: params.current || 1, pageSize: params.pageSize || 50 });
+          columns={columns}
+          actionRef={actionRef} // 添加 actionRef
+          key={'default'}
+          scroll={{ x: 'max-content' }} // 添加横向滚动
+          cardProps={{
+            style: (window as any).__panelStyles?.panelStyle,
+            headStyle: (window as any).__panelStyles?.headStyle,
+            bodyStyle: (window as any).__panelStyles?.bodyStyle,
+            bordered: false,
+            ['data-panel-exempt']: 'true'
+          } as any}
+          request={async (params: DeviceInfoQueryParams) => {
+            try {
+              // 处理时间范围参数
+              const requestParams: DeviceInfoQueryParams = {
+                ...params,
+                // 处理标准的时间范围参数
+                startTime: params.startTime,
+                endTime: params.endTime,
+              };
+
+              // 调试日志：检查查询参数
+              console.log('📊 设备管理 - 查询参数:', {
+                requestParams,
+                pathname: window.location.pathname,
+              });
+
+              // 同步受控分页到状态，确保显示正确
+              if (params.current && params.current !== pager.current || params.pageSize && params.pageSize !== pager.pageSize) {
+                setPager({ current: params.current || 1, pageSize: params.pageSize || 50 });
+              }
+              const result = await fetchDeviceInfoList(requestParams);
+
+              // 调试日志：检查返回结果
+              console.log('📋 设备管理 - 返回结果:', {
+                dataCount: result.data?.length || 0,
+                total: result.total,
+              });
+
+              return result;
+            } catch (error) {
+              // 捕获错误，避免路由切换时卡顿
+              console.error('获取设备列表失败:', error);
+              return {
+                data: [],
+                success: false,
+                total: 0,
+              } as RequestData<DeviceInfo>;
             }
-            const result = await fetchDeviceInfoList(requestParams);
-            
-            // 调试日志：检查返回结果
-            console.log('📋 设备管理 - 返回结果:', {
-              dataCount: result.data?.length || 0,
-              total: result.total,
-            });
-            
-            return result;
-          } catch (error) {
-            // 捕获错误，避免路由切换时卡顿
-            console.error('获取设备列表失败:', error);
-            return {
-              data: [],
-              success: false,
-              total: 0,
-            } as RequestData<DeviceInfo>;
-          }
-        }}
-        rowKey="deviceId"
-        search={{
-          labelWidth: 120,
-          span: 8,
-        }}
-        pagination={{
-          current: pager.current,
-          pageSize: pager.pageSize,
-          pageSizeOptions: ['10', '20', '50', '100'],
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total) => `共 ${total} 条数据`,
-          onChange: (current, pageSize) => {
-            setPager({ current, pageSize });
-            // 触发表格刷新以应用新分页
-            actionRef.current?.reload();
-          },
-          onShowSizeChange: (current, pageSize) => {
-            setPager({ current, pageSize });
-            actionRef.current?.reload();
-          },
-        }}
-        headerTitle="设备管理"
-        rowSelection={{}} // 添加 rowSelection 以支持批量操作
-        tableAlertRender={({ selectedRowKeys, selectedRows }) => (
-          selectedRowKeys.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <Space>
-                <span>已选择 {selectedRowKeys.length} 项</span>
-                <Button
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={() => handleBatchDelete(selectedRows)}
-                >
-                  批量删除
-                </Button>
-              </Space>
-            </div>
-          )
-        )}
-        toolBarRender={() => [
-          <Button
-            key="add"
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAdd}
-          >
-            新增设备
-          </Button>,
-        ]}
-      />
+          }}
+          rowKey="deviceId"
+          search={{
+            labelWidth: 120,
+            span: 8,
+          }}
+          pagination={{
+            current: pager.current,
+            pageSize: pager.pageSize,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `共 ${total} 条数据`,
+            onChange: (current, pageSize) => {
+              setPager({ current, pageSize });
+              // 触发表格刷新以应用新分页
+              actionRef.current?.reload();
+            },
+            onShowSizeChange: (current, pageSize) => {
+              setPager({ current, pageSize });
+              actionRef.current?.reload();
+            },
+          }}
+          headerTitle="设备管理"
+          rowSelection={{}} // 添加 rowSelection 以支持批量操作
+          tableAlertRender={({ selectedRowKeys, selectedRows }) => (
+            selectedRowKeys.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <Space>
+                  <span>已选择 {selectedRowKeys.length} 项</span>
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleBatchDelete(selectedRows)}
+                  >
+                    批量删除
+                  </Button>
+                </Space>
+              </div>
+            )
+          )}
+          toolBarRender={() => [
+            <Button
+              key="add"
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAdd}
+            >
+              新增设备
+            </Button>,
+          ]}
+        />
 
-      {/* 详情抽屉 */}
-      <Drawer
-        title="设备详情"
-        width={600}
-        placement="right"
-        onClose={() => setDetailDrawerVisible(false)}
-        open={detailDrawerVisible}
-        className="device-info-drawer"
-        rootClassName="device-info-drawer"
-        className="device-info-drawer"
-        rootClassName="device-info-drawer"
-        styles={{
-          content: {
-            background: '#ffffff',
-            borderLeft: '1px solid #f0f0f0',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
-          },
-          header: {
-            background: '#ffffff',
-            borderBottom: '1px solid #f0f0f0'
-          },
-          body: {
-            background: '#ffffff'
-          },
-          mask: {
-            background: 'rgba(0,0,0,0.1)'
-          }
-        }}
-      >
-        {detailData && (
-          <ProDescriptions
-            column={2}
-            title="设备信息详情"
-            dataSource={detailData}
-          >
-            <ProDescriptions.Item label="设备ID" dataIndex="deviceId" />
-            <ProDescriptions.Item label="设备名称" dataIndex="deviceName" />
-            <ProDescriptions.Item label="设备编码" dataIndex="deviceEnCode" />
-            <ProDescriptions.Item label="所属生产线" dataIndex="productionLineName">
-              {detailData.productionLineName || '-'}
-            </ProDescriptions.Item>
-            <ProDescriptions.Item label="状态">
-              {detailData.status ? (
-                <Tag color={statusMap[detailData.status as keyof typeof statusMap]?.status === 'Success' ? 'green' : 'default'}>
-                  {statusMap[detailData.status as keyof typeof statusMap]?.text || '未知'}
-                </Tag>
-              ) : '-'}
-            </ProDescriptions.Item>
-            <ProDescriptions.Item label="设备头像" span={2}>
-              {detailData.avatar ? (
-                <Image
-                  src={getImagePath(detailData.avatar)}
-                  alt={detailData.deviceName || '设备头像'}
-                  width={100}
-                  height={100}
-                  style={{ objectFit: 'cover', borderRadius: 4 }}
-                  fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f0f0f0' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E无图片%3C/text%3E%3C/svg%3E"
-                />
-              ) : (
-                <span style={{ color: '#999' }}>无头像</span>
-              )}
-            </ProDescriptions.Item>
-            <ProDescriptions.Item label="设备照片" span={2}>
-              {detailData.devicePicture ? (
-                <Image
-                  src={getImagePath(detailData.devicePicture)}
-                  alt={detailData.deviceName || '设备照片'}
-                  width={200}
-                  height={150}
-                  style={{ objectFit: 'cover', borderRadius: 4 }}
-                  fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect fill='%23f0f0f0' width='200' height='150'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E无图片%3C/text%3E%3C/svg%3E"
-                />
-              ) : (
-                <span style={{ color: '#999' }}>无照片</span>
-              )}
-            </ProDescriptions.Item>
-            <ProDescriptions.Item label="创建时间" dataIndex="createTime" />
-            <ProDescriptions.Item label="更新时间" dataIndex="updateTime" />
-            <ProDescriptions.Item label="设备描述" dataIndex="description" span={2} />
-          </ProDescriptions>
-        )}
-      </Drawer>
+        {/* 详情抽屉 */}
+        <Drawer
+          title="设备详情"
+          width={600}
+          placement="right"
+          onClose={() => setDetailDrawerVisible(false)}
+          open={detailDrawerVisible}
+          className="device-info-drawer"
+          rootClassName="device-info-drawer"
+          styles={{
+            content: {
+              background: '#ffffff',
+              borderLeft: '1px solid #f0f0f0',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+            },
+            header: {
+              background: '#ffffff',
+              borderBottom: '1px solid #f0f0f0'
+            },
+            body: {
+              background: '#ffffff'
+            },
+            mask: {
+              background: 'rgba(0,0,0,0.1)'
+            }
+          }}
+        >
+          {detailData && (
+            <ProDescriptions
+              column={2}
+              title="设备信息详情"
+              dataSource={detailData}
+            >
+              <ProDescriptions.Item label="设备ID" dataIndex="deviceId" />
+              <ProDescriptions.Item label="设备名称" dataIndex="deviceName" />
+              <ProDescriptions.Item label="设备编码" dataIndex="deviceEnCode" />
+              <ProDescriptions.Item label="所属生产线" dataIndex="productionLineName">
+                {detailData.productionLineName || '-'}
+              </ProDescriptions.Item>
+              <ProDescriptions.Item label="状态">
+                {detailData.status ? (
+                  <Tag color={statusMap[detailData.status as keyof typeof statusMap]?.status === 'Success' ? 'green' : 'default'}>
+                    {statusMap[detailData.status as keyof typeof statusMap]?.text || '未知'}
+                  </Tag>
+                ) : '-'}
+              </ProDescriptions.Item>
+              {/* <ProDescriptions.Item label="设备头像" span={2}>
+                {detailData.avatar ? (
+                  <Image
+                    src={getImagePath(detailData.avatar)}
+                    alt={detailData.deviceName || '设备头像'}
+                    width={100}
+                    height={100}
+                    style={{ objectFit: 'cover', borderRadius: 4 }}
+                    fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f0f0f0' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E无图片%3C/text%3E%3C/svg%3E"
+                  />
+                ) : (
+                  <span style={{ color: '#999' }}>无头像</span>
+                )}
+              </ProDescriptions.Item>
+              <ProDescriptions.Item label="设备照片" span={2}>
+                {detailData.devicePicture ? (
+                  <Image
+                    src={getImagePath(detailData.devicePicture)}
+                    alt={detailData.deviceName || '设备照片'}
+                    width={200}
+                    height={150}
+                    style={{ objectFit: 'cover', borderRadius: 4 }}
+                    fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect fill='%23f0f0f0' width='200' height='150'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E无图片%3C/text%3E%3C/svg%3E"
+                  />
+                ) : (
+                  <span style={{ color: '#999' }}>无照片</span>
+                )}
+              </ProDescriptions.Item> */}
+              <ProDescriptions.Item label="创建时间" dataIndex="createTime" />
+              <ProDescriptions.Item label="更新时间" dataIndex="updateTime" />
+              <ProDescriptions.Item label="设备描述" dataIndex="description" span={2} />
+            </ProDescriptions>
+          )}
+        </Drawer>
 
-      {/* 新增/编辑表单 */}
-      <CreateEquipmentForm
-        visible={formModalVisible}
-        onCancel={handleCancel}
-        onSuccess={handleSuccess}
-        currentRow={currentRow}
-      />
+        {/* 新增/编辑表单 */}
+        <CreateEquipmentForm
+          visible={formModalVisible}
+          onCancel={handleCancel}
+          onSuccess={handleSuccess}
+          currentRow={currentRow}
+        />
       </div>
     </PageContainer>
   );
