@@ -50,6 +50,13 @@ namespace DeviceManage.ViewModels
         // 表格编辑区（TagDetail 行数据）
         public ReactiveProperty<ObservableCollection<TagDetailRow>> TagDetailRows { get; }
         
+        // 点位映射实体搜索条件
+        public ReactiveProperty<string> SearchDetailTagName { get; }
+        public ReactiveProperty<string> SearchDetailAddress { get; }
+        
+        // 过滤后的点位映射实体数据（用于表格显示）
+        public ReactiveProperty<ObservableCollection<TagDetailRow>> FilteredTagDetailRows { get; }
+        
         // DataType 下拉枚举数据源
         public ReactiveProperty<ObservableCollection<DataType>> DataTypes { get; }
 
@@ -74,10 +81,16 @@ namespace DeviceManage.ViewModels
             IsEditing = new ReactiveProperty<bool>(false);
             IsDialogOpen = new ReactiveProperty<bool>(false);
             TagDetailRows = new ReactiveProperty<ObservableCollection<TagDetailRow>>(new ObservableCollection<TagDetailRow>());
+            FilteredTagDetailRows = new ReactiveProperty<ObservableCollection<TagDetailRow>>(new ObservableCollection<TagDetailRow>());
+            SearchDetailTagName = new ReactiveProperty<string>(string.Empty);
+            SearchDetailAddress = new ReactiveProperty<string>(string.Empty);
             
             // 初始化 DataType 枚举列表
             var dataTypes = new ObservableCollection<DataType>(Enum.GetValues(typeof(DataType)).Cast<DataType>());
             DataTypes = new ReactiveProperty<ObservableCollection<DataType>>(dataTypes);
+            
+            // 订阅TagDetailRows变化，自动更新过滤结果（数据变化时自动重新过滤）
+            TagDetailRows.Subscribe(_ => ApplyDetailFilter());
 
             // 初始化分页组件
             PageListViewModel = new PageListViewModel
@@ -110,6 +123,8 @@ namespace DeviceManage.ViewModels
             DeleteCommand = new ReactiveCommand<Tag>().WithSubscribe(async t => await DeleteAsync(t));
             AddDetailCommand = new ReactiveCommand().WithSubscribe(AddDetailRow);
             RemoveDetailCommand = new ReactiveCommand<TagDetailRow>().WithSubscribe(RemoveDetailRow);
+            SearchDetailCommand = new ReactiveCommand().WithSubscribe(ApplyDetailFilter);
+            ResetDetailCommand = new ReactiveCommand().WithSubscribe(ResetDetailFilter);
             SaveCommand = new ReactiveCommand().WithSubscribe(async () => await SaveAsync());
             CancelCommand = new ReactiveCommand().WithSubscribe(Close);
 
@@ -129,6 +144,8 @@ namespace DeviceManage.ViewModels
         public ReactiveCommand<Tag> DeleteCommand { get; }
         public ReactiveCommand AddDetailCommand { get; }
         public ReactiveCommand<TagDetailRow> RemoveDetailCommand { get; }
+        public ReactiveCommand SearchDetailCommand { get; }
+        public ReactiveCommand ResetDetailCommand { get; }
         public ReactiveCommand SaveCommand { get; }
         public ReactiveCommand CancelCommand { get; }
 
@@ -217,6 +234,9 @@ namespace DeviceManage.ViewModels
             };
             
             TagDetailRows.Value = new ObservableCollection<TagDetailRow>();
+            SearchDetailTagName.Value = string.Empty;
+            SearchDetailAddress.Value = string.Empty;
+            ApplyDetailFilter();
             IsEditing.Value = false;
             IsDialogOpen.Value = true;
         }
@@ -259,7 +279,11 @@ namespace DeviceManage.ViewModels
                     (EditingTag.Value.TagDetailDataArray ?? new List<TagDetail>())
                         .Select(d => new TagDetailRow(d))
                 );
-
+                
+                SearchDetailTagName.Value = string.Empty;
+                SearchDetailAddress.Value = string.Empty;
+                ApplyDetailFilter();
+                
                 IsEditing.Value = true;
                 IsDialogOpen.Value = true;
             }
@@ -400,7 +424,44 @@ namespace DeviceManage.ViewModels
         /// </summary>
         private void AddDetailRow()
         {
-            TagDetailRows.Value.Add(new TagDetailRow());
+            var newRow = new TagDetailRow();
+            
+            // 检查地址是否唯一（当用户输入地址时）
+            // 由于新行地址为空，这里暂时不检查，在保存时已检查
+            // 但如果用户输入地址后需要实时检查，可以在Address.Value的PropertyChanged中处理
+            TagDetailRows.Value.Add(newRow);
+            ApplyDetailFilter();
+        }
+
+        /// <summary>
+        /// 应用点位映射实体过滤
+        /// </summary>
+        private void ApplyDetailFilter()
+        {
+            var rows = TagDetailRows.Value ?? new ObservableCollection<TagDetailRow>();
+            var tagNameFilter = SearchDetailTagName.Value?.Trim() ?? string.Empty;
+            var addressFilter = SearchDetailAddress.Value?.Trim() ?? string.Empty;
+
+            var filtered = rows.Where(r =>
+            {
+                var tagNameMatch = string.IsNullOrWhiteSpace(tagNameFilter) ||
+                                 (r.TagName.Value?.Contains(tagNameFilter, StringComparison.OrdinalIgnoreCase) == true);
+                var addressMatch = string.IsNullOrWhiteSpace(addressFilter) ||
+                                 (r.Address.Value?.Contains(addressFilter, StringComparison.OrdinalIgnoreCase) == true);
+                return tagNameMatch && addressMatch;
+            }).ToList();
+
+            FilteredTagDetailRows.Value = new ObservableCollection<TagDetailRow>(filtered);
+        }
+
+        /// <summary>
+        /// 重置点位映射实体搜索条件
+        /// </summary>
+        private void ResetDetailFilter()
+        {
+            SearchDetailTagName.Value = string.Empty;
+            SearchDetailAddress.Value = string.Empty;
+            ApplyDetailFilter();
         }
 
         /// <summary>
@@ -410,6 +471,7 @@ namespace DeviceManage.ViewModels
         {
             if (row == null) return;
             TagDetailRows.Value.Remove(row);
+            ApplyDetailFilter();
         }
 
         /// <summary>
