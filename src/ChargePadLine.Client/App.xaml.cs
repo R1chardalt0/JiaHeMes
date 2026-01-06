@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Windows;
 using MessageBox = HandyControl.Controls.MessageBox;
 
@@ -47,6 +48,9 @@ public partial class App : Application
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             _configuration = builder.Build();
+
+            // 检查并创建数据库目录
+            EnsureDatabaseDirectoryExists();
 
             // 配置依赖注入
             var services = new ServiceCollection();
@@ -117,6 +121,10 @@ public partial class App : Application
     }
 
     #region 数据库服务
+    /// <summary>
+    /// 自动初始化数据库并启动相关服务
+    /// </summary>
+    /// <param name="services"></param>
     void InitializeDatabaseAndStartServices(IServiceProvider services)
     {
         using (var scope = services.CreateScope())
@@ -136,6 +144,34 @@ public partial class App : Application
                 var logger = scopedServices.GetRequiredService<ILogger<App>>();
                 logger.LogError(ex, "初始化过程中发生错误");
                 throw;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 创建sqlite数据库文件夹及其文件
+    /// </summary>
+    private void EnsureDatabaseDirectoryExists()
+    {
+        var connectionString = _configuration!.GetConnectionString("AppDbContext");
+        if (!string.IsNullOrEmpty(connectionString))
+        {
+            // 从连接字符串中提取数据库文件路径
+            var parts = connectionString.Split(';');
+            foreach (var part in parts)
+            {
+                if (part.Trim().StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase))
+                {
+                    var dataSource = part.Substring("Data Source=".Length).Trim();
+                    var databasePath = Path.GetFullPath(dataSource);
+                    var databaseDirectory = Path.GetDirectoryName(databasePath);
+
+                    if (!string.IsNullOrEmpty(databaseDirectory) && !Directory.Exists(databaseDirectory))
+                    {
+                        Directory.CreateDirectory(databaseDirectory);
+                    }
+                    break;
+                }
             }
         }
     }
