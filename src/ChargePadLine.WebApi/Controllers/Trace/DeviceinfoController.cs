@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace ChargePadLine.WebApi.Controllers.Trace
 {
     [ApiController]
-    [Route("api/[action]")]
+    [Route("api/[controller]")]
     public class DeviceinfoController : ControllerBase
     {
         private readonly IDeviceInfoService _deviceInfoService;
@@ -24,7 +24,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// <summary>
         /// 分页查询设备信息列表
         /// </summary>
-        [HttpGet]
+        [HttpGet("GetDeviceInfoList")]
         public async Task<PagedResp<Deviceinfo>> GetDeviceInfoList(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, string? workOrderCode, DateTime? startTime, DateTime? endTime)
         {
             try
@@ -101,7 +101,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// <summary>
         /// 创建设备信息
         /// </summary>
-        [HttpPost]
+        [HttpPost("CreateDeviceInfo")]
         public async Task<Resp<bool>> CreateDeviceInfo([FromBody] Deviceinfo deviceInfo)
         {
             try
@@ -131,7 +131,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// <summary>
         /// 更新设备信息
         /// </summary>
-        [HttpPost]
+        [HttpPost("UpdateDeviceInfo")]
         public async Task<Resp<bool>> UpdateDeviceInfo([FromBody] Deviceinfo deviceInfo)
         {
             try
@@ -158,7 +158,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// <summary>
         /// 批量删除设备信息
         /// </summary>
-        [HttpPost]
+        [HttpPost("DeleteDeviceInfoByIds")]
         public async Task<Resp<bool>> DeleteDeviceInfoByIds([FromBody] List<Guid> deviceIds)
         {
             try
