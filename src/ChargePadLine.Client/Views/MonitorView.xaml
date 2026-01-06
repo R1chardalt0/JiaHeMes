@@ -116,6 +116,42 @@
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>
