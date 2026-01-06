@@ -119,7 +119,7 @@ namespace DeviceManage.Views
 
                 var mainWindow = new MainWindow(_mainViewModel);
                 // 设置主窗口为全屏（最大化）
-                mainWindow.WindowState = WindowState.Maximized;
+                //mainWindow.WindowState = WindowState.Maximized;
                 mainWindow.Show();
 
                 Close();
