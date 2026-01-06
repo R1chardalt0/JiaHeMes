@@ -2,11 +2,13 @@ using ChargePadLine.Entitys.Systems;
 using ChargePadLine.Entitys.Trace;
 using ChargePadLine.Entitys.Trace.InventoryManagement;
 using ChargePadLine.Entitys.Trace.ProcessRouting;
+using ChargePadLine.Entitys.Trace.Product;
 using ChargePadLine.Entitys.Trace.Production.BatchQueue;
 using ChargePadLine.Entitys.Trace.QualityManagement;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
 using ChargePadLine.Entitys.Trace.TraceInformation;
 using ChargePadLine.Entitys.Trace.WorkOrders;
+using ChargePadLine.Entitys.Trace.BOM;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -100,6 +102,13 @@ namespace ChargePadLine.DbContexts
         public DbSet<QualityInspectionItem> QualityInspectionItems { get; set; }
         public DbSet<QualityInspectionRecord> QualityInspectionRecords { get; set; }
         public DbSet<QualityInspectionStandard> QualityInspectionStandards { get; set; }
+
+        //产品列表
+        public DbSet<ProductList> ProductList { get; set; }
+
+        //BOM管理
+        public DbSet<BomList> BomList { get; set; }
+        public DbSet<BomItem> BomItem { get; set; }
         #endregion
 
         #region 库存管理

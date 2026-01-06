@@ -1,274 +1,337 @@
-using ChargePadLine.DbContexts;
-using ChargePadLine.DbContexts.Repository;
 using ChargePadLine.Entitys.Trace.ProcessRouting;
-using ChargePadLine.Entitys.Trace.Production;
-using ChargePadLine.Entitys.Trace.Recipes.Entities;
 using ChargePadLine.Service.Trace.Dto;
+using ChargePadLine.DbContexts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ChargePadLine.Service;
 
 namespace ChargePadLine.Service.Trace.Impl
 {
   /// <summary>
-  /// 工单服务实现
+  /// 站点服务实现
   /// </summary>
   public class StationListService : IStationListService
   {
-    private readonly IRepository<StationList> _stationListRepo;
-    private readonly IRepository<BomRecipe> _bomRecipeRepo;
-    private readonly IRepository<Material> _materialRepo;
-    private readonly ILogger<StationListService> _logger;
     private readonly AppDbContext _dbContext;
 
-    public StationListService(
-        IRepository<StationList> stationListRepo,
-        IRepository<BomRecipe> bomRecipeRepo,
-        IRepository<Material> materialRepo,
-        ILogger<StationListService> logger,
-        AppDbContext dbContext)
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="dbContext">数据库上下文</param>
+    public StationListService(AppDbContext dbContext)
     {
-            _stationListRepo = stationListRepo;
-      _bomRecipeRepo = bomRecipeRepo;
-      _materialRepo = materialRepo;
-      _logger = logger;
       _dbContext = dbContext;
     }
 
     /// <summary>
-    /// 分页查询工单列表
+    /// 创建站点
     /// </summary>
-    public async Task<PaginatedList<StationListDto>> PaginationAsync(StationListQueryDto queryDto)
-        {
-      try
+    /// <param name="dto">站点创建数据</param>
+    /// <returns>创建的站点信息</returns>
+    public async Task<StationListDto> CreateAsync(StationListCreateDto dto)
+    {
+      // 验证站点编码唯一性
+      var existingStation = await _dbContext.StationList.FirstOrDefaultAsync(s => s.StationCode == dto.StationCode);
+      if (existingStation != null)
       {
-        // 验证分页参数
-        if (queryDto.Current < 1) queryDto.Current = 1;
-        if (queryDto.PageSize < 1) queryDto.PageSize = 10;
+        throw new InvalidOperationException($"站点编码已存在: {dto.StationCode}");
+      }
 
-        // 构建查询条件
-        var query = _stationListRepo.GetQueryable();
+      var station = new StationList
+      {
+        StationId = Guid.NewGuid(),
+        StationName = dto.StationName,
+        StationCode = dto.StationCode,
+        Remark = dto.Remark,
+        CreateTime = DateTimeOffset.Now
+      };
 
-        //// 工单编码模糊匹配
-        //if (!string.IsNullOrEmpty(queryDto.Code))
-        //{
-        //  query = query.Where(w => w.Code.Value.Contains(queryDto.Code));
-        //}
+      _dbContext.StationList.Add(station);
+      await _dbContext.SaveChangesAsync();
 
-        //// 产品编码模糊匹配
-        //if (!string.IsNullOrEmpty(queryDto.ProductCode))
-        //{
-        //  query = query.Where(w => w.ProductCode.Value.Contains(queryDto.ProductCode));
-        //}
+      return MapToDto(station);
+    }
 
-        //// 工单状态筛选
-        //if (queryDto.DocStatus.HasValue)
-        //{
-        //  query = query.Where(w => w.DocStatus == queryDto.DocStatus.Value);
-        //}
+    /// <summary>
+    /// 更新站点
+    /// </summary>
+    /// <param name="dto">站点更新数据</param>
+    /// <returns>更新后的站点信息</returns>
+    public async Task<StationListDto> UpdateAsync(StationListUpdateDto dto)
+    {
+      var station = await _dbContext.StationList.FindAsync(dto.StationId);
+      if (station == null)
+      {
+        throw new Exception("站点不存在");
+      }
 
-        // 时间范围筛选
-        // if (queryDto.StartTime.HasValue)
-        // {
-        //   query = query.Where(w => w.CreatedAt >= queryDto.StartTime.Value);
-        // }
+      // 验证站点编码唯一性（排除当前站点）
+      if (station.StationCode != dto.StationCode)
+      {
+        var existingStation = await _dbContext.StationList.FirstOrDefaultAsync(s => s.StationCode == dto.StationCode && s.StationId != dto.StationId);
+        if (existingStation != null)
+        {
+          throw new InvalidOperationException($"站点编码已存在: {dto.StationCode}");
+        }
+      }
 
-        // if (queryDto.EndTime.HasValue)
-        // {
-        //   query = query.Where(w => w.CreatedAt <= queryDto.EndTime.Value);
-        // }
+      station.StationName = dto.StationName;
+      station.StationCode = dto.StationCode;
+      station.Remark = dto.Remark;
+      station.UpdateTime = DateTimeOffset.Now;
 
-        // 获取总数
-        var totalCount = await query.CountAsync();
+      _dbContext.StationList.Update(station);
+      await _dbContext.SaveChangesAsync();
 
-        // 分页
-        var stationLists = await query
+      return MapToDto(station);
+    }
+
+    /// <summary>
+    /// 删除站点
+    /// </summary>
+    /// <param name="stationId">站点ID</param>
+    /// <returns>是否删除成功</returns>
+    public async Task<bool> DeleteAsync(Guid stationId)
+    {
+      var station = await _dbContext.StationList.FindAsync(stationId);
+      if (station == null)
+      {
+        throw new Exception("站点不存在");
+      }
+
+      _dbContext.StationList.Remove(station);
+      await _dbContext.SaveChangesAsync();
+
+      return true;
+    }
+
+    /// <summary>
+    /// 获取站点详情
+    /// </summary>
+    /// <param name="stationId">站点ID</param>
+    /// <returns>站点详情</returns>
+    public async Task<StationListDto> GetByIdAsync(Guid stationId)
+    {
+      var station = await _dbContext.StationList.FindAsync(stationId);
+      if (station == null)
+      {
+        throw new Exception("站点不存在");
+      }
+
+      return MapToDto(station);
+    }
+
+    /// <summary>
+    /// 获取站点列表
+    /// </summary>
+    /// <param name="queryDto">查询条件</param>
+    /// <returns>分页结果</returns>
+    public async Task<(int Total, List<StationListDto> Items)> GetListAsync(StationListQueryDto queryDto)
+    {
+      var query = _dbContext.StationList.AsQueryable();
+
+      // 应用查询条件
+      if (!string.IsNullOrEmpty(queryDto.StationName))
+      {
+        query = query.Where(s => s.StationName.Contains(queryDto.StationName));
+      }
+
+      if (!string.IsNullOrEmpty(queryDto.StationCode))
+      {
+        query = query.Where(s => s.StationCode.Contains(queryDto.StationCode));
+      }
+
+      if (queryDto.StartTime.HasValue)
+      {
+        query = query.Where(s => s.CreateTime >= queryDto.StartTime.Value);
+      }
+
+      if (queryDto.EndTime.HasValue)
+      {
+        query = query.Where(s => s.CreateTime <= queryDto.EndTime.Value);
+      }
+
+      // 计算总数
+      var total = await query.CountAsync();
+
+      // 应用分页并排序
+      var items = await query
+          .OrderByDescending(s => s.CreateTime)
           .Skip((queryDto.Current - 1) * queryDto.PageSize)
           .Take(queryDto.PageSize)
           .ToListAsync();
 
-        // 转换为DTO
-        var stationListDtos = stationLists.Select(w => w.ToDto()).ToList();
-
-        // 返回分页结果
-        return new PaginatedList<StationListDto>(stationListDtos, totalCount, queryDto.Current, queryDto.PageSize);
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, "查询工单列表时发生错误");
-        throw;
-      }
+      return (
+          total,
+          items.Select(MapToDto).ToList()
+      );
     }
 
+    /// <summary>
+    /// 将实体映射为DTO
+    /// </summary>
+    /// <param name="station">站点实体</param>
+    /// <returns>站点DTO</returns>
+    private StationListDto MapToDto(StationList station)
+    {
+      return new StationListDto
+      {
+        StationId = station.StationId,
+        StationName = station.StationName,
+        StationCode = station.StationCode,
+        CreateBy = station.CreateBy,
+        CreateTime = station.CreateTime,
+        UpdateBy = station.UpdateBy,
+        UpdateTime = station.UpdateTime,
+        Remark = station.Remark
+      };
+    }
 
     /// <summary>
-    /// 根据ID获取工单详情
+    /// 分页查询站点列表
     /// </summary>
-    public async Task<StationListDto?> GetStationInfoById(Guid id)
+    /// <param name="queryDto">查询条件</param>
+    /// <returns>分页结果</returns>
+    public async Task<PaginatedList<StationListDto>> PaginationAsync(StationListQueryDto queryDto)
     {
-      var stationList = await _stationListRepo.GetQueryable()
+      var query = _dbContext.StationList.AsQueryable();
 
-          .FirstOrDefaultAsync(w => w.StationId == id);
+      // 应用查询条件
+      if (!string.IsNullOrEmpty(queryDto.StationName))
+      {
+        query = query.Where(s => s.StationName.Contains(queryDto.StationName));
+      }
 
-      if (stationList == null)
+      if (!string.IsNullOrEmpty(queryDto.StationCode))
+      {
+        query = query.Where(s => s.StationCode.Contains(queryDto.StationCode));
+      }
+
+      if (queryDto.StartTime.HasValue)
+      {
+        query = query.Where(s => s.CreateTime >= queryDto.StartTime.Value);
+      }
+
+      if (queryDto.EndTime.HasValue)
+      {
+        query = query.Where(s => s.CreateTime <= queryDto.EndTime.Value);
+      }
+
+      // 计算总数
+      var total = await query.CountAsync();
+
+      // 应用分页并排序
+      var stationItems = await query
+          .OrderByDescending(s => s.CreateTime)
+          .Skip((queryDto.Current - 1) * queryDto.PageSize)
+          .Take(queryDto.PageSize)
+          .ToListAsync();
+
+      var items = stationItems.Select(MapToDto).ToList();
+
+      return new PaginatedList<StationListDto>(items, total, queryDto.Current, queryDto.PageSize);
+    }
+
+    /// <summary>
+    /// 根据ID获取站点详情
+    /// </summary>
+    /// <param name="stationId">站点ID</param>
+    /// <returns>站点详情</returns>
+    public async Task<StationListDto> GetStationInfoById(Guid stationId)
+    {
+      var station = await _dbContext.StationList.FindAsync(stationId);
+      if (station == null)
+      {
         return null;
+      }
 
-      return stationList.ToDto();
+      return MapToDto(station);
     }
 
     /// <summary>
-    /// 根据工单编码获取工单详情
+    /// 创建站点
     /// </summary>
-    public async Task<StationListDto?> GetStationInfoByCode(string code)
+    /// <param name="dto">站点信息</param>
+    /// <returns>创建的站点信息</returns>
+    public async Task<StationListDto> CreateStationInfo(StationListDto dto)
     {
-      var stationList = await _stationListRepo.GetQueryable()
-          .FirstOrDefaultAsync(w => w.StationCode == code);
-
-      if (stationList == null)
-        return null;
-
-      return stationList.ToDto();
-    }
-       
-        /// <summary>
-        /// 创建工单
-        /// </summary>
-        public async Task<StationListDto> CreateStationInfo(StationListDto dto)
-    {
-      try
+      // 验证站点编码唯一性
+      var existingStation = await _dbContext.StationList.FirstOrDefaultAsync(s => s.StationCode == dto.StationCode);
+      if (existingStation != null)
       {
-       
-        // 验证工单编码唯一性
-
-        var existingStationList = await _stationListRepo.GetAsync(w => w.StationCode == dto.StationCode);
-        if (existingStationList != null)
-        {
-          _logger.LogError("工单编码已存在: {Code}", dto.StationCode);
-          throw new InvalidOperationException($"工单编码已存在: {dto.StationCode}");
-        }
-        StationList stationList = new StationList();
-                stationList.StationName = dto.StationName;
-                stationList.StationCode = dto.StationCode;
-                stationList.CreateTime = DateTime.Now;
-        
-        // 保存工单
-        var result = await _stationListRepo.InsertAsync(stationList);
-
-        if (result != null)
-        {
-          _logger.LogInformation($"成功创建工单，ID: {result.StationId}");
-
-          // 返回创建的工单信息 - 使用扩展方法
-          return result.ToDto();
-        }
-        else
-        {
-          _logger.LogError("创建工单失败");
-          throw new InvalidOperationException("创建工单失败");
-        }
+        throw new InvalidOperationException($"站点编码已存在: {dto.StationCode}");
       }
-      catch (Exception ex)
+
+      var station = new StationList
       {
-        _logger.LogError(ex, "创建工单时发生异常");
-        throw;
-      }
+        StationId = dto.StationId == Guid.Empty ? Guid.NewGuid() : dto.StationId,
+        StationName = dto.StationName,
+        StationCode = dto.StationCode,
+        Remark = dto.Remark,
+        CreateTime = DateTimeOffset.Now
+      };
+
+      _dbContext.StationList.Add(station);
+      await _dbContext.SaveChangesAsync();
+
+      return MapToDto(station);
     }
 
     /// <summary>
-    /// 更新工单
+    /// 更新站点
     /// </summary>
+    /// <param name="dto">站点信息</param>
+    /// <returns>更新后的站点信息</returns>
     public async Task<StationListDto> UpdateStationInfo(StationListDto dto)
     {
-      try
+      var station = await _dbContext.StationList.FindAsync(dto.StationId);
+      if (station == null)
       {
-        // 查找现有工单
-        var existingStationList = await _stationListRepo.GetAsync(w => w.StationId == dto.StationId);
-        if (existingStationList == null)
-          throw new InvalidOperationException($"不存在，ID: {dto.StationId}");
+        throw new Exception("站点不存在");
+      }
 
-
-        
-        // 更新工单信息
-        existingStationList.StationName = dto.StationName;
-        existingStationList.StationCode = dto.StationCode;
-
- 
-
-        // 更新工单
-        var result = await _stationListRepo.UpdateAsync(existingStationList);
-
-        if (result != null)
+      // 验证站点编码唯一性（排除当前站点）
+      if (station.StationCode != dto.StationCode)
+      {
+        var existingStation = await _dbContext.StationList.FirstOrDefaultAsync(s => s.StationCode == dto.StationCode && s.StationId != dto.StationId);
+        if (existingStation != null)
         {
-          _logger.LogInformation($"成功更新，ID: {result.StationId}");
-
-          // 返回更新后的工单信息 - 使用扩展方法
-          return result.ToDto();
-        }
-        else
-        {
-          _logger.LogError("更新失败");
-          throw new InvalidOperationException("更新失败");
+          throw new InvalidOperationException($"站点编码已存在: {dto.StationCode}");
         }
       }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, "更新时发生异常");
-        throw;
-      }
+
+      station.StationName = dto.StationName;
+      station.StationCode = dto.StationCode;
+      station.Remark = dto.Remark;
+      station.UpdateTime = DateTimeOffset.Now;
+
+      _dbContext.StationList.Update(station);
+      await _dbContext.SaveChangesAsync();
+
+      return MapToDto(station);
     }
 
     /// <summary>
-    /// 删除工单
+    /// 删除站点
     /// </summary>
-    public async Task<bool> DeleteStationInfoById(Guid id)
+    /// <param name="stationIds">站点ID列表</param>
+    /// <returns>删除成功的数量</returns>
+    public async Task<int> DeleteStationInfoById(Guid[] stationIds)
     {
-      try
+      var stations = await _dbContext.StationList.Where(s => stationIds.Contains(s.StationId)).ToListAsync();
+      if (stations.Count == 0)
       {
-        // 查找工单
-        var stationList = await _stationListRepo.GetAsync(w => w.StationId == id);
-        if (stationList == null)
-          return false; // 工单不存在
-
-        // 开始事务
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
-        try
-        {
-          // 真正删除工单记录
-          await _stationListRepo.DeleteAsync(stationList);
-
-          // 提交事务
-          await transaction.CommitAsync();
-
-          _logger.LogInformation($"成功删除工单，ID: {stationList.StationId}");
-          return true; // 删除成功
-        }
-        catch
-        {
-          // 事务会在using块结束时自动回滚
-          throw;
-        }
+        return 0;
       }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, "删除工单时发生异常");
-        throw;
-      }
+
+      _dbContext.StationList.RemoveRange(stations);
+      await _dbContext.SaveChangesAsync();
+
+      return stations.Count;
     }
-
-       
- 
-        Task<List<StationListDto>> IStationListService.GetAllStationInfos()
-        {
-            throw new NotImplementedException();
-        }
-
-       
-
-         
-    }
+  }
 }

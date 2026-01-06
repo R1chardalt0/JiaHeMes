@@ -7,24 +7,44 @@ using System.Threading.Tasks;
 namespace ChargePadLine.Service.Trace.Dto
 {
   /// <summary>
-  /// 站点数据传输对象
+  /// 产品列表数据传输对象
   /// </summary>
-  public class StationListDto
+  public class ProductListDto
   {
     /// <summary>
-    /// 站点ID
+    /// 产品ID
     /// </summary>
-    public Guid StationId { get; set; }
+    public Guid ProductListId { get; set; }
 
     /// <summary>
-    /// 站点名称
+    /// 产品编码
     /// </summary>
-    public string StationName { get; set; } = "";
+    public string ProductCode { get; set; } = "";
 
     /// <summary>
-    /// 站点编号
+    /// 产品名称
     /// </summary>
-    public string StationCode { get; set; } = "";
+    public string ProductName { get; set; } = "";
+
+    /// <summary>
+    /// BOMID
+    /// </summary>
+    public Guid? BomId { get; set; }
+
+    /// <summary>
+    /// 工艺路线ID
+    /// </summary>
+    public Guid? ProcessRouteId { get; set; }
+
+    /// <summary>
+    /// 产品类别
+    /// </summary>
+    public string ProductType { get; set; } = "";
+
+    /// <summary>
+    /// 备注信息
+    /// </summary>
+    public string? Remark { get; set; }
 
     /// <summary>
     /// 创建者
@@ -45,10 +65,5 @@ namespace ChargePadLine.Service.Trace.Dto
     /// 更新时间
     /// </summary>
     public DateTimeOffset? UpdateTime { get; set; }
-
-    /// <summary>
-    /// 备注信息
-    /// </summary>
-    public string? Remark { get; set; }
   }
 }

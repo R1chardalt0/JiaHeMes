@@ -1,4 +1,3 @@
-using ChargePadLine.Entitys.Trace.WorkOrders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,31 +7,29 @@ using System.Threading.Tasks;
 namespace ChargePadLine.Service.Trace.Dto
 {
   /// <summary>
-  /// 工单数据传输对象
+  /// 产品列表查询数据传输对象
   /// </summary>
-  public class StationListQueryDto
+  public class ProductListQueryDto
   {
-    public Guid StationId { get; set; }
+    /// <summary>
+    /// 产品编码（模糊匹配）
+    /// </summary>
+    public string? ProductCode { get; set; }
 
     /// <summary>
-    /// 站点名称
+    /// 产品名称（模糊匹配）
     /// </summary>
-    public string StationName { get; set; } = "";
-    /// <summary>
-    /// 站点编号
-    /// </summary>
-
-    public string StationCode { get; set; } = "";
+    public string? ProductName { get; set; }
 
     /// <summary>
-    /// 创建时间起始（包含）
+    /// 产品类别（模糊匹配）
     /// </summary>
-    public DateTime? StartTime { get; set; }
+    public string? ProductType { get; set; }
 
     /// <summary>
-    /// 创建时间结束（包含）
+    /// 备注信息（模糊匹配）
     /// </summary>
-    public DateTime? EndTime { get; set; }
+    public string? Remark { get; set; }
 
     /// <summary>
     /// 当前页码（最小值为1）

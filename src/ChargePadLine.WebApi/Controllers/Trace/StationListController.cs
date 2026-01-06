@@ -2,6 +2,7 @@ using ChargePadLine.Service.Trace;
 using ChargePadLine.Service.Trace.Dto;
 using Microsoft.AspNetCore.Mvc;
 using ChargePadLine.Service;
+using Microsoft.Extensions.Logging;
 
 namespace ChargePadLine.WebApi.Controllers.Trace
 {
@@ -21,18 +22,12 @@ namespace ChargePadLine.WebApi.Controllers.Trace
       _logger = logger;
     }
 
-        [HttpGet("GetStationListListssssss")]
-        public async Task<ActionResult<PaginatedList<StationListDto>>> GetStations()
-        {
-            return StatusCode(500, "获取站点列表失败");
-        }
-
-        /// <summary>
-        /// 分页查询站点列表
-        /// </summary>
-        /// <param name="queryDto">查询参数</param>
-        /// <returns>分页站点列表</returns>
-        [HttpGet("GetStationListList")]
+    /// <summary>
+    /// 分页查询站点列表
+    /// </summary>
+    /// <param name="queryDto">查询参数</param>
+    /// <returns>分页站点列表</returns>
+    [HttpGet("GetStationListList")]
     public async Task<ActionResult<PaginatedList<StationListDto>>> GetStationLists([FromQuery] StationListQueryDto queryDto)
     {
       try
@@ -130,13 +125,16 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// 删除站点（支持单个删除和批量删除）
     /// </summary>
 
-    [HttpPost("DeleteStationListById")]
-    public async Task<ActionResult<object>> DeleteStationListById([FromBody] Guid ids)
+    [HttpPost("DeleteStationListByIds")]
+    public async Task<ActionResult<object>> DeleteStationListById([FromBody] List<Guid> ids)
     {
       try
       {
-         
-        var result = await _stationListService.DeleteStationInfoById(ids);
+        if (ids == null || ids.Count == 0)
+        {
+          return BadRequest("站点ID列表不能为空");
+        }
+        var result = await _stationListService.DeleteStationInfoById(ids.ToArray());
         return Ok(new { deletedCount = result, message = $"成功删除 {result} 个站点" });
       }
       catch (Exception ex)
