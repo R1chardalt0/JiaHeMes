@@ -1,6 +1,8 @@
-﻿using ChargePadLine.Client.Services;
+﻿using ChargePadLine.Client.DBContext;
+using ChargePadLine.Client.Services;
 using ChargePadLine.Client.ViewModels;
 using ChargePadLine.Client.Views;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -50,6 +52,7 @@ public partial class App : Application
             var services = new ServiceCollection();
             ConfigureServices(services);
             _serviceProvider = services.BuildServiceProvider();
+            InitializeDatabaseAndStartServices(_serviceProvider);
             services.AddMesManageServices(_configuration);
 
             // 创建主窗口
@@ -83,6 +86,17 @@ public partial class App : Application
             client.BaseAddress = new Uri(apiBaseUrl);
             client.Timeout = TimeSpan.FromSeconds(timeout);
         });
+        // 注册 DbContext
+        services.AddDbContext<AppDbContext>(options =>
+        {
+            options.UseSqlite(_configuration!.GetConnectionString("AppDbContext"));
+            options.UseSqlite(s => s.MigrationsAssembly(typeof(App).Assembly.GetName().Name));
+            //抛出sql文本
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                options.EnableSensitiveDataLogging();
+            }
+        });
 
         // 添加日志服务
         services.AddLogging(logging =>
@@ -101,5 +115,30 @@ public partial class App : Application
         _serviceProvider?.Dispose();
         base.OnExit(e);
     }
+
+    #region 数据库服务
+    void InitializeDatabaseAndStartServices(IServiceProvider services)
+    {
+        using (var scope = services.CreateScope())
+        {
+            var scopedServices = scope.ServiceProvider;
+            try
+            {
+                // 初始化AppDbContext数据库
+                var dbContext = scopedServices.GetRequiredService<AppDbContext>();
+                var logger = scopedServices.GetRequiredService<ILogger<App>>();
+
+                dbContext.Database.EnsureCreated();
+                logger.LogInformation("数据库创建成功");
+            }
+            catch (Exception ex)
+            {
+                var logger = scopedServices.GetRequiredService<ILogger<App>>();
+                logger.LogError(ex, "初始化过程中发生错误");
+                throw;
+            }
+        }
+    }
+    #endregion
 }
 
