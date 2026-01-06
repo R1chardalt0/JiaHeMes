@@ -62,7 +62,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d8;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6ed;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
                         <TextBlock Margin="5,0" VerticalAlignment="Center">定子检测/O型圈及冷却</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
@@ -74,7 +74,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6e1;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
                         <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
