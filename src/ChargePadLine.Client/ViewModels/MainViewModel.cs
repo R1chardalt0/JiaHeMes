@@ -16,8 +16,11 @@ public class MainViewModel : ViewModelBase
     public MainViewModel(ApiClient apiClient)
     {
         _apiClient = apiClient;
+        LogViewModel = new LogViewModel();
         TestConnectionCommand = new RelayCommand(async () => await TestConnectionAsync());
     }
+
+    public LogViewModel LogViewModel { get; }
 
     public string StatusMessage
     {

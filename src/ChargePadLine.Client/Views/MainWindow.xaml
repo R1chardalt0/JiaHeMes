@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChargePadLine.Client.Views"
         xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:helpers="clr-namespace:ChargePadLine.Client.Helpers"
         mc:Ignorable="d"
         Title="MES Client - 产线管理系统" Height="600" Width="1000"
         WindowStartupLocation="CenterScreen">
@@ -17,42 +18,25 @@
 
         <!-- 标题栏 -->
         <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="15" Margin="0,0,0,10">
-            <TextBlock Text="慧象MES产线客户端" 
+            <TextBlock Text="嘉和MES产线客户端" 
                       Style="{StaticResource HeaderText}"
                       Foreground="White"/>
         </Border>
 
         <!-- 主内容区 -->
         <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="75*"/>
+                <ColumnDefinition Width="25*"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- 操作按钮区 -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                <Button Content="测试连接" 
-                       Command="{Binding TestConnectionCommand}"
-                       Style="{StaticResource PrimaryButton}"
-                       Margin="0,0,10,0"/>
-                <TextBlock Text="{Binding StatusMessage}" 
-                          VerticalAlignment="Center"
-                          FontSize="14"
-                          Margin="10,0,0,0"
-                          Foreground="#666"/>
-            </StackPanel>
+            <!-- 左侧监控区 -->
+            <local:MonitorView Grid.Column="0" Margin="0,0,5,0"
+                               DataContext=""/>
 
-            <!-- API响应显示区 -->
-            <Border Grid.Row="1" 
-                   Style="{StaticResource Card}"
-                   Background="{StaticResource BackgroundBrush}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <TextBlock Text="{Binding ApiResponse}" 
-                              TextWrapping="Wrap"
-                              FontFamily="Consolas"
-                              FontSize="12"/>
-                </ScrollViewer>
-            </Border>
+            <!-- 右侧日志区 -->
+            <local:LogView Grid.Column="1" Margin="5,0,0,0"
+                           DataContext="{Binding LogViewModel}"/>
         </Grid>
 
         <!-- 状态栏 -->
