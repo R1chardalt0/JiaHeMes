@@ -136,7 +136,8 @@ namespace ChargePadLine.Service.Trace.Impl
           BomId = dto.BomId,
           ProcessRouteId = dto.ProcessRouteId,
           ProductType = dto.ProductType,
-          Remark = dto.Remark
+          Remark = dto.Remark,
+          CreateTime = DateTimeOffset.Now
         };
 
         // 保存产品
@@ -190,6 +191,7 @@ namespace ChargePadLine.Service.Trace.Impl
         existingProduct.ProcessRouteId = dto.ProcessRouteId;
         existingProduct.ProductType = dto.ProductType;
         existingProduct.Remark = dto.Remark;
+        existingProduct.UpdateTime = DateTimeOffset.Now;
 
         // 保存更新
         var result = await _productListRepo.UpdateAsync(existingProduct);
