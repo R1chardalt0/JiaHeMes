@@ -15,6 +15,8 @@ namespace ChargePadLine.Service.Trace.Dto
         public List<ParameterData> updateParams { get; set; }
     }
 
+
+
     public class RequestBGUpadteParams
     {
         public string deviceEnCode { get; set; }
@@ -73,5 +75,53 @@ namespace ChargePadLine.Service.Trace.Dto
         /// 产品参数组
         /// </summary>
         public List<ParameterData>? parametricDataArray { get; set; } = new List<ParameterData>();
+    }
+
+    public class RequestUploadCheckParams
+    {
+        /// <summary>
+        /// SN
+        /// </summary>
+        public string SN { get; set; }
+        /// <summary>
+        /// 设备资源标识
+        /// </summary>
+        public string Resource { get; set;}
+        /// <summary>
+        /// 站点
+        /// </summary>
+        public string StationCode { get; set; }
+        /// <summary>
+        /// 工单编号
+        /// </summary>
+        public string WorkOrderCode { get; set; }
+        /// <summary>
+        /// 测试结果
+        /// </summary>
+         public string TestResult { get; set; }
+        /// <summary>
+        /// 测试数据JSON
+        /// </summary>
+         public string TestData { get; set; }
+    }
+    public class RequestMaterialLoadedParams
+    {
+        /// <summary>
+        /// 设备资源标识
+        /// </summary>
+        public string Resource { get; set; }
+        /// <summary>
+        /// 站点
+        /// </summary>
+        public string StationCode { get; set; }
+        /// <summary>
+        /// 工单编号
+        /// </summary>
+        public string WorkOrderCode { get; set; }
+        /// <summary>
+        /// 批次号
+        /// </summary>
+         public string BatchNo { get; set; }
+        
     }
 }
