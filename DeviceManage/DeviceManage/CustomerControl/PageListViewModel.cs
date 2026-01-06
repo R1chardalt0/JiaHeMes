@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 using Prism.Commands;
@@ -26,7 +27,11 @@ public class PageListViewModel : BindableBase
     public int PageIndex
     {
         get => _pageIndex;
-        set => SetProperty(ref _pageIndex, value);
+        set
+        {
+            SetProperty(ref _pageIndex, value);
+            UpdatePaginationButtons();
+        }
     }
 
     private int _totalPage;
@@ -37,18 +42,52 @@ public class PageListViewModel : BindableBase
     public int TotalPage
     {
         get => _totalPage;
-        set => SetProperty(ref _totalPage, value);
+        set
+        {
+            SetProperty(ref _totalPage, value);
+            UpdatePaginationButtons();
+        }
+    }
+
+    private bool _canGoToPreviousPage;
+    /// <summary>
+    /// 是否可以点击上一页
+    /// </summary>
+    public bool CanGoToPreviousPage
+    {
+        get => _canGoToPreviousPage;
+        set => SetProperty(ref _canGoToPreviousPage, value);
+    }
+
+    private bool _canGoToNextPage;
+    /// <summary>
+    /// 是否可以点击下一页
+    /// </summary>
+    public bool CanGoToNextPage
+    {
+        get => _canGoToNextPage;
+        set => SetProperty(ref _canGoToNextPage, value);
+    }
+
+    /// <summary>
+    /// 更新分页按钮状态
+    /// </summary>
+    private void UpdatePaginationButtons()
+    {
+        CanGoToPreviousPage = PageIndex > 1;
+        CanGoToNextPage = PageIndex < TotalPage && TotalPage > 0;
     }
 
     public PageListViewModel()
     {
         PageSizeChangedCommand = new(PageSizeChanged);
+        UpdatePaginationButtons();
     }
 
     /// <summary>
     /// 分页按钮点击时，触发对外绑定的事件
     /// </summary>
-    public DelegateCommand PageChangedCommand { get; set; }
+    public DelegateCommand<object> PageChangedCommand { get; set; }
 
     /// <summary>
     /// 分页大小发生改变时
@@ -58,7 +97,7 @@ public class PageListViewModel : BindableBase
     void PageSizeChanged()
     {
         PageIndex = 1;
-        PageChangedCommand.Execute();
+        PageChangedCommand?.Execute(null);
     }
 
     public ObservableCollection<PageButtonItem> Buttons { get; set; } = new();
@@ -130,7 +169,7 @@ public class PageListViewModel : BindableBase
         }
 
         // 触发分页事件
-        PageChangedCommand.Execute();
+        PageChangedCommand?.Execute(null);
     }
     /// <summary>
     /// 点击页面上第一个页码，需要重新生成新的页码

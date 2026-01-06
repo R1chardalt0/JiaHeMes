@@ -54,7 +54,7 @@ namespace DeviceManage.ViewModels
                 PageSize = 20,
                 PageIndex = 1
             };
-            PageVM.PageChangedCommand = new DelegateCommand(async () => await LoadAsync());
+            PageVM.PageChangedCommand = new DelegateCommand<object>(async (param) => await HandlePageChangedAsync(param));
             PageVM.PageSizeChangedCommand = new DelegateCommand(async () => await LoadAsync());
 
             LoadCommand = new DelegateCommand(async () => await LoadAsync());
@@ -73,6 +73,42 @@ namespace DeviceManage.ViewModels
             });
 
             _ = LoadAsync();
+        }
+
+        /// <summary>
+        /// 处理分页变化
+        /// </summary>
+        private async Task HandlePageChangedAsync(object parameter)
+        {
+            if (parameter is int pageParam)
+            {
+                if (pageParam == int.MinValue)
+                {
+                    // 上一页
+                    if (PageVM.PageIndex > 1)
+                    {
+                        PageVM.PageIndex--;
+                    }
+                    else
+                    {
+                        return; // 已经是第一页，不执行操作
+                    }
+                }
+                else if (pageParam == int.MaxValue)
+                {
+                    // 下一页
+                    if (PageVM.PageIndex < PageVM.TotalPage)
+                    {
+                        PageVM.PageIndex++;
+                    }
+                    else
+                    {
+                        return; // 已经是最后一页，不执行操作
+                    }
+                }
+            }
+            // 执行加载
+            await LoadAsync();
         }
 
         private async Task LoadAsync()

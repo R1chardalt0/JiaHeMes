@@ -18,6 +18,7 @@
             <conv:BooleanToColorConverter x:Key="BooleanToColorConverter"/>
             <conv:BooleanToIndexConverter x:Key="BooleanToIndexConverter"/>
             <conv:SearchStatusToIndexConverter x:Key="SearchStatusToIndexConverter"/>
+            <conv:SearchRoleToIndexConverter x:Key="SearchRoleToIndexConverter"/>
             <conv:UserRoleConverter x:Key="UserRoleConverter"/>
             <conv:UserRoleDisplayConverter x:Key="UserRoleDisplayConverter"/>
         </ResourceDictionary>
@@ -79,13 +80,13 @@
                 <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,10,10">
                     <Label Content="角色:" FontSize="12" Margin="0,0,0,5"/>
                     <ComboBox Height="30" 
-                              ItemsSource="{Binding SearchRoleList}"
-                              SelectedItem="{Binding SearchRole.Value, Mode=TwoWay}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource UserRoleDisplayConverter}}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
+                              SelectedIndex="{Binding SearchRole.Value, Converter={StaticResource SearchRoleToIndexConverter}, Mode=TwoWay}">
+                        <ComboBoxItem Content="全部"/>
+                        <ComboBoxItem Content="管理员"/>
+                        <ComboBoxItem Content="工艺工程师"/>
+                        <ComboBoxItem Content="设备管理工程师"/>
+                        <ComboBoxItem Content="班长"/>
+                        <ComboBoxItem Content="操作员"/>
                     </ComboBox>
                 </StackPanel>
 

@@ -100,7 +100,7 @@ namespace DeviceManage.ViewModels
                 Total = 0,
                 TotalPage = 0
             };
-            PageListViewModel.PageChangedCommand = new DelegateCommand(async () => await LoadAsync());
+            PageListViewModel.PageChangedCommand = new DelegateCommand<object>(async (param) => await HandlePageChangedAsync(param));
             PageListViewModel.PageSizeChangedCommand = new DelegateCommand(async () => await LoadAsync());
 
             // 初始化命令
@@ -170,6 +170,42 @@ namespace DeviceManage.ViewModels
             {
                 _logger.LogError(ex, "加载下拉框数据失败");
             }
+        }
+
+        /// <summary>
+        /// 处理分页变化
+        /// </summary>
+        private async Task HandlePageChangedAsync(object parameter)
+        {
+            if (parameter is int pageParam)
+            {
+                if (pageParam == int.MinValue)
+                {
+                    // 上一页
+                    if (PageListViewModel.PageIndex > 1)
+                    {
+                        PageListViewModel.PageIndex--;
+                    }
+                    else
+                    {
+                        return; // 已经是第一页，不执行操作
+                    }
+                }
+                else if (pageParam == int.MaxValue)
+                {
+                    // 下一页
+                    if (PageListViewModel.PageIndex < PageListViewModel.TotalPage)
+                    {
+                        PageListViewModel.PageIndex++;
+                    }
+                    else
+                    {
+                        return; // 已经是最后一页，不执行操作
+                    }
+                }
+            }
+            // 执行加载
+            await LoadAsync();
         }
 
         /// <summary>
