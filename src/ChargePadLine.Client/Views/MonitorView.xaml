@@ -75,7 +75,7 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe6e1;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">电机腔气密测试/导热胶涂敷</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
@@ -83,8 +83,8 @@
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6e2;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">FCT性能测试/热铆</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
@@ -92,8 +92,8 @@
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6ee;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">后盖超声波焊接/干区气密测试</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
@@ -101,8 +101,8 @@
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6e7;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">转子充磁与装配</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
@@ -110,8 +110,8 @@
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6ed;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">测功机</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
@@ -119,8 +119,8 @@
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6fb;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">止推垫片装配/超声波焊接</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
@@ -128,8 +128,8 @@
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe710;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">旋融焊</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
@@ -137,8 +137,8 @@
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe713;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">湿区气密测试</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
@@ -146,8 +146,17 @@
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe703;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">EOL测试</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe719;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">激光刻/支架安装/打包</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
