@@ -1,9 +1,9 @@
 export interface PagedResult<T> {
-    code: number;
-    msg: string;
-    success: boolean; // 添加success属性
-    data: T[];       // 直接返回数据数组而非嵌套对象
-    total: number;   // 将total提升到根级别
+  code: number;
+  msg: string;
+  success: boolean; // 添加success属性
+  data: T[];       // 直接返回数据数组而非嵌套对象
+  total: number;   // 将total提升到根级别
 }
 export interface BaseResponse<T = any> {
   code: number;
@@ -23,11 +23,12 @@ export interface DeviceInfo {
   description?: string;
   createTime?: string;
   updateTime?: string;
+  workOrderCode?: string; // 新增字段
   createBy?: string; // 新增字段
   updateBy?: string; // 新增字段
   remark?: string; // 新增字段
-  avatar?: string; // 新增字段
-  devicePicture?: string; // 新增字段
+  avatar?: string | null; // 允许为null
+  devicePicture?: string | null; // 允许为null
   deviceType?: string; // 新增字段
   deviceManufacturer?: string; // 新增字段
   expireTime?: number; // 新增字段
@@ -44,6 +45,7 @@ export interface DeviceInfoQueryParams {
   deviceEnCode?: string;
   deviceType?: string;
   productionLineId?: string;
+  workOrderCode?: string;
   status?: string;
   startTime?: string;
   endTime?: string;
@@ -61,9 +63,10 @@ export interface DeviceInfoFormData {
   createBy?: string; // 新增字段
   updateBy?: string; // 新增字段
   remark?: string; // 新增字段
-  avatar: string; // 改为必需字段
-  devicePicture: string; // 改为必需字段
+  avatar?: string | null; // 允许为null
+  devicePicture?: string | null; // 允许为null
   deviceType: string; // 改为必需字段
   deviceManufacturer: string; // 改为必需字段
   expireTime?: number; // 新增字段
+  workOrderCode?: string; // 新增字段
 }

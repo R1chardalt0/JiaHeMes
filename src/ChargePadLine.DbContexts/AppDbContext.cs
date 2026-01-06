@@ -89,6 +89,7 @@ namespace ChargePadLine.DbContexts
         public DbSet<CtrlVsn> CtrlVs { get; set; }
 
         //工艺路线
+        public DbSet<StationList> StationList { get; set; }
         public DbSet<ProcessRoute> ProcessRoutes { get; set; }
         public DbSet<RoutingOperation> RoutingOperations { get; set; }
         public DbSet<ProductProcessState> ProductProcessStates { get; set; }

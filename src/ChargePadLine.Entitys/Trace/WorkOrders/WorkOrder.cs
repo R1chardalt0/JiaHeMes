@@ -80,14 +80,18 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
         #endregion
     }
 
-    public class WorkOrderEntityTypeConfiguration : IEntityTypeConfiguration<WorkOrder>
+  public class WorkOrderEntityTypeConfiguration : IEntityTypeConfiguration<WorkOrder>
+  {
+    public void Configure(EntityTypeBuilder<WorkOrder> builder)
     {
-        public void Configure(EntityTypeBuilder<WorkOrder> builder)
-        {
-            builder.OwnsOne(e => e.Code, e =>
-            {
-                e.HasIndex(e => e.Value);
-            });
-        }
+      // 配置Id为主键并设置为自增
+      builder.HasKey(e => e.Id);
+      builder.Property(e => e.Id).ValueGeneratedOnAdd();
+
+      builder.OwnsOne(e => e.Code, e =>
+      {
+        e.HasIndex(e => e.Value);
+      });
     }
+  }
 }

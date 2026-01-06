@@ -15,43 +15,50 @@ using ChargePadLine.Service.Trace.Impl;
 
 namespace ChargePadLine.Service
 {
-    public static class ServiceCollectionExtesion
+  public static class ServiceCollectionExtesion
+  {
+    public static IServiceCollection AddBusinessServices(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddBusinessServices(this IServiceCollection services, IConfiguration configuration)
-        {
-            #region System配置
-            services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IRoleService, RoleService>();
-            services.AddScoped<IMenuService, MenuService>();
-            services.AddScoped<IDeptService, DeptService>();
-            services.AddScoped<IPostService, PostService>();
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            #endregion
+      #region System配置
+      services.AddTransient<IUserService, UserService>();
+      services.AddTransient<IRoleService, RoleService>();
+      services.AddScoped<IMenuService, MenuService>();
+      services.AddScoped<IDeptService, DeptService>();
+      services.AddScoped<IPostService, PostService>();
+      services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+      #endregion
 
-            #region 业务配置
-            services.AddScoped<IDeviceInfoService, DeviceInfoService>();
-            services.AddScoped<IProductionLineService, ProductionLineService>();
-            services.AddScoped<IProductTraceInfoCollectionService, ProductTraceInfoCollectionService>();
-            services.AddScoped<IProductTraceInfoService, ProductTraceInfoService>();
-            services.AddScoped<IOperationLogService, OperationLogService>();
-            // 历史记录服务（使用ReportDbContext）
-            services.AddScoped<IHistoryProductTraceInfoService, HistoryProductTraceInfoService>();
-            #endregion
+      #region 业务配置
+      services.AddScoped<IDeviceInfoService, DeviceInfoService>();
+      services.AddScoped<IProductionLineService, ProductionLineService>();
+      services.AddScoped<IProductTraceInfoCollectionService, ProductTraceInfoCollectionService>();
+      services.AddScoped<IProductTraceInfoService, ProductTraceInfoService>();
+      services.AddScoped<IOperationLogService, OperationLogService>();
+      // 历史记录服务（使用ReportDbContext）
+      services.AddScoped<IHistoryProductTraceInfoService, HistoryProductTraceInfoService>();
+      // 工单服务
+      services.AddScoped<IWorkOrderService, WorkOrderService>();
 
-            #region 数据迁移服务配置
-            services.AddScoped<IMigrationService, MigrationServiceImpl>(sp =>
-            {
-                var appDbContext = sp.GetRequiredService<AppDbContext>();
-                var reportDbContext = sp.GetRequiredService<ReportDbContext>();
-                var logger = sp.GetRequiredService<ILogger<MigrationServiceImpl>>();
-                var migrationConfig = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ChargePadLine.Common.Config.MigrationConfig>>();
-                return new MigrationServiceImpl(appDbContext, reportDbContext, logger, migrationConfig);
-            });
+      // 追溯信息服务
+      services.AddScoped<ITraceInfoService, TraceInfoService>();
+      services.AddScoped<ITraceBomItemService, TraceBomItemService>();
+      services.AddScoped<ITraceProcItemService, TraceProcItemService>();
+      #endregion
 
-            // 添加数据迁移定时作业
-            services.AddMigrationQuartzJobs();
-            #endregion
-            return services;
-        }
+      #region 数据迁移服务配置
+      services.AddScoped<IMigrationService, MigrationServiceImpl>(sp =>
+      {
+        var appDbContext = sp.GetRequiredService<AppDbContext>();
+        var reportDbContext = sp.GetRequiredService<ReportDbContext>();
+        var logger = sp.GetRequiredService<ILogger<MigrationServiceImpl>>();
+        var migrationConfig = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ChargePadLine.Common.Config.MigrationConfig>>();
+        return new MigrationServiceImpl(appDbContext, reportDbContext, logger, migrationConfig);
+      });
+
+      // 添加数据迁移定时作业
+      services.AddMigrationQuartzJobs();
+      #endregion
+      return services;
     }
+  }
 }
