@@ -91,18 +91,18 @@ namespace DeviceManage.Helpers
                 if (result.IsSuccess)
                 {
                     _isConnected = true;
-                    _logger?.LogInformation(string.Format("S7Net连接成功 - IP: {0}, 端口: {1}", _ipAddress, _port));
+                    _logger?.LogInformation(string.Format($"S7Net连接成功 - IP: {0}, 端口: {1}", _ipAddress, _port));
                 }
                 else
                 {
-                    _logger?.LogError(string.Format("S7Net连接失败 - IP: {0}, 端口: {1}, 错误: {2}", _ipAddress, _port, result.Message));
+                    _logger?.LogError(string.Format($"S7Net连接失败 - IP: {0}, 端口: {1}, 错误: {2}", _ipAddress, _port, result.Message));
                 }
 
                 return result;
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net连接异常 - IP: {0}, 端口: {1}", _ipAddress, _port), ex);
+                _logger?.LogError(string.Format($"S7Net连接异常 - IP: {0}, 端口: {1}", _ipAddress, _port), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -120,12 +120,12 @@ namespace DeviceManage.Helpers
                 {
                     _s7net.ConnectClose();
                     _isConnected = false;
-                    _logger?.LogInformation(string.Format("S7Net已断开连接 - IP: {0}, 端口: {1}", _ipAddress, _port));
+                    _logger?.LogInformation(string.Format($"S7Net已断开连接 - IP: {0}, 端口: {1}", _ipAddress, _port));
                 }
             }
             catch (Exception ex)
             {
-                _logger?.LogError("S7Net断开连接异常", ex);
+                _logger?.LogError($"S7Net断开连接异常", ex);
             }
         }
 
@@ -153,7 +153,7 @@ namespace DeviceManage.Helpers
                 // 标记为重连中
                 _isReconnecting = true;
 
-                _logger?.LogInformation(string.Format("开始S7Net自动重连 - IP: {0}, 端口: {1}, 最大尝试次数: {2}", _ipAddress, _port, _maxReconnectAttempts));
+                _logger?.LogInformation(string.Format($"开始S7Net自动重连 - IP: {0}, 端口: {1}, 最大尝试次数: {2}", _ipAddress, _port, _maxReconnectAttempts));
 
                 // 尝试重连
                 for (int attempt = 0; attempt < _maxReconnectAttempts; attempt++)
@@ -182,11 +182,11 @@ namespace DeviceManage.Helpers
                         if (result.IsSuccess)
                         {
                             _isConnected = true;
-                            _logger?.LogInformation(string.Format("S7Net自动重连成功 - IP: {0}, 端口: {1}, 尝试次数: {2}", _ipAddress, _port, attempt + 1));
+                            _logger?.LogInformation(string.Format($"S7Net自动重连成功 - IP: {0}, 端口: {1}, 尝试次数: {2}", _ipAddress, _port, attempt + 1));
                             return true;
                         }
 
-                        _logger?.LogWarning(string.Format("S7Net自动重连失败 - IP: {0}, 端口: {1}, 尝试次数: {2}, 错误: {3}", _ipAddress, _port, attempt + 1, result.Message));
+                        _logger?.LogWarning(string.Format($"S7Net自动重连失败 - IP: {0}, 端口: {1}, 尝试次数: {2}, 错误: {3}", _ipAddress, _port, attempt + 1, result.Message));
 
                         // 如果不是最后一次尝试，则等待重连间隔
                         if (attempt < _maxReconnectAttempts - 1)
@@ -196,7 +196,7 @@ namespace DeviceManage.Helpers
                     }
                     catch (Exception ex)
                     {
-                        _logger?.LogWarning(string.Format("S7Net自动重连异常 - IP: {0}, 端口: {1}, 尝试次数: {2}, 错误: {3}", _ipAddress, _port, attempt + 1, ex.Message));
+                        _logger?.LogWarning(string.Format($"S7Net自动重连异常 - IP: {0}, 端口: {1}, 尝试次数: {2}, 错误: {3}", _ipAddress, _port, attempt + 1, ex.Message));
                         // 继续下一次尝试
                     }
                 }
@@ -204,7 +204,7 @@ namespace DeviceManage.Helpers
                 // 所有尝试都失败，将连接状态设置为false
                 _isConnected = false;
                 // 所有尝试都失败
-                _logger?.LogError(string.Format("S7Net自动重连全部失败 - IP: {0}, 端口: {1}, 最大尝试次数: {2}", _ipAddress, _port, _maxReconnectAttempts));
+                _logger?.LogError(string.Format($"S7Net自动重连全部失败 - IP: {0}, 端口: {1}, 最大尝试次数: {2}", _ipAddress, _port, _maxReconnectAttempts));
                 return false;
             }
             finally
@@ -242,7 +242,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入布尔值异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入布尔值异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -262,7 +262,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取byte异常 - 地址: {0}", address), ex);
+                _logger?.LogError(string.Format($"S7Net读取byte异常 - 地址: {0}", address), ex);
                 return new OperateResult<byte>(ex.Message);
             }
         }
@@ -281,7 +281,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取UInt16异常 - 地址: {0}", address), ex);
+                _logger?.LogError(string.Format($"S7Net读取UInt16异常 - 地址: {0}", address), ex);
                 return new OperateResult<ushort>(ex.Message);
             }
         }
@@ -300,7 +300,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取Int16异常 - 地址: {0}", address), ex);
+                _logger?.LogError(string.Format($"S7Net读取Int16异常 - 地址: {0}", address), ex);
                 return new OperateResult<short>(ex.Message);
             }
         }
@@ -319,7 +319,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取UInt32异常 - 地址: {0}", address), ex);
+                _logger?.LogError(string.Format($"S7Net读取UInt32异常 - 地址: {0}", address), ex);
                 return new OperateResult<uint>(ex.Message);
             }
         }
@@ -339,7 +339,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取Int32异常 - 地址: {0}", address), ex);
+                _logger?.LogError(string.Format($"S7Net读取Int32异常 - 地址: {0}", address), ex);
                 return new OperateResult<int>(ex.Message);
             }
         }
@@ -358,7 +358,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取UInt64异常 - 地址: {0}", address), ex);
+                _logger?.LogError(string.Format($"S7Net读取UInt64异常 - 地址: {0}", address), ex);
                 return new OperateResult<ulong>(ex.Message);
             }
         }
@@ -378,7 +378,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取Int64异常 - 地址: {0}", address), ex);
+                _logger?.LogError(string.Format($"S7Net读取Int64异常 - 地址: {0}", address), ex);
                 return new OperateResult<long>(ex.Message);
             }
         }
@@ -398,7 +398,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取Float异常 - 地址: {0}", address), ex);
+                _logger?.LogError(string.Format($"S7Net读取Float异常 - 地址: {0}", address), ex);
                 return new OperateResult<float>(ex.Message);
             }
         }
@@ -420,7 +420,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取Double异常 - 地址: {0}", address), ex);
+                _logger?.LogError(string.Format($"S7Net读取Double异常 - 地址: {0}", address), ex);
                 return new OperateResult<double>(ex.Message);
             }
         }
@@ -440,7 +440,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取字符串异常 - 地址: {0}, 长度: {1}", address, length), ex);
+                _logger?.LogError(string.Format($"S7Net读取字符串异常 - 地址: {0}, 长度: {1}", address, length), ex);
                 return new OperateResult<string>(ex.Message);
             }
         }
@@ -459,7 +459,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net读取布尔值异常 - 地址: {0}", address), ex);
+                _logger?.LogError(string.Format($"S7Net读取布尔值异常 - 地址: {0}", address), ex);
                 return new OperateResult<bool>(ex.Message);
             }
         }
@@ -477,7 +477,7 @@ namespace DeviceManage.Helpers
                 var result = _s7net.ReadInt16(startAddress, length);
                 if (!result.IsSuccess && !_isConnected && _autoReconnectEnabled && !_isReconnecting)
                 {
-                    _logger?.LogWarning(string.Format("S7Net批量读取Int16失败 - 地址: {0}, 长度: {1}, 错误: {2}", startAddress, length, result.Message));
+                    _logger?.LogWarning(string.Format($"S7Net批量读取Int16失败 - 地址: {0}, 长度: {1}, 错误: {2}", startAddress, length, result.Message));
                     if (TryReconnect())
                     {
                         result = _s7net.ReadInt16(startAddress, length);
@@ -488,7 +488,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net批量读取Int16异常 - 地址: {0}, 长度: {1}", startAddress, length), ex);
+                _logger?.LogError(string.Format($"S7Net批量读取Int16异常 - 地址: {0}, 长度: {1}", startAddress, length), ex);
                 return new OperateResult<short[]>(ex.Message);
             }
         }
@@ -506,7 +506,7 @@ namespace DeviceManage.Helpers
                 var result = _s7net.ReadFloat(startAddress, length);
                 if (!result.IsSuccess && !_isConnected && _autoReconnectEnabled && !_isReconnecting)
                 {
-                    _logger?.LogWarning(string.Format("S7Net批量读取Float失败 - 地址: {0}, 长度: {1}, 错误: {2}", startAddress, length, result.Message));
+                    _logger?.LogWarning(string.Format($"S7Net批量读取Float失败 - 地址: {0}, 长度: {1}, 错误: {2}", startAddress, length, result.Message));
                     if (TryReconnect())
                     {
                         result = _s7net.ReadFloat(startAddress, length);
@@ -517,7 +517,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net批量读取Float异常 - 地址: {0}, 长度: {1}", startAddress, length), ex);
+                _logger?.LogError(string.Format($"S7Net批量读取Float异常 - 地址: {0}, 长度: {1}", startAddress, length), ex);
                 return new OperateResult<float[]>(ex.Message);
             }
         }
@@ -538,7 +538,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入byte异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入byte异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -558,7 +558,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入UInt16异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入UInt16异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -578,7 +578,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入Int16异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入Int16异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -598,7 +598,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入UInt32异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入UInt32异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -618,7 +618,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入Int32异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入Int32异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -638,7 +638,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入UInt64异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入UInt64异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -658,7 +658,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入Int64异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入Int64异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -679,7 +679,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入Float异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入Float异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -700,7 +700,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入Double异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入Double异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -720,7 +720,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -734,7 +734,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -748,7 +748,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }
@@ -762,7 +762,7 @@ namespace DeviceManage.Helpers
             }
             catch (Exception ex)
             {
-                _logger?.LogError(string.Format("S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
+                _logger?.LogError(string.Format($"S7Net写入字符串异常 - 地址: {0}, 值: {1}", address, value), ex);
                 return new OperateResult(ex.Message);
             }
         }

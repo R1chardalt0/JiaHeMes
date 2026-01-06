@@ -271,6 +271,10 @@ namespace DeviceManage.ViewModels
                     var addedUser = await _userService.AddUserAsync(newUser);
                     _logger.LogInformation($"成功新增用户 - ID: {addedUser.Id}, 用户名: {addedUser.Username}");
                     MessageBox.Show($"用户 \"{addedUser.Username}\" 已成功新增！", "新增成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    // 新增后需要重新加载，因为新数据需要添加到列表中
+                    await LoadUsersAsync();
+                    SelectedUser.Value = new User();
                 }
                 else
                 {
@@ -297,10 +301,46 @@ namespace DeviceManage.ViewModels
                     var updatedUser = await _userService.UpdateUserAsync(userToUpdate);
                     _logger.LogInformation($"成功更新用户 - ID: {updatedUser.Id}, 用户名: {updatedUser.Username}");
                     MessageBox.Show($"用户 \"{updatedUser.Username}\" 已成功更新！", "更新成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    // 编辑后，只更新列表中的对应项，保持数据在原位置
+                    var userInList = Users.Value.FirstOrDefault(u => u.Id == updatedUser.Id);
+                    if (userInList != null)
+                    {
+                        // 保存原位置
+                        var index = Users.Value.IndexOf(userInList);
+                        
+                        // 创建新对象，复制所有更新后的属性
+                        var updatedUserInList = new User
+                        {
+                            Id = updatedUser.Id,
+                            Username = updatedUser.Username,
+                            RoleString = updatedUser.RoleString,
+                            RealName = updatedUser.RealName,
+                            Email = updatedUser.Email,
+                            Phone = updatedUser.Phone,
+                            IsEnabled = updatedUser.IsEnabled,
+                            Remarks = updatedUser.Remarks,
+                            LastLoginAt = updatedUser.LastLoginAt,
+                            CreatedAt = updatedUser.CreatedAt,
+                            UpdatedAt = updatedUser.UpdatedAt,
+                            IsDeleted = updatedUser.IsDeleted,
+                            DeletedAt = updatedUser.DeletedAt
+                        };
+                        
+                        // 替换列表中的对象，触发 ObservableCollection 的更新通知
+                        Users.Value[index] = updatedUserInList;
+                        
+                        // 保持选中状态
+                        SelectedUser.Value = updatedUserInList;
+                    }
+                    else
+                    {
+                        // 如果找不到（可能在其他页），则重新加载
+                        await LoadUsersAsync();
+                        SelectedUser.Value = new User();
+                    }
                 }
 
-                await LoadUsersAsync();
-                SelectedUser.Value = new User();
                 CloseDialog();
             }
             catch (Exception ex)

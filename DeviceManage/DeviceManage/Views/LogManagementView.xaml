@@ -85,6 +85,7 @@
                     <Button Content="上一页" 
                             Command="{Binding PageChangedCommand}"
                             CommandParameter="{x:Static sys:Int32.MinValue}"
+                            IsEnabled="{Binding CanGoToPreviousPage}"
                             Style="{StaticResource ButtonDashedInfo}"
                             Margin="0,0,10,0"/>
 
@@ -98,6 +99,7 @@
                     <Button Content="下一页" 
                             Command="{Binding PageChangedCommand}"
                             CommandParameter="{x:Static sys:Int32.MaxValue}"
+                            IsEnabled="{Binding CanGoToNextPage}"
                             Style="{StaticResource ButtonDashedInfo}"/>
                 </StackPanel>
             </Grid>

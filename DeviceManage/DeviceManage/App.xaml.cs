@@ -25,6 +25,7 @@ namespace DeviceManage
         private IConfiguration? _configuration;
         private Mutex? _mutex;
         private const string MutexName = "设备管理软件";
+        private Helpers.IdleDetectionService? _idleDetectionService;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -63,6 +64,15 @@ namespace DeviceManage
                 //使用pgSql
                 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
                 InitializeDatabaseAndStartServices(_serviceProvider);
+
+                // 启动空闲检测服务（根据配置决定是否启用）
+                var idleDetectionEnabled = _configuration.GetValue<bool>("IdleDetection:Enabled", true);
+                if (idleDetectionEnabled)
+                {
+                    var idleTimeoutMinutes = _configuration.GetValue<int>("IdleDetection:TimeoutMinutes", 3);
+                    _idleDetectionService = new Helpers.IdleDetectionService(idleTimeoutMinutes: idleTimeoutMinutes);
+                    _idleDetectionService.Start();
+                }
 
                 var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
                 loginWindow.Show();
@@ -134,6 +144,10 @@ namespace DeviceManage
 
         protected override void OnExit(ExitEventArgs e)
         {
+            // 停止空闲检测服务
+            _idleDetectionService?.Stop();
+            _idleDetectionService?.Dispose();
+            
             _serviceProvider?.Dispose();
             _mutex?.ReleaseMutex();
             _mutex?.Dispose();
