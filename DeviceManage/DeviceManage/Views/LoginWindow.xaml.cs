@@ -118,6 +118,8 @@ namespace DeviceManage.Views
                 _ = ShowTopToastAsync("登录成功");
 
                 var mainWindow = new MainWindow(_mainViewModel);
+                // 设置主窗口为全屏（最大化）
+                mainWindow.WindowState = WindowState.Maximized;
                 mainWindow.Show();
 
                 Close();
