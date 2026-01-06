@@ -409,14 +409,49 @@ namespace DeviceManage.ViewModels
                 {
                     await _tagSvc.AddTagAsync(entity);
                     MessageBox.Show("新增成功！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    // 新增后需要重新加载，因为新数据需要添加到列表中
+                    await LoadAsync();
                 }
                 else
                 {
-                    await _tagSvc.UpdateTagAsync(entity);
+                    var updatedTag = await _tagSvc.UpdateTagAsync(entity);
                     MessageBox.Show("更新成功！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    // 编辑后，只更新列表中的对应项，保持数据在原位置
+                    var existingTag = Tags.Value.FirstOrDefault(t => t.Id == updatedTag.Id);
+                    if (existingTag != null)
+                    {
+                        // 保存原位置
+                        var index = Tags.Value.IndexOf(existingTag);
+                        
+                        // 创建新对象，复制所有更新后的属性
+                        var updatedTagInList = new Tag
+                        {
+                            Id = updatedTag.Id,
+                            PlcTagName = updatedTag.PlcTagName,
+                            PlcDeviceId = updatedTag.PlcDeviceId,
+                            PlcDevice = updatedTag.PlcDevice,
+                            RecipeId = updatedTag.RecipeId,
+                            Recipe = updatedTag.Recipe,
+                            Remarks = updatedTag.Remarks,
+                            TagDetailDataArray = updatedTag.TagDetailDataArray,
+                            CreatedAt = updatedTag.CreatedAt,
+                            UpdatedAt = updatedTag.UpdatedAt
+                        };
+                        
+                        // 替换列表中的对象，触发 ObservableCollection 的更新通知
+                        Tags.Value[index] = updatedTagInList;
+                        
+                        // 保持选中状态
+                        SelectedTag.Value = updatedTagInList;
+                    }
+                    else
+                    {
+                        // 如果找不到（可能在其他页），则重新加载
+                        await LoadAsync();
+                    }
                 }
-
-                await LoadAsync();
+                
                 Close();
             }
             catch (Exception ex)
