@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.WebApi.Controllers.Trace
 {
-  public class DeviceinfoController : BaseController
+  public class DeviceinfoController : ControllerBase
   {
     private readonly IDeviceInfoService _deviceInfoService;
 

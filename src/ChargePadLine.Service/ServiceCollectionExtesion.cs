@@ -43,6 +43,9 @@ namespace ChargePadLine.Service
       services.AddScoped<ITraceInfoService, TraceInfoService>();
       services.AddScoped<ITraceBomItemService, TraceBomItemService>();
       services.AddScoped<ITraceProcItemService, TraceProcItemService>();
+
+      // 产品列表服务
+      services.AddScoped<IProductListService, ProductListService>();
       #endregion
 
       #region 数据迁移服务配置
