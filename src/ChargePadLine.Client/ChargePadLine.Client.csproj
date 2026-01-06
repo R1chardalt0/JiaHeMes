@@ -12,12 +12,21 @@
 
 	<ItemGroup>
 		<PackageReference Include="HandyControl" Version="3.5.1" />
+		<PackageReference Include="HslCommunication" Version="12.3.1" />
+		<PackageReference Include="log4net" Version="3.2.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="Prism.Wpf" Version="9.0.537" />
+		<PackageReference Include="ReactiveProperty" Version="9.8.0" />
+		<PackageReference Include="ReactiveUI" Version="22.3.1" />
+		<PackageReference Include="SQLite" Version="3.13.0" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -32,6 +41,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="font\iconfont.ttf" />
 	  <None Remove="font\logo48X48.ico" />
 	</ItemGroup>
 
@@ -40,8 +50,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Resource Include="font\iconfont.ttf">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Resource>
 	  <Resource Include="font\logo48X48.ico">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Resource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="log4net.config">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 </Project>

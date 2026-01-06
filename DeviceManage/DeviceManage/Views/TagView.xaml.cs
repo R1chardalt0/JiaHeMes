@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Collections.ObjectModel;
@@ -110,6 +111,68 @@ namespace DeviceManage.Views
             if (parent == null) return null;
             if (parent is T) return parent as T;
             return FindParent<T>(parent);
+        }
+
+        private void DataTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // 当数据类型改变时，强制刷新 DataGrid 以更新 Value 列的显示
+            if (sender is ComboBox comboBox && comboBox.DataContext is TagDetailRow row)
+            {
+                // 找到同一行的 Value 列单元格并强制刷新其绑定
+                var dataGridRow = FindParent<DataGridRow>(comboBox);
+                if (dataGridRow != null)
+                {
+                    // 遍历该行的所有单元格，找到 Value 列的单元格
+                    for (int i = 0; i < TagDetailDataGrid.Columns.Count; i++)
+                    {
+                        var column = TagDetailDataGrid.Columns[i];
+                        if (column is DataGridTemplateColumn templateColumn && templateColumn.Header?.ToString() == "值")
+                        {
+                            var cell = GetCell(dataGridRow, i);
+                            if (cell != null)
+                            {
+                                // 强制刷新该单元格的内容
+                                cell.UpdateLayout();
+                            }
+                        }
+                    }
+                    
+                    // 强制刷新整个 DataGrid
+                    TagDetailDataGrid.UpdateLayout();
+                }
+            }
+        }
+
+        private DataGridCell GetCell(DataGridRow row, int columnIndex)
+        {
+            if (row == null) return null;
+            
+            var presenter = FindVisualChild<DataGridCellsPresenter>(row);
+            if (presenter == null) return null;
+            
+            return presenter.ItemContainerGenerator.ContainerFromIndex(columnIndex) as DataGridCell;
+        }
+
+        private static T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) return null;
+            
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T result)
+                {
+                    return result;
+                }
+                
+                var childOfChild = FindVisualChild<T>(child);
+                if (childOfChild != null)
+                {
+                    return childOfChild;
+                }
+            }
+            
+            return null;
         }
     }
 }

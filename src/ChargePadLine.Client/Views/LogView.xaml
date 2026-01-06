@@ -1,0 +1,42 @@
+<UserControl x:Class="ChargePadLine.Client.Views.LogView"     
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:hc="https://handyorg.github.io/handycontrol">
+    <Border Background="{DynamicResource RegionBrush}">
+        <DockPanel>
+            <TextBlock DockPanel.Dock="Top" 
+                   Text="{Binding Header.Value}" 
+                   Style="{StaticResource TextBlockTitle}" FontFamily="Microsoft YaHei" FontWeight="Heavy"/>
+            <hc:ScrollViewer 
+                 Name="scroll"
+                 ScrollChanged="Scroll_ScrollChanged"
+                 HorizontalScrollBarVisibility="Auto" 
+                 VerticalScrollBarVisibility="Auto" 
+                >
+                <ItemsControl ItemsSource="{Binding Logs}">
+                    <ItemsControl.ItemTemplate >
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" >
+                                <StackPanel.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Level}" Value="Warning">
+                                                <Setter Property="Foreground" Value="Orange"></Setter>
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding Level}" Value="Error">
+                                                <Setter Property="Foreground" Value="Red"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Resources>
+                                <TextBlock Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss.ff}:}"/>
+                                <TextBlock Text="{Binding Content}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </hc:ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>
