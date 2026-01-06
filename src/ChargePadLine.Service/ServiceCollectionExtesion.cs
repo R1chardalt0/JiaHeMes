@@ -46,6 +46,10 @@ namespace ChargePadLine.Service
 
       // 产品列表服务
       services.AddScoped<IProductListService, ProductListService>();
+      // BOM列表服务
+      services.AddScoped<IBomListService, BomListService>();
+      // BOM明细服务
+      services.AddScoped<IBomItemService, BomItemService>();
       #endregion
 
       #region 数据迁移服务配置

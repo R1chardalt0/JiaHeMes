@@ -8,6 +8,7 @@ using ChargePadLine.Entitys.Trace.QualityManagement;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
 using ChargePadLine.Entitys.Trace.TraceInformation;
 using ChargePadLine.Entitys.Trace.WorkOrders;
+using ChargePadLine.Entitys.Trace.BOM;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -104,6 +105,10 @@ namespace ChargePadLine.DbContexts
 
     //产品列表
     public DbSet<ProductList> ProductList { get; set; }
+
+    //BOM管理
+    public DbSet<BomList> BomList { get; set; }
+    public DbSet<BomItem> BomItem { get; set; }
     #endregion
 
     #region 库存管理
