@@ -1,4 +1,3 @@
-using ChargePadLine.Entitys.Trace.WorkOrders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,41 +7,48 @@ using System.Threading.Tasks;
 namespace ChargePadLine.Service.Trace.Dto
 {
   /// <summary>
-  /// 工单数据传输对象
+  /// 站点数据传输对象
   /// </summary>
   public class StationListDto
-    {
-        public Guid StationId { get; set; }
+  {
+    /// <summary>
+    /// 站点ID
+    /// </summary>
+    public Guid StationId { get; set; }
 
-        /// <summary>
-        /// 工位名称
-        /// </summary>
-        public string StationName { get; set; } = "";
-        /// <summary>
-        /// 工位编号
-        /// </summary>
+    /// <summary>
+    /// 站点名称
+    /// </summary>
+    public string StationName { get; set; } = "";
 
-        public string StationCode { get; set; } = "";
+    /// <summary>
+    /// 站点编号
+    /// </summary>
+    public string StationCode { get; set; } = "";
 
+    /// <summary>
+    /// 创建者
+    /// </summary>
+    public string? CreateBy { get; set; }
 
-        /// <summary>
-        /// 创建时间起始（包含）
-        /// </summary>
-        public DateTime? StartTime { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTimeOffset? CreateTime { get; set; }
 
-        /// <summary>
-        /// 创建时间结束（包含）
-        /// </summary>
-        public DateTime? EndTime { get; set; }
+    /// <summary>
+    /// 更新者
+    /// </summary>
+    public string? UpdateBy { get; set; }
 
-        /// <summary>
-        /// 当前页码（最小值为1）
-        /// </summary>
-        public int Current { get; set; } = 1;
+    /// <summary>
+    /// 更新时间
+    /// </summary>
+    public DateTimeOffset? UpdateTime { get; set; }
 
-        /// <summary>
-        /// 每页记录数（最小值为1）
-        /// </summary>
-        public int PageSize { get; set; } = 10;
-    }
+    /// <summary>
+    /// 备注信息
+    /// </summary>
+    public string? Remark { get; set; }
+  }
 }

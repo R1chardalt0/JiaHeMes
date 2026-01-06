@@ -11,37 +11,37 @@ namespace ChargePadLine.Service.Trace.Dto
   /// 工单数据传输对象
   /// </summary>
   public class StationListQueryDto
-    {
-        public Guid StationId { get; set; }
+  {
+    public Guid StationId { get; set; }
 
-        /// <summary>
-        /// 工位名称
-        /// </summary>
-        public string StationName { get; set; } = "";
-        /// <summary>
-        /// 工位编号
-        /// </summary>
+    /// <summary>
+    /// 站点名称
+    /// </summary>
+    public string StationName { get; set; } = "";
+    /// <summary>
+    /// 站点编号
+    /// </summary>
 
-        public string StationCode { get; set; } = "";
+    public string StationCode { get; set; } = "";
 
-        /// <summary>
-        /// 创建时间起始（包含）
-        /// </summary>
-        public DateTime? StartTime { get; set; }
+    /// <summary>
+    /// 创建时间起始（包含）
+    /// </summary>
+    public DateTime? StartTime { get; set; }
 
-        /// <summary>
-        /// 创建时间结束（包含）
-        /// </summary>
-        public DateTime? EndTime { get; set; }
+    /// <summary>
+    /// 创建时间结束（包含）
+    /// </summary>
+    public DateTime? EndTime { get; set; }
 
-        /// <summary>
-        /// 当前页码（最小值为1）
-        /// </summary>
-        public int Current { get; set; } = 1;
+    /// <summary>
+    /// 当前页码（最小值为1）
+    /// </summary>
+    public int Current { get; set; } = 1;
 
-        /// <summary>
-        /// 每页记录数（最小值为1）
-        /// </summary>
-        public int PageSize { get; set; } = 10;
-    }
+    /// <summary>
+    /// 每页记录数（最小值为1）
+    /// </summary>
+    public int PageSize { get; set; } = 10;
+  }
 }

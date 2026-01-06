@@ -1,6 +1,3 @@
-﻿using ChargePadLine.Entitys.Trace;
-using ChargePadLine.Entitys.Trace.ProcessRouting;
-using ChargePadLine.Service;
 using ChargePadLine.Service.Trace.Dto;
 using System;
 using System.Collections.Generic;
@@ -10,58 +7,79 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Service.Trace
 {
-    public interface IStationListService
-    {
-        /// <summary>
-        /// 获取站点分页数据
-        /// </summary>
-        /// <param name="current"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="stationName"></param>
-        /// <param name="stationCode"></param>
-        /// <param name="startTime"></param>
-        /// <param name="endTime"></param>
-        /// <returns></returns>
-        Task<PaginatedList<StationListDto>> PaginationAsync(StationListQueryDto queryDto);
-        /// <summary>
-        /// 根据Id获取站点信息
-        /// </summary>
-        /// <param name="stationId"></param>
-        /// <returns></returns>
-        Task<StationListDto> GetStationInfoById(Guid stationId);
-        /// <summary>
-        /// 根据站点编码获取站点信息
-        /// </summary>
-        /// <param name="stationCode"></param>
-        /// <returns></returns>
-        Task<StationListDto> GetStationInfoByCode(string stationCode);
-        /// <summary>
-        /// 获取站点列表
-        /// </summary>
-        /// <returns></returns>
+  /// <summary>
+  /// 站点服务接口
+  /// </summary>
+  public interface IStationListService
+  {
+    /// <summary>
+    /// 创建站点
+    /// </summary>
+    /// <param name="dto">站点创建数据</param>
+    /// <returns>创建的站点信息</returns>
+    Task<StationListDto> CreateAsync(StationListCreateDto dto);
 
+    /// <summary>
+    /// 更新站点
+    /// </summary>
+    /// <param name="dto">站点更新数据</param>
+    /// <returns>更新后的站点信息</returns>
+    Task<StationListDto> UpdateAsync(StationListUpdateDto dto);
 
-        Task<StationListDto> CreateStationInfo(StationListDto dto);
-        /// <summary>
-        /// 修改站点信息
-        /// </summary>
-        /// <param name="stationInfo"></param>
-        /// <returns></returns>
+    /// <summary>
+    /// 删除站点
+    /// </summary>
+    /// <param name="stationId">站点ID</param>
+    /// <returns>是否删除成功</returns>
+    Task<bool> DeleteAsync(Guid stationId);
 
-        Task<StationListDto> UpdateStationInfo(StationListDto stationInfo);
+    /// <summary>
+    /// 获取站点详情
+    /// </summary>
+    /// <param name="stationId">站点ID</param>
+    /// <returns>站点详情</returns>
+    Task<StationListDto> GetByIdAsync(Guid stationId);
 
-        /// <summary>
-        /// 删除站点信息
-        /// </summary>
-        /// <param name="stationIds"></param>
-        /// <returns></returns>
-        Task<bool> DeleteStationInfoById(Guid id);
-        /// <summary>
-        /// 获取所有站点信息
-        /// </summary>
-        /// <returns></returns>
+    /// <summary>
+    /// 获取站点列表
+    /// </summary>
+    /// <param name="queryDto">查询条件</param>
+    /// <returns>分页结果</returns>
+    Task<(int Total, List<StationListDto> Items)> GetListAsync(StationListQueryDto queryDto);
 
-        Task<List<StationListDto>> GetAllStationInfos();
- 
-    }
+    /// <summary>
+    /// 分页查询站点列表
+    /// </summary>
+    /// <param name="queryDto">查询条件</param>
+    /// <returns>分页结果</returns>
+    Task<ChargePadLine.Service.PaginatedList<StationListDto>> PaginationAsync(StationListQueryDto queryDto);
+
+    /// <summary>
+    /// 根据ID获取站点详情
+    /// </summary>
+    /// <param name="stationId">站点ID</param>
+    /// <returns>站点详情</returns>
+    Task<StationListDto> GetStationInfoById(Guid stationId);
+
+    /// <summary>
+    /// 创建站点
+    /// </summary>
+    /// <param name="dto">站点信息</param>
+    /// <returns>创建的站点信息</returns>
+    Task<StationListDto> CreateStationInfo(StationListDto dto);
+
+    /// <summary>
+    /// 更新站点
+    /// </summary>
+    /// <param name="dto">站点信息</param>
+    /// <returns>更新后的站点信息</returns>
+    Task<StationListDto> UpdateStationInfo(StationListDto dto);
+
+    /// <summary>
+    /// 删除站点
+    /// </summary>
+    /// <param name="stationIds">站点ID列表</param>
+    /// <returns>删除成功的数量</returns>
+    Task<int> DeleteStationInfoById(Guid[] stationIds);
+  }
 }

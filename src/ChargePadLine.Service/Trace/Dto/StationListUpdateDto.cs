@@ -1,34 +1,38 @@
-using ChargePadLine.Entitys.Systems;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Entitys.Trace.ProcessRouting
+namespace ChargePadLine.Service.Trace.Dto
 {
   /// <summary>
-  /// 工艺路线表
+  /// 站点更新数据传输对象
   /// </summary>
-  [Table("mes_station_list")]
-  public class StationList : BaseEntity
+  public class StationListUpdateDto
   {
-
-    [Key]
+    /// <summary>
+    /// 站点ID
+    /// </summary>
+    [Required(ErrorMessage = "站点ID不能为空")]
     public Guid StationId { get; set; }
 
     /// <summary>
     /// 站点名称
     /// </summary>
+    [Required(ErrorMessage = "站点名称不能为空")]
     public string StationName { get; set; } = "";
+
     /// <summary>
     /// 站点编号
     /// </summary>
-
+    [Required(ErrorMessage = "站点编号不能为空")]
     public string StationCode { get; set; } = "";
 
-
+    /// <summary>
+    /// 备注信息
+    /// </summary>
+    public string? Remark { get; set; }
   }
 }
