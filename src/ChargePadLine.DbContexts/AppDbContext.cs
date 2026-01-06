@@ -2,6 +2,7 @@ using ChargePadLine.Entitys.Systems;
 using ChargePadLine.Entitys.Trace;
 using ChargePadLine.Entitys.Trace.InventoryManagement;
 using ChargePadLine.Entitys.Trace.ProcessRouting;
+using ChargePadLine.Entitys.Trace.Product;
 using ChargePadLine.Entitys.Trace.Production.BatchQueue;
 using ChargePadLine.Entitys.Trace.QualityManagement;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
@@ -108,6 +109,11 @@ namespace ChargePadLine.DbContexts
         public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
         public DbSet<InventoryStocktake> inventoryStocktakes { get; set; }
 
+
+        #endregion
+        #region 产品管理
+        public DbSet<ProductList>  productLists { get; set; }
+      
 
         #endregion
     }

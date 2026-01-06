@@ -43,6 +43,10 @@ namespace ChargePadLine.Service
       services.AddScoped<ITraceInfoService, TraceInfoService>();
       services.AddScoped<ITraceBomItemService, TraceBomItemService>();
       services.AddScoped<ITraceProcItemService, TraceProcItemService>();
+            //基础数据
+
+            services.AddScoped<ICommonInterfaseService, CommonInterfaseService>();
+
       #endregion
 
       #region 数据迁移服务配置
