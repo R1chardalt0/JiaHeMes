@@ -7,46 +7,161 @@
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:helpers="clr-namespace:ChargePadLine.Client.Helpers"
         mc:Ignorable="d"
-        Title="MES Client - 产线管理系统" Height="600" Width="1000"
-        WindowStartupLocation="CenterScreen">
-    <Grid Margin="10">
+        Title="MES Client - 产线管理系统" Height="720" Width="1180"
+        WindowStartupLocation="CenterScreen"
+        Background="{x:Static SystemColors.ControlBrush}">
+    <Grid Margin="18">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="111*"/>
+            <ColumnDefinition Width="0*"/>
+            <ColumnDefinition Width="0*"/>
+            <ColumnDefinition Width="1033*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="35*"/>
+            <RowDefinition Height="56*"/>
+            <RowDefinition Height="578*"/>
         </Grid.RowDefinitions>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#0F1B2C" Offset="0"/>
+                <GradientStop Color="#142E44" Offset="0.45"/>
+                <GradientStop Color="#0F1B2C" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
 
-        <!-- 标题栏 -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="15" Margin="0,0,0,10">
-            <TextBlock Text="嘉和MES产线客户端" 
-                      Style="{StaticResource HeaderText}"
-                      Foreground="White"/>
-        </Border>
+        <Border Background="#F8FBFF"
+                CornerRadius="14"
+                Padding="18"
+                Effect="{DynamicResource ShadowDepth3}" Grid.RowSpan="3" Grid.ColumnSpan="4" Margin="-18,-16,-16,-19">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="9*"/>
+                    <ColumnDefinition Width="1116*"/>
+                    <ColumnDefinition Width="13*"/>
+                    <ColumnDefinition Width="4*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="47*"/>
+                    <RowDefinition Height="485*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <!-- 主内容区 -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="75*"/>
-                <ColumnDefinition Width="25*"/>
-            </Grid.ColumnDefinitions>
+                <!-- 标题栏：保持系统窗口按钮，加入副标题与时间 -->
+                <Border Grid.Row="0"
+                        Background="{StaticResource PrimaryBrush}"
+                        CornerRadius="10"
+                        Padding="18,7"
+                        Margin="-10,-20,-10,14" Grid.ColumnSpan="4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-            <!-- 左侧监控区 -->
-            <local:MonitorView Grid.Column="0" Margin="0,0,5,0"
-                               DataContext=""/>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="嘉和MES产线客户端"
+                                       Style="{StaticResource HeaderText}"
+                                       Foreground="White"
+                                       FontSize="22"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,4"/>
+                            <TextBlock Text="产线状态 · 实时监控 · 快捷运维"
+                                       Foreground="#E5F2FF"
+                                       FontSize="12"/>
+                        </StackPanel>
 
-            <!-- 右侧日志区 -->
-            <local:LogView Grid.Column="1" Margin="5,0,0,0"
-                           DataContext="{Binding LogViewModel}"/>
-        </Grid>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#1E3652" CornerRadius="6" Padding="10,6" Margin="0,0,12,0">
+                                <TextBlock Text="{Binding CurrentTime, FallbackValue='--:--:--'}"
+                                           Foreground="#E5F2FF"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"/>
+                            </Border>
+                            <Border Background="#1E3652" CornerRadius="6" Padding="10,6">
+                                <TextBlock Text="{Binding CurrentShift, FallbackValue='当班次：A'}"
+                                           Foreground="#E5F2FF"
+                                           FontSize="13"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
 
-        <!-- 状态栏 -->
-        <Border Grid.Row="2" 
-               Background="#E0E0E0" 
-               Padding="10,5" 
-               Margin="0,10,0,0">
-            <TextBlock Text="就绪" 
-                      FontSize="12"
-                      Foreground="#666"/>
+                <!-- 主内容区 -->
+                <Grid Grid.ColumnSpan="4" Margin="0,60,0,69" Grid.RowSpan="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="411*"/>
+                        <ColumnDefinition Width="69*"/>
+                        <ColumnDefinition Width="91*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左侧监控区 -->
+                    <Border Grid.Column="0"
+                            Background="White"
+                            CornerRadius="12"
+                            Padding="10"
+                            Effect="{DynamicResource ShadowDepth1}" Margin="-15,-17,0,-20">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <local:MonitorView Grid.Row="1"
+                                               Margin="0"
+                                               DataContext=""/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 右侧日志区 -->
+                    <Border Grid.Column="1"
+                            Background="White"
+                            CornerRadius="12"
+                            Padding="10"
+                            Effect="{DynamicResource ShadowDepth1}"
+                            Margin="5,-17,-15,-20" Grid.ColumnSpan="2">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <local:LogView Grid.Row="1"
+                                           Margin="0"
+                                           DataContext="{Binding LogViewModel}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- 状态栏：CPU/内存/网络等实时状态 -->
+                <Border Grid.Row="3"
+                        Background="#0F1B2C"
+                        CornerRadius="10"
+                        Padding="12,10"
+                        Margin="-10,30,-10,-10" Grid.ColumnSpan="4">
+                    <UniformGrid Columns="4" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="CPU" Foreground="#8FB8FF" FontSize="12" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding SystemStatus.CpuUsage, StringFormat={}{0:P0}, FallbackValue=18%}"
+                                       Foreground="White" FontSize="14" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="内存" Foreground="#8FB8FF" FontSize="12" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding SystemStatus.MemoryUsage, StringFormat={}{0:P0}, FallbackValue=42%}"
+                                       Foreground="White" FontSize="14" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="网络" Foreground="#8FB8FF" FontSize="12" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding SystemStatus.NetworkSpeed, StringFormat={}{0} Mbps, FallbackValue=125 Mbps}"
+                                       Foreground="White" FontSize="14" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock Text="状态" Foreground="#8FB8FF" FontSize="12" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding SystemStatus.Health, FallbackValue=就绪}"
+                                       Foreground="#6EE7B7" FontSize="14" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </UniformGrid>
+                </Border>
+            </Grid>
         </Border>
     </Grid>
 </Window>

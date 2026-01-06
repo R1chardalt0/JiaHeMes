@@ -6,7 +6,7 @@
         <DockPanel>
             <TextBlock DockPanel.Dock="Top" 
                    Text="{Binding Header.Value}" 
-                   Style="{StaticResource TextBlockTitle}"/>
+                   Style="{StaticResource TextBlockTitle}" FontFamily="Microsoft YaHei" FontWeight="Heavy"/>
             <hc:ScrollViewer 
                  Name="scroll"
                  ScrollChanged="Scroll_ScrollChanged"

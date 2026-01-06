@@ -15,14 +15,55 @@
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="TextAlignment"  Value="Center"/>
         </Style>
+
+        <!-- Tab 高亮：选中(点击) / 悬停(鼠标 hover) -->
+        <Style x:Key="MonitorTabItemStyle" TargetType="TabItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <!-- TabItem 高度 -->
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter x:Name="ContentPresenter"
+                                              ContentSource="Header"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- 悬停高亮 -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1A2F80ED"/>
+                            </Trigger>
+                            <!-- 点击选中高亮 -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#332F80ED"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <Grid>
-        <TabControl TabStripPlacement="Left">
+        <TabControl TabStripPlacement="Left"
+                    ItemContainerStyle="{StaticResource MonitorTabItemStyle}">
             <TabItem>
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe8d8;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0">定子检测/O型圈及冷却</TextBlock>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">定子检测/O型圈及冷却</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
 
@@ -32,45 +73,45 @@
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0">业务2</TextBlock>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
-            <TabItem Height="28" VerticalAlignment="Bottom">
+            <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0">业务2</TextBlock>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
-            <TabItem Height="28" VerticalAlignment="Bottom">
+            <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0">业务2</TextBlock>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
-            <TabItem Height="28" VerticalAlignment="Bottom">
+            <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0">业务2</TextBlock>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
-            <TabItem Height="28" VerticalAlignment="Bottom">
+            <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe8d6;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0">业务2</TextBlock>
+                        <TextBlock Margin="5,0" VerticalAlignment="Center">业务2</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <Grid Background="#FFE5E5E5"/>
