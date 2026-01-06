@@ -59,6 +59,9 @@ namespace DeviceManage.ViewModels
         
         // DataType 下拉枚举数据源
         public ReactiveProperty<ObservableCollection<DataType>> DataTypes { get; }
+        
+        // Bool 类型的值选项（true/false）
+        public ObservableCollection<string> BoolValueOptions { get; }
 
         public TagViewModel(ITagService tagSvc, IPlcDeviceService plcDeviceSvc, IRecipeService recipeSvc, ILogger<TagViewModel> logger)
         {
@@ -88,6 +91,9 @@ namespace DeviceManage.ViewModels
             // 初始化 DataType 枚举列表
             var dataTypes = new ObservableCollection<DataType>(Enum.GetValues(typeof(DataType)).Cast<DataType>());
             DataTypes = new ReactiveProperty<ObservableCollection<DataType>>(dataTypes);
+            
+            // 初始化 Bool 值选项
+            BoolValueOptions = new ObservableCollection<string> { "true", "false" };
             
             // 订阅TagDetailRows变化，自动更新过滤结果（数据变化时自动重新过滤）
             TagDetailRows.Subscribe(_ => ApplyDetailFilter());
