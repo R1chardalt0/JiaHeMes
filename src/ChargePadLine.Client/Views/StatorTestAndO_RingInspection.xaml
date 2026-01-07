@@ -6,8 +6,11 @@
              xmlns:local="clr-namespace:ChargePadLine.Client.Views"
              xmlns:bar="clr-namespace:ChargePadLine.Client.CustomerControl"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             >
     <Grid>
-        <bar:TitleBar Text1="" Text2=" "/>
+        <StackPanel Orientation="Vertical">
+            <bar:TitleBar IconText="&#xe6fb;" TitleText="定子测试" />
+            <bar:TitleBar IconText="&#xe6fb;" TitleText="O型圈检测" />
+        </StackPanel>
     </Grid>
 </UserControl>
