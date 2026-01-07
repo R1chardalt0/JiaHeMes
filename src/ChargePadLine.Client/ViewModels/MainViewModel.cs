@@ -10,17 +10,21 @@ namespace ChargePadLine.Client.ViewModels;
 public class MainViewModel : ViewModelBase
 {
     private readonly ApiClient _apiClient;
+    private readonly MonitorViewModel _monitorViewModel;
     private string _statusMessage = "就绪";
     private string _apiResponse = "";
 
-    public MainViewModel(ApiClient apiClient)
+    public MainViewModel(ApiClient apiClient, MonitorViewModel monitorViewModel)
     {
         _apiClient = apiClient;
+        _monitorViewModel = monitorViewModel;
         LogViewModel = new LogViewModel();
         TestConnectionCommand = new RelayCommand(async () => await TestConnectionAsync());
     }
 
     public LogViewModel LogViewModel { get; }
+    
+    public MonitorViewModel MonitorViewModel => _monitorViewModel;
 
     public string StatusMessage
     {
