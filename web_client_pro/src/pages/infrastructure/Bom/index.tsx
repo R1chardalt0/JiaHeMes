@@ -1,7 +1,8 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions, ProForm } from '@ant-design/pro-components';
 import React, { useRef, useState, useCallback } from 'react';
-import { Button, Tabs, message, Card, Row, Col, Modal, Form, Input, Select, Switch } from 'antd';
+import { Button, Tabs, message, Card, Row, Col, Modal, Form, Input, Select, Switch, Popconfirm } from 'antd';
+import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getBomList, getBomById, createBom, updateBom, deleteBom } from '@/services/Api/Infrastructure/Bom/BomList';
 import { getBomItemsByBomId, createBomItem, updateBomItem, deleteBomItem, getBomItemById } from '@/services/Api/Infrastructure/Bom/BomItem';
 import { BomListDto, BomListQueryDto, BomListCreateDto, BomListUpdateDto } from '@/services/Model/Infrastructure/Bom/BomList';
@@ -35,13 +36,6 @@ const BomPage: React.FC = () => {
 
   // BOM列表表格列定义
   const columns: ProColumns<BomListDto>[] = [
-    {
-      title: 'BOM ID',
-      dataIndex: 'bomId',
-      key: 'bomId',
-      width: 180,
-      search: true
-    },
     {
       title: 'BOM名称',
       dataIndex: 'bomName',
@@ -92,28 +86,46 @@ const BomPage: React.FC = () => {
       render: (_, record) => (
         <>
           <Button
-            type="primary"
+            type="link"
             size="small"
+            icon={<EyeOutlined />}
             onClick={() => handleShowDetail(record)}
             style={{ marginRight: 8 }}
           >
             查看
           </Button>
           <Button
-            type="default"
+            type="link"
             size="small"
-            onClick={() => handleEditBom(record)}
+            icon={<EditOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditBom(record);
+            }}
             style={{ marginRight: 8 }}
           >
             编辑
           </Button>
-          <Button
-            danger
-            size="small"
-            onClick={() => handleDeleteBom(record.bomId)}
+          <Popconfirm
+            title="确认删除"
+            description="确定要删除该BOM吗？"
+            onConfirm={(e) => {
+              e?.stopPropagation();
+              handleDeleteBom(record.bomId);
+            }}
+            okText="确定"
+            cancelText="取消"
           >
-            删除
-          </Button>
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={(e) => e.stopPropagation()}
+            >
+              删除
+            </Button>
+          </Popconfirm>
         </>
       )
     }
@@ -457,20 +469,37 @@ const BomPage: React.FC = () => {
                         extra={
                           <div>
                             <Button
-                              type="primary"
+                              type="link"
                               size="small"
-                              onClick={() => handleEditBomItem(item)}
+                              icon={<EditOutlined />}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditBomItem(item);
+                              }}
                               style={{ marginRight: 8 }}
                             >
                               编辑
                             </Button>
-                            <Button
-                              danger
-                              size="small"
-                              onClick={() => handleDeleteBomItem(item.bomItemId)}
+                            <Popconfirm
+                              title="确认删除"
+                              description="确定要删除该BOM子项吗？"
+                              onConfirm={(e) => {
+                                e?.stopPropagation();
+                                handleDeleteBomItem(item.bomItemId);
+                              }}
+                              okText="确定"
+                              cancelText="取消"
                             >
-                              删除
-                            </Button>
+                              <Button
+                                type="link"
+                                size="small"
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                删除
+                              </Button>
+                            </Popconfirm>
                           </div>
                         }
                       >
@@ -616,8 +645,8 @@ const BomPage: React.FC = () => {
             rules={[{ required: true, message: '请选择状态' }]}
           >
             <Select placeholder="请选择状态">
-              <Option value={1}>启用</Option>
-              <Option value={0}>禁用</Option>
+              <Option value={1}>禁用</Option>
+              <Option value={0}>启用</Option>
             </Select>
           </Form.Item>
           <Form.Item

@@ -130,7 +130,7 @@ const ProductList: React.FC = () => {
       title: '备注',
       dataIndex: 'remark',
       key: 'remark',
-      ellipsis: true,
+      width: 200,
       search: false,
     },
     // {

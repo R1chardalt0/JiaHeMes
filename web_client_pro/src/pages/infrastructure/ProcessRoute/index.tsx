@@ -1,11 +1,14 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions } from '@ant-design/pro-components';
-import React, { useRef, useState, useCallback } from 'react';
-import { Button, Tabs, message, Card, Row, Col, Modal, Form, Input, Select, Switch } from 'antd';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
+import { Button, Tabs, message, Card, Row, Col, Modal, Form, Input, Select, Switch, Popconfirm } from 'antd';
+import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getProcessRouteList, getProcessRouteById, createProcessRoute, updateProcessRoute, deleteProcessRoute } from '@/services/Api/Infrastructure/ProcessRoute/ProcessRoute';
 import { getProcessRouteItemsByHeadId, createProcessRouteItem, updateProcessRouteItem, deleteProcessRouteItem, getProcessRouteItemById } from '@/services/Api/Infrastructure/ProcessRoute/ProcessRouteItem';
+import { getStationListList } from '@/services/Api/Infrastructure/StationList';
 import { ProcessRouteDto, ProcessRouteQueryDto, ProcessRouteCreateDto, ProcessRouteUpdateDto } from '@/services/Model/Infrastructure/ProcessRoute/ProcessRoute';
 import { ProcessRouteItem, ProcessRouteItemCreateDto, ProcessRouteItemUpdateDto } from '@/services/Model/Infrastructure/ProcessRoute/ProcessRouteItem';
+import { StationListDto } from '@/services/Model/Infrastructure/StationList';
 
 import type { RequestData } from '@ant-design/pro-components';
 
@@ -32,16 +35,33 @@ const ProcessRoutePage: React.FC = () => {
   const [processRouteForm] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [isAddProcessRouteModalVisible, setIsAddProcessRouteModalVisible] = useState(false);
+  // 站点列表状态
+  const [stations, setStations] = useState<StationListDto[]>([]);
+  const [stationLoading, setStationLoading] = useState(false);
+
+  // 获取工位列表
+  useEffect(() => {
+    const fetchStations = async () => {
+      if (isAddModalVisible || isEditModalVisible) {
+        try {
+          setStationLoading(true);
+          const res = await getStationListList({ current: 1, pageSize: 1000 });
+          if (res.data) {
+            setStations(res.data);
+          }
+        } catch (error) {
+          message.error('获取工位列表失败');
+          console.error('获取工位列表失败:', error);
+        } finally {
+          setStationLoading(false);
+        }
+      }
+    };
+    fetchStations();
+  }, [isAddModalVisible, isEditModalVisible]);
 
   // 工艺路线列表表格列定义
   const columns: ProColumns<ProcessRouteDto>[] = [
-    {
-      title: '工艺路线ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 180,
-      search: true
-    },
     {
       title: '工艺路线名称',
       dataIndex: 'routeName',
@@ -92,28 +112,46 @@ const ProcessRoutePage: React.FC = () => {
       render: (_, record) => (
         <>
           <Button
-            type="primary"
+            type="link"
             size="small"
+            icon={<EyeOutlined />}
             onClick={() => handleShowDetail(record)}
             style={{ marginRight: 8 }}
           >
             查看
           </Button>
           <Button
-            type="default"
+            type="link"
             size="small"
-            onClick={() => handleEditProcessRoute(record)}
+            icon={<EditOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditProcessRoute(record);
+            }}
             style={{ marginRight: 8 }}
           >
             编辑
           </Button>
-          <Button
-            danger
-            size="small"
-            onClick={() => handleDeleteProcessRoute(record.id)}
+          <Popconfirm
+            title="确认删除"
+            description="确定要删除该工艺路线吗？"
+            onConfirm={(e) => {
+              e?.stopPropagation();
+              handleDeleteProcessRoute(record.id);
+            }}
+            okText="确定"
+            cancelText="取消"
           >
-            删除
-          </Button>
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={(e) => e.stopPropagation()}
+            >
+              删除
+            </Button>
+          </Popconfirm>
         </>
       )
     }
@@ -294,6 +332,11 @@ const ProcessRoutePage: React.FC = () => {
     try {
       const values = await form.validateFields();
 
+      // 确保 checkStationList 是逗号分隔的字符串
+      const checkStationListValue = Array.isArray(values.checkStationList)
+        ? values.checkStationList.join(',')
+        : values.checkStationList;
+
       if (editingProcessRouteItem) {
         // 更新工艺路线子项
         const updatedItem: ProcessRouteItemUpdateDto = {
@@ -301,7 +344,7 @@ const ProcessRoutePage: React.FC = () => {
           headId: currentRow?.id,
           stationCode: values.stationCode,
           mustPassStation: values.mustPassStation,
-          checkStationList: values.checkStationList,
+          checkStationList: checkStationListValue,
           firstStation: values.firstStation,
           checkAll: values.checkAll
         };
@@ -315,7 +358,7 @@ const ProcessRoutePage: React.FC = () => {
           headId: currentRow?.id,
           stationCode: values.stationCode,
           mustPassStation: values.mustPassStation,
-          checkStationList: values.checkStationList,
+          checkStationList: checkStationListValue,
           firstStation: values.firstStation,
           checkAll: values.checkAll
         };
@@ -517,9 +560,22 @@ const ProcessRoutePage: React.FC = () => {
           <Form.Item
             name="stationCode"
             label="站点编码"
-            rules={[{ required: true, message: '请输入站点编码' }]}
+            rules={[{ required: true, message: '请选择站点编码' }]}
           >
-            <Input placeholder="请输入站点编码" />
+            <Select
+              placeholder="请选择站点编码"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+              loading={stationLoading}
+            >
+              {stations.map((station) => (
+                <Option key={station.stationCode} value={station.stationCode}>
+                  {station.stationCode}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             name="mustPassStation"
@@ -531,9 +587,55 @@ const ProcessRoutePage: React.FC = () => {
           <Form.Item
             name="checkStationList"
             label="检查站点列表"
-            rules={[{ required: true, message: '请输入检查站点列表' }]}
+            rules={[
+              { required: true, message: '请选择检查站点列表' },
+              {
+                validator: (_, value) => {
+                  if (Array.isArray(value)) {
+                    // 检查是否有重复项
+                    const uniqueValues = [...new Set(value)];
+                    if (uniqueValues.length < value.length) {
+                      return Promise.reject(new Error('不允许重复选择相同站点'));
+                    }
+                  }
+                  return Promise.resolve();
+                }
+              }
+            ]}
+            valuePropName="value"
+            getValueFromEvent={(values) => {
+              // 从多选值转换为逗号分隔的字符串
+              if (Array.isArray(values)) {
+                // 去重并过滤空值
+                const uniqueValues = [...new Set(values)].filter(item => item.trim());
+                return uniqueValues.join(',');
+              }
+              return values;
+            }}
+            normalize={(value) => {
+              // 从逗号分隔的字符串转换为数组，用于编辑时的显示
+              if (typeof value === 'string') {
+                // 分割字符串，过滤空值，然后去重
+                return value.split(',').map(item => item.trim()).filter(item => item);
+              }
+              return value;
+            }}
           >
-            <Input placeholder="请输入检查站点列表" />
+            <Select
+              mode="multiple"
+              placeholder="请选择检查站点列表"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+              loading={stationLoading}
+            >
+              {stations.map((station) => (
+                <Option key={station.stationCode} value={station.stationCode}>
+                  {station.stationCode}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             name="firstStation"
@@ -603,4 +705,4 @@ const ProcessRoutePage: React.FC = () => {
   );
 };
 
-  export default ProcessRoutePage;
+export default ProcessRoutePage;
