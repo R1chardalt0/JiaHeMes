@@ -1,8 +1,8 @@
-import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import type { ActionType } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions } from '@ant-design/pro-components';
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { Button, Tabs, message, Card, Row, Col, Modal, Form, Input, Select, Switch, Popconfirm } from 'antd';
-import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Tabs, message, Modal, Form, Select, Switch } from 'antd';
+import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { getProcessRouteList, getProcessRouteById, createProcessRoute, updateProcessRoute, deleteProcessRoute } from '@/services/Api/Infrastructure/ProcessRoute/ProcessRoute';
 import { getProcessRouteItemsByHeadId, createProcessRouteItem, updateProcessRouteItem, deleteProcessRouteItem, getProcessRouteItemById } from '@/services/Api/Infrastructure/ProcessRoute/ProcessRouteItem';
 import { getStationListList } from '@/services/Api/Infrastructure/StationList';
@@ -12,8 +12,13 @@ import { StationListDto } from '@/services/Model/Infrastructure/StationList';
 
 import type { RequestData } from '@ant-design/pro-components';
 
+// 导入拆分后的组件
+import ProcessRouteItemList from './components/ProcessRouteItemList';
+import ProcessRouteItemForm from './components/ProcessRouteItemForm';
+import ProcessRouteForm from './components/ProcessRouteForm';
+import { getProcessRouteColumns } from './columns';
+
 const { TabPane } = Tabs;
-const { Option } = Select;
 
 const ProcessRoutePage: React.FC = () => {
   const actionRef = useRef<ActionType | null>(null);
@@ -59,103 +64,6 @@ const ProcessRoutePage: React.FC = () => {
     };
     fetchStations();
   }, [isAddModalVisible, isEditModalVisible]);
-
-  // 工艺路线列表表格列定义
-  const columns: ProColumns<ProcessRouteDto>[] = [
-    {
-      title: '工艺路线名称',
-      dataIndex: 'routeName',
-      key: 'routeName',
-      width: 150,
-      search: true
-    },
-    {
-      title: '工艺路线编码',
-      dataIndex: 'routeCode',
-      key: 'routeCode',
-      width: 150,
-      search: true
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      width: 100,
-      search: true,
-      valueEnum: {
-        0: { text: '启用', status: 'Success' },
-        1: { text: '禁用', status: 'Default' }
-      }
-    },
-    {
-      title: '备注',
-      dataIndex: 'remark',
-      key: 'remark',
-      width: 200,
-      ellipsis: true,
-      search: false
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      key: 'createTime',
-      width: 180,
-      valueType: 'dateTime',
-      search: false
-    },
-    {
-      title: '操作',
-      key: 'operation',
-      width: 180,
-      fixed: 'right',
-      search: false,
-      render: (_, record) => (
-        <>
-          <Button
-            type="link"
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => handleShowDetail(record)}
-            style={{ marginRight: 8 }}
-          >
-            查看
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEditProcessRoute(record);
-            }}
-            style={{ marginRight: 8 }}
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="确认删除"
-            description="确定要删除该工艺路线吗？"
-            onConfirm={(e) => {
-              e?.stopPropagation();
-              handleDeleteProcessRoute(record.id);
-            }}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={(e) => e.stopPropagation()}
-            >
-              删除
-            </Button>
-          </Popconfirm>
-        </>
-      )
-    }
-  ];
 
   // 显示工艺路线详情
   const handleShowDetail = useCallback(async (record: ProcessRouteDto) => {
@@ -213,6 +121,13 @@ const ProcessRoutePage: React.FC = () => {
     });
     setIsProcessRouteEditModalVisible(true);
   }, [processRouteForm]);
+
+  // 获取工艺路线列表表格列定义
+  const columns = getProcessRouteColumns(
+    handleShowDetail,
+    handleEditProcessRoute,
+    handleDeleteProcessRoute
+  );
 
   // 保存工艺路线（创建或更新）
   const handleSaveProcessRoute = useCallback(async () => {
@@ -477,73 +392,20 @@ const ProcessRoutePage: React.FC = () => {
 
           <Tabs activeKey={activeTabKey} onChange={setActiveTabKey} style={{ marginTop: 20 }}>
             <TabPane
-              tab={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  工艺路线子项
-                  <Button
-                    type="primary"
-                    style={{ marginLeft: 16 }}
-                    onClick={handleAddProcessRouteItem}
-                  >
-                    添加子项
-                  </Button>
-                </div>
-              }
+              tab="工艺路线子项"
               key="items"
             >
-              <Row gutter={[16, 16]}>
-                {processRouteItems.length > 0 ? (
-                  processRouteItems.map((item) => (
-                    <Col xs={24} sm={12} md={8} key={item.id}>
-                      <Card
-                        title={`工艺路线子项`}
-                        extra={
-                          <div>
-                            <Button
-                              type="link"
-                              size="small"
-                              icon={<EditOutlined />}
-                              onClick={() => handleEditProcessRouteItem(item)}
-                              style={{ marginRight: 8 }}
-                            >
-                              编辑
-                            </Button>
-                            <Button
-                              type="link"
-                              size="small"
-                              danger
-                              icon={<DeleteOutlined />}
-                              onClick={() => handleDeleteProcessRouteItem(item.id)}
-                            >
-                              删除
-                            </Button>
-                          </div>
-                        }
-                      >
-                        <div style={{ lineHeight: '1.8', fontSize: '14px' }}>
-                          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>工艺路线子项ID:</strong> {item.id}</p>
-                          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>主表ID:</strong> {item.headId}</p>
-                          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>站点编码:</strong> {item.stationCode}</p>
-                          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>是否必经站点:</strong> {item.mustPassStation ? '是' : '否'}</p>
-                          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>检查站点列表:</strong> {item.checkStationList}</p>
-                          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>是否首站点:</strong> {item.firstStation ? '是' : '否'}</p>
-                          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>是否检查所有:</strong> {item.checkAll ? '是' : '否'}</p>
-                        </div>
-                      </Card>
-                    </Col>
-                  ))
-                ) : (
-                  <Col span={24}>
-                    <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>
-                      暂无工艺路线子项数据
-                    </div>
-                  </Col>
-                )}
-              </Row>
+              <ProcessRouteItemList
+                processRouteItems={processRouteItems}
+                onAdd={handleAddProcessRouteItem}
+                onEdit={handleEditProcessRouteItem}
+                onDelete={handleDeleteProcessRouteItem}
+              />
             </TabPane>
           </Tabs>
         </div>
-      )}
+      )
+      }
 
       {/* 添加/编辑工艺路线子项模态框 */}
       <Modal
@@ -556,105 +418,11 @@ const ProcessRoutePage: React.FC = () => {
         }}
         width={600}
       >
-        <Form
+        <ProcessRouteItemForm
           form={form}
-          layout="vertical"
-        >
-          <Form.Item
-            name="stationCode"
-            label="站点编码"
-            rules={[{ required: true, message: '请选择站点编码' }]}
-          >
-            <Select
-              placeholder="请选择站点编码"
-              showSearch
-              filterOption={(input, option) =>
-                (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
-              }
-              loading={stationLoading}
-            >
-              {stations.map((station) => (
-                <Option key={station.stationCode} value={station.stationCode}>
-                  {station.stationCode}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="mustPassStation"
-            label="是否必经站点"
-            initialValue={false}
-          >
-            <Switch />
-          </Form.Item>
-          <Form.Item
-            name="checkStationList"
-            label="检查站点列表"
-            rules={[
-              { required: true, message: '请选择检查站点列表' },
-              {
-                validator: (_, value) => {
-                  if (Array.isArray(value)) {
-                    // 检查是否有重复项
-                    const uniqueValues = [...new Set(value)];
-                    if (uniqueValues.length < value.length) {
-                      return Promise.reject(new Error('不允许重复选择相同站点'));
-                    }
-                  }
-                  return Promise.resolve();
-                }
-              }
-            ]}
-            valuePropName="value"
-            getValueFromEvent={(values) => {
-              // 从多选值转换为逗号分隔的字符串
-              if (Array.isArray(values)) {
-                // 去重并过滤空值
-                const uniqueValues = [...new Set(values)].filter(item => item.trim());
-                return uniqueValues.join(',');
-              }
-              return values;
-            }}
-            normalize={(value) => {
-              // 从逗号分隔的字符串转换为数组，用于编辑时的显示
-              if (typeof value === 'string') {
-                // 分割字符串，过滤空值，然后去重
-                return value.split(',').map(item => item.trim()).filter(item => item);
-              }
-              return value;
-            }}
-          >
-            <Select
-              mode="multiple"
-              placeholder="请选择检查站点列表"
-              showSearch
-              filterOption={(input, option) =>
-                (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
-              }
-              loading={stationLoading}
-            >
-              {stations.map((station) => (
-                <Option key={station.stationCode} value={station.stationCode}>
-                  {station.stationCode}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="firstStation"
-            label="是否首站点"
-            initialValue={false}
-          >
-            <Switch />
-          </Form.Item>
-          <Form.Item
-            name="checkAll"
-            label="是否检查所有"
-            initialValue={false}
-          >
-            <Switch />
-          </Form.Item>
-        </Form>
+          stations={stations}
+          stationLoading={stationLoading}
+        />
       </Modal>
 
       {/* 编辑/新建工艺路线模态框 */}
@@ -668,43 +436,11 @@ const ProcessRoutePage: React.FC = () => {
         }}
         width={600}
       >
-        <Form
+        <ProcessRouteForm
           form={processRouteForm}
-          layout="vertical"
-        >
-          <Form.Item
-            name="routeName"
-            label="工艺路线名称"
-            rules={[{ required: true, message: '请输入工艺路线名称' }]}
-          >
-            <Input placeholder="请输入工艺路线名称" />
-          </Form.Item>
-          <Form.Item
-            name="routeCode"
-            label="工艺路线编码"
-            rules={[{ required: true, message: '请输入工艺路线编码' }]}
-          >
-            <Input placeholder="请输入工艺路线编码" />
-          </Form.Item>
-          <Form.Item
-            name="status"
-            label="状态"
-            rules={[{ required: true, message: '请选择状态' }]}
-          >
-            <Select placeholder="请选择状态">
-              <Option value={0}>启用</Option>
-              <Option value={1}>禁用</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="remark"
-            label="备注"
-          >
-            <Input.TextArea placeholder="请输入备注" rows={3} />
-          </Form.Item>
-        </Form>
+        />
       </Modal>
-    </PageContainer>
+    </PageContainer >
   );
 };
 

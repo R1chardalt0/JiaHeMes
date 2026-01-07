@@ -435,10 +435,9 @@ const WorkOrderManagement: React.FC = () => {
               { required: true, message: '请输入BOM配方ID' },
             ]}
           >
-            <InputNumber
+            <Input
               placeholder="请输入BOM配方ID"
               style={{ width: '100%' }}
-              min={1}
             />
           </Form.Item>
 
@@ -558,10 +557,9 @@ const WorkOrderManagement: React.FC = () => {
               { required: true, message: '请输入BOM配方ID' },
             ]}
           >
-            <InputNumber
+            <Input
               placeholder="请输入BOM配方ID"
               style={{ width: '100%' }}
-              min={1}
             />
           </Form.Item>
 

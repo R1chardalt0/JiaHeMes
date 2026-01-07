@@ -3,6 +3,7 @@ using ChargePadLine.DbContexts.Repository;
 using ChargePadLine.Entitys.Trace.Production;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
 using ChargePadLine.Entitys.Trace.WorkOrders;
+using ChargePadLine.Entitys.Trace.BOM;
 using ChargePadLine.Service.Trace.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,20 +21,20 @@ namespace ChargePadLine.Service.Trace.Impl
   public class WorkOrderService : IWorkOrderService
   {
     private readonly IRepository<WorkOrder> _workOrderRepo;
-    private readonly IRepository<BomRecipe> _bomRecipeRepo;
+    private readonly IRepository<BomList> _bomListRepo;
     private readonly IRepository<Material> _materialRepo;
     private readonly ILogger<WorkOrderService> _logger;
     private readonly AppDbContext _dbContext;
 
     public WorkOrderService(
         IRepository<WorkOrder> workOrderRepo,
-        IRepository<BomRecipe> bomRecipeRepo,
+        IRepository<BomList> bomListRepo,
         IRepository<Material> materialRepo,
         ILogger<WorkOrderService> logger,
         AppDbContext dbContext)
     {
       _workOrderRepo = workOrderRepo;
-      _bomRecipeRepo = bomRecipeRepo;
+      _bomListRepo = bomListRepo;
       _materialRepo = materialRepo;
       _logger = logger;
       _dbContext = dbContext;
@@ -111,7 +112,7 @@ namespace ChargePadLine.Service.Trace.Impl
     public async Task<WorkOrderDto?> GetWorkOrderByIdAsync(int id)
     {
       var workOrder = await _workOrderRepo.GetQueryable()
-          .Include(w => w.BomRecipe)
+          .Include(w => w.BomList)
           .FirstOrDefaultAsync(w => w.Id == id);
 
       if (workOrder == null)
@@ -126,7 +127,7 @@ namespace ChargePadLine.Service.Trace.Impl
     public async Task<WorkOrderDto?> GetWorkOrderByCodeAsync(string code)
     {
       var workOrder = await _workOrderRepo.GetQueryable()
-          .Include(w => w.BomRecipe)
+          .Include(w => w.BomList)
           .FirstOrDefaultAsync(w => w.Code.Value == code);
 
       if (workOrder == null)
@@ -142,9 +143,9 @@ namespace ChargePadLine.Service.Trace.Impl
     {
       try
       {
-        // 根据BomRecipeId获取BomRecipe
-        var bomRecipe = await _bomRecipeRepo.GetAsync(r => r.Id == dto.BomRecipeId);
-        if (bomRecipe == null)
+        // 根据BomRecipeId获取BomList
+        var bomList = await _bomListRepo.GetAsync(r => r.BomId == dto.BomRecipeId);
+        if (bomList == null)
         {
           _logger.LogError("BOM配方不存在，ID: {BomRecipeId}", dto.BomRecipeId);
           throw new InvalidOperationException($"BOM配方不存在，ID: {dto.BomRecipeId}");
@@ -163,11 +164,11 @@ namespace ChargePadLine.Service.Trace.Impl
         WorkOrder workOrder;
         if (dto.IsInfinite)
         {
-          workOrder = WorkOrder.MakeInfiniteWorkOrder(workOrderCode, bomRecipe);
+          workOrder = WorkOrder.MakeInfiniteWorkOrder(workOrderCode, bomList);
         }
         else
         {
-          workOrder = WorkOrder.MakeWorkOrder(workOrderCode, bomRecipe, dto.WorkOrderAmount, dto.PerTraceInfo);
+          workOrder = WorkOrder.MakeWorkOrder(workOrderCode, bomList, dto.WorkOrderAmount, dto.PerTraceInfo);
         }
 
         // 保存工单
@@ -207,8 +208,8 @@ namespace ChargePadLine.Service.Trace.Impl
 
 
         // 检查BOM配方是否存在
-        var bomRecipe = await _bomRecipeRepo.GetAsync(b => b.Id == dto.BomRecipeId);
-        if (bomRecipe == null)
+        var bomList = await _bomListRepo.GetAsync(b => b.BomId == dto.BomRecipeId);
+        if (bomList == null)
         {
           _logger.LogWarning("BOM配方不存在: {BomRecipeId}", dto.BomRecipeId);
           throw new InvalidOperationException($"BOM配方不存在，ID: {dto.BomRecipeId}");
