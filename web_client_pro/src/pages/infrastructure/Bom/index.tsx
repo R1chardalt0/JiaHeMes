@@ -28,7 +28,7 @@ const BomPage: React.FC = () => {
   const [isBomEditModalVisible, setIsBomEditModalVisible] = useState(false);
   const [editingBomItem, setEditingBomItem] = useState<BomItem | null>(null);
   const [editingBom, setEditingBom] = useState<BomListDto | null>(null);
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<BomItemCreateDto>();
   const [bomForm] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [isAddBomModalVisible, setIsAddBomModalVisible] = useState(false);
@@ -531,16 +531,45 @@ const BomPage: React.FC = () => {
           <Form.Item
             name="batchQty"
             label="批次数据固定"
-            initialValue={false}
+            initialValue={true}
           >
             <Switch />
           </Form.Item>
           <Form.Item
-            name="batchSNQty"
-            label="批次SN数量"
-            rules={[{ required: true, message: '请输入批次SN数量' }]}
+            noStyle
+            shouldUpdate={(prevValues, currentValues) => {
+              // 当batchQty值变化时更新，并且如果从true变为false，清空batchSNQty的值
+              if (prevValues.batchQty !== currentValues.batchQty) {
+                if (!currentValues.batchQty) {
+                  form.setFieldsValue({ batchSNQty: undefined });
+                }
+                return true;
+              }
+              return false;
+            }}
           >
-            <Input placeholder="请输入批次SN数量" />
+            {({ getFieldValue }) =>
+              getFieldValue('batchQty') ? (
+                <Form.Item
+                  name="batchSNQty"
+                  label="批次SN数量"
+                  rules={[
+                    {
+                      validator: (_, value, callback) => {
+                        const batchQty = form.getFieldValue('batchQty');
+                        if (batchQty && !value) {
+                          callback('请输入批次SN数量');
+                        } else {
+                          callback();
+                        }
+                      }
+                    }
+                  ]}
+                >
+                  <Input placeholder="请输入批次SN数量" />
+                </Form.Item>
+              ) : null
+            }
           </Form.Item>
           <Form.Item
             name="productId"
