@@ -109,7 +109,7 @@
                             </Grid.RowDefinitions>
                             <local:MonitorView Grid.Row="1"
                                                Margin="0"
-                                               DataContext=""/>
+                                               DataContext="{Binding MonitorViewModel}"/>
                         </Grid>
                     </Border>
 

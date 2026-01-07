@@ -1,15 +1,41 @@
-﻿<UserControl x:Class="ChargePadLine.Client.Views.StatorTestAndO_RingInspection"
+<UserControl x:Class="ChargePadLine.Client.Views.StatorTestAndO_RingInspection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ChargePadLine.Client.Views"
              xmlns:bar="clr-namespace:ChargePadLine.Client.CustomerControl"
+             xmlns:viewModels="clr-namespace:ChargePadLine.Client.ViewModels"
              mc:Ignorable="d" 
-             >
+             d:DataContext="{d:DesignInstance Type=viewModels:StatorTestViewModel}">
     <Grid>
         <StackPanel Orientation="Vertical">
             <bar:TitleBar IconText="&#xe6fa;" TitleText="定子测试" />
+            
+            <!-- 定子检测数据展示 -->
+            <GroupBox Header="PLC数据" Margin="10" Padding="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="请求状态 (Req):" FontWeight="Bold" Margin="5"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Req, StringFormat={}{0}}" Margin="5" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="响应状态 (Resp):" FontWeight="Bold" Margin="5"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Resp, StringFormat={}{0}}" Margin="5" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="序列号 (SN):" FontWeight="Bold" Margin="5"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Sn}" Margin="5" VerticalAlignment="Center"/>
+                </Grid>
+            </GroupBox>
+
             <bar:TitleBar IconText="&#xe706;" TitleText="O型圈检测" />
         </StackPanel>
     </Grid>

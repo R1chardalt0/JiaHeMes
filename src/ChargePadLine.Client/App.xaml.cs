@@ -1,4 +1,4 @@
-﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.Controls;
 using ChargePadLine.Client.DBContext;
 using ChargePadLine.Client.Services;
 using ChargePadLine.Client.ViewModels;
@@ -128,6 +128,8 @@ public partial class App : Application
         });
         // 注册ViewModels
         services.AddTransient<MainViewModel>();
+        services.AddTransient<MonitorViewModel>();
+        services.AddTransient<StatorTestViewModel>();
 
         // 注册Windows
         services.AddTransient<MainWindow>();

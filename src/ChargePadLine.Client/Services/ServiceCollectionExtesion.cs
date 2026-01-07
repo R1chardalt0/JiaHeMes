@@ -20,6 +20,7 @@ namespace ChargePadLine.Client.Services
         {
             services.AddTransient<S7NetConnect>();
             services.AddTransient<ModbusConnect>();
+            services.AddSingleton<StatorTestDataService>();
             services.AddSingleton<定子检测MiddleWare>();
             services.AddSingleton<O型圈装配MiddleWare>();
             services.AddHostedService<Plc1HostService>();
