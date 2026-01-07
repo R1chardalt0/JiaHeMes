@@ -26,10 +26,12 @@ namespace ChargePadLine.Client.Services.PlcService
             {
                 Timestamp = DateTime.Now,
                 Level = logLevel.ToString(),
+                Type = LogType.System,
                 Content = message
             };
 
-            _logViewModel.AddLogMsg.Execute(logMessage);
+            // 直接调用 ViewModel 的 AddLog 方法，该方法内部已经处理了线程安全
+            _logViewModel.AddLog(logMessage);
 
             switch (logLevel)
             {
@@ -54,14 +56,28 @@ namespace ChargePadLine.Client.Services.PlcService
             }
         }
 
-        //public enum LogLevel
-        //{
-        //    Trace,
-        //    Debug,
-        //    Information,
-        //    Warning,
-        //    Error,
-        //    Critical
-        //}
+        public async Task RecordOperationLogAsync(string operation, string details = "", string userName = "")
+        {
+            var content = string.IsNullOrEmpty(details) 
+                ? operation 
+                : $"{operation} - {details}";
+
+            var logMessage = new LogMessage
+            {
+                Timestamp = DateTime.Now,
+                Level = "Information",
+                Type = LogType.Operation,
+                Content = content,
+                UserName = userName
+            };
+
+            _logViewModel.AddLog(logMessage);
+            _logger.LogInformation($"[操作日志] {content}");
+        }
+
+        public async Task RecordUserOperationAsync(string userName, string operation, string details = "")
+        {
+            await RecordOperationLogAsync(operation, details, userName);
+        }
     }
 }
