@@ -9,8 +9,8 @@
              >
     <Grid>
         <StackPanel Orientation="Vertical">
-            <bar:TitleBar IconText="&#xe6fb;" TitleText="定子测试" />
-            <bar:TitleBar IconText="&#xe6fb;" TitleText="O型圈检测" />
+            <bar:TitleBar IconText="&#xe6fa;" TitleText="定子测试" />
+            <bar:TitleBar IconText="&#xe706;" TitleText="O型圈检测" />
         </StackPanel>
     </Grid>
 </UserControl>
