@@ -14,17 +14,21 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
     {
         private readonly ILogger<定子检测MiddleWare> _logger;
         private readonly StatorTestDataService _statorTestDataService;
+        private readonly ILogService _logService;
 
-        public 定子检测MiddleWare(ILogger<定子检测MiddleWare> logger, StatorTestDataService statorTestDataService)
+        public 定子检测MiddleWare(ILogger<定子检测MiddleWare> logger, StatorTestDataService statorTestDataService, ILogService logService)
         {
             _logger = logger;
             _statorTestDataService = statorTestDataService;
+            _logService = logService;
         }
+
+        private bool _isInitialized = false;
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
         {
             try
-            {
+            {         
                 var req = s7Net.ReadBool("DB200.1000.0").Content;
                 var resp = s7Net.ReadBool("DB200.1000.1").Content;
                 var sn = s7Net.ReadString("DB200.100", 20).Content.Trim().Replace("\0", "").Replace("\b", "");
@@ -34,20 +38,20 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
 
                 if (req && !resp)
                 {
-                    _logger.LogInformation("定子检测请求收到");
+                    await _logService.RecordLogAsync(LogLevel.Information, "定子检测请求收到");
                     s7Net.Write("DB200.1000.1", true);
                 }
                 else if (!req && resp)
                 {
                     s7Net.Write("DB200.1000.1", false);
-                    _logger.LogInformation("定子检测请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, "定子检测请求复位");
                 }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "定子检测MiddleWare异常");
+                await _logService.RecordLogAsync(LogLevel.Error, $"定子检测MiddleWare异常: {ex.Message}");
             }
         }
     }

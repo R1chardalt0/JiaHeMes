@@ -14,11 +14,11 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = "就绪";
     private string _apiResponse = "";
 
-    public MainViewModel(ApiClient apiClient, MonitorViewModel monitorViewModel)
+    public MainViewModel(ApiClient apiClient, MonitorViewModel monitorViewModel, LogViewModel logViewModel)
     {
         _apiClient = apiClient;
         _monitorViewModel = monitorViewModel;
-        LogViewModel = new LogViewModel();
+        LogViewModel = logViewModel;
         TestConnectionCommand = new RelayCommand(async () => await TestConnectionAsync());
     }
 

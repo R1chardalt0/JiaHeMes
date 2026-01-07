@@ -130,7 +130,7 @@ public partial class App : Application
         services.AddTransient<MainViewModel>();
         services.AddTransient<MonitorViewModel>();
         services.AddTransient<StatorTestViewModel>();
-
+        services.AddSingleton<LogViewModel>();
         // 注册Windows
         services.AddTransient<MainWindow>();
     }
