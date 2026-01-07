@@ -1,4 +1,7 @@
 ﻿using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.PlcService;
+using ChargePadLine.Client.Services.PlcService.Plc1;
+using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Prism.Dialogs;
@@ -16,7 +19,9 @@ namespace ChargePadLine.Client.Services
         {
             services.AddTransient<S7NetConnect>();
             services.AddTransient<ModbusConnect>();
+            services.AddSingleton<Plc1Service>();
+            services.AddSingleton<定子检测MiddleWare>();
             return services;
-        }
+        }  
     }
 }
