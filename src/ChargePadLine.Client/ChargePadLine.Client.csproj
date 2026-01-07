@@ -20,6 +20,8 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
@@ -42,7 +44,6 @@
 
 	<ItemGroup>
 	  <None Remove="font\iconfont.ttf" />
-	  <None Remove="font\logo48X48.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -51,9 +52,6 @@
 
 	<ItemGroup>
 	  <Resource Include="font\iconfont.ttf">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Resource>
-	  <Resource Include="font\logo48X48.ico">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Resource>
 	</ItemGroup>
