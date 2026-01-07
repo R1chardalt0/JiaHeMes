@@ -1,4 +1,5 @@
-﻿using ChargePadLine.Client.DBContext;
+﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.DBContext;
 using ChargePadLine.Client.Services;
 using ChargePadLine.Client.ViewModels;
 using ChargePadLine.Client.Views;
@@ -42,6 +43,12 @@ public partial class App : Application
         try
         {
             base.OnStartup(e);
+
+            // 设置 HslCommunication 授权码
+            if (!HslCommunication.Authorization.SetAuthorizationCode("5e8e65ad-ed01-4fbe-b4c2-5f65765b626f"))
+            {
+                throw new Exception("HslCommunication 授权码设置失败，请检查授权码是否正确");
+            }
 
             // 加载配置
             var builder = new ConfigurationBuilder()
@@ -90,6 +97,8 @@ public partial class App : Application
             client.BaseAddress = new Uri(apiBaseUrl);
             client.Timeout = TimeSpan.FromSeconds(timeout);
         });
+        //添加PLC配置绑定
+        services.AddOptions<PlcConfig>().Bind(_configuration.GetSection("PlcConfig"));
         // 注册 DbContext
         services.AddDbContext<AppDbContext>(options =>
         {
