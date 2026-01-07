@@ -41,7 +41,7 @@ namespace ChargePadLine.Entitys.Trace.BOM
     public string BomCode { get; set; } = "";
 
     /// <summary>
-    /// 状态
+    /// 状态 0-启用 1-关闭
     /// </summary>
     [Required]
     [Column("Status")]

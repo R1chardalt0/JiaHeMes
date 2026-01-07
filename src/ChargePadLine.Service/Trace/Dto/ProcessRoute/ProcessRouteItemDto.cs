@@ -1,24 +1,19 @@
-using ChargePadLine.Entitys.Systems;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Entitys.Trace.ProcessRouting
+namespace ChargePadLine.Service.Trace.Dto.ProcessRoute
 {
   /// <summary>
-  /// 工艺路线表
+  /// 工艺路线子项数据传输对象
   /// </summary>
-  [Table("mes_processRoute_item")]
-  public class ProcessRouteItem : BaseEntity
+  public class ProcessRouteItemDto
   {
     /// <summary>
     /// 工艺路线子表ID
     /// </summary>
-    [Key]
     public Guid Id { get; set; }
 
     /// <summary>
@@ -35,6 +30,7 @@ namespace ChargePadLine.Entitys.Trace.ProcessRouting
     /// 是否必须通过
     /// </summary>
     public bool MustPassStation { get; set; } = false;
+
     /// <summary>
     /// 检查站列表
     /// </summary>
@@ -45,5 +41,19 @@ namespace ChargePadLine.Entitys.Trace.ProcessRouting
     /// </summary>
     public bool FirstStation { get; set; } = false;
 
+    /// <summary>
+    /// 备注信息
+    /// </summary>
+    public string? Remark { get; set; }
+
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTimeOffset? CreateTime { get; set; }
+
+    /// <summary>
+    /// 更新时间
+    /// </summary>
+    public DateTimeOffset? UpdateTime { get; set; }
   }
 }

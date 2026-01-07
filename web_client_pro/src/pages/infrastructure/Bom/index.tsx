@@ -63,8 +63,8 @@ const BomPage: React.FC = () => {
       width: 100,
       search: true,
       valueEnum: {
-        0: { text: '禁用', status: 'Default' },
-        1: { text: '启用', status: 'Success' }
+        0: { text: '启用', status: 'Success' },
+        1: { text: '禁用', status: 'Default' }
       }
     },
     {
@@ -426,7 +426,7 @@ const BomPage: React.FC = () => {
             <ProDescriptions.Item label="BOM名称">{currentRow.bomName}</ProDescriptions.Item>
             <ProDescriptions.Item label="BOM编码">{currentRow.bomCode}</ProDescriptions.Item>
             <ProDescriptions.Item label="状态">
-              {currentRow.status === 1 ? '启用' : '禁用'}
+              {currentRow.status === 0 ? '启用' : '禁用'}
             </ProDescriptions.Item>
             <ProDescriptions.Item label="备注">{currentRow.remark}</ProDescriptions.Item>
             <ProDescriptions.Item label="创建时间">{currentRow.createTime}</ProDescriptions.Item>
