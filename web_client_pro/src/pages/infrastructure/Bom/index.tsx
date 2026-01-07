@@ -1,12 +1,16 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions, ProForm } from '@ant-design/pro-components';
-import React, { useRef, useState, useCallback } from 'react';
-import { Button, Tabs, message, Card, Row, Col, Modal, Form, Input, Select, Switch, Popconfirm } from 'antd';
-import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
+import { Button, Tabs, message, Card, Row, Col, Modal, Form, Input, Select, Switch, Popconfirm, Table } from 'antd';
+import { EyeOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import { getBomList, getBomById, createBom, updateBom, deleteBom } from '@/services/Api/Infrastructure/Bom/BomList';
 import { getBomItemsByBomId, createBomItem, updateBomItem, deleteBomItem, getBomItemById } from '@/services/Api/Infrastructure/Bom/BomItem';
+import { getProductListList } from '@/services/Api/Infrastructure/ProductList';
+import { getStationListList } from '@/services/Api/Infrastructure/StationList';
+import { StationListDto } from '@/services/Model/Infrastructure/StationList';
 import { BomListDto, BomListQueryDto, BomListCreateDto, BomListUpdateDto } from '@/services/Model/Infrastructure/Bom/BomList';
 import { BomItem, BomItemCreateDto, BomItemUpdateDto } from '@/services/Model/Infrastructure/Bom/BomItem';
+import { ProductListDto, ProductListQueryDto } from '@/services/Model/Infrastructure/ProductList';
 
 import type { RequestData } from '@ant-design/pro-components';
 
@@ -33,6 +37,43 @@ const BomPage: React.FC = () => {
   const [bomForm] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [isAddBomModalVisible, setIsAddBomModalVisible] = useState(false);
+  // 站点列表状态
+  const [stations, setStations] = useState<StationListDto[]>([]);
+  const [stationLoading, setStationLoading] = useState(false);
+  // 产品选择弹窗相关状态
+  const [isProductModalVisible, setIsProductModalVisible] = useState(false);
+  const [products, setProducts] = useState<ProductListDto[]>([]);
+  const [productTotal, setProductTotal] = useState<number>(0);
+  const [productCurrent, setProductCurrent] = useState<number>(1);
+  const [productPageSize, setProductPageSize] = useState<number>(10);
+  const [productSearchParams, setProductSearchParams] = useState<ProductListQueryDto>({
+    current: 1,
+    pageSize: 10
+  });
+  const [selectedProduct, setSelectedProduct] = useState<ProductListDto | null>(null);
+  const [productSearchValues, setProductSearchValues] = useState({
+    productCode: '',
+    productName: ''
+  });
+
+  // 获取站点列表数据
+  const fetchStations = useCallback(async () => {
+    try {
+      setStationLoading(true);
+      const response = await getStationListList({ current: 1, pageSize: 1000 });
+      setStations(response.data || []);
+    } catch (error) {
+      message.error('获取站点列表失败');
+      console.error('Fetch stations error:', error);
+    } finally {
+      setStationLoading(false);
+    }
+  }, []);
+
+  // 组件初始化时获取站点列表
+  useEffect(() => {
+    fetchStations();
+  }, [fetchStations]);
 
   // BOM列表表格列定义
   const columns: ProColumns<BomListDto>[] = [
@@ -258,6 +299,89 @@ const BomPage: React.FC = () => {
       },
     });
   }, [selectedRowKeys, actionRef]);
+
+  // 获取产品列表数据
+  const fetchProducts = useCallback(async (params: ProductListQueryDto) => {
+    try {
+      const response = await getProductListList(params);
+      setProducts(response.data || []);
+      setProductTotal(response.total || 0);
+      setProductCurrent(params.current);
+      setProductPageSize(params.pageSize);
+    } catch (error) {
+      message.error('获取产品列表失败');
+      console.error('Fetch products error:', error);
+    }
+  }, []);
+
+  // 打开产品选择弹窗
+  const handleOpenProductModal = useCallback(() => {
+    // 重置搜索参数并获取产品列表
+    const params: ProductListQueryDto = {
+      current: 1,
+      pageSize: 10
+    };
+    setProductSearchParams(params);
+    fetchProducts(params);
+    setIsProductModalVisible(true);
+  }, [fetchProducts]);
+
+  // 处理产品选择
+  const handleProductSelect = useCallback(async (product: ProductListDto) => {
+    setSelectedProduct(product);
+    // 将选中的产品ID设置到表单中
+    console.log('选择产品:', product);
+    console.log('设置产品ID:', product.productListId);
+
+    // 先设置表单值
+    form.setFieldsValue({ productId: product.productListId });
+
+    // 验证表单值是否正确设置
+    try {
+      const values = await form.getFieldsValue();
+      console.log('表单值:', values);
+      console.log('产品ID字段值:', values.productId);
+    } catch (error) {
+      console.error('获取表单值失败:', error);
+    }
+
+    // 延迟关闭弹窗，确保表单值更新
+    setTimeout(() => {
+      setIsProductModalVisible(false);
+    }, 100);
+  }, [form]);
+
+  // 处理产品分页变化
+  const handleProductPaginationChange = useCallback((current: number, pageSize: number) => {
+    const params: ProductListQueryDto = {
+      ...productSearchParams,
+      current,
+      pageSize
+    };
+    setProductSearchParams(params);
+    fetchProducts(params);
+  }, [productSearchParams, fetchProducts]);
+
+  // 处理产品搜索
+  const handleProductSearch = useCallback(() => {
+    const params: ProductListQueryDto = {
+      current: 1,
+      pageSize: productPageSize,
+      productCode: productSearchValues.productCode,
+      productName: productSearchValues.productName
+    };
+    setProductSearchParams(params);
+    fetchProducts(params);
+  }, [productSearchValues, productPageSize, fetchProducts]);
+
+  // 处理搜索输入变化
+  const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setProductSearchValues(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  }, []);
 
   // 删除BOM子项
   const handleDeleteBomItem = useCallback((bomItemId: string) => {
@@ -546,9 +670,22 @@ const BomPage: React.FC = () => {
           <Form.Item
             name="stationCode"
             label="站点编码"
-            rules={[{ required: true, message: '请输入站点编码' }]}
+            rules={[{ required: true, message: '请选择站点编码' }]}
           >
-            <Input placeholder="请输入站点编码" />
+            <Select
+              placeholder="请选择站点编码"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+              loading={stationLoading}
+            >
+              {stations.map((station) => (
+                <Option key={station.stationCode} value={station.stationCode}>
+                  {station.stationCode}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             name="batchRule"
@@ -601,13 +738,109 @@ const BomPage: React.FC = () => {
             }
           </Form.Item>
           <Form.Item
-            name="productId"
             label="产品ID"
-            rules={[{ required: true, message: '请输入产品ID' }]}
+            rules={[{ required: true, message: '请选择产品' }]}
           >
-            <Input placeholder="请输入产品ID" />
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <Form.Item
+                name="productId"
+                noStyle
+              >
+                <Input placeholder="请选择产品" readOnly style={{ flex: 1 }} />
+              </Form.Item>
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                onClick={handleOpenProductModal}
+                style={{ marginTop: 4 }}
+              >
+                选择
+              </Button>
+            </div>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* 产品选择弹窗 */}
+      <Modal
+        title="选择产品"
+        open={isProductModalVisible}
+        onCancel={() => setIsProductModalVisible(false)}
+        footer={null}
+        width={800}
+      >
+        {/* 搜索框 */}
+        <div style={{ marginBottom: 16, display: 'flex', gap: 16 }}>
+          <Input
+            name="productCode"
+            placeholder="按产品编码搜索"
+            value={productSearchValues.productCode}
+            onChange={handleSearchInputChange}
+            style={{ width: 200 }}
+          />
+          <Input
+            name="productName"
+            placeholder="按产品名称搜索"
+            value={productSearchValues.productName}
+            onChange={handleSearchInputChange}
+            style={{ width: 200 }}
+          />
+          <Button type="primary" icon={<SearchOutlined />} onClick={handleProductSearch}>
+            搜索
+          </Button>
+          <Button onClick={() => {
+            setProductSearchValues({ productCode: '', productName: '' });
+            const params: ProductListQueryDto = {
+              current: 1,
+              pageSize: productPageSize
+            };
+            setProductSearchParams(params);
+            fetchProducts(params);
+          }}>
+            重置
+          </Button>
+        </div>
+        <Table
+          dataSource={products}
+          columns={[
+            {
+              title: '产品编码',
+              dataIndex: 'productCode',
+              key: 'productCode'
+            },
+            {
+              title: '产品名称',
+              dataIndex: 'productName',
+              key: 'productName'
+            },
+            {
+              title: '产品类型',
+              dataIndex: 'productType',
+              key: 'productType'
+            },
+            {
+              title: '产品ID',
+              dataIndex: 'productListId',
+              key: 'productListId'
+            },
+            {
+              title: '操作',
+              key: 'action',
+              render: (_: any, record: ProductListDto) => (
+                <Button type="link" onClick={() => handleProductSelect(record)}>
+                  选择
+                </Button>
+              )
+            }
+          ]}
+          rowKey="productListId"
+          pagination={{
+            current: productCurrent,
+            pageSize: productPageSize,
+            total: productTotal,
+            onChange: handleProductPaginationChange
+          }}
+        />
       </Modal>
 
       {/* 编辑/新建BOM模态框 */}

@@ -500,16 +500,19 @@ const ProcessRoutePage: React.FC = () => {
                         extra={
                           <div>
                             <Button
-                              type="primary"
+                              type="link"
                               size="small"
+                              icon={<EditOutlined />}
                               onClick={() => handleEditProcessRouteItem(item)}
                               style={{ marginRight: 8 }}
                             >
                               编辑
                             </Button>
                             <Button
-                              danger
+                              type="link"
                               size="small"
+                              danger
+                              icon={<DeleteOutlined />}
                               onClick={() => handleDeleteProcessRouteItem(item.id)}
                             >
                               删除

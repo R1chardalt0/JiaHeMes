@@ -1,10 +1,14 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions } from '@ant-design/pro-components';
-import React, { useRef, useState } from 'react';
-import { Drawer, Button, message, Modal, Form, Input, Popconfirm } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { useRef, useState, useCallback } from 'react';
+import { Drawer, Button, message, Modal, Form, Input, Popconfirm, Table } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import { getProductListList, createProductList, updateProductList, deleteProductList } from '@/services/Api/Infrastructure/ProductList';
+import { getBomList } from '@/services/Api/Infrastructure/Bom/BomList';
+import { getProcessRouteList } from '@/services/Api/Infrastructure/ProcessRoute/ProcessRoute';
 import { ProductListDto, ProductListQueryDto } from '@/services/Model/Infrastructure/ProductList';
+import { BomListQueryDto } from '@/services/Model/Infrastructure/Bom/BomList';
+import { ProcessRouteQueryDto } from '@/services/Model/Infrastructure/ProcessRoute/ProcessRoute';
 import type { RequestData } from '@ant-design/pro-components';
 
 const ProductList: React.FC = () => {
@@ -21,6 +25,36 @@ const ProductList: React.FC = () => {
   const [currentSearchParams, setCurrentSearchParams] = useState<ProductListQueryDto>({
     current: 1,
     pageSize: 50
+  });
+
+  // BOM选择弹窗相关状态
+  const [isBomModalVisible, setIsBomModalVisible] = useState(false);
+  const [boms, setBoms] = useState<any[]>([]);
+  const [bomTotal, setBomTotal] = useState<number>(0);
+  const [bomCurrent, setBomCurrent] = useState<number>(1);
+  const [bomPageSize, setBomPageSize] = useState<number>(10);
+  const [bomSearchParams, setBomSearchParams] = useState<BomListQueryDto>({
+    current: 1,
+    pageSize: 10
+  });
+  const [bomSearchValues, setBomSearchValues] = useState({
+    bomCode: '',
+    bomName: ''
+  });
+
+  // 工艺路线选择弹窗相关状态
+  const [isProcessRouteModalVisible, setIsProcessRouteModalVisible] = useState(false);
+  const [processRoutes, setProcessRoutes] = useState<any[]>([]);
+  const [processRouteTotal, setProcessRouteTotal] = useState<number>(0);
+  const [processRouteCurrent, setProcessRouteCurrent] = useState<number>(1);
+  const [processRoutePageSize, setProcessRoutePageSize] = useState<number>(10);
+  const [processRouteSearchParams, setProcessRouteSearchParams] = useState<ProcessRouteQueryDto>({
+    current: 1,
+    pageSize: 10
+  });
+  const [processRouteSearchValues, setProcessRouteSearchValues] = useState({
+    routeCode: '',
+    routeName: ''
   });
 
   // 处理新建产品
@@ -76,6 +110,172 @@ const ProductList: React.FC = () => {
       messageApi.error('批量删除产品失败');
     }
   };
+
+  // 获取BOM列表数据
+  const fetchBoms = useCallback(async (params: BomListQueryDto) => {
+    try {
+      const response = await getBomList(params);
+      setBoms(response.data || []);
+      setBomTotal(response.total || 0);
+      setBomCurrent(params.current);
+      setBomPageSize(params.pageSize);
+    } catch (error) {
+      message.error('获取BOM列表失败');
+      console.error('Fetch BOMs error:', error);
+    }
+  }, []);
+
+  // 打开BOM选择弹窗
+  const handleOpenBomModal = useCallback(() => {
+    // 重置搜索参数并获取BOM列表
+    const params: BomListQueryDto = {
+      current: 1,
+      pageSize: 10
+    };
+    setBomSearchParams(params);
+    fetchBoms(params);
+    setIsBomModalVisible(true);
+  }, [fetchBoms]);
+
+  // 处理BOM选择
+  const handleBomSelect = useCallback(async (bom: any) => {
+    // 将选中的BOM ID设置到表单中
+    console.log('选择BOM:', bom);
+    console.log('设置BOM ID:', bom.bomId);
+
+    // 先设置表单值
+    form.setFieldsValue({ bomId: bom.bomId });
+    editForm.setFieldsValue({ bomId: bom.bomId });
+
+    // 验证表单值是否正确设置
+    try {
+      const values = await form.getFieldsValue();
+      console.log('表单值:', values);
+      console.log('BOM ID字段值:', values.bomId);
+    } catch (error) {
+      console.error('获取表单值失败:', error);
+    }
+
+    // 延迟关闭弹窗，确保表单值更新
+    setTimeout(() => {
+      setIsBomModalVisible(false);
+    }, 100);
+  }, [form, editForm]);
+
+  // 处理BOM分页变化
+  const handleBomPaginationChange = useCallback((current: number, pageSize: number) => {
+    const params: BomListQueryDto = {
+      ...bomSearchParams,
+      current,
+      pageSize
+    };
+    setBomSearchParams(params);
+    fetchBoms(params);
+  }, [bomSearchParams, fetchBoms]);
+
+  // 处理BOM搜索
+  const handleBomSearch = useCallback(() => {
+    const params: BomListQueryDto = {
+      current: 1,
+      pageSize: bomPageSize,
+      bomCode: bomSearchValues.bomCode,
+      bomName: bomSearchValues.bomName
+    };
+    setBomSearchParams(params);
+    fetchBoms(params);
+  }, [bomSearchValues, bomPageSize, fetchBoms]);
+
+  // 处理BOM搜索输入变化
+  const handleBomSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBomSearchValues(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  }, []);
+
+  // 获取工艺路线列表数据
+  const fetchProcessRoutes = useCallback(async (params: ProcessRouteQueryDto) => {
+    try {
+      const response = await getProcessRouteList(params);
+      setProcessRoutes(response.data || []);
+      setProcessRouteTotal(response.total || 0);
+      setProcessRouteCurrent(params.current);
+      setProcessRoutePageSize(params.pageSize);
+    } catch (error) {
+      message.error('获取工艺路线列表失败');
+      console.error('Fetch process routes error:', error);
+    }
+  }, []);
+
+  // 打开工艺路线选择弹窗
+  const handleOpenProcessRouteModal = useCallback(() => {
+    // 重置搜索参数并获取工艺路线列表
+    const params: ProcessRouteQueryDto = {
+      current: 1,
+      pageSize: 10
+    };
+    setProcessRouteSearchParams(params);
+    fetchProcessRoutes(params);
+    setIsProcessRouteModalVisible(true);
+  }, [fetchProcessRoutes]);
+
+  // 处理工艺路线选择
+  const handleProcessRouteSelect = useCallback(async (processRoute: any) => {
+    // 将选中的工艺路线 ID设置到表单中
+    console.log('选择工艺路线:', processRoute);
+    console.log('设置工艺路线 ID:', processRoute.id);
+
+    // 先设置表单值
+    form.setFieldsValue({ processRouteId: processRoute.id });
+    editForm.setFieldsValue({ processRouteId: processRoute.id });
+
+    // 验证表单值是否正确设置
+    try {
+      const values = await form.getFieldsValue();
+      console.log('表单值:', values);
+      console.log('工艺路线 ID字段值:', values.processRouteId);
+    } catch (error) {
+      console.error('获取表单值失败:', error);
+    }
+
+    // 延迟关闭弹窗，确保表单值更新
+    setTimeout(() => {
+      setIsProcessRouteModalVisible(false);
+    }, 100);
+  }, [form, editForm]);
+
+  // 处理工艺路线分页变化
+  const handleProcessRoutePaginationChange = useCallback((current: number, pageSize: number) => {
+    const params: ProcessRouteQueryDto = {
+      ...processRouteSearchParams,
+      current,
+      pageSize
+    };
+    setProcessRouteSearchParams(params);
+    fetchProcessRoutes(params);
+  }, [processRouteSearchParams, fetchProcessRoutes]);
+
+  // 处理工艺路线搜索
+  const handleProcessRouteSearch = useCallback(() => {
+    const params: ProcessRouteQueryDto = {
+      current: 1,
+      pageSize: processRoutePageSize,
+      routeCode: processRouteSearchValues.routeCode,
+      routeName: processRouteSearchValues.routeName
+    };
+    setProcessRouteSearchParams(params);
+    fetchProcessRoutes(params);
+  }, [processRouteSearchValues, processRoutePageSize, fetchProcessRoutes]);
+
+  // 处理工艺路线搜索输入变化
+  const handleProcessRouteSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setProcessRouteSearchValues(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  }, []);
 
   // 打开编辑弹窗
   const openEditModal = (record: ProductListDto) => {
@@ -427,24 +627,22 @@ const ProductList: React.FC = () => {
             <Input placeholder="请输入产品名称" />
           </Form.Item>
 
-          <Form.Item
-            label="BOM ID"
-            name="bomId"
-            rules={[
-              { required: true, message: '请输入BOM ID' },
-            ]}
-          >
-            <Input placeholder="请输入BOM ID" />
+          <Form.Item label="BOM ID" rules={[{ required: true, message: '请选择BOM' }]}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <Form.Item name="bomId" noStyle>
+                <Input placeholder="请选择BOM" readOnly style={{ flex: 1 }} />
+              </Form.Item>
+              <Button type="primary" icon={<SearchOutlined />} onClick={handleOpenBomModal} style={{ marginTop: 4 }}>选择</Button>
+            </div>
           </Form.Item>
 
-          <Form.Item
-            label="工艺路线 ID"
-            name="processRouteId"
-            rules={[
-              { required: true, message: '请输入工艺路线 ID' },
-            ]}
-          >
-            <Input placeholder="请输入工艺路线 ID" />
+          <Form.Item label="工艺路线 ID" rules={[{ required: true, message: '请选择工艺路线' }]}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <Form.Item name="processRouteId" noStyle>
+                <Input placeholder="请选择工艺路线" readOnly style={{ flex: 1 }} />
+              </Form.Item>
+              <Button type="primary" icon={<SearchOutlined />} onClick={handleOpenProcessRouteModal} style={{ marginTop: 4 }}>选择</Button>
+            </div>
           </Form.Item>
 
           <Form.Item
@@ -514,24 +712,22 @@ const ProductList: React.FC = () => {
             <Input placeholder="请输入产品名称" />
           </Form.Item>
 
-          <Form.Item
-            label="BOM ID"
-            name="bomId"
-            rules={[
-              { required: true, message: '请输入BOM ID' },
-            ]}
-          >
-            <Input placeholder="请输入BOM ID" />
+          <Form.Item label="BOM ID" rules={[{ required: true, message: '请选择BOM' }]}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <Form.Item name="bomId" noStyle>
+                <Input placeholder="请选择BOM" readOnly style={{ flex: 1 }} />
+              </Form.Item>
+              <Button type="primary" icon={<SearchOutlined />} onClick={handleOpenBomModal} style={{ marginTop: 4 }}>选择</Button>
+            </div>
           </Form.Item>
 
-          <Form.Item
-            label="工艺路线 ID"
-            name="processRouteId"
-            rules={[
-              { required: true, message: '请输入工艺路线 ID' },
-            ]}
-          >
-            <Input placeholder="请输入工艺路线 ID" />
+          <Form.Item label="工艺路线 ID" rules={[{ required: true, message: '请选择工艺路线' }]}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <Form.Item name="processRouteId" noStyle>
+                <Input placeholder="请选择工艺路线" readOnly style={{ flex: 1 }} />
+              </Form.Item>
+              <Button type="primary" icon={<SearchOutlined />} onClick={handleOpenProcessRouteModal} style={{ marginTop: 4 }}>选择</Button>
+            </div>
           </Form.Item>
 
           <Form.Item
@@ -551,6 +747,126 @@ const ProductList: React.FC = () => {
             <Input.TextArea rows={4} placeholder="请输入备注" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* BOM选择弹窗 */}
+      <Modal
+        title="选择BOM"
+        open={isBomModalVisible}
+        onCancel={() => setIsBomModalVisible(false)}
+        footer={null}
+        width={800}
+      >
+        <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
+          <Input
+            name="bomCode"
+            placeholder="BOM编码"
+            value={bomSearchValues.bomCode}
+            onChange={handleBomSearchInputChange}
+            style={{ width: 200 }}
+          />
+          <Input
+            name="bomName"
+            placeholder="BOM名称"
+            value={bomSearchValues.bomName}
+            onChange={handleBomSearchInputChange}
+            style={{ width: 200 }}
+          />
+          <Button type="primary" onClick={handleBomSearch}>搜索</Button>
+        </div>
+        <Table
+          dataSource={boms}
+          columns={[
+            {
+              title: 'BOM编码',
+              dataIndex: 'bomCode',
+              key: 'bomCode',
+            },
+            {
+              title: 'BOM名称',
+              dataIndex: 'bomName',
+              key: 'bomName',
+            },
+            {
+              title: 'BOM ID',
+              dataIndex: 'bomId',
+              key: 'bomId',
+            },
+            {
+              title: '操作',
+              key: 'action',
+              render: (_, record) => (
+                <Button type="link" onClick={() => handleBomSelect(record)}>选择</Button>
+              ),
+            },
+          ]}
+          pagination={{
+            current: bomCurrent,
+            pageSize: bomPageSize,
+            total: bomTotal,
+            onChange: handleBomPaginationChange,
+          }}
+        />
+      </Modal>
+
+      {/* 工艺路线选择弹窗 */}
+      <Modal
+        title="选择工艺路线"
+        open={isProcessRouteModalVisible}
+        onCancel={() => setIsProcessRouteModalVisible(false)}
+        footer={null}
+        width={800}
+      >
+        <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
+          <Input
+            name="routeCode"
+            placeholder="工艺路线编码"
+            value={processRouteSearchValues.routeCode}
+            onChange={handleProcessRouteSearchInputChange}
+            style={{ width: 200 }}
+          />
+          <Input
+            name="routeName"
+            placeholder="工艺路线名称"
+            value={processRouteSearchValues.routeName}
+            onChange={handleProcessRouteSearchInputChange}
+            style={{ width: 200 }}
+          />
+          <Button type="primary" onClick={handleProcessRouteSearch}>搜索</Button>
+        </div>
+        <Table
+          dataSource={processRoutes}
+          columns={[
+            {
+              title: '工艺路线编码',
+              dataIndex: 'routeCode',
+              key: 'routeCode',
+            },
+            {
+              title: '工艺路线名称',
+              dataIndex: 'routeName',
+              key: 'routeName',
+            },
+            {
+              title: '工艺路线 ID',
+              dataIndex: 'id',
+              key: 'id',
+            },
+            {
+              title: '操作',
+              key: 'action',
+              render: (_, record) => (
+                <Button type="link" onClick={() => handleProcessRouteSelect(record)}>选择</Button>
+              ),
+            },
+          ]}
+          pagination={{
+            current: processRouteCurrent,
+            pageSize: processRoutePageSize,
+            total: processRouteTotal,
+            onChange: handleProcessRoutePaginationChange,
+          }}
+        />
       </Modal>
     </PageContainer>
   );
