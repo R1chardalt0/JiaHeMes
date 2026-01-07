@@ -6,11 +6,15 @@ using ChargePadLine.Client.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Configuration;
 using System.Data;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using MessageBox = HandyControl.Controls.MessageBox;
 
@@ -62,9 +66,15 @@ public partial class App : Application
             // 配置依赖注入
             var services = new ServiceCollection();
             ConfigureServices(services);
-            _serviceProvider = services.BuildServiceProvider();
-            InitializeDatabaseAndStartServices(_serviceProvider);
+            // 先把业务服务（包括 PLC1 的 HostedService）注册进去
             services.AddMesManageServices(_configuration);
+            _serviceProvider = services.BuildServiceProvider();
+
+            // 初始化数据库
+            InitializeDatabaseAndStartServices(_serviceProvider);
+
+            // 启动所有 IHostedService（包括 Plc1Service）
+            StartHostedServices(_serviceProvider);
 
             // 创建主窗口
             var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
@@ -123,11 +133,17 @@ public partial class App : Application
         services.AddTransient<MainWindow>();
     }
 
-    protected override void OnExit(ExitEventArgs e)
-    {
-        _serviceProvider?.Dispose();
-        base.OnExit(e);
-    }
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // 优雅停止所有 IHostedService
+            if (_serviceProvider != null)
+            {
+                StopHostedServices(_serviceProvider);
+                _serviceProvider.Dispose();
+            }
+
+            base.OnExit(e);
+        }
 
     #region 数据库服务
     /// <summary>
@@ -182,6 +198,37 @@ public partial class App : Application
                     break;
                 }
             }
+        }
+    }
+    #endregion
+
+    #region HostedService 启停
+    /// <summary>
+    /// 手动启动所有注册的 IHostedService（WPF 中未使用泛型 Host，需要自己触发）
+    /// </summary>
+    /// <param name="serviceProvider"></param>
+    private void StartHostedServices(ServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var hostedServices = scope.ServiceProvider.GetServices<IHostedService>().ToList();
+        foreach (var hostedService in hostedServices)
+        {
+            // 同步等待启动完成，避免启动阶段异常被吞掉
+            hostedService.StartAsync(CancellationToken.None).GetAwaiter().GetResult();
+        }
+    }
+
+    /// <summary>
+    /// 应用退出时停止所有 IHostedService
+    /// </summary>
+    /// <param name="serviceProvider"></param>
+    private void StopHostedServices(ServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var hostedServices = scope.ServiceProvider.GetServices<IHostedService>().ToList();
+        foreach (var hostedService in hostedServices)
+        {
+            hostedService.StopAsync(CancellationToken.None).GetAwaiter().GetResult();
         }
     }
     #endregion

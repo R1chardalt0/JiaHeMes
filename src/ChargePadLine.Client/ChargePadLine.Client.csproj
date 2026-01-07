@@ -61,10 +61,4 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Services\PlcService\Plc1\O型圈及冷却铝板装配\" />
-	  <Folder Include="Services\PlcService\Plc2\导热胶涂敷\" />
-	  <Folder Include="Services\PlcService\Plc2\电机腔气密测试\" />
-	</ItemGroup>
 </Project>
