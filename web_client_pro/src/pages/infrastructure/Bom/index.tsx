@@ -453,7 +453,7 @@ const BomPage: React.FC = () => {
                   bomItems.map((item) => (
                     <Col xs={24} sm={12} md={8} key={item.bomItemId}>
                       <Card
-                        title={`BOM子项 - ${item.stationCode}`}
+                        title={`BOM子项`}
                         extra={
                           <div>
                             <Button
