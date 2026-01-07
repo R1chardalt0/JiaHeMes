@@ -24,7 +24,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
             {
                 var req = s7Net.ReadBool("DB200.1000.0").Content;
                 var resp = s7Net.ReadBool("DB200.1000.1").Content;
-
+                var sn = s7Net.ReadString("DB200.100", 20).Content.Trim().Replace("\0", "").Replace("\b", ""); 
                 if (req && !resp)
                 {
                     _logger.LogInformation("定子检测请求收到");
