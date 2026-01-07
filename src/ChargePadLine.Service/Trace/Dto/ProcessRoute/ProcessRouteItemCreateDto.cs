@@ -34,7 +34,12 @@ namespace ChargePadLine.Service.Trace.Dto.ProcessRoute
     /// <summary>
     /// 是否首站
     /// </summary>
-    public bool FirstStation { get; set; }
+    public bool FirstStation { get; set; } = false;
+
+    /// <summary>
+    /// 是否全检
+    /// </summary>
+    public bool CheckAll { get; set; } = false;
 
     /// <summary>
     /// 备注信息

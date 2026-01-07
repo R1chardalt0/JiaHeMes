@@ -45,5 +45,10 @@ namespace ChargePadLine.Entitys.Trace.ProcessRouting
     /// </summary>
     public bool FirstStation { get; set; } = false;
 
+    /// <summary>
+    /// 是否全检
+    /// </summary>
+    public bool CheckAll { get; set; } = false;
+
   }
 }

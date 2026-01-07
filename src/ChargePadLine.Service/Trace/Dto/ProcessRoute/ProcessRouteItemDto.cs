@@ -42,6 +42,11 @@ namespace ChargePadLine.Service.Trace.Dto.ProcessRoute
     public bool FirstStation { get; set; } = false;
 
     /// <summary>
+    /// 是否全检
+    /// </summary>
+    public bool CheckAll { get; set; } = false;
+
+    /// <summary>
     /// 备注信息
     /// </summary>
     public string? Remark { get; set; }

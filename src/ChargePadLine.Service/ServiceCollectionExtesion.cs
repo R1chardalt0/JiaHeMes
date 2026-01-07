@@ -52,6 +52,7 @@ namespace ChargePadLine.Service
       services.AddScoped<IBomItemService, BomItemService>();
       // 工艺路线服务
       services.AddScoped<IProcessRouteService, ProcessRouteService>();
+      services.AddScoped<IProcessRouteItemService, ProcessRouteItemService>();
       #endregion
 
       #region 数据迁移服务配置
