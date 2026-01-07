@@ -110,7 +110,7 @@
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6ed;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6e4;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
                         <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">测功机</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
