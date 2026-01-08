@@ -46,10 +46,10 @@ namespace ChargePadLine.Service.Trace.Dto.Order
     /// </summary>
     public int OrderType { get; set; }
 
-    /// <summary>
-    /// 工单状态：1-新建，2-已排产，3-生产中，4-已完成，5-已关闭
-    /// </summary>
-    public int OrderStatus { get; set; }
+    // /// <summary>
+    // /// 工单状态：1-新建，2-已排产，3-生产中，4-已完成，5-已关闭
+    // /// </summary>
+    // public int OrderStatus { get; set; }
 
     /// <summary>
     /// 计划数量

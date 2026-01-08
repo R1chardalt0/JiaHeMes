@@ -129,7 +129,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <summary>
     /// 更新工单
     /// </summary>
-    /// <param name="id">工单ID</param>
+    /// <param name="orderListId">工单ID</param>
     /// <param name="dto">更新工单DTO</param>
     /// <returns>更新后的工单信息</returns>
     [HttpPost("UpdateOrderListById")]
@@ -137,14 +137,19 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     {
       try
       {
+        // 添加调试日志以查看ID值
+        _logger.LogInformation("后端调试 - URL查询参数中的ID: {UrlOrderId}, 请求体中的ID: {BodyOrderId}", orderListId, dto?.OrderListId);
+
         // 验证输入参数
         if (dto == null)
         {
+          _logger.LogWarning("请求数据为空");
           return BadRequest("请求数据不能为空");
         }
 
         if (dto.OrderListId != orderListId)
         {
+          _logger.LogWarning("ID不匹配 - URL查询参数ID: {UrlOrderId}, 请求体ID: {BodyOrderId}", orderListId, dto.OrderListId);
           return BadRequest("URL中的ID与请求体中的ID不匹配");
         }
 
