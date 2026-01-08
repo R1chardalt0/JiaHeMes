@@ -5,7 +5,7 @@ import { Button, Tabs, message, Card, Row, Col, Modal, Form, Input, Select, Swit
 import { EyeOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import { getBomList, getBomById, createBom, updateBom, deleteBom } from '@/services/Api/Infrastructure/Bom/BomList';
 import { getBomItemsByBomId, createBomItem, updateBomItem, deleteBomItem, getBomItemById } from '@/services/Api/Infrastructure/Bom/BomItem';
-import { getProductListList } from '@/services/Api/Infrastructure/ProductList';
+import { getProductListList, getProductListById } from '@/services/Api/Infrastructure/ProductList';
 import { getStationListList } from '@/services/Api/Infrastructure/StationList';
 import { StationListDto } from '@/services/Model/Infrastructure/StationList';
 import { BomListDto, BomListQueryDto, BomListCreateDto, BomListUpdateDto } from '@/services/Model/Infrastructure/Bom/BomList';
@@ -51,6 +51,7 @@ const BomPage: React.FC = () => {
     pageSize: 10
   });
   const [selectedProduct, setSelectedProduct] = useState<ProductListDto | null>(null);
+  const [selectedProductName, setSelectedProductName] = useState<string>('');
   const [productSearchValues, setProductSearchValues] = useState({
     productCode: '',
     productName: ''
@@ -174,17 +175,34 @@ const BomPage: React.FC = () => {
 
   // 显示BOM详情
   const handleShowDetail = useCallback(async (record: BomListDto) => {
-    console.log('BOM - 查看详情记录:', record);
-
     try {
       setCurrentRow(record);
       setShowDetail(true);
 
       // 获取BOM子项
-      console.log('BOM - 获取子项信息, bomId:', record.bomId);
       const itemsResponse = await getBomItemsByBomId(record.bomId);
-      console.log('BOM - 子项信息返回:', itemsResponse);
-      setBomItems(itemsResponse);
+
+      // 为每个BOM子项获取产品详情
+      const updatedBomItems = await Promise.all(
+        itemsResponse.map(async (item: BomItem) => {
+          if (item.productId) {
+            try {
+              const product = await getProductListById(item.productId);
+              return {
+                ...item,
+                productName: product.productName || '',
+                productCode: product.productCode || ''
+              };
+            } catch (error) {
+              console.error('获取产品详情失败:', error);
+              return item;
+            }
+          }
+          return item;
+        })
+      );
+
+      setBomItems(updatedBomItems);
     } catch (error) {
       messageApi.error('获取详情失败');
       console.error('获取详情失败:', error);
@@ -329,21 +347,13 @@ const BomPage: React.FC = () => {
   // 处理产品选择
   const handleProductSelect = useCallback(async (product: ProductListDto) => {
     setSelectedProduct(product);
+    setSelectedProductName(product.productName);
     // 将选中的产品ID设置到表单中
-    console.log('选择产品:', product);
-    console.log('设置产品ID:', product.productListId);
-
-    // 先设置表单值
-    form.setFieldsValue({ productId: product.productListId });
-
-    // 验证表单值是否正确设置
-    try {
-      const values = await form.getFieldsValue();
-      console.log('表单值:', values);
-      console.log('产品ID字段值:', values.productId);
-    } catch (error) {
-      console.error('获取表单值失败:', error);
-    }
+    form.setFieldsValue({
+      productId: product.productListId,
+      productName: product.productName,
+      productCode: product.productCode
+    });
 
     // 延迟关闭弹窗，确保表单值更新
     setTimeout(() => {
@@ -395,7 +405,26 @@ const BomPage: React.FC = () => {
           // 重新获取子项列表
           if (currentRow) {
             const itemsResponse = await getBomItemsByBomId(currentRow.bomId);
-            setBomItems(itemsResponse);
+            // 为每个BOM子项获取产品详情
+            const updatedBomItems = await Promise.all(
+              itemsResponse.map(async (item: BomItem) => {
+                if (item.productId) {
+                  try {
+                    const product = await getProductListById(item.productId);
+                    return {
+                      ...item,
+                      productName: product.productName || '',
+                      productCode: product.productCode || ''
+                    };
+                  } catch (error) {
+                    console.error('获取产品详情失败:', error);
+                    return item;
+                  }
+                }
+                return item;
+              })
+            );
+            setBomItems(updatedBomItems);
           }
         } catch (error) {
           message.error('BOM子项删除失败');
@@ -415,12 +444,27 @@ const BomPage: React.FC = () => {
   // 打开编辑BOM子项模态框
   const handleEditBomItem = useCallback(async (bomItem: BomItem) => {
     setEditingBomItem(bomItem);
+    // 查找对应产品的名称和编码
+    let productName = '';
+    let productCode = '';
+    if (bomItem.productId) {
+      try {
+        // 根据产品ID获取产品详情
+        const product = await getProductListById(bomItem.productId);
+        productName = product.productName || '';
+        productCode = product.productCode || '';
+      } catch (error) {
+        console.error('获取产品详情失败:', error);
+      }
+    }
     form.setFieldsValue({
       stationCode: bomItem.stationCode,
       batchRule: bomItem.batchRule,
       batchQty: bomItem.batchQty,
       batchSNQty: bomItem.batchSNQty,
-      productId: bomItem.productId
+      productId: bomItem.productId,
+      productName: productName,
+      productCode: productCode
     });
     setIsEditModalVisible(true);
   }, [form]);
@@ -439,7 +483,9 @@ const BomPage: React.FC = () => {
           batchRule: values.batchRule,
           batchQty: values.batchQty,
           batchSNQty: values.batchSNQty,
-          productId: values.productId
+          productId: values.productId,
+          productName: values.productName,
+          productCode: values.productCode
         };
 
         await updateBomItem(editingBomItem.bomItemId, updatedItem);
@@ -453,7 +499,9 @@ const BomPage: React.FC = () => {
           batchRule: values.batchRule,
           batchQty: values.batchQty,
           batchSNQty: values.batchSNQty,
-          productId: values.productId
+          productId: values.productId,
+          productName: values.productName,
+          productCode: values.productCode
         };
 
         await createBomItem(newItem);
@@ -464,7 +512,26 @@ const BomPage: React.FC = () => {
       // 重新获取子项列表
       if (currentRow) {
         const itemsResponse = await getBomItemsByBomId(currentRow.bomId);
-        setBomItems(itemsResponse);
+        // 为每个BOM子项获取产品详情
+        const updatedBomItems = await Promise.all(
+          itemsResponse.map(async (item: BomItem) => {
+            if (item.productId) {
+              try {
+                const product = await getProductListById(item.productId);
+                return {
+                  ...item,
+                  productName: product.productName || '',
+                  productCode: product.productCode || ''
+                };
+              } catch (error) {
+                console.error('获取产品详情失败:', error);
+                return item;
+              }
+            }
+            return item;
+          })
+        );
+        setBomItems(updatedBomItems);
       }
     } catch (error) {
       message.error('保存失败，请检查输入');
@@ -486,8 +553,6 @@ const BomPage: React.FC = () => {
         request={async (
           params
         ): Promise<RequestData<BomListDto>> => {
-          console.log('BOM - 请求参数:', params);
-
           setCurrentSearchParams({
             current: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
@@ -504,11 +569,8 @@ const BomPage: React.FC = () => {
             status: params.status,
           };
 
-          console.log('BOM - API查询参数:', queryParams);
-
           try {
             const response = await getBomList(queryParams);
-            console.log('BOM - API返回数据:', response);
 
             return {
               data: response.data || [],
@@ -629,12 +691,13 @@ const BomPage: React.FC = () => {
                       >
                         <div style={{ lineHeight: '1.8', fontSize: '14px' }}>
                           <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>BOM子项ID:</strong> {item.bomItemId}</p>
-                          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>BOM ID:</strong> {item.bomId}</p>
                           <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>站点编码:</strong> {item.stationCode}</p>
                           <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>批次规则:</strong> {item.batchRule}</p>
                           <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>批次数据固定:</strong> {item.batchQty ? '是' : '否'}</p>
                           <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>批次SN数量:</strong> {item.batchSNQty}</p>
                           <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>产品ID:</strong> {item.productId}</p>
+                          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>产品名称:</strong> {item.productName || '-'}</p>
+                          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>产品编码:</strong> {item.productCode || '-'}</p>
                         </div>
                       </Card>
                     </Col>
@@ -757,6 +820,18 @@ const BomPage: React.FC = () => {
                 选择
               </Button>
             </div>
+          </Form.Item>
+          <Form.Item
+            name="productName"
+            label="产品名称"
+          >
+            <Input placeholder="产品名称" readOnly disabled />
+          </Form.Item>
+          <Form.Item
+            name="productCode"
+            label="产品编码"
+          >
+            <Input placeholder="产品编码" readOnly disabled />
           </Form.Item>
         </Form>
       </Modal>

@@ -6,7 +6,6 @@ import ProcessRouteItemCard from './ProcessRouteItemCard';
 
 interface ProcessRouteItemListProps {
   processRouteItems: ProcessRouteItem[];
-  onAdd: () => void;
   onEdit: (item: ProcessRouteItem) => void;
   onDelete: (id: string) => void;
 }
@@ -17,17 +16,11 @@ interface ProcessRouteItemListProps {
  */
 const ProcessRouteItemList: React.FC<ProcessRouteItemListProps> = ({ 
   processRouteItems, 
-  onAdd, 
   onEdit, 
   onDelete 
 }) => {
   return (
     <>
-      <div style={{ marginBottom: 16, textAlign: 'right' }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={onAdd}>
-          添加工艺路线子项
-        </Button>
-      </div>
       <Row gutter={[16, 16]}>
         {processRouteItems.length > 0 ? (
           processRouteItems.map((item) => (

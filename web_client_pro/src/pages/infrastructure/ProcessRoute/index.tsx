@@ -67,16 +67,13 @@ const ProcessRoutePage: React.FC = () => {
 
   // 显示工艺路线详情
   const handleShowDetail = useCallback(async (record: ProcessRouteDto) => {
-    console.log('工艺路线 - 查看详情记录:', record);
 
     try {
       setCurrentRow(record);
       setShowDetail(true);
 
       // 获取工艺路线子项
-      console.log('工艺路线 - 获取子项信息, headId:', record.id);
       const itemsResponse = await getProcessRouteItemsByHeadId(record.id);
-      console.log('工艺路线 - 子项信息返回:', itemsResponse);
       setProcessRouteItems(itemsResponse);
     } catch (error) {
       messageApi.error('获取详情失败');
@@ -308,8 +305,6 @@ const ProcessRoutePage: React.FC = () => {
         request={async (
           params
         ): Promise<RequestData<ProcessRouteDto>> => {
-          console.log('工艺路线 - 请求参数:', params);
-
           setCurrentSearchParams({
             current: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
@@ -326,11 +321,8 @@ const ProcessRoutePage: React.FC = () => {
             status: params.status,
           };
 
-          console.log('工艺路线 - API查询参数:', queryParams);
-
           try {
             const response = await getProcessRouteList(queryParams);
-            console.log('工艺路线 - API返回数据:', response);
 
             return {
               data: response.data || [],
@@ -392,12 +384,22 @@ const ProcessRoutePage: React.FC = () => {
 
           <Tabs activeKey={activeTabKey} onChange={setActiveTabKey} style={{ marginTop: 20 }}>
             <TabPane
-              tab="工艺路线子项"
+              tab={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  工艺路线子项
+                  <Button
+                    type="primary"
+                    style={{ marginLeft: 16 }}
+                    onClick={handleAddProcessRouteItem}
+                  >
+                    添加子项
+                  </Button>
+                </div>
+              }
               key="items"
             >
               <ProcessRouteItemList
                 processRouteItems={processRouteItems}
-                onAdd={handleAddProcessRouteItem}
                 onEdit={handleEditProcessRouteItem}
                 onDelete={handleDeleteProcessRouteItem}
               />

@@ -142,16 +142,28 @@ const ProductList: React.FC = () => {
     // 将选中的BOM ID设置到表单中
     console.log('选择BOM:', bom);
     console.log('设置BOM ID:', bom.bomId);
+    console.log('设置BOM编号:', bom.bomCode);
+    console.log('设置BOM名称:', bom.bomName);
 
     // 先设置表单值
-    form.setFieldsValue({ bomId: bom.bomId });
-    editForm.setFieldsValue({ bomId: bom.bomId });
+    form.setFieldsValue({
+      bomId: bom.bomId,
+      bomCode: bom.bomCode,
+      bomName: bom.bomName
+    });
+    editForm.setFieldsValue({
+      bomId: bom.bomId,
+      bomCode: bom.bomCode,
+      bomName: bom.bomName
+    });
 
     // 验证表单值是否正确设置
     try {
       const values = await form.getFieldsValue();
       console.log('表单值:', values);
       console.log('BOM ID字段值:', values.bomId);
+      console.log('BOM编号字段值:', values.bomCode);
+      console.log('BOM名称字段值:', values.bomName);
     } catch (error) {
       console.error('获取表单值失败:', error);
     }
@@ -225,16 +237,27 @@ const ProductList: React.FC = () => {
     // 将选中的工艺路线 ID设置到表单中
     console.log('选择工艺路线:', processRoute);
     console.log('设置工艺路线 ID:', processRoute.id);
+    console.log('设置工艺路线编号:', processRoute.routeCode);
+    console.log('设置工艺路线名称:', processRoute.routeName);
 
     // 先设置表单值
-    form.setFieldsValue({ processRouteId: processRoute.id });
-    editForm.setFieldsValue({ processRouteId: processRoute.id });
+    form.setFieldsValue({
+      processRouteId: processRoute.id,
+      processRouteCode: processRoute.routeCode,
+      processRouteName: processRoute.routeName
+    });
+    editForm.setFieldsValue({
+      processRouteId: processRoute.id,
+      processRouteCode: processRoute.routeCode,
+      processRouteName: processRoute.routeName
+    });
 
     // 验证表单值是否正确设置
     try {
       const values = await form.getFieldsValue();
       console.log('表单值:', values);
       console.log('工艺路线 ID字段值:', values.processRouteId);
+      console.log('工艺路线编号字段值:', values.processRouteCode);
     } catch (error) {
       console.error('获取表单值失败:', error);
     }
@@ -285,7 +308,11 @@ const ProductList: React.FC = () => {
       productName: record.productName,
       productCode: record.productCode,
       bomId: record.bomId,
+      bomCode: record.bomCode,
+      bomName: record.bomName,
       processRouteId: record.processRouteId,
+      processRouteCode: record.processRouteCode,
+      processRouteName: record.processRouteName,
       productType: record.productType,
       remark: record.remark,
     });
@@ -309,9 +336,34 @@ const ProductList: React.FC = () => {
       width: 180,
     },
     {
+      title: 'BOM编号',
+      dataIndex: 'bomCode',
+      key: 'bomCode',
+      width: 180,
+    },
+    {
+      title: 'BOM名称',
+      dataIndex: 'bomName',
+      key: 'bomName',
+      width: 180,
+    },
+    {
       title: 'BOM ID',
       dataIndex: 'bomId',
       key: 'bomId',
+      width: 180,
+      hideInTable: true,
+    },
+    {
+      title: '工艺路线编号',
+      dataIndex: 'processRouteCode',
+      key: 'processRouteCode',
+      width: 180,
+    },
+    {
+      title: '工艺路线名称',
+      dataIndex: 'processRouteName',
+      key: 'processRouteName',
       width: 180,
     },
     {
@@ -319,6 +371,7 @@ const ProductList: React.FC = () => {
       dataIndex: 'processRouteId',
       key: 'processRouteId',
       width: 180,
+      hideInTable: true,
     },
     {
       title: '产品类型',
@@ -434,8 +487,59 @@ const ProductList: React.FC = () => {
           try {
             const response = await getProductListList(queryParams);
 
+            // 为每个产品补充BOM和工艺路线信息
+            const enhancedData = await Promise.all(
+              (response.data || []).map(async (product: ProductListDto) => {
+                let updatedProduct = { ...product };
+
+                // 补充BOM信息
+                if (product.bomId) {
+                  try {
+                    const bomList = await getBomList({ current: 1, pageSize: 1000 });
+                    const bom = bomList.data.find((b: any) => b.bomId === product.bomId);
+
+                    if (bom) {
+                      updatedProduct = {
+                        ...updatedProduct,
+                        bomCode: bom.bomCode || '',
+                        bomName: bom.bomName || ''
+                      };
+                    }
+                  } catch (error) {
+                    console.error('获取BOM信息失败:', error);
+                  }
+                }
+
+                // 补充工艺路线信息
+                if (product.processRouteId) {
+                  try {
+                    const processRouteList = await getProcessRouteList({ current: 1, pageSize: 1000 });
+
+                    let processRoute = processRouteList.data.find((pr: any) => {
+                      return pr.processRouteId === product.processRouteId ||
+                        pr.id === product.processRouteId ||
+                        pr.processId === product.processRouteId ||
+                        pr.routeId === product.processRouteId;
+                    });
+
+                    if (processRoute) {
+                      updatedProduct = {
+                        ...updatedProduct,
+                        processRouteCode: processRoute.processRouteCode || processRoute.code || processRoute.routeCode || '',
+                        processRouteName: processRoute.processRouteName || processRoute.name || processRoute.routeName || ''
+                      };
+                    }
+                  } catch (error) {
+                    console.error('获取工艺路线信息失败:', error);
+                  }
+                }
+
+                return updatedProduct;
+              })
+            );
+
             const result = {
-              data: response.data || [],
+              data: enhancedData,
               total: response.total || 0,
               success: response.success ?? true,
             };
@@ -636,6 +740,14 @@ const ProductList: React.FC = () => {
             </div>
           </Form.Item>
 
+          <Form.Item name="bomCode" label="BOM编号">
+            <Input placeholder="BOM编号" readOnly disabled />
+          </Form.Item>
+
+          <Form.Item name="bomName" label="BOM名称">
+            <Input placeholder="BOM名称" readOnly disabled />
+          </Form.Item>
+
           <Form.Item label="工艺路线 ID" rules={[{ required: true, message: '请选择工艺路线' }]}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
               <Form.Item name="processRouteId" noStyle>
@@ -643,6 +755,14 @@ const ProductList: React.FC = () => {
               </Form.Item>
               <Button type="primary" icon={<SearchOutlined />} onClick={handleOpenProcessRouteModal} style={{ marginTop: 4 }}>选择</Button>
             </div>
+          </Form.Item>
+
+          <Form.Item name="processRouteCode" label="工艺路线编号">
+            <Input placeholder="工艺路线编号" readOnly disabled />
+          </Form.Item>
+
+          <Form.Item name="processRouteName" label="工艺路线名称">
+            <Input placeholder="工艺路线名称" readOnly disabled />
           </Form.Item>
 
           <Form.Item
@@ -721,6 +841,14 @@ const ProductList: React.FC = () => {
             </div>
           </Form.Item>
 
+          <Form.Item name="bomCode" label="BOM编号">
+            <Input placeholder="BOM编号" readOnly disabled />
+          </Form.Item>
+
+          <Form.Item name="bomName" label="BOM名称">
+            <Input placeholder="BOM名称" readOnly disabled />
+          </Form.Item>
+
           <Form.Item label="工艺路线 ID" rules={[{ required: true, message: '请选择工艺路线' }]}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
               <Form.Item name="processRouteId" noStyle>
@@ -728,6 +856,14 @@ const ProductList: React.FC = () => {
               </Form.Item>
               <Button type="primary" icon={<SearchOutlined />} onClick={handleOpenProcessRouteModal} style={{ marginTop: 4 }}>选择</Button>
             </div>
+          </Form.Item>
+
+          <Form.Item name="processRouteCode" label="工艺路线编号">
+            <Input placeholder="工艺路线编号" readOnly disabled />
+          </Form.Item>
+
+          <Form.Item name="processRouteName" label="工艺路线名称">
+            <Input placeholder="工艺路线名称" readOnly disabled />
           </Form.Item>
 
           <Form.Item
@@ -756,6 +892,7 @@ const ProductList: React.FC = () => {
         onCancel={() => setIsBomModalVisible(false)}
         footer={null}
         width={800}
+        zIndex={1001}
       >
         <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
           <Input
@@ -816,6 +953,7 @@ const ProductList: React.FC = () => {
         onCancel={() => setIsProcessRouteModalVisible(false)}
         footer={null}
         width={800}
+        zIndex={1001}
       >
         <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
           <Input

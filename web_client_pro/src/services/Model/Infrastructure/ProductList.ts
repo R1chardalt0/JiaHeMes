@@ -70,9 +70,25 @@ export interface ProductListDto {
    */
   bomId?: string;
   /**
+   * BOM编号
+   */
+  bomCode?: string;
+  /**
+   * BOM名称
+   */
+  bomName?: string;
+  /**
    * 工艺路线 ID
    */
   processRouteId?: string;
+  /**
+   * 工艺路线编号
+   */
+  processRouteCode?: string;
+  /**
+   * 工艺路线名称
+   */
+  processRouteName?: string;
   /**
    * 产品类型
    */
