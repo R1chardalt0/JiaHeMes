@@ -31,7 +31,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
             {         
                 var req = s7Net.ReadBool("DB200.1000.0").Content;
                 var resp = s7Net.ReadBool("DB200.1000.1").Content;
-                var sn = s7Net.ReadString("DB200.100", 20).Content.Trim().Replace("\0", "").Replace("\b", "");
+                var sn = s7Net.ReadString("DB200.100").Content.Trim().Replace("\0", "").Replace("\b", "");
 
                 // 更新数据服务
                 _statorTestDataService.UpdateData(req, resp, sn);
