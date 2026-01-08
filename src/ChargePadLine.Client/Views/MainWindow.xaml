@@ -74,13 +74,13 @@
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Background="#1E3652" CornerRadius="6" Padding="10,6" Margin="0,0,12,0">
-                                <TextBlock Text="{Binding CurrentTime, FallbackValue='--:--:--'}"
+                                <TextBlock Text="{Binding CurrentTime.Value, FallbackValue='--:--:--'}"
                                            Foreground="#E5F2FF"
                                            FontSize="13"
                                            FontWeight="SemiBold"/>
                             </Border>
                             <Border Background="#1E3652" CornerRadius="6" Padding="10,6">
-                                <TextBlock Text="{Binding CurrentShift, FallbackValue='当班次：A'}"
+                                <TextBlock Text="{Binding CurrentShift.Value, FallbackValue='当班次：A'}"
                                            Foreground="#E5F2FF"
                                            FontSize="13"/>
                             </Border>
@@ -141,22 +141,22 @@
                     <UniformGrid Columns="4" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                             <TextBlock Text="CPU" Foreground="#8FB8FF" FontSize="12" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding SystemStatus.CpuUsage, StringFormat={}{0:P0}, FallbackValue=18%}"
+                            <TextBlock Text="{Binding CpuUsage.Value, StringFormat={}{0:P0}, FallbackValue=18%}"
                                        Foreground="White" FontSize="14" FontWeight="SemiBold"/>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                             <TextBlock Text="内存" Foreground="#8FB8FF" FontSize="12" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding SystemStatus.MemoryUsage, StringFormat={}{0:P0}, FallbackValue=42%}"
+                            <TextBlock Text="{Binding MemoryUsage.Value, StringFormat={}{0:P0}, FallbackValue=42%}"
                                        Foreground="White" FontSize="14" FontWeight="SemiBold"/>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                             <TextBlock Text="硬盘" Foreground="#8FB8FF" FontSize="12" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding SystemStatus.HardDisk, StringFormat={}{0} Mbps, FallbackValue=20%}"
+                            <TextBlock Text="{Binding HardDisk.Value, StringFormat={}{0:P0}, FallbackValue=20%}"
                                        Foreground="White" FontSize="14" FontWeight="SemiBold"/>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                             <TextBlock Text="状态" Foreground="#8FB8FF" FontSize="12" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding SystemStatus.Health, FallbackValue=就绪}"
+                            <TextBlock Text="{Binding Health.Value, FallbackValue=就绪}"
                                        Foreground="#6EE7B7" FontSize="14" FontWeight="SemiBold"/>
                         </StackPanel>
                     </UniformGrid>

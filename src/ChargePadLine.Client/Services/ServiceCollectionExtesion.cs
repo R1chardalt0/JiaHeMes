@@ -1,4 +1,4 @@
-﻿using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService;
 using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
@@ -35,6 +35,10 @@ namespace ChargePadLine.Client.Services
             #region plc交互业务注册
             services.AddTransient<定子检测MiddleWare>();
             services.AddTransient<O型圈装配MiddleWare>();
+            #endregion
+
+            #region 系统信息服务注册
+            services.AddSingleton<ISystemInfoService, SystemInfoService>();
             #endregion
 
             return services;
