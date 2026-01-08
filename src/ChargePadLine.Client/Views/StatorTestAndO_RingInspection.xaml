@@ -42,7 +42,7 @@
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <TextBlock Text="序列号 (SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center" Margin="0,-15,0,0"/>
+                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
@@ -90,7 +90,7 @@
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center" Margin="0,-15,0,0"/>
+                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
@@ -134,7 +134,7 @@
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center" Margin="0,-15,0,0"/>
+                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
@@ -182,7 +182,7 @@
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center" Margin="0,-15,0,0"/>
+                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
