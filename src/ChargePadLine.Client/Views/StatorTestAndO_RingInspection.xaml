@@ -8,17 +8,6 @@
              xmlns:viewModels="clr-namespace:ChargePadLine.Client.ViewModels"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=viewModels:StatorTestViewModel}">
-    <UserControl.Resources>
-        <Style TargetType="GroupBox">
-            <Setter Property="HeaderTemplate">
-                <Setter.Value>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding}" HorizontalAlignment="Left" FontWeight="Bold"/>
-                    </DataTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </UserControl.Resources>
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
             <bar:TitleBar IconText="&#xe6fa;" TitleText="定子测试" Margin="0,0,0,0" VerticalAlignment="Top"/>
