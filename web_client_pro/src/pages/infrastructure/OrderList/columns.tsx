@@ -83,16 +83,10 @@ export const getOrderListColumns = ({
       key: 'orderType',
       width: 100,
       search: true,
-      render: (text) => {
-        const value = typeof text === 'number' ? text : 0;
-        switch (value) {
-          case 1:
-            return '生产工单';
-          case 2:
-            return '返工工单';
-          default:
-            return '-';
-        }
+      valueType: 'select',
+      valueEnum: {
+        1: { text: '生产工单' },
+        2: { text: '返工工单' }
       }
     },
     {
@@ -115,20 +109,12 @@ export const getOrderListColumns = ({
       key: 'priorityLevel',
       width: 80,
       search: true,
-      render: (text) => {
-        const value = typeof text === 'number' ? text : 0;
-        switch (value) {
-          case 1:
-            return '紧急';
-          case 3:
-            return '高';
-          case 5:
-            return '中';
-          case 7:
-            return '低';
-          default:
-            return '-';
-        }
+      valueType: 'select',
+      valueEnum: {
+        1: { text: '紧急' },
+        3: { text: '高' },
+        5: { text: '中' },
+        7: { text: '低' }
       }
     },
     {
@@ -188,7 +174,11 @@ export const getOrderListColumns = ({
               e.stopPropagation();
               onEdit(record);
             }}
-            style={{ marginRight: 8 }}
+            disabled={record.orderStatus !== 1}
+            style={{
+              marginRight: 8,
+              color: record.orderStatus !== 1 ? '#ccc' : undefined
+            }}
           >
             编辑
           </Button>
@@ -201,6 +191,7 @@ export const getOrderListColumns = ({
             }}
             okText="确定"
             cancelText="取消"
+            disabled={record.orderStatus !== 1}
           >
             <Button
               type="link"
@@ -208,6 +199,10 @@ export const getOrderListColumns = ({
               danger
               icon={<DeleteOutlined />}
               onClick={(e) => e.stopPropagation()}
+              disabled={record.orderStatus !== 1}
+              style={{
+                color: record.orderStatus !== 1 ? '#ccc' : undefined
+              }}
             >
               删除
             </Button>

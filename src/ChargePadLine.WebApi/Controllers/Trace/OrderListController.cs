@@ -137,9 +137,6 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     {
       try
       {
-        // 添加调试日志以查看ID值
-        _logger.LogInformation("后端调试 - URL查询参数中的ID: {UrlOrderId}, 请求体中的ID: {BodyOrderId}", orderListId, dto?.OrderListId);
-
         // 验证输入参数
         if (dto == null)
         {
@@ -149,7 +146,6 @@ namespace ChargePadLine.WebApi.Controllers.Trace
 
         if (dto.OrderListId != orderListId)
         {
-          _logger.LogWarning("ID不匹配 - URL查询参数ID: {UrlOrderId}, 请求体ID: {BodyOrderId}", orderListId, dto.OrderListId);
           return BadRequest("URL中的ID与请求体中的ID不匹配");
         }
 

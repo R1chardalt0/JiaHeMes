@@ -379,12 +379,23 @@ const OrderPage: React.FC = () => {
         request={async (
           params
         ): Promise<RequestData<OrderListDto>> => {
+          // 调试：打印所有搜索参数
+          console.log('搜索参数:', params);
+
           setCurrentSearchParams({
             current: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
             orderCode: params.orderCode,
             orderName: params.orderName,
             orderStatus: params.orderStatus,
+            orderType: params.orderType,
+            priorityLevel: params.priorityLevel,
+            productCode: params.productCode,
+            productName: params.productName,
+            bomCode: params.bomCode,
+            bomName: params.bomName,
+            processRouteCode: params.processRouteCode,
+            processRouteName: params.processRouteName,
           });
 
           const queryParams: OrderListQueryDto = {
@@ -393,10 +404,33 @@ const OrderPage: React.FC = () => {
             orderCode: params.orderCode,
             orderName: params.orderName,
             orderStatus: params.orderStatus,
+            orderType: params.orderType,
+            priorityLevel: params.priorityLevel,
+            productCode: params.productCode,
+            productName: params.productName,
+            bomCode: params.bomCode,
+            bomName: params.bomName,
+            processRouteCode: params.processRouteCode,
+            processRouteName: params.processRouteName,
           };
 
+          // 调试：打印传递给API的参数
+          console.log('传递给API的参数:', queryParams);
+
           try {
-            const response = await getOrderList(queryParams);
+            // 当搜索联合查询字段时，获取更多数据以进行本地过滤
+            const searchParams = [
+              'productCode', 'productName', 'bomCode', 'bomName', 'processRouteCode', 'processRouteName'
+            ];
+            const has联合查询 = searchParams.some(key => params[key]);
+
+            const apiQueryParams = {
+              ...queryParams,
+              // 当搜索联合查询字段时，获取更多数据
+              pageSize: has联合查询 ? 1000 : queryParams.pageSize
+            };
+
+            const response = await getOrderList(apiQueryParams);
 
             // 为每个工单补充产品、BOM和工艺路线信息
             const enhancedData = await Promise.all(
@@ -455,9 +489,41 @@ const OrderPage: React.FC = () => {
               })
             );
 
+            // 本地过滤联合查询字段
+            let filteredData = enhancedData;
+            if (has联合查询) {
+              filteredData = enhancedData.filter(order => {
+                // 检查产品编码
+                if (params.productCode && !order.productCode?.includes(params.productCode)) {
+                  return false;
+                }
+                // 检查产品名称
+                if (params.productName && !order.productName?.includes(params.productName)) {
+                  return false;
+                }
+                // 检查BOM编码
+                if (params.bomCode && !order.bomCode?.includes(params.bomCode)) {
+                  return false;
+                }
+                // 检查BOM名称
+                if (params.bomName && !order.bomName?.includes(params.bomName)) {
+                  return false;
+                }
+                // 检查工艺路线编码
+                if (params.processRouteCode && !order.processRouteCode?.includes(params.processRouteCode)) {
+                  return false;
+                }
+                // 检查工艺路线名称
+                if (params.processRouteName && !order.processRouteName?.includes(params.processRouteName)) {
+                  return false;
+                }
+                return true;
+              });
+            }
+
             return {
-              data: enhancedData,
-              total: response.total || 0,
+              data: filteredData,
+              total: filteredData.length,
               success: response.success !== false,
             };
           } catch (error) {

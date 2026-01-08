@@ -77,7 +77,7 @@ export interface OrderListQueryDto {
   /**
    * 优先级
    */
-  priority?: number;
+  priorityLevel?: number;
 }
 
 /**

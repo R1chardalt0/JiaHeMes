@@ -165,11 +165,11 @@ const OrderListFormModal: React.FC<OrderListFormModalProps> = ({
         </Row>
 
         <Form.Item label="产品ID">
-          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <Form.Item name="productListId" noStyle rules={[{ required: true, message: '请选择产品' }]}>
               <Input placeholder="请选择产品" readOnly style={{ flex: 1 }} />
             </Form.Item>
-            <Button type="primary" onClick={onOpenProductModal} style={{ marginTop: 4 }}>
+            <Button type="primary" onClick={onOpenProductModal}>
               选择产品
             </Button>
           </div>
@@ -180,7 +180,7 @@ const OrderListFormModal: React.FC<OrderListFormModalProps> = ({
               name="productCode"
               label="产品编码"
             >
-              <Input placeholder="产品编码" readOnly />
+              <Input placeholder="产品编码" disabled />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -188,7 +188,7 @@ const OrderListFormModal: React.FC<OrderListFormModalProps> = ({
               name="productName"
               label="产品名称"
             >
-              <Input placeholder="产品名称" readOnly />
+              <Input placeholder="产品名称" disabled />
             </Form.Item>
           </Col>
         </Row>
@@ -199,7 +199,7 @@ const OrderListFormModal: React.FC<OrderListFormModalProps> = ({
               name="bomId"
               label="BOM ID"
             >
-              <Input placeholder="BOM ID" readOnly />
+              <Input placeholder="BOM ID" disabled />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -207,7 +207,7 @@ const OrderListFormModal: React.FC<OrderListFormModalProps> = ({
               name="bomCode"
               label="BOM编码"
             >
-              <Input placeholder="BOM编码" readOnly />
+              <Input placeholder="BOM编码" disabled />
             </Form.Item>
           </Col>
         </Row>
@@ -217,7 +217,7 @@ const OrderListFormModal: React.FC<OrderListFormModalProps> = ({
               name="bomName"
               label="BOM名称"
             >
-              <Input placeholder="BOM名称" readOnly />
+              <Input placeholder="BOM名称" disabled />
             </Form.Item>
           </Col>
         </Row>
@@ -229,7 +229,7 @@ const OrderListFormModal: React.FC<OrderListFormModalProps> = ({
               name="processRouteId"
               label="工艺路线ID"
             >
-              <Input placeholder="工艺路线ID" readOnly />
+              <Input placeholder="工艺路线ID" disabled />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -237,7 +237,7 @@ const OrderListFormModal: React.FC<OrderListFormModalProps> = ({
               name="processRouteCode"
               label="工艺路线编码"
             >
-              <Input placeholder="工艺路线编码" readOnly />
+              <Input placeholder="工艺路线编码" disabled />
             </Form.Item>
           </Col>
         </Row>
@@ -247,7 +247,7 @@ const OrderListFormModal: React.FC<OrderListFormModalProps> = ({
               name="processRouteName"
               label="工艺路线名称"
             >
-              <Input placeholder="工艺路线名称" readOnly />
+              <Input placeholder="工艺路线名称" disabled />
             </Form.Item>
           </Col>
         </Row>
