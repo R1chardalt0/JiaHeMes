@@ -12,10 +12,12 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
     public class O型圈装配MiddleWare : IPlc1Task
     {
         private readonly ILogger<O型圈装配MiddleWare> _logger;
+        private readonly ILogService _logService;
 
-        public O型圈装配MiddleWare(ILogger<O型圈装配MiddleWare> logger)
+        public O型圈装配MiddleWare(ILogger<O型圈装配MiddleWare> logger, ILogService logService)
         {
             _logger = logger;
+            _logService = logService;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -31,7 +33,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "O型圈装配MiddleWare异常");
+                await _logService.RecordLogAsync(LogLevel.Error, $"O型圈装配MiddleWare异常: {ex.Message}");
             }
         }
     }
