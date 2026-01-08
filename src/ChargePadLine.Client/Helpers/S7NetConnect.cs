@@ -2,6 +2,7 @@
 using HslCommunication.Core.Pipe;
 using HslCommunication.Profinet.Siemens;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace ChargePadLine.Client.Helpers
 {
@@ -435,12 +436,25 @@ namespace ChargePadLine.Client.Helpers
         {
             try
             {
-                var result = _s7net.ReadString(address, length);
+                var result = _s7net.ReadString(address, length, Encoding.ASCII);
                 return result;
             }
             catch (Exception ex)
             {
                 _logger?.LogError(string.Format($"S7Net读取字符串异常 - 地址: {0}, 长度: {1}", address, length), ex);
+                return new OperateResult<string>(ex.Message);
+            }
+        }
+        public OperateResult<string> ReadString(string address)
+        {
+            try
+            {
+                var result = _s7net.ReadString(address, Encoding.ASCII);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(string.Format($"S7Net读取字符串异常 - 地址: {0}", address), ex);
                 return new OperateResult<string>(ex.Message);
             }
         }
