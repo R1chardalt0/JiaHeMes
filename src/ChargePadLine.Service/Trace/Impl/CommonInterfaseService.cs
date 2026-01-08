@@ -17,14 +17,14 @@ namespace ChargePadLine.Service.Trace.Impl
         private readonly IRepository<WorkOrder> _workOrderRepo;
         private readonly IRepository<BomRecipe> _bomRecipeRepo;
         private readonly IRepository<Material> _materialRepo;
-        private readonly ILogger<WorkOrderService> _logger;
+        private readonly ILogger<OrderListService> _logger;
         private readonly AppDbContext _dbContext;
 
         public CommonInterfaseService(
             IRepository<WorkOrder> workOrderRepo,
             IRepository<BomRecipe> bomRecipeRepo,
             IRepository<Material> materialRepo,
-            ILogger<WorkOrderService> logger,
+            ILogger<OrderListService> logger,
             AppDbContext dbContext)
         {
             _workOrderRepo = workOrderRepo;
@@ -60,7 +60,7 @@ namespace ChargePadLine.Service.Trace.Impl
             //检查工单状态
             if (DeviceInfosList.WorkOrderCode != null)
             {
-                var workOrder = _dbContext.WorkOrders.FirstOrDefault(x => x.Code.Value == DeviceInfosList.WorkOrderCode);
+                var workOrder = _dbContext.OrderList.FirstOrDefault(x => x.OrderCode == DeviceInfosList.WorkOrderCode);
                 if (workOrder == null)
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，工单编号：{DeviceInfosList.WorkOrderCode}"));

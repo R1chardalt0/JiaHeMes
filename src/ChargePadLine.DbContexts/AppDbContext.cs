@@ -1,6 +1,7 @@
 using ChargePadLine.Entitys.Systems;
 using ChargePadLine.Entitys.Trace;
 using ChargePadLine.Entitys.Trace.InventoryManagement;
+using ChargePadLine.Entitys.Trace.Order;
 using ChargePadLine.Entitys.Trace.ProcessRouting;
 using ChargePadLine.Entitys.Trace.Product;
 using ChargePadLine.Entitys.Trace.Production.BatchQueue;
@@ -78,8 +79,9 @@ namespace ChargePadLine.DbContexts
     public DbSet<BomRecipeItem> BomRecipeItems { get; set; }
 
     //工单
-    public DbSet<WorkOrder> WorkOrders { get; set; }
+    // public DbSet<WorkOrder> WorkOrders { get; set; }
     public DbSet<WorkOrderExecution> WorkOrderExecutions { get; set; }
+    public DbSet<OrderList> OrderList { get; set; }
 
     //追溯信息
     public DbSet<TraceInfo> TraceInfos { get; set; }

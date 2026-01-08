@@ -1,3 +1,4 @@
+//已废弃
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions } from '@ant-design/pro-components';
 import React, { useRef, useState } from 'react';

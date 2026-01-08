@@ -14,7 +14,7 @@ using ChargePadLine.Entitys.Systems;
 namespace ChargePadLine.Entitys.Trace.BOM
 {
   /// <summary>
-  /// 工单
+  /// Bom表
   /// </summary>|
   [Table("mes_bom")]
   public class BomList : BaseEntity

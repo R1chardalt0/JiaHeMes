@@ -37,7 +37,8 @@ namespace ChargePadLine.Service
       // 历史记录服务（使用ReportDbContext）
       services.AddScoped<IHistoryProductTraceInfoService, HistoryProductTraceInfoService>();
       // 工单服务
-      services.AddScoped<IWorkOrderService, WorkOrderService>();
+      //services.AddScoped<IWorkOrderService, WorkOrderService>();
+      services.AddScoped<IOrderListService, OrderListService>();
 
       // 追溯信息服务
       services.AddScoped<ITraceInfoService, TraceInfoService>();
