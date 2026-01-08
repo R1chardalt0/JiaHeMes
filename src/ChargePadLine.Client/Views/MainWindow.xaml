@@ -150,8 +150,8 @@
                                        Foreground="White" FontSize="14" FontWeight="SemiBold"/>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                            <TextBlock Text="网络" Foreground="#8FB8FF" FontSize="12" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding SystemStatus.NetworkSpeed, StringFormat={}{0} Mbps, FallbackValue=125 Mbps}"
+                            <TextBlock Text="硬盘" Foreground="#8FB8FF" FontSize="12" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding SystemStatus.HardDisk, StringFormat={}{0} Mbps, FallbackValue=20%}"
                                        Foreground="White" FontSize="14" FontWeight="SemiBold"/>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">

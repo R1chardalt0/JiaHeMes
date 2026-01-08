@@ -1,6 +1,7 @@
 using System.Windows.Input;
 using ChargePadLine.Client.Commands;
 using ChargePadLine.Client.Services;
+using Reactive.Bindings;
 
 namespace ChargePadLine.Client.ViewModels;
 
@@ -9,61 +10,31 @@ namespace ChargePadLine.Client.ViewModels;
 /// </summary>
 public class MainViewModel : ViewModelBase
 {
-    private readonly ApiClient _apiClient;
     private readonly MonitorViewModel _monitorViewModel;
-    private string _statusMessage = "就绪";
-    private string _apiResponse = "";
 
-    public MainViewModel(ApiClient apiClient, MonitorViewModel monitorViewModel, LogViewModel logViewModel)
+    public MainViewModel(MonitorViewModel monitorViewModel, LogViewModel logViewModel)
     {
-        _apiClient = apiClient;
+
+        CpuUsage = new ReactiveProperty<string>("18%");
+        MemoryUsage = new ReactiveProperty<string>("18%");
+        HardDisk = new ReactiveProperty<string>("18%");
+        Health = new ReactiveProperty<string>("18%");
+        CurrentTime = new ReactiveProperty<DateTime>(DateTime.Now);
+        CurrentShift = new ReactiveProperty<string>("A");
         _monitorViewModel = monitorViewModel;
         LogViewModel = logViewModel;
-        TestConnectionCommand = new RelayCommand(async () => await TestConnectionAsync());
     }
 
     public LogViewModel LogViewModel { get; }
-    
+
     public MonitorViewModel MonitorViewModel => _monitorViewModel;
 
-    public string StatusMessage
-    {
-        get => _statusMessage;
-        set
-        {
-            _statusMessage = value;
-            OnPropertyChanged();
-        }
-    }
 
-    public string ApiResponse
-    {
-        get => _apiResponse;
-        set
-        {
-            _apiResponse = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ICommand TestConnectionCommand { get; }
-
-    private async Task TestConnectionAsync()
-    {
-        try
-        {
-            StatusMessage = "正在测试连接...";
-            // 这里可以调用一个测试接口，比如健康检查
-             var result = await _apiClient.GetAsync<object>("/hello");
-           
-            StatusMessage = "连接成功！";
-            ApiResponse = "后端API连接正常";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"连接失败: {ex.Message}";
-            ApiResponse = ex.ToString();
-        }
-    }
+    public ReactiveProperty<string> CpuUsage { get; }
+    public ReactiveProperty<string> MemoryUsage { get; }
+    public ReactiveProperty<string> HardDisk { get; }
+    public ReactiveProperty<string> Health { get; }
+    public ReactiveProperty<DateTime> CurrentTime { get; }
+    public ReactiveProperty<string> CurrentShift { get; }
 }
 
