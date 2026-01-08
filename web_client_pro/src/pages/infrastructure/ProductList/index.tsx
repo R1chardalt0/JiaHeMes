@@ -1,4 +1,4 @@
-import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import type { ActionType } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions } from '@ant-design/pro-components';
 import React, { useRef, useState, useCallback } from 'react';
 import { Drawer, Button, message, Modal, Form, Input, Popconfirm, Table } from 'antd';
@@ -10,6 +10,10 @@ import { ProductListDto, ProductListQueryDto } from '@/services/Model/Infrastruc
 import { BomListQueryDto } from '@/services/Model/Infrastructure/Bom/BomList';
 import { ProcessRouteQueryDto } from '@/services/Model/Infrastructure/ProcessRoute/ProcessRoute';
 import type { RequestData } from '@ant-design/pro-components';
+import { getProductColumns } from './columns';
+import ProductFormModal, { ProductFormModalRef } from './components/ProductFormModal';
+import BomSelectModal from './components/BomSelectModal';
+import ProcessRouteModal from './components/ProcessRouteModal';
 
 const ProductList: React.FC = () => {
   const actionRef = useRef<ActionType | null>(null);
@@ -19,8 +23,10 @@ const ProductList: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<ProductListDto>();
   const [editingRow, setEditingRow] = useState<ProductListDto>();
   const [messageApi] = message.useMessage();
-  const [form] = Form.useForm<ProductListDto>();
-  const [editForm] = Form.useForm<ProductListDto>();
+
+  // 创建ProductFormModal的ref
+  const createFormRef = useRef<ProductFormModalRef>(null);
+  const editFormRef = useRef<ProductFormModalRef>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [currentSearchParams, setCurrentSearchParams] = useState<ProductListQueryDto>({
     current: 1,
@@ -63,7 +69,11 @@ const ProductList: React.FC = () => {
       const result = await createProductList(values);
       messageApi.success('产品创建成功');
       setShowCreateModal(false);
-      form.resetFields();
+      // 通过ref重置表单
+      if (createFormRef.current) {
+        const createForm = createFormRef.current.getForm();
+        createForm.resetFields();
+      }
       actionRef.current?.reload();
     } catch (error) {
       messageApi.error('产品创建失败');
@@ -76,7 +86,11 @@ const ProductList: React.FC = () => {
       const result = await updateProductList(editingRow!.productListId!, values);
       messageApi.success('产品更新成功');
       setShowEditModal(false);
-      editForm.resetFields();
+      // 通过ref重置表单
+      if (editFormRef.current) {
+        const editForm = editFormRef.current.getForm();
+        editForm.resetFields();
+      }
       setEditingRow(undefined);
       actionRef.current?.reload();
     } catch (error) {
@@ -146,24 +160,33 @@ const ProductList: React.FC = () => {
     console.log('设置BOM名称:', bom.bomName);
 
     // 先设置表单值
-    form.setFieldsValue({
-      bomId: bom.bomId,
-      bomCode: bom.bomCode,
-      bomName: bom.bomName
-    });
-    editForm.setFieldsValue({
-      bomId: bom.bomId,
-      bomCode: bom.bomCode,
-      bomName: bom.bomName
-    });
+    if (createFormRef.current) {
+      const createForm = createFormRef.current.getForm();
+      createForm.setFieldsValue({
+        bomId: bom.bomId,
+        bomCode: bom.bomCode,
+        bomName: bom.bomName
+      });
+    }
+    if (editFormRef.current) {
+      const editForm = editFormRef.current.getForm();
+      editForm.setFieldsValue({
+        bomId: bom.bomId,
+        bomCode: bom.bomCode,
+        bomName: bom.bomName
+      });
+    }
 
     // 验证表单值是否正确设置
     try {
-      const values = await form.getFieldsValue();
-      console.log('表单值:', values);
-      console.log('BOM ID字段值:', values.bomId);
-      console.log('BOM编号字段值:', values.bomCode);
-      console.log('BOM名称字段值:', values.bomName);
+      if (createFormRef.current) {
+        const createForm = createFormRef.current.getForm();
+        const values = await createForm.getFieldsValue();
+        console.log('新建表单值:', values);
+        console.log('BOM ID字段值:', values.bomId);
+        console.log('BOM编号字段值:', values.bomCode);
+        console.log('BOM名称字段值:', values.bomName);
+      }
     } catch (error) {
       console.error('获取表单值失败:', error);
     }
@@ -172,7 +195,7 @@ const ProductList: React.FC = () => {
     setTimeout(() => {
       setIsBomModalVisible(false);
     }, 100);
-  }, [form, editForm]);
+  }, []);
 
   // 处理BOM分页变化
   const handleBomPaginationChange = useCallback((current: number, pageSize: number) => {
@@ -241,23 +264,32 @@ const ProductList: React.FC = () => {
     console.log('设置工艺路线名称:', processRoute.routeName);
 
     // 先设置表单值
-    form.setFieldsValue({
-      processRouteId: processRoute.id,
-      processRouteCode: processRoute.routeCode,
-      processRouteName: processRoute.routeName
-    });
-    editForm.setFieldsValue({
-      processRouteId: processRoute.id,
-      processRouteCode: processRoute.routeCode,
-      processRouteName: processRoute.routeName
-    });
+    if (createFormRef.current) {
+      const createForm = createFormRef.current.getForm();
+      createForm.setFieldsValue({
+        processRouteId: processRoute.id,
+        processRouteCode: processRoute.routeCode,
+        processRouteName: processRoute.routeName
+      });
+    }
+    if (editFormRef.current) {
+      const editForm = editFormRef.current.getForm();
+      editForm.setFieldsValue({
+        processRouteId: processRoute.id,
+        processRouteCode: processRoute.routeCode,
+        processRouteName: processRoute.routeName
+      });
+    }
 
     // 验证表单值是否正确设置
     try {
-      const values = await form.getFieldsValue();
-      console.log('表单值:', values);
-      console.log('工艺路线 ID字段值:', values.processRouteId);
-      console.log('工艺路线编号字段值:', values.processRouteCode);
+      if (createFormRef.current) {
+        const createForm = createFormRef.current.getForm();
+        const values = await createForm.getFieldsValue();
+        console.log('新建表单值:', values);
+        console.log('工艺路线 ID字段值:', values.processRouteId);
+        console.log('工艺路线编号字段值:', values.processRouteCode);
+      }
     } catch (error) {
       console.error('获取表单值失败:', error);
     }
@@ -266,7 +298,7 @@ const ProductList: React.FC = () => {
     setTimeout(() => {
       setIsProcessRouteModalVisible(false);
     }, 100);
-  }, [form, editForm]);
+  }, []);
 
   // 处理工艺路线分页变化
   const handleProcessRoutePaginationChange = useCallback((current: number, pageSize: number) => {
@@ -303,147 +335,31 @@ const ProductList: React.FC = () => {
   // 打开编辑弹窗
   const openEditModal = (record: ProductListDto) => {
     setEditingRow(record);
-    editForm.setFieldsValue({
-      productListId: record.productListId,
-      productName: record.productName,
-      productCode: record.productCode,
-      bomId: record.bomId,
-      bomCode: record.bomCode,
-      bomName: record.bomName,
-      processRouteId: record.processRouteId,
-      processRouteCode: record.processRouteCode,
-      processRouteName: record.processRouteName,
-      productType: record.productType,
-      remark: record.remark,
-    });
+    // 通过ref设置表单值
+    if (editFormRef.current) {
+      const editForm = editFormRef.current.getForm();
+      editForm.setFieldsValue({
+        productListId: record.productListId,
+        productName: record.productName,
+        productCode: record.productCode,
+        bomId: record.bomId,
+        bomCode: record.bomCode,
+        bomName: record.bomName,
+        processRouteId: record.processRouteId,
+        processRouteCode: record.processRouteCode,
+        processRouteName: record.processRouteName,
+        productType: record.productType,
+        remark: record.remark,
+      });
+    }
     setShowEditModal(true);
   };
 
-  const columns: ProColumns<ProductListDto>[] = [
-    {
-      title: '产品编码',
-      dataIndex: 'productCode',
-      key: 'productCode',
-      width: 180,
-      render: (dom, entity) => (
-        <a onClick={() => { setCurrentRow(entity); setShowDetail(true); }}>{dom}</a>
-      )
-    },
-    {
-      title: '产品名称',
-      dataIndex: 'productName',
-      key: 'productName',
-      width: 180,
-    },
-    {
-      title: 'BOM编号',
-      dataIndex: 'bomCode',
-      key: 'bomCode',
-      width: 180,
-    },
-    {
-      title: 'BOM名称',
-      dataIndex: 'bomName',
-      key: 'bomName',
-      width: 180,
-    },
-    {
-      title: 'BOM ID',
-      dataIndex: 'bomId',
-      key: 'bomId',
-      width: 180,
-      hideInTable: true,
-    },
-    {
-      title: '工艺路线编号',
-      dataIndex: 'processRouteCode',
-      key: 'processRouteCode',
-      width: 180,
-    },
-    {
-      title: '工艺路线名称',
-      dataIndex: 'processRouteName',
-      key: 'processRouteName',
-      width: 180,
-    },
-    {
-      title: '工艺路线 ID',
-      dataIndex: 'processRouteId',
-      key: 'processRouteId',
-      width: 180,
-      hideInTable: true,
-    },
-    {
-      title: '产品类型',
-      dataIndex: 'productType',
-      key: 'productType',
-      width: 180,
-    },
-    {
-      title: '备注',
-      dataIndex: 'remark',
-      key: 'remark',
-      width: 200,
-      search: false,
-    },
-    // {
-    //   title: '创建时间',
-    //   dataIndex: 'createTime',
-    //   key: 'createTime',
-    //   width: 180,
-    //   valueType: 'dateTime',
-    //   search: false,
-    // },
-    // {
-    //   title: '更新时间',
-    //   dataIndex: 'updateTime',
-    //   key: 'updateTime',
-    //   width: 180,
-    //   valueType: 'dateTime',
-    //   search: false,
-    // },
-    {
-      title: '操作',
-      key: 'action',
-      width: 150,
-      search: false,
-      render: (_, record) => (
-        <div>
-          <Button
-            type="link"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={(e) => {
-              e.stopPropagation();
-              openEditModal(record);
-            }}
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="确认删除"
-            description="确定要删除该产品吗？"
-            onConfirm={(e) => {
-              e?.stopPropagation();
-              handleDeleteProduct(record.productListId!);
-            }}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={(e) => e.stopPropagation()}
-            >
-              删除
-            </Button>
-          </Popconfirm>
-        </div>
-      ),
-    },
-  ];
+  // 产品列表表格列定义
+  const columns = getProductColumns({
+    onEdit: openEditModal,
+    onDelete: handleDeleteProduct
+  });
 
   return (
     <PageContainer>
@@ -691,321 +607,63 @@ const ProductList: React.FC = () => {
         )}
       </Drawer>
 
-      <Modal
-        title="新建产品"
+      {/* 新建产品模态框 */}
+      <ProductFormModal
+        ref={createFormRef}
         open={showCreateModal}
+        title="新建产品"
         onCancel={() => {
           setShowCreateModal(false);
-          form.resetFields();
         }}
-        onOk={() => {
-          form.validateFields().then((values) => {
-            handleCreateProduct(values);
-          });
-        }}
-        width={600}
-        destroyOnClose
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          autoComplete="off"
-        >
-          <Form.Item
-            label="产品编码"
-            name="productCode"
-            rules={[
-              { required: true, message: '请输入产品编码' },
-            ]}
-          >
-            <Input placeholder="请输入产品编码" />
-          </Form.Item>
+        onSave={handleCreateProduct}
+        onOpenBomModal={handleOpenBomModal}
+        onOpenProcessRouteModal={handleOpenProcessRouteModal}
+      />
 
-          <Form.Item
-            label="产品名称"
-            name="productName"
-            rules={[
-              { required: true, message: '请输入产品名称' },
-            ]}
-          >
-            <Input placeholder="请输入产品名称" />
-          </Form.Item>
-
-          <Form.Item label="BOM ID" rules={[{ required: true, message: '请选择BOM' }]}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <Form.Item name="bomId" noStyle>
-                <Input placeholder="请选择BOM" readOnly style={{ flex: 1 }} />
-              </Form.Item>
-              <Button type="primary" icon={<SearchOutlined />} onClick={handleOpenBomModal} style={{ marginTop: 4 }}>选择</Button>
-            </div>
-          </Form.Item>
-
-          <Form.Item name="bomCode" label="BOM编号">
-            <Input placeholder="BOM编号" readOnly disabled />
-          </Form.Item>
-
-          <Form.Item name="bomName" label="BOM名称">
-            <Input placeholder="BOM名称" readOnly disabled />
-          </Form.Item>
-
-          <Form.Item label="工艺路线 ID" rules={[{ required: true, message: '请选择工艺路线' }]}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <Form.Item name="processRouteId" noStyle>
-                <Input placeholder="请选择工艺路线" readOnly style={{ flex: 1 }} />
-              </Form.Item>
-              <Button type="primary" icon={<SearchOutlined />} onClick={handleOpenProcessRouteModal} style={{ marginTop: 4 }}>选择</Button>
-            </div>
-          </Form.Item>
-
-          <Form.Item name="processRouteCode" label="工艺路线编号">
-            <Input placeholder="工艺路线编号" readOnly disabled />
-          </Form.Item>
-
-          <Form.Item name="processRouteName" label="工艺路线名称">
-            <Input placeholder="工艺路线名称" readOnly disabled />
-          </Form.Item>
-
-          <Form.Item
-            label="产品类型"
-            name="productType"
-            rules={[
-              { required: true, message: '请输入产品类型' },
-            ]}
-          >
-            <Input placeholder="请输入产品类型" />
-          </Form.Item>
-
-          <Form.Item
-            label="备注"
-            name="remark"
-          >
-            <Input.TextArea rows={4} placeholder="请输入备注" />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      <Modal
-        title="编辑产品"
+      {/* 编辑产品模态框 */}
+      <ProductFormModal
+        ref={editFormRef}
         open={showEditModal}
+        title="编辑产品"
+        initialValues={editingRow}
         onCancel={() => {
           setShowEditModal(false);
-          editForm.resetFields();
           setEditingRow(undefined);
         }}
-        onOk={() => {
-          editForm.validateFields().then((values) => {
-            handleEditProduct(values);
-          });
-        }}
-        width={600}
-        destroyOnClose
-      >
-        <Form
-          form={editForm}
-          layout="vertical"
-          autoComplete="off"
-        >
-          <Form.Item
-            name="productListId"
-            hidden
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="产品编码"
-            name="productCode"
-            rules={[
-              { required: true, message: '请输入产品编码' },
-            ]}
-          >
-            <Input placeholder="请输入产品编码" />
-          </Form.Item>
-
-          <Form.Item
-            label="产品名称"
-            name="productName"
-            rules={[
-              { required: true, message: '请输入产品名称' },
-            ]}
-          >
-            <Input placeholder="请输入产品名称" />
-          </Form.Item>
-
-          <Form.Item label="BOM ID" rules={[{ required: true, message: '请选择BOM' }]}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <Form.Item name="bomId" noStyle>
-                <Input placeholder="请选择BOM" readOnly style={{ flex: 1 }} />
-              </Form.Item>
-              <Button type="primary" icon={<SearchOutlined />} onClick={handleOpenBomModal} style={{ marginTop: 4 }}>选择</Button>
-            </div>
-          </Form.Item>
-
-          <Form.Item name="bomCode" label="BOM编号">
-            <Input placeholder="BOM编号" readOnly disabled />
-          </Form.Item>
-
-          <Form.Item name="bomName" label="BOM名称">
-            <Input placeholder="BOM名称" readOnly disabled />
-          </Form.Item>
-
-          <Form.Item label="工艺路线 ID" rules={[{ required: true, message: '请选择工艺路线' }]}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <Form.Item name="processRouteId" noStyle>
-                <Input placeholder="请选择工艺路线" readOnly style={{ flex: 1 }} />
-              </Form.Item>
-              <Button type="primary" icon={<SearchOutlined />} onClick={handleOpenProcessRouteModal} style={{ marginTop: 4 }}>选择</Button>
-            </div>
-          </Form.Item>
-
-          <Form.Item name="processRouteCode" label="工艺路线编号">
-            <Input placeholder="工艺路线编号" readOnly disabled />
-          </Form.Item>
-
-          <Form.Item name="processRouteName" label="工艺路线名称">
-            <Input placeholder="工艺路线名称" readOnly disabled />
-          </Form.Item>
-
-          <Form.Item
-            label="产品类型"
-            name="productType"
-            rules={[
-              { required: true, message: '请输入产品类型' },
-            ]}
-          >
-            <Input placeholder="请输入产品类型" />
-          </Form.Item>
-
-          <Form.Item
-            label="备注"
-            name="remark"
-          >
-            <Input.TextArea rows={4} placeholder="请输入备注" />
-          </Form.Item>
-        </Form>
-      </Modal>
+        onSave={handleEditProduct}
+        onOpenBomModal={handleOpenBomModal}
+        onOpenProcessRouteModal={handleOpenProcessRouteModal}
+      />
 
       {/* BOM选择弹窗 */}
-      <Modal
-        title="选择BOM"
+      <BomSelectModal
         open={isBomModalVisible}
         onCancel={() => setIsBomModalVisible(false)}
-        footer={null}
-        width={800}
-        zIndex={1001}
-      >
-        <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
-          <Input
-            name="bomCode"
-            placeholder="BOM编码"
-            value={bomSearchValues.bomCode}
-            onChange={handleBomSearchInputChange}
-            style={{ width: 200 }}
-          />
-          <Input
-            name="bomName"
-            placeholder="BOM名称"
-            value={bomSearchValues.bomName}
-            onChange={handleBomSearchInputChange}
-            style={{ width: 200 }}
-          />
-          <Button type="primary" onClick={handleBomSearch}>搜索</Button>
-        </div>
-        <Table
-          dataSource={boms}
-          columns={[
-            {
-              title: 'BOM编码',
-              dataIndex: 'bomCode',
-              key: 'bomCode',
-            },
-            {
-              title: 'BOM名称',
-              dataIndex: 'bomName',
-              key: 'bomName',
-            },
-            {
-              title: 'BOM ID',
-              dataIndex: 'bomId',
-              key: 'bomId',
-            },
-            {
-              title: '操作',
-              key: 'action',
-              render: (_, record) => (
-                <Button type="link" onClick={() => handleBomSelect(record)}>选择</Button>
-              ),
-            },
-          ]}
-          pagination={{
-            current: bomCurrent,
-            pageSize: bomPageSize,
-            total: bomTotal,
-            onChange: handleBomPaginationChange,
-          }}
-        />
-      </Modal>
+        boms={boms}
+        bomTotal={bomTotal}
+        bomCurrent={bomCurrent}
+        bomPageSize={bomPageSize}
+        bomSearchValues={bomSearchValues}
+        onBomSelect={handleBomSelect}
+        onBomSearch={handleBomSearch}
+        onBomSearchInputChange={handleBomSearchInputChange}
+        onBomPaginationChange={handleBomPaginationChange}
+      />
 
       {/* 工艺路线选择弹窗 */}
-      <Modal
-        title="选择工艺路线"
+      <ProcessRouteModal
         open={isProcessRouteModalVisible}
         onCancel={() => setIsProcessRouteModalVisible(false)}
-        footer={null}
-        width={800}
-        zIndex={1001}
-      >
-        <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
-          <Input
-            name="routeCode"
-            placeholder="工艺路线编码"
-            value={processRouteSearchValues.routeCode}
-            onChange={handleProcessRouteSearchInputChange}
-            style={{ width: 200 }}
-          />
-          <Input
-            name="routeName"
-            placeholder="工艺路线名称"
-            value={processRouteSearchValues.routeName}
-            onChange={handleProcessRouteSearchInputChange}
-            style={{ width: 200 }}
-          />
-          <Button type="primary" onClick={handleProcessRouteSearch}>搜索</Button>
-        </div>
-        <Table
-          dataSource={processRoutes}
-          columns={[
-            {
-              title: '工艺路线编码',
-              dataIndex: 'routeCode',
-              key: 'routeCode',
-            },
-            {
-              title: '工艺路线名称',
-              dataIndex: 'routeName',
-              key: 'routeName',
-            },
-            {
-              title: '工艺路线 ID',
-              dataIndex: 'id',
-              key: 'id',
-            },
-            {
-              title: '操作',
-              key: 'action',
-              render: (_, record) => (
-                <Button type="link" onClick={() => handleProcessRouteSelect(record)}>选择</Button>
-              ),
-            },
-          ]}
-          pagination={{
-            current: processRouteCurrent,
-            pageSize: processRoutePageSize,
-            total: processRouteTotal,
-            onChange: handleProcessRoutePaginationChange,
-          }}
-        />
-      </Modal>
+        processRoutes={processRoutes}
+        processRouteTotal={processRouteTotal}
+        processRouteCurrent={processRouteCurrent}
+        processRoutePageSize={processRoutePageSize}
+        processRouteSearchValues={processRouteSearchValues}
+        onProcessRouteSelect={handleProcessRouteSelect}
+        onProcessRouteSearch={handleProcessRouteSearch}
+        onProcessRouteSearchInputChange={handleProcessRouteSearchInputChange}
+        onProcessRoutePaginationChange={handleProcessRoutePaginationChange}
+      />
     </PageContainer>
   );
 };
