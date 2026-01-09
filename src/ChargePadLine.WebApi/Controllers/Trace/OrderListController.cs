@@ -129,7 +129,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <summary>
     /// 更新工单
     /// </summary>
-    /// <param name="id">工单ID</param>
+    /// <param name="orderListId">工单ID</param>
     /// <param name="dto">更新工单DTO</param>
     /// <returns>更新后的工单信息</returns>
     [HttpPost("UpdateOrderListById")]
@@ -140,6 +140,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         // 验证输入参数
         if (dto == null)
         {
+          _logger.LogWarning("请求数据为空");
           return BadRequest("请求数据不能为空");
         }
 

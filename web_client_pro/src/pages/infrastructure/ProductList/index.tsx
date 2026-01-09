@@ -13,7 +13,7 @@ import type { RequestData } from '@ant-design/pro-components';
 import { getProductColumns } from './columns';
 import ProductFormModal, { ProductFormModalRef } from './components/ProductFormModal';
 import BomSelectModal from './components/BomSelectModal';
-import ProcessRouteModal from './components/ProcessRouteModal';
+import ProcessRouteSelectModal from './components/ProcessRouteSelectModal';
 
 const ProductList: React.FC = () => {
   const actionRef = useRef<ActionType | null>(null);
@@ -651,7 +651,7 @@ const ProductList: React.FC = () => {
       />
 
       {/* 工艺路线选择弹窗 */}
-      <ProcessRouteModal
+      <ProcessRouteSelectModal
         open={isProcessRouteModalVisible}
         onCancel={() => setIsProcessRouteModalVisible(false)}
         processRoutes={processRoutes}

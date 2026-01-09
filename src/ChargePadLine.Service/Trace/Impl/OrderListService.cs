@@ -217,7 +217,7 @@ namespace ChargePadLine.Service.Trace.Impl
           BomId = dto.BomId,
           ProcessRouteId = dto.ProcessRouteId,
           OrderType = dto.OrderType,
-          OrderStatus = dto.OrderStatus,
+          OrderStatus = 1,// 默认设置状态为1-新建
           PlanQty = dto.PlanQty,
           CompletedQty = dto.CompletedQty,
           PlanStartTime = dto.PlanStartTime,
@@ -289,7 +289,7 @@ namespace ChargePadLine.Service.Trace.Impl
         existingOrderList.BomId = dto.BomId;
         existingOrderList.ProcessRouteId = dto.ProcessRouteId;
         existingOrderList.OrderType = dto.OrderType;
-        existingOrderList.OrderStatus = dto.OrderStatus;
+        // existingOrderList.OrderStatus = dto.OrderStatus;
         existingOrderList.PlanQty = dto.PlanQty;
         existingOrderList.CompletedQty = dto.CompletedQty;
         existingOrderList.PlanStartTime = dto.PlanStartTime;

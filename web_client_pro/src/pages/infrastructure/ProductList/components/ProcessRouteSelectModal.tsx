@@ -1,8 +1,8 @@
 import React from 'react';
 import { Modal, Input, Button, Table } from 'antd';
 
-// ProcessRouteModal组件的Props接口
-export interface ProcessRouteModalProps {
+// ProcessRouteSelectModal组件的Props接口
+export interface ProcessRouteSelectModalProps {
   open: boolean;
   onCancel: () => void;
   processRoutes: any[];
@@ -16,7 +16,7 @@ export interface ProcessRouteModalProps {
   onProcessRoutePaginationChange: (current: number, pageSize: number) => void;
 }
 
-const ProcessRouteModal: React.FC<ProcessRouteModalProps> = ({
+const ProcessRouteSelectModal: React.FC<ProcessRouteSelectModalProps> = ({
   open,
   onCancel,
   processRoutes,
@@ -92,4 +92,4 @@ const ProcessRouteModal: React.FC<ProcessRouteModalProps> = ({
   );
 };
 
-export default ProcessRouteModal;
+export default ProcessRouteSelectModal;
