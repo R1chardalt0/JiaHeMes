@@ -3,6 +3,7 @@ using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
+using ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,8 +25,9 @@ namespace ChargePadLine.Client.Services.PlcService.Plc7
 
         public Plc7HostService(
             IOptions<PlcConfig> config,
-            ILogger<Plc7HostService> logger
-,
+            ILogger<Plc7HostService> logger,
+            止推垫片装配EnterMiddleWare 止推垫片装配Enter,
+            止推垫片装配ExitMiddleWare 止推垫片装配Exit,
             ILogService logService
             //,
             //定子检测MiddleWare 定子检测,
@@ -37,11 +39,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc7
             _logService = logService;
 
             // 在这里统一整合 PLC7 下的所有业务任务
-            //_tasks = new IPlc7Task[]
-            //{
-            //    定子检测,
-            //    o型圈装配
-            //};
+            _tasks = new IPlc7Task[]
+            {
+                止推垫片装配Enter,
+                止推垫片装配Exit
+            };
         }
 
         private void InitializeModbusConnection()

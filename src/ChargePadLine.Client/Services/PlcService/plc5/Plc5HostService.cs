@@ -3,6 +3,7 @@ using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
+using ChargePadLine.Client.Services.PlcService.plc5.转子充磁与装配;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,14 +23,13 @@ namespace ChargePadLine.Client.Services.PlcService.Plc5
         private readonly IEnumerable<IPlc5Task> _tasks;
         private readonly ILogService _logService;
 
+
         public Plc5HostService(
             IOptions<PlcConfig> config,
-            ILogger<Plc5HostService> logger
-,
+            转子充磁与装配EnterMiddleWare 转子充磁与装配Enter,
+            转子充磁与装配ExitMiddleWare 转子充磁与装配Exit,
+            ILogger<Plc5HostService> logger,
             ILogService logService
-            //,
-            //定子检测MiddleWare 定子检测,
-            //O型圈装配MiddleWare o型圈装配
             )
         {
             _plcConfig = config.Value;
@@ -37,11 +37,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc5
             _logService = logService;
 
             // 在这里统一整合 PLC5 下的所有业务任务
-            //_tasks = new IPlc5Task[]
-            //{
-            //    定子检测,
-            //    o型圈装配
-            //};
+            _tasks = new IPlc5Task[]
+            {
+                转子充磁与装配Enter,
+                转子充磁与装配Exit,
+        };
         }
 
         private void InitializeModbusConnection()
