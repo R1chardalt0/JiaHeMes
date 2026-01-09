@@ -235,6 +235,14 @@ namespace ChargePadLine.Service.Trace.Impl
 
       try
       {
+        // 检查是否存在关联的BomItem记录
+        var bomItems = await _dbContext.BomItem.Where(bi => bomIds.Contains(bi.BomId.Value)).ToListAsync();
+        if (bomItems.Count > 0)
+        {
+          throw new InvalidOperationException("删除BOM失败：存在关联的BOM子项，不允许删除");
+        }
+
+        // 再删除BomList记录
         var boms = await _dbContext.BomList.Where(b => bomIds.Contains(b.BomId)).ToListAsync();
         if (boms.Count == 0)
         {
@@ -250,7 +258,17 @@ namespace ChargePadLine.Service.Trace.Impl
       catch (Exception ex)
       {
         _logger.LogError(ex, "删除BOM时发生异常");
-        throw;
+        // 如果是我们自定义的异常，直接抛出
+        if (ex is InvalidOperationException && ex.Message.Contains("删除BOM失败"))
+        {
+          throw;
+        }
+        // 提供更详细的错误信息
+        if (ex.Message.Contains("foreign key") || ex.Message.Contains("外键") || ex.Message.Contains("ForeignKey"))
+        {
+          throw new InvalidOperationException("删除BOM失败：存在关联的BOM子项或其他引用，无法删除", ex);
+        }
+        throw new InvalidOperationException($"删除BOM失败：{ex.Message}", ex);
       }
     }
   }

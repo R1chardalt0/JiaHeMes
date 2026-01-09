@@ -26,7 +26,7 @@ export interface WorkOrderDto {
   /** 产品编码 */
   productCode?: string;
   /** BOM配方ID */
-  bomRecipeId?: number;
+  bomRecipeId?: string;
   /** 是否无限生产 */
   isInfinite?: boolean;
   /** 生产数量 */
@@ -62,7 +62,7 @@ export interface WorkOrderQueryDto {
   /** 产品编码 */
   productCode?: string;
   /** BOM配方ID */
-  bomRecipeId?: number;
+  bomRecipeId?: string;
   /** 工单状态 */
   docStatus?: number;
 }
@@ -76,7 +76,7 @@ export interface CreateWorkOrderDto {
   /** 产品编码 */
   productCode: string;
   /** BOM配方ID */
-  bomRecipeId: number;
+  bomRecipeId: string;
   /** 是否无限生产 */
   isInfinite: boolean;
   /** 生产数量 */
@@ -98,7 +98,7 @@ export interface UpdateWorkOrderDto {
   /** 产品编码 */
   productCode?: string;
   /** BOM配方ID */
-  bomRecipeId?: number;
+  bomRecipeId?: string;
   /** 是否无限生产 */
   isInfinite?: boolean;
   /** 生产数量 */

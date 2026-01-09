@@ -19,7 +19,7 @@ namespace ChargePadLine.Service.Trace
       Code = workOrder.Code.Value,
       ProductCode = workOrder.ProductCode.Value,
       BomRecipeId = workOrder.BomRecipeId,
-      BomRecipeName = workOrder.BomRecipe?.BomName ?? "",
+      BomRecipeName = workOrder.BomList?.BomName ?? "",
       IsInfinite = workOrder.IsInfinite,
       WorkOrderAmount = workOrder.WorkOrderAmount,
       PerTraceInfo = workOrder.PerTraceInfo,

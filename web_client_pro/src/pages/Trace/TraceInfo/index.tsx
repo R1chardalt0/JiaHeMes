@@ -1,6 +1,7 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions } from '@ant-design/pro-components';
 import React, { useRef, useState, useCallback } from 'react';
+import { EyeOutlined } from '@ant-design/icons';
 import { Table, Button, Tabs, message, Card, Row, Col, Modal } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { getTraceInfoList, getTraceInfoDetail, getMaterialInfoList, getProcessInfoList, deleteMaterialInfo, deleteProcessInfo } from '@/services/Api/Trace/TraceInfo';
@@ -79,7 +80,15 @@ const TraceInfoPage: React.FC = () => {
       width: 80,
       fixed: 'right',
       render: (_, record) => (
-        <a onClick={() => handleShowDetail(record)}>查看</a>
+        <Button
+          type="link"
+          size="small"
+          icon={<EyeOutlined />}
+          onClick={() => handleShowDetail(record)}
+          style={{ marginRight: 8 }}
+        >
+          查看
+        </Button>
       )
     }
   ];

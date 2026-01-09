@@ -50,31 +50,33 @@ const StationList: React.FC = () => {
     }
   };
 
-  // 处理删除站点
-  const handleDeleteStation = async (id: string) => {
-    try {
-      await deleteStationList(id);
-      messageApi.success('站点删除成功');
-      actionRef.current?.reload();
-    } catch (error) {
-      messageApi.error('站点删除失败');
-    }
-  };
+  // 处理删除站点（单个或批量）
+  const handleDeleteStation = (ids: string | string[]) => {
+    // 确保ids是数组
+    const deleteIds = Array.isArray(ids) ? ids : [ids];
 
-  // 处理批量删除站点
-  const handleBatchDeleteStation = async () => {
-    try {
-      // 将selectedRowKeys转换为string[]类型
-      const ids = selectedRowKeys.map(key => String(key));
-      await deleteStationList(ids);
-      messageApi.success(`成功删除${ids.length}个站点`);
-      // 清空选中的行
-      setSelectedRowKeys([]);
-      // 刷新表格
-      actionRef.current?.reload();
-    } catch (error) {
-      messageApi.error('批量删除站点失败');
+    if (deleteIds.length === 0) {
+      messageApi.error('请选择要删除的站点');
+      return;
     }
+
+    Modal.confirm({
+      title: '确认删除',
+      content: deleteIds.length === 1 ? '确认要删除这条站点信息吗？' : `确认要删除这${deleteIds.length}条站点信息吗？`,
+      onOk: async () => {
+        try {
+          await deleteStationList(deleteIds);
+          messageApi.success(deleteIds.length === 1 ? '站点删除成功' : `成功删除${deleteIds.length}个站点`);
+          // 清空选中的行
+          setSelectedRowKeys([]);
+          // 刷新表格
+          actionRef.current?.reload();
+        } catch (error) {
+          messageApi.error(deleteIds.length === 1 ? '站点删除失败' : '批量删除站点失败');
+          console.error('Delete station error:', error);
+        }
+      }
+    });
   };
 
   // 打开编辑弹窗
@@ -160,26 +162,18 @@ const StationList: React.FC = () => {
           >
             编辑
           </Button>
-          <Popconfirm
-            title="确认删除"
-            description="确定要删除该站点吗？"
-            onConfirm={(e) => {
-              e?.stopPropagation();
+          <Button
+            type="link"
+            size="small"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
               handleDeleteStation(record.stationId!);
             }}
-            okText="确定"
-            cancelText="取消"
           >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={(e) => e.stopPropagation()}
-            >
-              删除
-            </Button>
-          </Popconfirm>
+            删除
+          </Button>
         </div>
       ),
     },
@@ -206,33 +200,59 @@ const StationList: React.FC = () => {
         request={async (
           params
         ): Promise<RequestData<StationListDto>> => {
-          setCurrentSearchParams({
-            current: Math.max(1, params.current || 1),
-            pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
-            stationName: params.stationName,
-            stationCode: params.stationCode,
-          });
+          console.log('ProTable params:', params);
 
+          // 使用前端分页：一次性获取所有数据，然后在前端进行分页
           const queryParams: StationListQueryDto = {
-            current: Math.max(1, params.current || 1),
-            pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
+            current: 1,
+            pageSize: 1000, // 设置一个很大的值，确保获取所有数据
             sortField: 'CreateTime',
             sortOrder: 'descend',
             stationName: params.stationName,
             stationCode: params.stationCode,
           };
 
+          console.log('API queryParams:', queryParams);
+
           try {
+            // 调用 API 获取所有数据
             const response = await getStationListList(queryParams);
 
+            console.log('API response:', response);
+
+            let allData: StationListDto[] = [];
+            let total: number = 0;
+
+            // 处理 API 返回的数据
+            if (Array.isArray(response)) {
+              allData = response;
+              total = response.length;
+            } else if (response.data) {
+              allData = response.data;
+              total = response.total || allData.length;
+            }
+
+            console.log('All data:', allData);
+            console.log('Total:', total);
+
+            // 在前端进行分页
+            const currentPage = Math.max(1, params.current || 1);
+            const pageSize = Math.min(100, Math.max(1, params.pageSize || 10));
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pagedData = allData.slice(startIndex, endIndex);
+
             const result = {
-              data: response.data || [],
-              total: response.total || 0,
-              success: response.success ?? true,
+              data: pagedData,
+              total: total,
+              success: true,
             };
+
+            console.log('ProTable result:', result);
 
             return result;
           } catch (error) {
+            console.error('Failed to get station list:', error);
             return {
               data: [],
               total: 0,
@@ -242,7 +262,7 @@ const StationList: React.FC = () => {
         }}
         columns={columns}
         pagination={{
-          pageSize: currentSearchParams.pageSize,
+          defaultPageSize: 20,
           pageSizeOptions: ['10', '20', '50', '100'],
           showSizeChanger: true,
           showTotal: (total) => `共 ${total} 条数据`,
@@ -258,25 +278,19 @@ const StationList: React.FC = () => {
           >
             新建站点
           </Button>,
-          <Popconfirm
-            title="批量删除"
-            description="确定要删除选中的所有站点吗？"
-            onConfirm={() => {
-              // 调用批量删除处理函数
-              handleBatchDeleteStation();
+          <Button
+            key="batchDelete"
+            danger
+            disabled={selectedRowKeys.length === 0}
+            icon={<DeleteOutlined />}
+            onClick={() => {
+              // 调用删除处理函数，传递选中的ID数组
+              const ids = selectedRowKeys.map(key => String(key));
+              handleDeleteStation(ids);
             }}
-            okText="确定"
-            cancelText="取消"
           >
-            <Button
-              key="batchDelete"
-              danger
-              disabled={selectedRowKeys.length === 0}
-              icon={<DeleteOutlined />}
-            >
-              批量删除
-            </Button>
-          </Popconfirm>
+            批量删除
+          </Button>
         ]}
         rowSelection={{
           selectedRowKeys,

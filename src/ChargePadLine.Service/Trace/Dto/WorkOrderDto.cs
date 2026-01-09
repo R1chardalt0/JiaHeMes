@@ -30,7 +30,7 @@ namespace ChargePadLine.Service.Trace.Dto
     /// <summary>
     /// BOM配方ID
     /// </summary>
-    public int BomRecipeId { get; set; }
+    public Guid BomRecipeId { get; set; }
 
     /// <summary>
     /// 是否无限生产

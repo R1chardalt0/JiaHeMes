@@ -42,6 +42,16 @@ export interface BomItemQueryDto {
    * 物料ID
    */
   productId?: string;
+
+  /**
+   * 产品名称
+   */
+  productName?: string;
+
+  /**
+   * 产品编码
+   */
+  productCode?: string;
 }
 
 /**
@@ -82,6 +92,16 @@ export interface BomItemDto {
    * 物料ID
    */
   productId?: string;
+
+  /**
+   * 产品名称
+   */
+  productName?: string;
+
+  /**
+   * 产品编码
+   */
+  productCode?: string;
 
   /**
    * BOM主表（多对一关联）
@@ -152,6 +172,16 @@ export interface BomItemCreateDto {
    * 物料ID
    */
   productId?: string;
+
+  /**
+   * 产品名称
+   */
+  productName?: string;
+
+  /**
+   * 产品编码
+   */
+  productCode?: string;
 }
 
 /**
@@ -192,6 +222,16 @@ export interface BomItemUpdateDto {
    * 物料ID
    */
   productId?: string;
+
+  /**
+   * 产品名称
+   */
+  productName?: string;
+
+  /**
+   * 产品编码
+   */
+  productCode?: string;
 }
 
 /**

@@ -37,7 +37,8 @@ namespace ChargePadLine.Service
       // 历史记录服务（使用ReportDbContext）
       services.AddScoped<IHistoryProductTraceInfoService, HistoryProductTraceInfoService>();
       // 工单服务
-      services.AddScoped<IWorkOrderService, WorkOrderService>();
+      //services.AddScoped<IWorkOrderService, WorkOrderService>();
+      services.AddScoped<IOrderListService, OrderListService>();
 
       // 追溯信息服务
       services.AddScoped<ITraceInfoService, TraceInfoService>();
@@ -50,6 +51,11 @@ namespace ChargePadLine.Service
       services.AddScoped<IBomListService, BomListService>();
       // BOM明细服务
       services.AddScoped<IBomItemService, BomItemService>();
+      // 工艺路线服务
+      services.AddScoped<IProcessRouteService, ProcessRouteService>();
+      services.AddScoped<IProcessRouteItemService, ProcessRouteItemService>();
+            //通用接口服务
+            services.AddScoped<ICommonInterfaseService, CommonInterfaseService>();
       #endregion
 
       #region 数据迁移服务配置

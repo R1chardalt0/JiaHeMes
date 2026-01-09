@@ -24,7 +24,7 @@ export interface TraceInfoDto {
     productCode: string | ValueObject;
     pin: string | ValueObject;
     vsn: number;
-    bomId: number;
+    bomId: string;
     createdAt: string;
 }
 
@@ -35,7 +35,7 @@ export interface TraceInfoDetailDto {
     pn: string | ValueObject;
     pin?: string | ValueObject;
     vsn: number;
-    bomRecipeId: number;
+    bomRecipeId: string;
     productLine: string;
     createdAt: string;
 }
@@ -47,7 +47,7 @@ export interface MaterialInfoDto {
     traceInfoId: string;
     traceInfo: null;
     bomItemCode: string | ValueObject;
-    bomId: number;
+    bomId: string;
     bom: null;
     materialCode: string | ValueObject;
     measureUnit: string | ValueObject;
