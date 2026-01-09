@@ -1,12 +1,12 @@
 using System;
 using System.ComponentModel;
 
-namespace ChargePadLine.Client.Services.PlcService.Plc1
+namespace ChargePadLine.Client.Services.PlcService.Plc2
 {
     /// <summary>
-    /// 定子检测数据服务，用于存储和通知PLC数据变化
+    /// 导热胶涂敷数据服务，用于存储和通知PLC数据变化
     /// </summary>
-    public class StatorTestDataService : INotifyPropertyChanged
+    public class 导热胶涂敷DataService : INotifyPropertyChanged
     {
         private bool _req;
         private bool _resp;

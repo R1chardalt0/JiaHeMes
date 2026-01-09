@@ -13,10 +13,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
     public class 定子检测EnterMiddleWare : IPlc1Task
     {
         private readonly ILogger<定子检测EnterMiddleWare> _logger;
-        private readonly StatorTestDataService _statorTestDataService;
+        private readonly StatorEnterModel _statorTestDataService;
         private readonly ILogService _logService;
 
-        public 定子检测EnterMiddleWare(ILogger<定子检测EnterMiddleWare> logger, StatorTestDataService statorTestDataService, ILogService logService)
+        public 定子检测EnterMiddleWare(ILogger<定子检测EnterMiddleWare> logger, StatorEnterModel statorTestDataService, ILogService logService)
         {
             _logger = logger;
             _statorTestDataService = statorTestDataService;
@@ -29,24 +29,29 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
         {
             try
             {         
-                var req = s7Net.ReadBool("DB200.1000.0").Content;
-                var resp = s7Net.ReadBool("DB200.1000.1").Content;
-                var sn = s7Net.ReadString("DB200.100",100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                var req = s7Net.ReadBool("DB4010.6.0").Content;
+                var resp = s7Net.ReadBool("DB4010.10.0").Content;
+                var enterok = s7Net.ReadBool("DB4010.2.0").Content;//进站OK
+                var enterng = s7Net.ReadBool("DB4010.2.1").Content;//进站NG
+                var sn = s7Net.ReadString("DB4010.200",100).Content.Trim().Replace("\0", "").Replace("\b", "");
 
                 // 更新数据服务
-                _statorTestDataService.UpdateData(req, resp, sn);
+                _statorTestDataService.UpdateData(req, resp, sn,enterok,enterng);
 
                 if (req && !resp)
                 {
                     await _logService.RecordLogAsync(LogLevel.Information, "定子检测请求收到");
-                    s7Net.Write("DB200.1000.1", true);
+                    s7Net.Write("DB4010.10.0", true);
+                    s7Net.Write("DB4010.2.0", true);
                 }
                 else if (!req && resp)
                 {
-                    s7Net.Write("DB200.1000.1", false);
+                    s7Net.Write("DB4010.10.0", false);
+                    s7Net.Write("DB4010.2.0", false);
+                    s7Net.Write("DB4010.2.1", false);
                     await _logService.RecordLogAsync(LogLevel.Information, "定子检测请求复位");
                 }
-
+                
                 await Task.CompletedTask;
             }
             catch (Exception ex)
