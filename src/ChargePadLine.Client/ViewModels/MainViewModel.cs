@@ -12,15 +12,17 @@ namespace ChargePadLine.Client.ViewModels;
 public class MainViewModel : ViewModelBase, IDisposable
 {
     private readonly MonitorViewModel _monitorViewModel;
-    private readonly ISystemInfoService _systemInfoService;
+    //private readonly ISystemInfoService _systemInfoService;
     private readonly System.Timers.Timer _updateTimer;
     private bool _disposed = false;
 
-    public MainViewModel(MonitorViewModel monitorViewModel, LogViewModel logViewModel, ISystemInfoService systemInfoService)
+    public MainViewModel(MonitorViewModel monitorViewModel, LogViewModel logViewModel
+       // ,ISystemInfoService systemInfoService
+       )
     {
         _monitorViewModel = monitorViewModel;
         LogViewModel = logViewModel;
-        _systemInfoService = systemInfoService;
+        //_systemInfoService = systemInfoService;
 
         CpuUsage = new ReactiveProperty<string>("0%");
         MemoryUsage = new ReactiveProperty<string>("0%");
@@ -58,16 +60,16 @@ public class MainViewModel : ViewModelBase, IDisposable
     private void UpdateSystemInfo()
     {
         // 更新CPU使用率
-        var cpuUsage = _systemInfoService.GetCpuUsage();
-        CpuUsage.Value = $"{cpuUsage}%";
+        //var cpuUsage = _systemInfoService.GetCpuUsage();
+        //CpuUsage.Value = $"{cpuUsage}%";
 
-        // 更新内存使用率
-        var memoryUsage = _systemInfoService.GetMemoryUsage();
-        MemoryUsage.Value = $"{memoryUsage}%";
+        //// 更新内存使用率
+        //var memoryUsage = _systemInfoService.GetMemoryUsage();
+        //MemoryUsage.Value = $"{memoryUsage}%";
 
-        // 更新硬盘使用率
-        var diskUsage = _systemInfoService.GetDiskUsage();
-        HardDisk.Value = $"{diskUsage}%";
+        //// 更新硬盘使用率
+        //var diskUsage = _systemInfoService.GetDiskUsage();
+        //HardDisk.Value = $"{diskUsage}%";
 
         // 更新时间和班次
         CurrentTime.Value = DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss");

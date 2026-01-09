@@ -4,6 +4,7 @@ using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
 using ChargePadLine.Client.Services.PlcService.Plc2;
+using ChargePadLine.Client.Services.PlcService.plc8.旋融焊;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Prism.Dialogs;
@@ -24,7 +25,7 @@ namespace ChargePadLine.Client.Services
             services.AddTransient<S7NetConnect>();
             services.AddTransient<ModbusConnect>();
             services.AddHostedService<Plc1HostService>();
-            services.AddHostedService<Plc2HostService>();
+            services.AddHostedService<Plc3HostService>();
             #endregion
 
             #region 页面推送服务注册      
@@ -35,10 +36,12 @@ namespace ChargePadLine.Client.Services
             #region plc交互业务注册
             services.AddTransient<定子检测MiddleWare>();
             services.AddTransient<O型圈装配MiddleWare>();
+            services.AddTransient<旋融焊EnterMiddleWare>();
+            services.AddTransient<旋融焊ExitMiddleWare>();
             #endregion
 
             #region 系统信息服务注册
-            services.AddSingleton<ISystemInfoService, SystemInfoService>();
+            // services.AddSingleton<ISystemInfoService, SystemInfoService>();
             #endregion
 
             return services;
