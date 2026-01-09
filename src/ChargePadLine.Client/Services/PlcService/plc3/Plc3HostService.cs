@@ -3,6 +3,8 @@ using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
+using ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_;
+using ChargePadLine.Client.Services.PlcService.plc3.热铆;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,8 +26,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc3
 
         public Plc3HostService(
             IOptions<PlcConfig> config,
-            ILogger<Plc3HostService> logger
-,
+            ILogger<Plc3HostService> logger,
+            PCBA性能检测EnterMiddleWare PCBA性能检测Enter,
+            PCBA性能检测ExitMiddleWare PCBA性能检测Exit,
+            热铆EnterMiddleWare 热铆Enter,
+            热铆ExitMiddleWare 热铆Exit,
             ILogService logService
             //,
             //定子检测MiddleWare 定子检测,
