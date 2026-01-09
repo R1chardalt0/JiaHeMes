@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Select, Switch } from 'antd';
+import { Form, Input, Select, Switch } from 'antd';
 import { StationListDto } from '@/services/Model/Infrastructure/StationList';
 
 interface ProcessRouteItemFormProps {
@@ -39,6 +39,13 @@ const ProcessRouteItemForm: React.FC<ProcessRouteItemFormProps> = ({ form, stati
         </Select>
       </Form.Item>
       <Form.Item
+        name="routeSeq"
+        label="工艺路线序号"
+        rules={[{ required: true, message: '请输入工艺路线序号' }]}
+      >
+        <Input placeholder="请输入工艺路线序号" />
+      </Form.Item>
+      <Form.Item
         name="mustPassStation"
         label="是否必经站点"
         initialValue={false}
@@ -49,7 +56,7 @@ const ProcessRouteItemForm: React.FC<ProcessRouteItemFormProps> = ({ form, stati
         name="checkStationList"
         label="检查站点列表"
         rules={[
-          { required: true, message: '请选择检查站点列表' },
+          { required: false, message: '请选择检查站点列表' },
           {
             validator: (_, value) => {
               if (Array.isArray(value)) {

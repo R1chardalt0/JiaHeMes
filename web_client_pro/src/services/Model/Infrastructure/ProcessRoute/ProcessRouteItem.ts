@@ -31,6 +31,10 @@ export interface ProcessRouteItemQueryDto {
    */
   stationCode?: string;
   /**
+   * 工艺路线序号
+   */
+  routeSeq?: number;
+  /**
    * 是否必经站点
    */
   mustPassStation?: boolean;
@@ -66,6 +70,10 @@ export interface ProcessRouteItemDto {
    * 站点编码
    */
   stationCode: string;
+  /**
+   * 工艺路线序号
+   */
+  routeSeq: number;
 
   /**
    * 是否必经站点
@@ -136,6 +144,10 @@ export interface ProcessRouteItemCreateDto {
    * 站点编码
    */
   stationCode: string;
+  /**
+   * 工艺路线序号
+   */
+  routeSeq: number;
 
   /**
    * 是否必经站点
@@ -176,6 +188,10 @@ export interface ProcessRouteItemUpdateDto {
    * 站点编码
    */
   stationCode: string;
+  /**
+   * 工艺路线序号
+   */
+  routeSeq: number;
 
   /**
    * 是否必经站点

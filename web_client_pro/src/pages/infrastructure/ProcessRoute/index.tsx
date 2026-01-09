@@ -234,7 +234,8 @@ const ProcessRoutePage: React.FC = () => {
       mustPassStation: processRouteItem.mustPassStation,
       checkStationList: processRouteItem.checkStationList,
       firstStation: processRouteItem.firstStation,
-      checkAll: processRouteItem.checkAll
+      checkAll: processRouteItem.checkAll,
+      routeSeq: processRouteItem.routeSeq,
     });
     setIsEditModalVisible(true);
   }, [form]);
@@ -258,7 +259,8 @@ const ProcessRoutePage: React.FC = () => {
           mustPassStation: values.mustPassStation,
           checkStationList: checkStationListValue,
           firstStation: values.firstStation,
-          checkAll: values.checkAll
+          checkAll: values.checkAll,
+          routeSeq: values.routeSeq,
         };
 
         await updateProcessRouteItem(editingProcessRouteItem.id, updatedItem);
@@ -272,7 +274,8 @@ const ProcessRoutePage: React.FC = () => {
           mustPassStation: values.mustPassStation,
           checkStationList: checkStationListValue,
           firstStation: values.firstStation,
-          checkAll: values.checkAll
+          checkAll: values.checkAll,
+          routeSeq: values.routeSeq,
         };
 
         await createProcessRouteItem(newItem);

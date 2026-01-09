@@ -87,9 +87,11 @@ namespace ChargePadLine.DbContexts
     public DbSet<TraceInfo> TraceInfos { get; set; }
     public DbSet<TraceBomItem> TraceBomItems { get; set; }
     public DbSet<TraceProcItem> TraceProcItems { get; set; }
-
-    //批次排队
-    public DbSet<BatchMaterialQueueItem> BatchMaterialQueueItems { get; set; }
+        //SN列表
+        public DbSet<MesSnListCurrent> mesSnListCurrents { get; set; }
+        public DbSet<MesSnListHistory> mesSnListHistories { get; set; }
+        //批次排队
+        public DbSet<BatchMaterialQueueItem> BatchMaterialQueueItems { get; set; }
     public DbSet<CtrlVsn> CtrlVs { get; set; }
 
     //工艺路线

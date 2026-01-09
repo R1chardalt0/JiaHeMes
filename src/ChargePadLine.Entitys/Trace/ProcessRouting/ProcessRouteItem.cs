@@ -49,6 +49,10 @@ namespace ChargePadLine.Entitys.Trace.ProcessRouting
     /// 是否全检
     /// </summary>
     public bool CheckAll { get; set; } = false;
+       /// <summary>
+       /// 工艺路线顺序
+       /// </summary>
+        public int? RouteSeq { get; set; } = 0;
 
   }
 }

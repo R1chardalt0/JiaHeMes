@@ -54,6 +54,8 @@ namespace ChargePadLine.Service
       // 工艺路线服务
       services.AddScoped<IProcessRouteService, ProcessRouteService>();
       services.AddScoped<IProcessRouteItemService, ProcessRouteItemService>();
+            //通用接口服务
+            services.AddScoped<ICommonInterfaseService, CommonInterfaseService>();
       #endregion
 
       #region 数据迁移服务配置

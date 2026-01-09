@@ -9,17 +9,17 @@ using System.ComponentModel.DataAnnotations;
 namespace ChargePadLine.Entitys.Trace.TraceInformation
 {
     /// <summary>
-    /// SN实时状态表
+    /// SN历史记录表
     /// </summary>
-    [Table("mes_sn_list_current")]
-    public class MesSnListCurrent : BaseEntity
+    [Table("mes_sn_list_history")]
+    public class MesSnListHistory : BaseEntity
     {
         /// <summary>
         /// 状态ID
         /// </summary>
         [Description("状态ID")]
         [Key]
-        public Guid SNListCurrentId { get; set; }
+        public Guid SNListHistoryId { get; set; }
 
         /// <summary>
         /// 序列号/产品唯一码
@@ -62,6 +62,18 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
         /// </summary>
         [Description("当前设备ID")]
         public Guid ResourceId { get; set; }
+
+        /// <summary>
+        /// 测试数据
+        /// </summary>
+        [Description("测试数据")]
+        public string TestResults { get; set; } = "";
+
+        /// <summary>
+        /// 批次数据
+        /// </summary>
+        [Description("批次数据")]
+        public string BatchResults { get; set; } = "";
 
         /// <summary>
         /// 是否异常
@@ -112,25 +124,19 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
         public DateTimeOffset? ReworkTime { get; set; }
     }
 
-    public class MesSnListCurrentEntityTypeConfiguration : IEntityTypeConfiguration<MesSnListCurrent>
+    public class MesSnListHistoryEntityTypeConfiguration : IEntityTypeConfiguration<MesSnListHistory>
     {
-        public void Configure(EntityTypeBuilder<MesSnListCurrent> builder)
+        public void Configure(EntityTypeBuilder<MesSnListHistory> builder)
         {
             // 主键配置
-            builder.HasKey(e => e.SNListCurrentId);
+            builder.HasKey(e => e.SNListHistoryId);
 
-            // 唯一约束
-            builder.HasIndex(e => e.SnNumber)
-                .IsUnique();
-
-            // 指定名称的索引
-            builder.HasIndex(e => e.OrderListId);
-
+            // 常用索引
             builder.HasIndex(e => e.SnNumber);
-
-            // 其他索引
             builder.HasIndex(e => e.ProductListId);
+            builder.HasIndex(e => e.OrderListId);
             builder.HasIndex(e => e.StationStatus);
+            builder.HasIndex(e => e.CreateTime);
         }
     }
 }
