@@ -15,10 +15,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试
         private readonly ILogService _logService;
         private readonly 电机腔气密测试EnterModel _enterModel;
 
-        public 电机腔气密测试EnterMiddleWare(ILogger<电机腔气密测试EnterMiddleWare> logger, ILogService logService)
+        public 电机腔气密测试EnterMiddleWare(ILogger<电机腔气密测试EnterMiddleWare> logger, ILogService logService, 电机腔气密测试EnterModel enterModel = null)
         {
             _logger = logger;
             _logService = logService;
+            _enterModel = enterModel;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
