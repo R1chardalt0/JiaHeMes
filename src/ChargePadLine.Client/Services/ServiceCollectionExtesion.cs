@@ -55,8 +55,10 @@ namespace ChargePadLine.Client.Services
             services.AddSingleton<RingEnterModel>();
             services.AddSingleton<RingExitModel>();
 
-            services.AddSingleton<导热胶涂敷DataService>();
-            services.AddSingleton<电机腔气密测试DataService>();
+            services.AddSingleton<导热胶涂敷EnterModel>();
+            services.AddSingleton<导热胶涂敷ExitModel>();
+            services.AddSingleton<电机腔气密测试EnterModel>();
+            services.AddSingleton<电机腔气密测试ExitModel>();
             #endregion
 
             #region plc交互业务注册
@@ -67,9 +69,6 @@ namespace ChargePadLine.Client.Services
 
             services.AddTransient<导热胶涂敷EnterMiddleWare>();
             services.AddTransient<导热胶涂敷ExitMiddleWare>();
-            services.AddTransient<电机腔气密测试EnterMiddleWare>();
-            services.AddTransient<电机腔气密测试ExitMiddleWare>();
-
             services.AddTransient<电机腔气密测试EnterMiddleWare>();
             services.AddTransient<电机腔气密测试ExitMiddleWare>();
    

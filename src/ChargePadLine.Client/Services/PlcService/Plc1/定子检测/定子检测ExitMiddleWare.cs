@@ -40,7 +40,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "定子检测请求收到");
+                    await _logService.RecordLogAsync(LogLevel.Information, "定子检测出站请求收到");
                     s7Net.Write("DB4010.12.0", true);
                     s7Net.Write("DB4010.2.4", true);
                 }
@@ -49,14 +49,14 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
                     s7Net.Write("DB4010.12.0", false);
                     s7Net.Write("DB4010.2.4", false);
                     s7Net.Write("DB4010.2.5", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "定子检测请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, "定子检测出站请求复位");
                 }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"定子检测MiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"定子检测出站MiddleWare异常: {ex.Message}");
             }
         }
     }

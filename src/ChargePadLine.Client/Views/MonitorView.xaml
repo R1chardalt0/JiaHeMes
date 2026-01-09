@@ -88,7 +88,20 @@
                         <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">电机腔气密测试/导热胶涂敷</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="White"/>
+
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                   VerticalContentAlignment="Top" 
+                   HorizontalContentAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   Padding="0"
+                   Margin="0">
+                        <local:StatorTestAndO_RingInspection Margin="10,0,10,0" 
+                       VerticalAlignment="Top" 
+                       HorizontalAlignment="Stretch"
+                       DataContext="{Binding 导热胶And气密ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
