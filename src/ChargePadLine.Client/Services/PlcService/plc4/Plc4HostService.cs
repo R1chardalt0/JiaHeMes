@@ -27,14 +27,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc4
         public Plc4HostService(
             IOptions<PlcConfig> config,
             ILogger<Plc4HostService> logger,
+            ILogService logService,
             干区气密测试EnterMiddleWare 干区气密测试Enter,
             干区气密测试ExitMiddleWare 干区气密测试Exit,
             后盖超声波焊接EnterMiddleWare 后盖超声波焊接Enter,
-            后盖超声波焊接ExitMiddleWare 干区气密测后盖超声波焊接Exit,
-            ILogService logService
-            //,
-            //定子检测MiddleWare 定子检测,
-            //O型圈装配MiddleWare o型圈装配
+            后盖超声波焊接ExitMiddleWare 干区气密测后盖超声波焊接Exit
             )
         {
             _plcConfig = config.Value;
