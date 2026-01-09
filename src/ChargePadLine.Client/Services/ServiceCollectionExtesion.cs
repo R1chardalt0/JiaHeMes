@@ -62,6 +62,10 @@ namespace ChargePadLine.Client.Services
             services.AddTransient<电机腔气密测试ExitMiddleWare>();
             services.AddTransient<旋融焊EnterMiddleWare>();
             services.AddTransient<旋融焊ExitMiddleWare>();
+            services.AddTransient<电机腔气密测试EnterMiddleWare>();
+            services.AddTransient<电机腔气密测试ExitMiddleWare>();
+            services.AddTransient<旋融焊EnterMiddleWare>();
+            services.AddTransient<旋融焊ExitMiddleWare>();
 
 
 

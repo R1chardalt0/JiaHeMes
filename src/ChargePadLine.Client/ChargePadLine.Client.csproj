@@ -68,6 +68,7 @@
 	  <Folder Include="Services\PlcService\plc11\湿区气密测试\" />
 	  <Folder Include="Services\PlcService\plc3\PCBA性能检测%28FCT%29\" />
 	  <Folder Include="Services\PlcService\plc3\热铆\" />
+	  <Folder Include="Services\PlcService\plc11\" />
 	  <Folder Include="Services\PlcService\plc4\干区气密测试\" />
 	  <Folder Include="Services\PlcService\plc4\后盖超声波焊接\" />
 	  <Folder Include="Services\PlcService\plc5\转子充磁与装配\" />
