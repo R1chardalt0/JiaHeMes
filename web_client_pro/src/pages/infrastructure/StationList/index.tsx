@@ -200,33 +200,59 @@ const StationList: React.FC = () => {
         request={async (
           params
         ): Promise<RequestData<StationListDto>> => {
-          setCurrentSearchParams({
-            current: Math.max(1, params.current || 1),
-            pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
-            stationName: params.stationName,
-            stationCode: params.stationCode,
-          });
+          console.log('ProTable params:', params);
 
+          // 使用前端分页：一次性获取所有数据，然后在前端进行分页
           const queryParams: StationListQueryDto = {
-            current: Math.max(1, params.current || 1),
-            pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
+            current: 1,
+            pageSize: 1000, // 设置一个很大的值，确保获取所有数据
             sortField: 'CreateTime',
             sortOrder: 'descend',
             stationName: params.stationName,
             stationCode: params.stationCode,
           };
 
+          console.log('API queryParams:', queryParams);
+
           try {
+            // 调用 API 获取所有数据
             const response = await getStationListList(queryParams);
 
+            console.log('API response:', response);
+
+            let allData: StationListDto[] = [];
+            let total: number = 0;
+
+            // 处理 API 返回的数据
+            if (Array.isArray(response)) {
+              allData = response;
+              total = response.length;
+            } else if (response.data) {
+              allData = response.data;
+              total = response.total || allData.length;
+            }
+
+            console.log('All data:', allData);
+            console.log('Total:', total);
+
+            // 在前端进行分页
+            const currentPage = Math.max(1, params.current || 1);
+            const pageSize = Math.min(100, Math.max(1, params.pageSize || 10));
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pagedData = allData.slice(startIndex, endIndex);
+
             const result = {
-              data: response.data || [],
-              total: response.total || 0,
-              success: response.success ?? true,
+              data: pagedData,
+              total: total,
+              success: true,
             };
+
+            console.log('ProTable result:', result);
 
             return result;
           } catch (error) {
+            console.error('Failed to get station list:', error);
             return {
               data: [],
               total: 0,
@@ -236,7 +262,7 @@ const StationList: React.FC = () => {
         }}
         columns={columns}
         pagination={{
-          pageSize: currentSearchParams.pageSize,
+          defaultPageSize: 20,
           pageSizeOptions: ['10', '20', '50', '100'],
           showSizeChanger: true,
           showTotal: (total) => `共 ${total} 条数据`,
