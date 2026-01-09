@@ -75,9 +75,9 @@
                                   Padding="0"
                                   Margin="0">
                         <local:StatorTestAndO_RingInspection Margin="10,0,10,0" 
-                                                             VerticalAlignment="Top" 
-                                                             HorizontalAlignment="Stretch"
-                                                             DataContext="{Binding StatorTestViewModel}"/>
+                                      VerticalAlignment="Top" 
+                                      HorizontalAlignment="Stretch"
+                                      DataContext="{Binding StatorTestViewModel}"/>
                     </ScrollViewer>
                 </Grid>
             </TabItem>

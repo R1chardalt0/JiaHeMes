@@ -50,7 +50,13 @@ namespace ChargePadLine.Client.Services
 
             #region 页面推送服务注册      
             services.AddSingleton<ILogService, LogService>();
-            services.AddSingleton<StatorTestDataService>();
+            services.AddSingleton<StatorEnterModel>();
+            services.AddSingleton<StatorExitModel>();
+            services.AddSingleton<RingEnterModel>();
+            services.AddSingleton<RingExitModel>();
+
+            services.AddSingleton<导热胶涂敷DataService>();
+            services.AddSingleton<电机腔气密测试DataService>();
             #endregion
 
             #region plc交互业务注册
