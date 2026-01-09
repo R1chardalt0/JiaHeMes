@@ -63,12 +63,12 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
         [Description("当前设备ID")]
         public Guid ResourceId { get; set; }
 
+ 
         /// <summary>
         /// 测试数据
         /// </summary>
         [Description("测试数据")]
-        public string TestResults { get; set; } = "";
-
+        public string TestData { get; set; } = "";
         /// <summary>
         /// 批次数据
         /// </summary>

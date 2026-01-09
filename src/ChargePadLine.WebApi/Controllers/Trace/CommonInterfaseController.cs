@@ -80,7 +80,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
                 // 处理结果并返回相应的HTTP响应
                 if (result.ErrorValue.Item1.ToString() == "0")
                 {
-                    return Ok(new { code = 200, message = result.ErrorValue.Item2.ToString() });
+                    return Ok(new { code = 200, message = "数据上传成功" });
                 }
                 else
                 {
