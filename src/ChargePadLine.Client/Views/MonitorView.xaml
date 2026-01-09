@@ -26,7 +26,7 @@
             <Setter Property="MinHeight" Value="40"/>
             <Setter Property="Padding" Value="10,8"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
@@ -63,103 +63,113 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe6ed;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">定子检测/O型圈及冷却</TextBlock>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">定子检测/O型圈及冷却</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
 
-                <Grid Background="#FFE5E5E5">
-                    <!--<local:ScanCodeView DataContext="{Binding scanCodeViewMode}"  Margin="10,10,0,10"/>-->
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                                  VerticalContentAlignment="Top" 
+                                  HorizontalContentAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Padding="0"
+                                  Margin="0">
+                        <local:StatorTestAndO_RingInspection Margin="10,0,10,0" 
+                                                             VerticalAlignment="Top" 
+                                                             HorizontalAlignment="Stretch"
+                                                             DataContext="{Binding StatorTestViewModel}"/>
+                    </ScrollViewer>
                 </Grid>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe6e1;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">电机腔气密测试/导热胶涂敷</TextBlock>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">电机腔气密测试/导热胶涂敷</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="White"/>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe6e2;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">FCT性能测试/热铆</TextBlock>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">FCT性能测试/热铆</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="White"/>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe6ee;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">后盖超声波焊接/干区气密测试</TextBlock>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">后盖超声波焊接/干区气密测试</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="White"/>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe6e7;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">转子充磁与装配</TextBlock>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">转子充磁与装配</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="White"/>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6ed;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">测功机</TextBlock>
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6e4;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">测功机</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="White"/>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe6fb;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">止推垫片装配/超声波焊接</TextBlock>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">止推垫片装配/超声波焊接</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="White"/>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe710;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">旋融焊</TextBlock>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">旋融焊</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="White"/>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe713;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">湿区气密测试</TextBlock>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">湿区气密测试</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="White"/>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe703;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">EOL测试</TextBlock>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">EOL测试</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="White"/>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource FICON}" Text="&#xe719;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Margin="5,0" VerticalAlignment="Center">激光刻/支架安装/打包</TextBlock>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">激光刻/支架安装/打包</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="White"/>
             </TabItem>
         </TabControl>
     </Grid>

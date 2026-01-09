@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -20,6 +20,8 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
@@ -27,6 +29,8 @@
 		<PackageReference Include="ReactiveProperty" Version="9.8.0" />
 		<PackageReference Include="ReactiveUI" Version="22.3.1" />
 		<PackageReference Include="SQLite" Version="3.13.0" />
+		<PackageReference Include="System.Management" Version="8.0.0" />
+		<PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -42,7 +46,6 @@
 
 	<ItemGroup>
 	  <None Remove="font\iconfont.ttf" />
-	  <None Remove="font\logo48X48.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -53,14 +56,19 @@
 	  <Resource Include="font\iconfont.ttf">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Resource>
-	  <Resource Include="font\logo48X48.ico">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Resource>
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Update="log4net.config">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Services\PlcService\plc3\PCBA性能检测%28FCT%29\" />
+	  <Folder Include="Services\PlcService\plc3\热铆\" />
+	  <Folder Include="Services\PlcService\plc6\测功机\" />
+	  <Folder Include="Services\PlcService\plc7\止推垫片装配\" />
+	  <Folder Include="Services\PlcService\plc9\湿区气密测试\" />
 	</ItemGroup>
 </Project>
