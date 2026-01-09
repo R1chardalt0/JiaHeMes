@@ -1,5 +1,6 @@
 ﻿using ChargePadLine.Client.Controls;
 using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,17 +12,15 @@ namespace ChargePadLine.Client.Services.PlcService.Plc9
         private S7NetConnect? _s7Net;
         private readonly PlcConfig _plcConfig;
         private readonly ILogger<Plc9HostService> _logger;
-        private readonly IEnumerable<IPlc10Task> _tasks;
+        private readonly IEnumerable<IPlc9Task> _tasks;
         private readonly ILogService _logService;
 
         public Plc9HostService(
             IOptions<PlcConfig> config,
-            ILogger<Plc9HostService> logger
-,
-            ILogService logService
-            //,
-            //定子检测MiddleWare 定子检测,
-            //O型圈装配MiddleWare o型圈装配
+            ILogger<Plc9HostService> logger,
+            ILogService logService,
+            湿区气密EnterMiddleWare 湿区气密Enter,
+            湿区气密ExitMiddleWare 湿区气密Exit
             )
         {
             _plcConfig = config.Value;
@@ -29,11 +28,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc9
             _logService = logService;
 
             // 在这里统一整合 PLC9 下的所有业务任务
-            //_tasks = new IPlc9Task[]
-            //{
-            //    定子检测,
-            //    o型圈装配
-            //};
+            _tasks = new IPlc9Task[]
+            {
+                湿区气密Enter,
+                湿区气密Exit
+            };
         }
 
         private void InitializeModbusConnection()

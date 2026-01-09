@@ -20,7 +20,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc8
         private ModbusConnect? _modbus;
         private readonly PlcConfig _plcConfig;
         private readonly ILogger<Plc9HostService> _logger;
-        private readonly IEnumerable<IPlc9Task> _tasks;
+        private readonly IEnumerable<IPlc8Task> _tasks;
         private readonly ILogService _logService;
 
         public Plc9HostService(

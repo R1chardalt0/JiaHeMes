@@ -1,6 +1,6 @@
 ﻿using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
-using ChargePadLine.Client.Services.PlcService.Plc8;
+using ChargePadLine.Client.Services.PlcService.Plc10;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -8,23 +8,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
+namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
 {
-    public class 旋融焊ExitMiddleWare : IPlc8Task
+    public class EOLEnterMiddleWare : IPlc10Task
     {
-        private readonly ILogger<旋融焊ExitMiddleWare> _logger;
+        private readonly ILogger<EOLEnterMiddleWare> _logger;
         private readonly ILogService _logService;
 
-        public 旋融焊ExitMiddleWare(ILogger<旋融焊ExitMiddleWare> logger, ILogService logService)
+        public EOLEnterMiddleWare(ILogger<EOLEnterMiddleWare> logger, ILogService logService)
         {
             _logger = logger;
             _logService = logService;
         }
-        public async Task ExecuteOnceAsync(ModbusConnect modbus, CancellationToken cancellationToken)
+
+        public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
         {
             try
             {
-                // TODO: 在这里实现 O 型圈装配相关的 PLC 读写逻辑
+                // TODO: 在这里实现 EOLEnterMiddleWare相关的 PLC 读写逻辑
                 // 例如：
                 // var req = s7Net.ReadBool("DB201.1000.0").Content;
                 // ...
@@ -33,7 +34,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"旋融焊ExitMiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"EOLEnterMiddleWare异常: {ex.Message}");
             }
         }
     }

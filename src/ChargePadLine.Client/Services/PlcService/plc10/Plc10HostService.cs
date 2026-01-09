@@ -1,5 +1,6 @@
 ﻿using ChargePadLine.Client.Controls;
 using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.PlcService.plc10.EOL测试;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,24 +17,22 @@ namespace ChargePadLine.Client.Services.PlcService.Plc10
 
         public Plc10HostService(
             IOptions<PlcConfig> config,
-            ILogger<Plc10HostService> logger
-,
-            ILogService logService
-            //,
-            //定子检测MiddleWare 定子检测,
-            //O型圈装配MiddleWare o型圈装配
+            ILogger<Plc10HostService> logger,
+            ILogService logService,
+            EOLEnterMiddleWare EOLEnter,
+            EOLExitMiddleWare EOLEXit
             )
         {
             _plcConfig = config.Value;
             _logger = logger;
             _logService = logService;
 
-            // 在这里统一整合 PLC10 下的所有业务任务
-            //_tasks = new IPlc10Task[]
-            //{
-            //    定子检测,
-            //    o型圈装配
-            //};
+            //在这里统一整合 PLC10 下的所有业务任务
+           _tasks = new IPlc10Task[]
+           {
+                EOLEnter,
+                EOLEXit
+           };
         }
 
         private void InitializeModbusConnection()

@@ -10,7 +10,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc8
     /// <summary>
     /// PLC4 业务任务接口，例如定子检测、O 型圈装配等
     /// </summary>
-    public interface IPlc9Task
+    public interface IPlc8Task
     {
         /// <summary>
         /// 执行一次业务轮询 / 处理逻辑，由上层控制调用频率

@@ -3,6 +3,7 @@ using ChargePadLine.Client.Services.PlcService;
 using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
+using ChargePadLine.Client.Services.PlcService.plc10.EOL测试;
 using ChargePadLine.Client.Services.PlcService.Plc10;
 using ChargePadLine.Client.Services.PlcService.Plc11;
 using ChargePadLine.Client.Services.PlcService.Plc2;
@@ -14,6 +15,7 @@ using ChargePadLine.Client.Services.PlcService.Plc5;
 using ChargePadLine.Client.Services.PlcService.Plc7;
 using ChargePadLine.Client.Services.PlcService.plc8.旋融焊;
 using ChargePadLine.Client.Services.PlcService.Plc8;
+using ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Prism.Dialogs;
@@ -60,6 +62,18 @@ namespace ChargePadLine.Client.Services
             services.AddTransient<电机腔气密测试ExitMiddleWare>();
             services.AddTransient<旋融焊EnterMiddleWare>();
             services.AddTransient<旋融焊ExitMiddleWare>();
+
+
+
+
+
+
+
+
+            services.AddTransient<湿区气密EnterMiddleWare>();
+            services.AddTransient<湿区气密ExitMiddleWare>();
+            services.AddTransient<EOLEnterMiddleWare>();
+            services.AddTransient<EOLExitMiddleWare>();
             #endregion
 
             #region 系统信息服务注册
