@@ -63,23 +63,23 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     [Description("当前设备ID")]
     public Guid ResourceId { get; set; }
 
- 
-        /// <summary>
-        /// 测试数据
-        /// </summary>
-        [Description("测试数据")]
-        public string TestData { get; set; } = "";
-        /// <summary>
-        /// 批次数据
-        /// </summary>
-        [Description("批次数据")]
-        public string BatchResults { get; set; } = "";
+
+    /// <summary>
+    /// 测试数据
+    /// </summary>
+    [Description("测试数据")]
+    public string? TestData { get; set; }
+    /// <summary>
+    /// 批次数据
+    /// </summary>
+    [Description("批次数据")]
+    public string? BatchResults { get; set; }
 
     /// <summary>
     /// 是否异常
     /// </summary>
     [Description("是否异常")]
-    public bool IsAbnormal { get; set; }
+    public bool? IsAbnormal { get; set; }
 
     /// <summary>
     /// 异常代码
@@ -97,19 +97,19 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     /// 是否锁定（异常锁定）
     /// </summary>
     [Description("是否锁定（异常锁定）")]
-    public bool IsLocked { get; set; }
+    public bool? IsLocked { get; set; }
 
     /// <summary>
     /// 返工次数
     /// </summary>
     [Description("返工次数")]
-    public int ReworkCount { get; set; }
+    public int? ReworkCount { get; set; }
 
     /// <summary>
     /// 是否正在返工
     /// </summary>
     [Description("是否正在返工")]
-    public bool IsReworking { get; set; }
+    public bool? IsReworking { get; set; }
 
     /// <summary>
     /// 返工原因
@@ -122,6 +122,42 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     /// </summary>
     [Description("返工时间")]
     public DateTimeOffset? ReworkTime { get; set; }
+
+    /// <summary>
+    /// 搜索值
+    /// </summary>
+    [Description("搜索值")]
+    public string? SearchValue { get; set; }
+
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    [Description("创建人")]
+    public string? CreateBy { get; set; }
+
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    [Description("创建时间")]
+    public DateTimeOffset? CreateTime { get; set; }
+
+    /// <summary>
+    /// 更新人
+    /// </summary>
+    [Description("更新人")]
+    public string? UpdateBy { get; set; }
+
+    /// <summary>
+    /// 更新时间
+    /// </summary>
+    [Description("更新时间")]
+    public DateTimeOffset? UpdateTime { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    [Description("备注")]
+    public string? Remark { get; set; }
   }
 
   public class MesSnListHistoryEntityTypeConfiguration : IEntityTypeConfiguration<MesSnListHistory>

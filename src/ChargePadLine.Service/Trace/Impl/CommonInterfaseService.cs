@@ -117,7 +117,7 @@ namespace ChargePadLine.Service.Trace.Impl
                     }
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},当前站点不一致，SN站点{SNStationList.StationCode}，上传站点{request.StationCode}"));
                 }
-                if (SNList.IsAbnormal)
+                if (SNList.IsAbnormal == true)
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},当前状态异常"));
                 }
@@ -279,7 +279,7 @@ namespace ChargePadLine.Service.Trace.Impl
                 IsAbnormal = false,
                 CreateTime = DateTime.Now,
                 UpdateTime = DateTime.Now,
-                TestResults=request.TestResult,
+                TestData=request.TestData,
             };
             await _dbContext.mesSnListHistories.AddAsync(snHistory);
 

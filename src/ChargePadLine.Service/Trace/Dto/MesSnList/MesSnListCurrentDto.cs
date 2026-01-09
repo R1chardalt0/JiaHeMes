@@ -50,37 +50,37 @@ namespace ChargePadLine.Service.Trace.Dto.MesSnList
     /// <summary>
     /// 是否异常
     /// </summary>
-    public bool IsAbnormal { get; set; }
+    public bool? IsAbnormal { get; set; }
 
     /// <summary>
     /// 异常代码
     /// </summary>
-    public string AbnormalCode { get; set; } = "";
+    public string? AbnormalCode { get; set; }
 
     /// <summary>
     /// 异常描述
     /// </summary>
-    public string AbnormalDescription { get; set; } = "";
+    public string? AbnormalDescription { get; set; }
 
     /// <summary>
     /// 是否锁定（异常锁定）
     /// </summary>
-    public bool IsLocked { get; set; }
+    public bool? IsLocked { get; set; }
 
     /// <summary>
     /// 返工次数
     /// </summary>
-    public int ReworkCount { get; set; }
+    public int? ReworkCount { get; set; }
 
     /// <summary>
     /// 是否正在返工
     /// </summary>
-    public bool IsReworking { get; set; }
+    public bool? IsReworking { get; set; }
 
     /// <summary>
     /// 返工原因
     /// </summary>
-    public string ReworkReason { get; set; } = "";
+    public string? ReworkReason { get; set; }
 
     /// <summary>
     /// 返工时间
@@ -90,12 +90,12 @@ namespace ChargePadLine.Service.Trace.Dto.MesSnList
     /// <summary>
     /// 搜索值
     /// </summary>
-    public string SearchValue { get; set; } = "";
+    public string? SearchValue { get; set; }
 
     /// <summary>
     /// 创建人
     /// </summary>
-    public string CreateBy { get; set; } = "";
+    public string? CreateBy { get; set; }
 
     /// <summary>
     /// 创建时间
@@ -105,7 +105,7 @@ namespace ChargePadLine.Service.Trace.Dto.MesSnList
     /// <summary>
     /// 更新人
     /// </summary>
-    public string UpdateBy { get; set; } = "";
+    public string? UpdateBy { get; set; }
 
     /// <summary>
     /// 更新时间
@@ -115,6 +115,6 @@ namespace ChargePadLine.Service.Trace.Dto.MesSnList
     /// <summary>
     /// 备注
     /// </summary>
-    public string Remark { get; set; } = "";
+    public string? Remark { get; set; }
   }
 }

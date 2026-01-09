@@ -168,7 +168,7 @@ namespace ChargePadLine.Service.Trace.Impl
               (p.AbnormalCode != null && p.AbnormalCode.Contains(searchValue)) ||
               (p.AbnormalDescription != null && p.AbnormalDescription.Contains(searchValue)) ||
               (p.ReworkReason != null && p.ReworkReason.Contains(searchValue)) ||
-              (p.TestResults != null && p.TestResults.Contains(searchValue)) ||
+              (p.TestData != null && p.TestData.Contains(searchValue)) ||
               (p.BatchResults != null && p.BatchResults.Contains(searchValue))
           );
         }
@@ -285,7 +285,7 @@ namespace ChargePadLine.Service.Trace.Impl
         CurrentStationListId = entity.CurrentStationListId,
         ProductionLineId = entity.ProductionLineId,
         ResourceId = entity.ResourceId,
-        TestResults = entity.TestResults ?? "",
+        TestData = entity.TestData ?? "",
         BatchResults = entity.BatchResults ?? "",
         IsAbnormal = entity.IsAbnormal,
         AbnormalCode = entity.AbnormalCode ?? "",

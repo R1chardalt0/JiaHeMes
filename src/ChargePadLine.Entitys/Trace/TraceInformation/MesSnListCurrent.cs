@@ -67,7 +67,7 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     /// 是否异常
     /// </summary>
     [Description("是否异常")]
-    public bool IsAbnormal { get; set; }
+    public bool? IsAbnormal { get; set; }
 
     /// <summary>
     /// 异常代码
@@ -85,19 +85,19 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     /// 是否锁定（异常锁定）
     /// </summary>
     [Description("是否锁定（异常锁定）")]
-    public bool IsLocked { get; set; }
+    public bool? IsLocked { get; set; }
 
     /// <summary>
     /// 返工次数
     /// </summary>
     [Description("返工次数")]
-    public int ReworkCount { get; set; }
+    public int? ReworkCount { get; set; }
 
     /// <summary>
     /// 是否正在返工
     /// </summary>
     [Description("是否正在返工")]
-    public bool IsReworking { get; set; }
+    public bool? IsReworking { get; set; }
 
     /// <summary>
     /// 返工原因

@@ -256,7 +256,7 @@ namespace ChargePadLine.Service.Trace.Impl
         IsReworking = entity.IsReworking,
         ReworkReason = entity.ReworkReason ?? "",
         ReworkTime = entity.ReworkTime,
-        SearchValue = "",
+        SearchValue = entity.SearchValue,
         CreateBy = entity.CreateBy ?? "",
         CreateTime = entity.CreateTime,
         UpdateBy = entity.UpdateBy ?? "",
