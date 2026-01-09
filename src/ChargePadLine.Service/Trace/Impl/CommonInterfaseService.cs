@@ -69,16 +69,9 @@ namespace ChargePadLine.Service.Trace.Impl
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，工单编号：{DeviceInfosList.WorkOrderCode}"));
                 }
-                if (workOrder.OrderStatus != 3)
-                {
-                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单状态不是生产中，工单状态：{workOrder.OrderStatus.ToString()}"));
-                }
+                
             
-            var SNList =_dbContext.mesSnListCurrents.FirstOrDefault(x => x.SnNumber == request.SN);
-            if (SNList == null)
-            {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},不存在"));
-            }
+            
             var StationList= _dbContext.StationList.FirstOrDefault(x => x.StationCode == request.StationCode);
             if (StationList == null)
             {
@@ -102,10 +95,19 @@ namespace ChargePadLine.Service.Trace.Impl
             if (currentprocessRouteList.FirstStation == true)
             {
                 //检查SN规则
-
+                return FSharpResult<ValueTuple, (int, string)>.NewError((0, $"首站"));
             }
             else
             {
+                var SNList = _dbContext.mesSnListCurrents.FirstOrDefault(x => x.SnNumber == request.SN);
+                if (SNList == null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},不存在"));
+                }
+                if (workOrder.OrderStatus != 3)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单状态不是生产中，工单状态：{workOrder.OrderStatus.ToString()}"));
+                }
                 if (SNList.CurrentStationListId != StationList.StationId)
                 {
                     var SNStationList = _dbContext.StationList.FirstOrDefault(x => x.StationId == SNList.CurrentStationListId);
@@ -179,11 +181,76 @@ namespace ChargePadLine.Service.Trace.Impl
         {
             // 先执行与UploadCheck相同的校验逻辑
             var checkResult = await UploadCheck(request);
-            if (checkResult.IsError)
+            if (checkResult.ErrorValue.Item1 != 0)
             {
                 return checkResult;
             }
+            // 获取当前工单
+            var deviceInfo = await _dbContext.DeviceInfos
+                .FirstOrDefaultAsync(x => x.Resource == request.Resource);
+            if (deviceInfo == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码{request.Resource}不存在"));
+            }
 
+            var workOrder = await _dbContext.OrderList
+                .FirstOrDefaultAsync(x => x.OrderCode == deviceInfo.WorkOrderCode);
+            if (workOrder == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单{deviceInfo.WorkOrderCode}不存在"));
+            }
+            if (checkResult.ErrorValue.Item2 == "首站")
+            {
+            
+
+            // 获取首站站点
+            var firstStation = await (from p in _dbContext.ProcessRoutes
+                                      join i in _dbContext.ProcessRouteItems on p.Id equals i.HeadId
+                                      join s in _dbContext.StationList on i.StationCode equals s.StationCode
+                                      where p.Id == workOrder.ProcessRouteId && i.FirstStation == true
+                                      select new { s.StationId, s.StationCode })
+                                     .FirstOrDefaultAsync();
+
+            if (firstStation == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, "工艺路线未配置首站"));
+            }
+
+            // 1. 先往 mesSnListCurrents 插入数据
+            var insertSnCurrent = new MesSnListCurrent
+            {
+                SnNumber = request.SN,
+                OrderListId = workOrder.OrderListId,
+                CurrentStationListId = firstStation.StationId,
+                ResourceId = deviceInfo.ResourceId,
+                ProductionLineId = deviceInfo.ProductionLineId,
+                StationStatus = 1,      // PASS
+                IsAbnormal = false,
+                CreateTime = DateTime.Now,
+                UpdateTime = DateTime.Now
+            };
+            await _dbContext.mesSnListCurrents.AddAsync(insertSnCurrent);
+            await _dbContext.SaveChangesAsync();
+
+            // 2. 再往 mesSnListHistories 插入数据
+            var InsertSnHistory = new MesSnListHistory
+            {
+                SnNumber = insertSnCurrent.SnNumber,
+                OrderListId = insertSnCurrent.OrderListId,
+                CurrentStationListId = insertSnCurrent.CurrentStationListId,
+                StationStatus = 1,
+                ResourceId = deviceInfo.ResourceId,
+                ProductionLineId = deviceInfo.ProductionLineId,
+                IsAbnormal = false,
+                CreateTime = DateTime.Now,
+                UpdateTime = DateTime.Now
+            };
+            await _dbContext.mesSnListHistories.AddAsync(InsertSnHistory);
+            await _dbContext.SaveChangesAsync();
+
+            return FSharpResult<ValueTuple, (int, string)>.NewOk(default(ValueTuple));
+
+            }
             // 获取当前SN在mesSnListCurrents中的记录
             var snCurrent = await _dbContext.mesSnListCurrents
                 .FirstOrDefaultAsync(x => x.SnNumber == request.SN);
@@ -206,10 +273,13 @@ namespace ChargePadLine.Service.Trace.Impl
                 SnNumber = snCurrent.SnNumber,
                 OrderListId = snCurrent.OrderListId,
                 CurrentStationListId = snCurrent.CurrentStationListId,
+                ProductionLineId = deviceInfo.ProductionLineId,
+                ResourceId = deviceInfo.ResourceId,
                 StationStatus = 1,                 // 默认PASS
                 IsAbnormal = false,
                 CreateTime = DateTime.Now,
-                UpdateTime = DateTime.Now
+                UpdateTime = DateTime.Now,
+                TestResults=request.TestResult,
             };
             await _dbContext.mesSnListHistories.AddAsync(snHistory);
 
@@ -246,8 +316,9 @@ namespace ChargePadLine.Service.Trace.Impl
             }
 
             snCurrent.UpdateTime = DateTime.Now;
-
+            _dbContext.mesSnListCurrents.Update(snCurrent);
             await _dbContext.SaveChangesAsync();
+            
 
             return FSharpResult<ValueTuple, (int, string)>.NewOk(default(ValueTuple));
         }
