@@ -59,11 +59,11 @@ namespace ChargePadLine.WebApi.Controllers.Trace
                 return StatusCode(500, new { code = 500, message = $"服务器内部错误: {ex.Message}" });
             }
         }
-
         /// <summary>
-        /// 测试数据上传接口
+        /// 数据上传检查接口
         /// </summary>
-
+        /// <param name="request">设备数据采集参数</param>
+        /// <returns>操作结果</returns>
         [HttpPost("UploadData")]
         public async Task<IActionResult> UploadData(RequestUploadCheckParams request)
         {
@@ -75,17 +75,17 @@ namespace ChargePadLine.WebApi.Controllers.Trace
                     return BadRequest(new { code = 400, message = "设备编码不能为空" });
                 }
 
-
+                var result = await _iCommonInterfaseService.UploadData(request);
 
                 // 处理结果并返回相应的HTTP响应
-                if (true)
+                if (result.ErrorValue.Item1.ToString() == "0")
                 {
-                    return Ok(new { code = 200, message = "设备信息收集成功" });
+                    return Ok(new { code = 200, message = result.ErrorValue.Item2.ToString() });
                 }
                 else
                 {
-
-                    // return BadRequest(new { code = errorResult.Item1, message = errorResult.Item2 });
+                    var errorResult = result.ErrorValue;
+                    return BadRequest(new { code = errorResult.Item1, message = errorResult.Item2 });
                 }
             }
             catch (Exception ex)
@@ -94,6 +94,8 @@ namespace ChargePadLine.WebApi.Controllers.Trace
                 return StatusCode(500, new { code = 500, message = $"服务器内部错误: {ex.Message}" });
             }
         }
+
+     
 
         /// <summary>
         /// 上料接口

@@ -143,7 +143,8 @@ namespace ChargePadLine.Service.Trace.Impl
           MustPassStation = dto.MustPassStation,
           CheckStationList = dto.CheckStationList,
           FirstStation = dto.FirstStation,
-          CheckAll = dto.CheckAll
+          CheckAll = dto.CheckAll,
+          RouteSeq = dto.RouteSeq,
         };
 
         // 保存工艺路线子项
@@ -186,6 +187,7 @@ namespace ChargePadLine.Service.Trace.Impl
         existingRouteItem.CheckStationList = dto.CheckStationList;
         existingRouteItem.FirstStation = dto.FirstStation;
         existingRouteItem.CheckAll = dto.CheckAll;
+                existingRouteItem.RouteSeq = dto.RouteSeq;
 
         // 保存更新
         var result = await _routeItemRepo.UpdateAsync(existingRouteItem);
@@ -252,7 +254,8 @@ namespace ChargePadLine.Service.Trace.Impl
         MustPassStation = routeItem.MustPassStation,
         CheckStationList = routeItem.CheckStationList,
         FirstStation = routeItem.FirstStation,
-        CheckAll = routeItem.CheckAll
+        CheckAll = routeItem.CheckAll,
+        RouteSeq = routeItem.RouteSeq
       };
     }
   }

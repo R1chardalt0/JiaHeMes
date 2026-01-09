@@ -18,5 +18,7 @@ namespace ChargePadLine.Service.Trace
         Task<List<string>> GetList();
         Task<string> GetName();
         Task<FSharpResult<ValueTuple, (int, string)>> UploadCheck(RequestUploadCheckParams request);
+        Task<FSharpResult<ValueTuple, (int, string)>> UploadData(RequestUploadCheckParams request);
+
     }
 }
