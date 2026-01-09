@@ -42,11 +42,13 @@ namespace ChargePadLine.Client.Services.PlcService.Plc3
             _logService = logService;
 
             // 在这里统一整合 PLC3 下的所有业务任务
-            //_tasks = new IPlc3Task[]
-            //{
-            //    定子检测,
-            //    o型圈装配
-            //};
+            _tasks = new IPlc3Task[]
+            {
+                PCBA性能检测Enter,
+                PCBA性能检测Exit,
+                热铆Enter,
+                热铆Exit,
+            };
         }
 
         private void InitializeModbusConnection()

@@ -3,6 +3,8 @@ using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
+using ChargePadLine.Client.Services.PlcService.plc4.后盖超声波焊接;
+using ChargePadLine.Client.Services.PlcService.plc4.干区气密测试;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,8 +26,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc4
 
         public Plc4HostService(
             IOptions<PlcConfig> config,
-            ILogger<Plc4HostService> logger
-,
+            ILogger<Plc4HostService> logger,
+            干区气密测试EnterMiddleWare 干区气密测试Enter,
+            干区气密测试ExitMiddleWare 干区气密测试Exit,
+            后盖超声波焊接EnterMiddleWare 后盖超声波焊接Enter,
+            后盖超声波焊接ExitMiddleWare 干区气密测后盖超声波焊接Exit,
             ILogService logService
             //,
             //定子检测MiddleWare 定子检测,
@@ -37,11 +42,13 @@ namespace ChargePadLine.Client.Services.PlcService.Plc4
             _logService = logService;
 
             // 在这里统一整合 PLC4 下的所有业务任务
-            //_tasks = new IPlc4Task[]
-            //{
-            //    定子检测,
-            //    o型圈装配
-            //};
+            _tasks = new IPlc4Task[]
+            {
+                干区气密测试Enter,
+                干区气密测试Exit,
+                后盖超声波焊接Enter,
+                干区气密测后盖超声波焊接Exit,
+            };
         }
 
         private void InitializeModbusConnection()

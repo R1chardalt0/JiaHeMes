@@ -9,9 +9,15 @@ using ChargePadLine.Client.Services.PlcService.Plc11;
 using ChargePadLine.Client.Services.PlcService.Plc2;
 using ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷;
 using ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试;
+using ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_;
+using ChargePadLine.Client.Services.PlcService.plc3.热铆;
 using ChargePadLine.Client.Services.PlcService.Plc3;
+using ChargePadLine.Client.Services.PlcService.plc4.后盖超声波焊接;
+using ChargePadLine.Client.Services.PlcService.plc4.干区气密测试;
 using ChargePadLine.Client.Services.PlcService.Plc4;
+using ChargePadLine.Client.Services.PlcService.plc5.转子充磁与装配;
 using ChargePadLine.Client.Services.PlcService.Plc5;
+using ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配;
 using ChargePadLine.Client.Services.PlcService.Plc7;
 using ChargePadLine.Client.Services.PlcService.plc8.旋融焊;
 using ChargePadLine.Client.Services.PlcService.Plc8;
@@ -66,6 +72,20 @@ namespace ChargePadLine.Client.Services
             services.AddTransient<电机腔气密测试ExitMiddleWare>();
             services.AddTransient<旋融焊EnterMiddleWare>();
             services.AddTransient<旋融焊ExitMiddleWare>();
+            services.AddTransient<PCBA性能检测EnterMiddleWare>();
+            services.AddTransient<PCBA性能检测ExitMiddleWare>();
+            services.AddTransient<PCBA性能检测ExitMiddleWare>();
+            services.AddTransient<PCBA性能检测ExitMiddleWare>();
+            services.AddTransient<热铆EnterMiddleWare>();
+            services.AddTransient<热铆ExitMiddleWare>();
+            services.AddTransient<干区气密测试EnterMiddleWare>();
+            services.AddTransient<干区气密测试ExitMiddleWare>();
+            services.AddTransient<后盖超声波焊接EnterMiddleWare>();
+            services.AddTransient<后盖超声波焊接ExitMiddleWare>();
+            services.AddTransient<转子充磁与装配EnterMiddleWare>();
+            services.AddTransient<转子充磁与装配ExitMiddleWare>();
+            services.AddTransient<止推垫片装配EnterMiddleWare>();
+            services.AddTransient<止推垫片装配ExitMiddleWare>();
 
 
 
