@@ -26,7 +26,7 @@ namespace ChargePadLine.Client.Services
             services.AddTransient<S7NetConnect>();
             services.AddTransient<ModbusConnect>();
             services.AddHostedService<Plc1HostService>();
-            services.AddHostedService<Plc2HostService>();
+            services.AddHostedService<Plc3HostService>();
             #endregion
 
             #region 页面推送服务注册      
@@ -43,10 +43,12 @@ namespace ChargePadLine.Client.Services
             services.AddTransient<导热胶涂敷ExitMiddleWare>();
             services.AddTransient<电机腔气密测试EnterMiddleWare>();
             services.AddTransient<电机腔气密测试ExitMiddleWare>();
+            services.AddTransient<旋融焊EnterMiddleWare>();
+            services.AddTransient<旋融焊ExitMiddleWare>();
             #endregion
 
             #region 系统信息服务注册
-            services.AddSingleton<ISystemInfoService, SystemInfoService>();
+            // services.AddSingleton<ISystemInfoService, SystemInfoService>();
             #endregion
 
             return services;
