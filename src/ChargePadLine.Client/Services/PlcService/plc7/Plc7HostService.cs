@@ -26,12 +26,9 @@ namespace ChargePadLine.Client.Services.PlcService.Plc7
         public Plc7HostService(
             IOptions<PlcConfig> config,
             ILogger<Plc7HostService> logger,
+            ILogService logService,
             止推垫片装配EnterMiddleWare 止推垫片装配Enter,
-            止推垫片装配ExitMiddleWare 止推垫片装配Exit,
-            ILogService logService
-            //,
-            //定子检测MiddleWare 定子检测,
-            //O型圈装配MiddleWare o型圈装配
+            止推垫片装配ExitMiddleWare 止推垫片装配Exit
             )
         {
             _plcConfig = config.Value;

@@ -26,10 +26,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc5
 
         public Plc5HostService(
             IOptions<PlcConfig> config,
-            转子充磁与装配EnterMiddleWare 转子充磁与装配Enter,
-            转子充磁与装配ExitMiddleWare 转子充磁与装配Exit,
             ILogger<Plc5HostService> logger,
-            ILogService logService
+            ILogService logService,
+            转子充磁与装配EnterMiddleWare 转子充磁与装配Enter,
+            转子充磁与装配ExitMiddleWare 转子充磁与装配Exit
             )
         {
             _plcConfig = config.Value;

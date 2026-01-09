@@ -1,5 +1,7 @@
 ﻿using ChargePadLine.Client.Controls;
 using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.PlcService.plc11.安装支架;
+using ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,24 +18,26 @@ namespace ChargePadLine.Client.Services.PlcService.Plc11
 
         public Plc11HostService(
             IOptions<PlcConfig> config,
-            ILogger<Plc11HostService> logger
-,
-            ILogService logService
-            //,
-            //定子检测MiddleWare 定子检测,
-            //O型圈装配MiddleWare o型圈装配
+            ILogger<Plc11HostService> logger,
+            ILogService logService,
+            激光刻印EnterMiddleWare 激光刻印Enter,
+            激光刻印ExitMiddleWare 激光刻印Exit,
+            安装支架EnterMiddleWare 安装支架Enter,
+            安装支架ExitMiddleWare 安装支架Exit
             )
         {
             _plcConfig = config.Value;
             _logger = logger;
             _logService = logService;
 
-            // 在这里统一整合 PLC11 下的所有业务任务
-            //_tasks = new IPlc11Task[]
-            //{
-            //    定子检测,
-            //    o型圈装配
-            //};
+            //  在这里统一整合 PLC11 下的所有业务任务
+            _tasks = new IPlc11Task[]
+            {
+                激光刻印Enter,
+                激光刻印Exit,
+                安装支架Enter,
+                安装支架Exit
+            };
         }
 
         private void InitializeModbusConnection()
