@@ -98,32 +98,39 @@ const ProductList: React.FC = () => {
     }
   };
 
-  // 处理删除产品
-  const handleDeleteProduct = async (id: string) => {
-    try {
-      await deleteProductList(id);
-      messageApi.success('产品删除成功');
-      actionRef.current?.reload();
-    } catch (error) {
-      messageApi.error('产品删除失败');
-    }
-  };
+  // 处理删除产品（单个或批量）
+  const handleDeleteProduct = useCallback((ids: string | string[]) => {
+    // 确保ids是数组
+    const deleteIds = Array.isArray(ids) ? ids : [ids];
 
-  // 处理批量删除产品
-  const handleBatchDeleteProduct = async () => {
-    try {
-      // 将selectedRowKeys转换为string[]类型
-      const ids = selectedRowKeys.map(key => String(key));
-      await deleteProductList(ids);
-      messageApi.success(`成功删除${ids.length}个产品`);
-      // 清空选中的行
-      setSelectedRowKeys([]);
-      // 刷新表格
-      actionRef.current?.reload();
-    } catch (error) {
-      messageApi.error('批量删除产品失败');
+    if (deleteIds.length === 0) {
+      messageApi.error('请选择要删除的产品');
+      return;
     }
-  };
+
+    Modal.confirm({
+      title: '确认删除',
+      content: deleteIds.length === 1 ? '确认要删除这条产品信息吗？' : `确认要删除这${deleteIds.length}条产品信息吗？`,
+      onOk: async () => {
+        try {
+          await deleteProductList(deleteIds);
+          messageApi.success(deleteIds.length === 1 ? '产品删除成功' : `成功删除${deleteIds.length}个产品`);
+          // 清空选中的行
+          setSelectedRowKeys([]);
+          // 刷新表格
+          actionRef.current?.reload();
+        } catch (error) {
+          messageApi.error(deleteIds.length === 1 ? '产品删除失败' : '批量删除产品失败');
+          console.error('Delete product error:', error);
+        }
+      }
+    });
+  }, [messageApi]);
+
+  // 处理批量删除产品（调用统一的删除方法）
+  const handleBatchDeleteProduct = useCallback(() => {
+    handleDeleteProduct(selectedRowKeys.map(key => String(key)));
+  }, [handleDeleteProduct, selectedRowKeys]);
 
   // 获取BOM列表数据
   const fetchBoms = useCallback(async (params: BomListQueryDto) => {

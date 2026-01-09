@@ -86,26 +86,18 @@ export const getProcessRouteColumns = (
           >
             编辑
           </Button>
-          <Popconfirm
-            title="确认删除"
-            description="确定要删除该工艺路线吗？"
-            onConfirm={(e) => {
-              e?.stopPropagation();
+          <Button
+            type="link"
+            size="small"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
               handleDeleteProcessRoute(record.id);
             }}
-            okText="确定"
-            cancelText="取消"
           >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={(e) => e.stopPropagation()}
-            >
-              删除
-            </Button>
-          </Popconfirm>
+            删除
+          </Button>
         </>
       )
     }

@@ -152,7 +152,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
       catch (Exception ex)
       {
         _logger.LogError(ex, "删除BOM时发生错误,IDs:{@BomIds}", ids);
-        return StatusCode(500, "删除BOM失败");
+        return StatusCode(500, new { message = $"{ex.GetType().FullName}: {ex.Message}" });
       }
     }
   }

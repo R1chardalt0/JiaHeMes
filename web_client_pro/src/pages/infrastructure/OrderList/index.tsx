@@ -5,7 +5,7 @@ import React, { useRef, useState, useCallback } from 'react';
 import { Button, Modal, message, Form } from 'antd';
 import ProductSelectModal from '@/pages/infrastructure/Bom/components/ProductSelectModal';
 import { ProductListDto } from '@/services/Model/Infrastructure/ProductList';
-import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { getOrderList, getOrderById, createOrder, updateOrder, deleteOrder } from '@/services/Api/Infrastructure/OrderList';
 import { OrderListDto, OrderListQueryDto, OrderListCreateDto, OrderListUpdateDto } from '@/services/Model/Infrastructure/OrderList';
 import { getProductListById } from '@/services/Api/Infrastructure/ProductList';
@@ -264,10 +264,6 @@ const OrderPage: React.FC = () => {
           planEndTime: validatedValues.planEndTime,
         };
 
-        // 添加调试日志以查看ID值
-        console.log('前端调试 - URL查询参数中的ID:', editingOrder.orderListId);
-        console.log('前端调试 - 请求体中的ID:', updatedOrder.orderListId);
-
         // 确保URL查询参数与请求体中的ID完全一致，避免后端验证失败
         if (updatedOrder.orderListId !== editingOrder.orderListId) {
           console.error('前端检测到ID不匹配 - URL查询参数ID:', editingOrder.orderListId, '请求体ID:', updatedOrder.orderListId);
@@ -379,9 +375,6 @@ const OrderPage: React.FC = () => {
         request={async (
           params
         ): Promise<RequestData<OrderListDto>> => {
-          // 调试：打印所有搜索参数
-          console.log('搜索参数:', params);
-
           setCurrentSearchParams({
             current: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
@@ -413,9 +406,6 @@ const OrderPage: React.FC = () => {
             processRouteCode: params.processRouteCode,
             processRouteName: params.processRouteName,
           };
-
-          // 调试：打印传递给API的参数
-          console.log('传递给API的参数:', queryParams);
 
           try {
             // 当搜索联合查询字段时，获取更多数据以进行本地过滤
@@ -540,10 +530,19 @@ const OrderPage: React.FC = () => {
           onChange: (selectedRowKeys) => setSelectedRowKeys(selectedRowKeys as string[]),
         }}
         toolBarRender={() => [
-          <Button type="primary" key="add" onClick={handleAddOrder}>
+          <Button
+            type="primary"
+            key="add"
+            icon={<PlusOutlined />}
+            onClick={handleAddOrder}>
+
             新建工单
           </Button>,
-          <Button danger key="batchDelete" onClick={handleBatchDelete} disabled={selectedRowKeys.length === 0}>
+          <Button
+            danger key="batchDelete"
+            icon={<DeleteOutlined />}
+            onClick={handleBatchDelete}
+            disabled={selectedRowKeys.length === 0}>
             批量删除
           </Button>,
         ]}

@@ -343,10 +343,19 @@ const ProcessRoutePage: React.FC = () => {
           onChange: (selectedRowKeys) => setSelectedRowKeys(selectedRowKeys as string[]),
         }}
         toolBarRender={() => [
-          <Button type="primary" key="add" onClick={handleAddProcessRoute}>
-            新增工艺路线
+          <Button
+            type="primary"
+            key="add"
+            icon={<PlusOutlined />}
+            onClick={handleAddProcessRoute}>
+            新建工艺路线
           </Button>,
-          <Button danger key="batchDelete" onClick={handleBatchDelete} disabled={selectedRowKeys.length === 0}>
+          <Button
+            danger
+            key="batchDelete"
+            icon={<DeleteOutlined />}
+            onClick={handleBatchDelete}
+            disabled={selectedRowKeys.length === 0}>
             批量删除
           </Button>,
         ]}
@@ -390,6 +399,7 @@ const ProcessRoutePage: React.FC = () => {
                   <Button
                     type="primary"
                     style={{ marginLeft: 16 }}
+                    icon={<PlusOutlined />}
                     onClick={handleAddProcessRouteItem}
                   >
                     添加子项
