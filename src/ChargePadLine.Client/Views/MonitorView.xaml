@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ChargePadLine.Client.Views.MonitorView"
+<UserControl x:Class="ChargePadLine.Client.Views.MonitorView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -96,7 +96,7 @@
                    VerticalAlignment="Stretch"
                    Padding="0"
                    Margin="0">
-                        <local:StatorTestAndO_RingInspection Margin="10,0,10,0" 
+                        <local:导热胶And气密View Margin="10,0,10,0" 
                        VerticalAlignment="Top" 
                        HorizontalAlignment="Stretch"
                        DataContext="{Binding 导热胶And气密ViewModel}"/>
