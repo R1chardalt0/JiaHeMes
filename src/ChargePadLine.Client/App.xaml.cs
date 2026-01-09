@@ -135,17 +135,43 @@ public partial class App : Application
         services.AddTransient<MainWindow>();
     }
 
-        protected override void OnExit(ExitEventArgs e)
+    protected override void OnExit(ExitEventArgs e)
+    {
+        try
         {
             // 优雅停止所有 IHostedService
             if (_serviceProvider != null)
             {
                 StopHostedServices(_serviceProvider);
                 _serviceProvider.Dispose();
+                _serviceProvider = null;
             }
-
-            base.OnExit(e);
         }
+        catch (Exception ex)
+        {
+            // 记录错误但不阻止退出
+            System.Diagnostics.Debug.WriteLine($"停止服务时发生错误: {ex.Message}");
+        }
+        finally
+        {
+            // 释放 Mutex
+            if (_mutex != null)
+            {
+                try
+                {
+                    _mutex.ReleaseMutex();
+                    _mutex.Dispose();
+                    _mutex = null;
+                }
+                catch
+                {
+                    // 忽略 Mutex 释放错误
+                }
+            }
+        }
+
+        base.OnExit(e);
+    }
 
     #region 数据库服务
     /// <summary>
@@ -226,11 +252,40 @@ public partial class App : Application
     /// <param name="serviceProvider"></param>
     private void StopHostedServices(ServiceProvider serviceProvider)
     {
-        using var scope = serviceProvider.CreateScope();
-        var hostedServices = scope.ServiceProvider.GetServices<IHostedService>().ToList();
-        foreach (var hostedService in hostedServices)
+        try
         {
-            hostedService.StopAsync(CancellationToken.None).GetAwaiter().GetResult();
+            using var scope = serviceProvider.CreateScope();
+            var hostedServices = scope.ServiceProvider.GetServices<IHostedService>().ToList();
+
+            // 创建取消令牌，设置超时时间为 5 秒
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+            // 并行停止所有服务
+            var stopTasks = hostedServices.Select(service =>
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        await service.StopAsync(cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // 超时被取消，强制停止
+                        System.Diagnostics.Debug.WriteLine($"服务停止超时: {service.GetType().Name}");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"停止服务时发生错误: {service.GetType().Name}, {ex.Message}");
+                    }
+                })
+            ).ToArray();
+
+            // 等待所有服务停止完成，最多等待 5 秒
+            Task.WaitAll(stopTasks, TimeSpan.FromSeconds(5));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"停止 HostedService 时发生错误: {ex.Message}");
         }
     }
     #endregion
