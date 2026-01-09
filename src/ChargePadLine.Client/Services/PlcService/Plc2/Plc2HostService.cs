@@ -3,6 +3,8 @@ using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
+using ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷;
+using ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,27 +23,29 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
         private readonly ILogger<Plc2HostService> _logger;
         private readonly IEnumerable<IPlc2Task> _tasks;
         private readonly ILogService _logService;
-
         public Plc2HostService(
+            ILogger<Plc2HostService> logger,
+            ILogService logService,
             IOptions<PlcConfig> config,
-            ILogger<Plc2HostService> logger
-,
-            ILogService logService
-            //,
-            //定子检测MiddleWare 定子检测,
-            //O型圈装配MiddleWare o型圈装配
+            导热胶涂敷EnterMiddleWare 导热胶涂敷Enter,
+            导热胶涂敷ExitMiddleWare 导热胶涂敷Exit,
+            电机腔气密测试EnterMiddleWare 电机腔气密测试Enter,
+            电机腔气密测试ExitMiddleWare 电机腔气密测试Exit
             )
         {
             _plcConfig = config.Value;
             _logger = logger;
             _logService = logService;
 
-            // 在这里统一整合 PLC1 下的所有业务任务
-            //_tasks = new IPlc2Task[]
-            //{
-            //    定子检测,
-            //    o型圈装配
-            //};
+            // 在这里统一整合 PLC2 下的所有业务任务
+            _tasks = new IPlc2Task[]
+             {
+                 导热胶涂敷Enter,
+                 导热胶涂敷Exit,
+                 电机腔气密测试Enter,
+                 电机腔气密测试Exit,
+             };
+            _logService = logService;
         }
 
         private void InitializeModbusConnection()

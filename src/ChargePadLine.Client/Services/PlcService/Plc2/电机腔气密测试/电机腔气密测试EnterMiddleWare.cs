@@ -1,20 +1,20 @@
 ﻿using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配
+namespace ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试
 {
-    /// <summary>
-    /// O 型圈装配业务逻辑，单次执行一次轮询，由外部服务控制循环与频率
-    /// </summary>
-    public class O型圈装配MiddleWare : IPlc1Task
+    public class 电机腔气密测试EnterMiddleWare : IPlc2Task
     {
-        private readonly ILogger<O型圈装配MiddleWare> _logger;
+        private readonly ILogger<电机腔气密测试EnterMiddleWare> _logger;
         private readonly ILogService _logService;
 
-        public O型圈装配MiddleWare(ILogger<O型圈装配MiddleWare> logger, ILogService logService)
+        public 电机腔气密测试EnterMiddleWare(ILogger<电机腔气密测试EnterMiddleWare> logger, ILogService logService)
         {
             _logger = logger;
             _logService = logService;
@@ -33,7 +33,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"O型圈装配MiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"电机腔气密测试EnterMiddleWare异常: {ex.Message}");
             }
         }
     }

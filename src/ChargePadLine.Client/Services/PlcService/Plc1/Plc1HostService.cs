@@ -26,8 +26,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1
         public Plc1HostService(
             IOptions<PlcConfig> config,
             ILogger<Plc1HostService> logger,
-            定子检测MiddleWare 定子检测,
-            O型圈装配MiddleWare o型圈装配,
+            定子检测EnterMiddleWare 定子检测Enter,
+            定子检测ExitMiddleWare 定子检测Exit,
+            O型圈装配EnterMiddleWare o型圈装配Enter,
+            O型圈装配ExitMiddleWare o型圈装配Exit,
             ILogService logService)
         {
             _plcConfig = config.Value;
@@ -36,8 +38,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1
             // 在这里统一整合 PLC1 下的所有业务任务
             _tasks = new IPlc1Task[]
             {
-                定子检测,
-                o型圈装配
+                定子检测Enter,
+                定子检测Exit,
+                o型圈装配Enter,
+                o型圈装配Exit
             };
             _logService = logService;
         }

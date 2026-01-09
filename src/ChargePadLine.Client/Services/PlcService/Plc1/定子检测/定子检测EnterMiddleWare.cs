@@ -10,13 +10,13 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
     /// <summary>
     /// 定子检测业务逻辑，单次执行一次轮询，由外部服务控制循环与频率
     /// </summary>
-    public class 定子检测MiddleWare : IPlc1Task
+    public class 定子检测EnterMiddleWare : IPlc1Task
     {
-        private readonly ILogger<定子检测MiddleWare> _logger;
+        private readonly ILogger<定子检测EnterMiddleWare> _logger;
         private readonly StatorTestDataService _statorTestDataService;
         private readonly ILogService _logService;
 
-        public 定子检测MiddleWare(ILogger<定子检测MiddleWare> logger, StatorTestDataService statorTestDataService, ILogService logService)
+        public 定子检测EnterMiddleWare(ILogger<定子检测EnterMiddleWare> logger, StatorTestDataService statorTestDataService, ILogService logService)
         {
             _logger = logger;
             _statorTestDataService = statorTestDataService;

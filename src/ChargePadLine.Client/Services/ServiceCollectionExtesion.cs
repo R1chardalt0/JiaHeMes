@@ -4,6 +4,8 @@ using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
 using ChargePadLine.Client.Services.PlcService.Plc2;
+using ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷;
+using ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Prism.Dialogs;
@@ -33,8 +35,14 @@ namespace ChargePadLine.Client.Services
             #endregion
 
             #region plc交互业务注册
-            services.AddTransient<定子检测MiddleWare>();
-            services.AddTransient<O型圈装配MiddleWare>();
+            services.AddTransient<定子检测EnterMiddleWare>();
+            services.AddTransient<定子检测ExitMiddleWare>();
+            services.AddTransient<O型圈装配EnterMiddleWare>();
+            services.AddTransient<O型圈装配ExitMiddleWare>();
+            services.AddTransient<导热胶涂敷EnterMiddleWare>();
+            services.AddTransient<导热胶涂敷ExitMiddleWare>();
+            services.AddTransient<电机腔气密测试EnterMiddleWare>();
+            services.AddTransient<电机腔气密测试ExitMiddleWare>();
             #endregion
 
             #region 系统信息服务注册
