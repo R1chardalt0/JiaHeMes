@@ -36,7 +36,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc8
             _logService = logService;
 
             // 在这里统一整合 PLC8 下的所有业务任务
-            _tasks = new IPlc9Task[]
+            _tasks = new IPlc8Task[]
             {
                 旋融焊Enter,
                 旋融焊Exit
