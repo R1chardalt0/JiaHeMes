@@ -19,7 +19,7 @@ export async function getDeviceInfoList(params: DeviceInfoQueryParams): Promise<
  * @returns 设备详情
  */
 export async function getDeviceInfoById(deviceId: string): Promise<{ data: DeviceInfo }> {
-  return request(`/api/Deviceinfo/GetDeviceInfoById/${deviceId}`, {
+  return request(`/api/Deviceinfo/${deviceId}`, {
     method: 'GET',
   });
 }
