@@ -3,7 +3,6 @@ using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
-using ChargePadLine.Client.Services.PlcService.plc8.旋融焊;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,50 +12,52 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Client.Services.PlcService.Plc8
+namespace ChargePadLine.Client.Services.PlcService.Plc6
 {
-    public class Plc9HostService : BackgroundService
+    public class Plc6HostService : BackgroundService
     {
-        private ModbusConnect? _modbus;
+        private S7NetConnect? _s7Net;
         private readonly PlcConfig _plcConfig;
-        private readonly ILogger<Plc9HostService> _logger;
-        private readonly IEnumerable<IPlc9Task> _tasks;
+        private readonly ILogger<Plc6HostService> _logger;
+        private readonly IEnumerable<IPlc6Task> _tasks;
         private readonly ILogService _logService;
 
-        public Plc9HostService(
+        public Plc6HostService(
             IOptions<PlcConfig> config,
-            ILogger<Plc9HostService> logger,
-            ILogService logService,
-            旋融焊EnterMiddleWare 旋融焊Enter,
-            旋融焊ExitMiddleWare 旋融焊Exit
+            ILogger<Plc6HostService> logger
+,
+            ILogService logService
+            //,
+            //定子检测MiddleWare 定子检测,
+            //O型圈装配MiddleWare o型圈装配
             )
         {
             _plcConfig = config.Value;
             _logger = logger;
             _logService = logService;
 
-            // 在这里统一整合 PLC8 下的所有业务任务
-            _tasks = new IPlc9Task[]
-            {
-                旋融焊Enter,
-                旋融焊Exit
-            };
+            // 在这里统一整合 PLC6 下的所有业务任务
+            //_tasks = new IPlc6Task[]
+            //{
+            //    定子检测,
+            //    o型圈装配
+            //};
         }
 
         private void InitializeModbusConnection()
         {
-            if (_modbus != null) return;
+            if (_s7Net != null) return;
 
             try
             {
-                _modbus = new ModbusConnect();
-                _modbus.Connect(_plcConfig.Plc8.IpAddress, _plcConfig.Plc8.Port);
-                string logMsg = $"PLC8连接初始化成功: {_plcConfig.Plc8.IpAddress}:{_plcConfig.Plc8.Port}";
+                _s7Net = new S7NetConnect();
+                _s7Net.Connect(_plcConfig.Plc6.IpAddress, _plcConfig.Plc6.Port);
+                string logMsg = $"PLC6连接初始化成功: {_plcConfig.Plc6.IpAddress}:{_plcConfig.Plc6.Port}";
                 _logService.RecordLogAsync(LogLevel.Information, logMsg).Wait();
             }
             catch (Exception ex)
             {
-                string logMsg = "PLC8连接初始化失败: " + ex.Message;
+                string logMsg = "PLC6连接初始化失败: " + ex.Message;
                 _logService.RecordLogAsync(LogLevel.Error, logMsg).Wait();
             }
         }
@@ -66,16 +67,16 @@ namespace ChargePadLine.Client.Services.PlcService.Plc8
         /// </summary>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (!_plcConfig.Plc8.IsEnabled)
+            if (!_plcConfig.Plc6.IsEnabled)
             {
                 await Task.Delay(2000, stoppingToken);
                 return;
             }
             InitializeModbusConnection();
 
-            if (_modbus == null)
+            if (_s7Net == null)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, "PLC8 未能成功连接，后台监控任务不会启动。");
+                await _logService.RecordLogAsync(LogLevel.Error, "PLC6 未能成功连接，后台监控任务不会启动。");
                 return;
             }
 
@@ -85,7 +86,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc8
                 {
                     foreach (var task in _tasks)
                     {
-                        await task.ExecuteOnceAsync(_modbus, stoppingToken);
+                        await task.ExecuteOnceAsync(_s7Net, stoppingToken);
                     }
                     await Task.Delay(10, stoppingToken);
                 }
@@ -95,11 +96,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc8
                 }
                 catch (Exception ex)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Error, $"PLC8 后台监控任务异常: {ex.Message}");
+                    await _logService.RecordLogAsync(LogLevel.Error, $"PLC6 后台监控任务异常: {ex.Message}");
                     await Task.Delay(1000, stoppingToken);
                 }
             }
-            await _logService.RecordLogAsync(LogLevel.Information, "PLC8 后台监控任务已停止。");
+            await _logService.RecordLogAsync(LogLevel.Information, "PLC6 后台监控任务已停止。");
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
 {
-    public class 旋融焊ExitMiddleWare : IPlc8Task
+    public class 旋融焊ExitMiddleWare : IPlc9Task
     {
         private readonly ILogger<旋融焊ExitMiddleWare> _logger;
         private readonly ILogService _logService;
