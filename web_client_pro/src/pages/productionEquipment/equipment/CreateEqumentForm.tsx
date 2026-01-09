@@ -3,8 +3,8 @@ import { Form, Input, Select, Modal, message, Button } from 'antd';
 import type { DeviceInfo, DeviceInfoFormData } from '@/services/Model/Trace/ProductionEquipment‌/equipmentInfo';
 import { createDeviceInfo, updateDeviceInfo } from '@/services/Api/Trace/ProductionEquipment‌/equipmentInfo';
 import { getProductionLineList } from '@/services/Api/Trace/ProductionEquipment‌/productionLineInfo';
-import { getWorkOrderList } from '@/services/Api/Infrastructure/WorkOrder';
-import type { WorkOrderDto } from '@/services/Model/Infrastructure/WorkOrder';
+import { getOrderList } from '@/services/Api/Infrastructure/OrderList';
+import type { OrderList } from '@/services/Model/Infrastructure/OrderList';
 
 const { Option } = Select;
 
@@ -32,7 +32,7 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
 }) => {
   const [form] = Form.useForm<DeviceInfoFormData>();
   const [productionLines, setProductionLines] = React.useState<Array<{ productionLineId: string; productionLineName: string }>>([]);
-  const [workOrders, setWorkOrders] = React.useState<WorkOrderDto[]>([]);
+  const [workOrders, setWorkOrders] = React.useState<OrderList[]>([]);
   const [workOrderLoading, setWorkOrderLoading] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
@@ -66,7 +66,7 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
     const fetchWorkOrders = async () => {
       try {
         setWorkOrderLoading(true);
-        const res = await getWorkOrderList({ pageSize: 1000 });
+        const res = await getOrderList({ current: 1, pageSize: 1000 });
         if (res.data) {
           setWorkOrders(res.data);
         }
@@ -299,8 +299,8 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
             }}
           >
             {workOrders.map((workOrder) => (
-              <Option key={workOrder.code} value={workOrder.code}>
-                {workOrder.code}
+              <Option key={workOrder.orderCode} value={workOrder.orderCode}>
+                {workOrder.orderCode}
               </Option>
             ))}
           </Select>

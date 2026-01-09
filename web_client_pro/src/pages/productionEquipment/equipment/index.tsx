@@ -11,12 +11,12 @@ import {
   getDeviceInfoById,
   updateDeviceInfo
 } from '@/services/Api/Trace/ProductionEquipment‌/equipmentInfo';
-import { getWorkOrderList } from '@/services/Api/Infrastructure/WorkOrder';
+import { getOrderList } from '@/services/Api/Infrastructure/OrderList';
 import type {
   DeviceInfo,
   DeviceInfoQueryParams,
 } from '@/services/Model/Trace/ProductionEquipment‌/equipmentInfo';
-import type { WorkOrderDto } from '@/services/Model/Infrastructure/WorkOrder';
+import type { OrderList } from '@/services/Model/Infrastructure/OrderList';
 
 // 设备状态映射
 const statusMap = {
@@ -101,7 +101,7 @@ const EquipmentPage: React.FC = () => {
   // 批量修改工单编码相关状态
   const [batchModalVisible, setBatchModalVisible] = useState(false);
   const [selectedDevices, setSelectedDevices] = useState<DeviceInfo[]>([]);
-  const [workOrders, setWorkOrders] = useState<WorkOrderDto[]>([]);
+  const [workOrders, setWorkOrders] = useState<OrderList[]>([]);
   const [workOrderLoading, setWorkOrderLoading] = useState(false);
   const [batchForm] = Form.useForm();
   const [selectedWorkOrderCode, setSelectedWorkOrderCode] = useState<string>('');
@@ -149,16 +149,7 @@ const EquipmentPage: React.FC = () => {
         endTime: params.endTime,
       };
 
-      // 调试日志：检查发送给后端的参数
-      console.log('📤 设备管理 - 发送给后端的参数:', requestParams);
-
       const response = await getDeviceInfoList(requestParams);
-
-      // 调试日志：检查后端返回的数据
-      console.log('📥 设备管理 - 后端返回数据:', {
-        dataCount: response.data?.length || 0,
-        firstItem: response.data?.[0],
-      });
 
       // 映射字段名：后端可能返回 resourceId/resourceName/resource 等，前端期望 deviceId/deviceName/deviceEnCode
       const mappedData = (response.data || []).map((item: any) => ({
@@ -338,7 +329,7 @@ const EquipmentPage: React.FC = () => {
     // 加载工单列表
     try {
       setWorkOrderLoading(true);
-      const res = await getWorkOrderList({ pageSize: 1000 });
+      const res = await getOrderList({ current: 1, pageSize: 1000 });
       if (res.data) {
         setWorkOrders(res.data);
       }
@@ -890,8 +881,8 @@ const EquipmentPage: React.FC = () => {
                 style={{ width: '100%' }}
               >
                 {workOrders.map((workOrder) => (
-                  <Option key={workOrder.code} value={workOrder.code}>
-                    {workOrder.code}
+                  <Option key={workOrder.orderCode} value={workOrder.orderCode}>
+                    {workOrder.orderCode}
                   </Option>
                 ))}
               </Select>
