@@ -91,26 +91,18 @@ export const getBomColumns = ({
           >
             编辑
           </Button>
-          <Popconfirm
-            title="确认删除"
-            description="确定要删除该BOM吗？"
-            onConfirm={(e) => {
-              e?.stopPropagation();
+          <Button
+            type="link"
+            size="small"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
               onDelete(record.bomId);
             }}
-            okText="确定"
-            cancelText="取消"
           >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={(e) => e.stopPropagation()}
-            >
-              删除
-            </Button>
-          </Popconfirm>
+            删除
+          </Button>
         </>
       )
     }

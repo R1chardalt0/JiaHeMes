@@ -2,7 +2,7 @@ import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions, ProForm } from '@ant-design/pro-components';
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Button, Tabs, message, Card, Row, Col, Modal, Form, Input, Select, Switch, Popconfirm, Table } from 'antd';
-import { EyeOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { EyeOutlined, EditOutlined, DeleteOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { getBomList, getBomById, createBom, updateBom, deleteBom } from '@/services/Api/Infrastructure/Bom/BomList';
 import { getBomItemsByBomId, createBomItem, updateBomItem, deleteBomItem, getBomItemById } from '@/services/Api/Infrastructure/Bom/BomItem';
 import { getProductListList, getProductListById } from '@/services/Api/Infrastructure/ProductList';
@@ -123,8 +123,10 @@ const BomPage: React.FC = () => {
           if (actionRef.current) {
             actionRef.current.reload();
           }
-        } catch (error) {
-          message.error('BOM删除失败');
+        } catch (error: any) {
+          // 从错误响应中提取具体错误消息
+          const errorMessage = error?.response?.data?.message || error?.message || '删除BOM失败';
+          //message.error(errorMessage);
           console.error('Delete BOM error:', error);
         }
       }
@@ -213,8 +215,10 @@ const BomPage: React.FC = () => {
           message.success('批量删除成功');
           actionRef.current?.reload();
           setSelectedRowKeys([]);
-        } catch (error) {
-          message.error('批量删除失败');
+        } catch (error: any) {
+          // 从错误响应中提取具体错误消息
+          const errorMessage = error?.response?.data?.message || error?.message || '批量删除失败';
+          message.error(errorMessage);
           console.error('Batch delete error:', error);
         }
       },
@@ -276,8 +280,10 @@ const BomPage: React.FC = () => {
             );
             setBomItems(updatedBomItems);
           }
-        } catch (error) {
-          message.error('BOM子项删除失败');
+        } catch (error: any) {
+          // 从错误响应中提取具体错误消息
+          const errorMessage = error?.response?.data?.message || error?.message || 'BOM子项删除失败';
+          message.error(errorMessage);
           console.error('Delete BOM item error:', error);
         }
       }
@@ -441,10 +447,19 @@ const BomPage: React.FC = () => {
           onChange: (selectedRowKeys) => setSelectedRowKeys(selectedRowKeys as string[]),
         }}
         toolBarRender={() => [
-          <Button type="primary" key="add" onClick={handleAddBom}>
+          <Button
+            type="primary"
+            key="add"
+            icon={<PlusOutlined />}
+            onClick={handleAddBom}>
             新建BOM
           </Button>,
-          <Button danger key="batchDelete" onClick={handleBatchDelete} disabled={selectedRowKeys.length === 0}>
+          <Button
+            danger
+            key="batchDelete"
+            icon={<DeleteOutlined />}
+            onClick={handleBatchDelete}
+            disabled={selectedRowKeys.length === 0}>
             批量删除
           </Button>,
         ]}
@@ -488,6 +503,7 @@ const BomPage: React.FC = () => {
                   <Button
                     type="primary"
                     style={{ marginLeft: 16 }}
+                    icon={<PlusOutlined />}
                     onClick={handleAddBomItem}
                   >
                     添加子项

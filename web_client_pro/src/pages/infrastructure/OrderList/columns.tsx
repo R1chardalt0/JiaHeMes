@@ -182,31 +182,19 @@ export const getOrderListColumns = ({
           >
             编辑
           </Button>
-          <Popconfirm
-            title="确认删除"
-            description="确定要删除该工单吗？"
-            onConfirm={(e) => {
-              e?.stopPropagation();
-              onDelete(record.orderListId);
-            }}
-            okText="确定"
-            cancelText="取消"
+          <Button
+            type="link"
+            size="small"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={(e) => { e.stopPropagation(); onDelete(record.orderListId); }}
             disabled={record.orderStatus !== 1}
+            style={{
+              color: record.orderStatus !== 1 ? '#ccc' : undefined
+            }}
           >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={(e) => e.stopPropagation()}
-              disabled={record.orderStatus !== 1}
-              style={{
-                color: record.orderStatus !== 1 ? '#ccc' : undefined
-              }}
-            >
-              删除
-            </Button>
-          </Popconfirm>
+            删除
+          </Button>
         </>
       )
     }
