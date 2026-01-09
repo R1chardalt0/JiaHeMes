@@ -6,6 +6,7 @@ using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
 using ChargePadLine.Client.Services.PlcService.Plc2;
 using ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷;
 using ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试;
+using ChargePadLine.Client.Services.PlcService.plc8.旋融焊;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Prism.Dialogs;
@@ -26,7 +27,7 @@ namespace ChargePadLine.Client.Services
             services.AddTransient<S7NetConnect>();
             services.AddTransient<ModbusConnect>();
             services.AddHostedService<Plc1HostService>();
-            services.AddHostedService<Plc3HostService>();
+            services.AddHostedService<Plc2HostService>();
             #endregion
 
             #region 页面推送服务注册      

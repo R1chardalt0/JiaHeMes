@@ -1,26 +1,19 @@
 ﻿using ChargePadLine.Client.Controls;
 using ChargePadLine.Client.Helpers;
-using ChargePadLine.Client.Services.PlcService.Plc1;
-using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
-using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
 using ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷;
 using ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试;
+using ChargePadLine.Client.Services.PlcService.Plc3;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.Services.PlcService.Plc2
 {
-    public class Plc3HostService : BackgroundService
+    public class Plc2HostService : BackgroundService
     {
         private S7NetConnect? _s7Net;
         private readonly PlcConfig _plcConfig;
-        private readonly ILogger<Plc3HostService> _logger;
+        private readonly ILogger<Plc2HostService> _logger;
         private readonly IEnumerable<IPlc2Task> _tasks;
         private readonly ILogService _logService;
         public Plc2HostService(
