@@ -23,11 +23,28 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
         public async Task ExecuteOnceAsync(ModbusConnect modbus, CancellationToken cancellationToken)
         {
             try
-            {
-                // TODO: 在这里实现 O 型圈装配相关的 PLC 读写逻辑
-                // 例如：
-                // var req = s7Net.ReadBool("DB201.1000.0").Content;
-                // ...
+            {              
+                var req = modbus.ReadBool("2000.0").Content;
+                var resp = modbus.ReadBool("2001.0").Content;
+                var enterok = modbus.ReadBool("2002.0").Content;//进站OK
+                var enterng = modbus.ReadBool("2003.0").Content;//进站NG
+                var sn = modbus.ReadString("2004", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                // 更新数据服务
+                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+
+                if (req && !resp)
+                {
+                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求收到");
+                    modbus.Write("2001.0", true);
+                    modbus.Write("2002.0", true);
+                }
+                else if (!req && resp)
+                {
+                    modbus.Write("2001.0", false);
+                    modbus.Write("2002.0", false);
+                    modbus.Write("2003.0", false);
+                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求复位");
+                }
 
                 await Task.CompletedTask;
             }

@@ -1,6 +1,7 @@
 ﻿using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc8;
+using HslCommunication.Profinet.LSIS;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -24,10 +25,28 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
         {
             try
             {
-                // TODO: 在这里实现 O 型圈装配相关的 PLC 读写逻辑
-                // 例如：
-                // var req = s7Net.ReadBool("DB201.1000.0").Content;
-                // ...
+             
+                var req = modbus.ReadBool("1000.0").Content;
+                var resp = modbus.ReadBool("1001.0").Content;
+                var enterok = modbus.ReadBool("1002.0").Content;//进站OK
+                var enterng = modbus.ReadBool("1003.0").Content;//进站NG
+                var sn = modbus.ReadString("1004", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                // 更新数据服务
+                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+
+                if (req && !resp)
+                {
+                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求收到");
+                    modbus.Write("1001.0", true);
+                    modbus.Write("1002.0", true);
+                }
+                else if (!req && resp)
+                {
+                    modbus.Write("1001.0", false);
+                    modbus.Write("1002.0", false);
+                    modbus.Write("1003.0", false);
+                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求复位");
+                }
 
                 await Task.CompletedTask;
             }
