@@ -66,6 +66,5 @@
 
 	<ItemGroup>
 	  <Folder Include="Services\PlcService\plc6\测功机\" />
-	  <Folder Include="Services\PlcService\plc9\湿区气密测试\" />
 	</ItemGroup>
 </Project>

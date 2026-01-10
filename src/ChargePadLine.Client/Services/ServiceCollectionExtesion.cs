@@ -75,6 +75,9 @@ namespace ChargePadLine.Client.Services
 
             services.AddSingleton<止推垫片装配EnterModel>();
             services.AddSingleton<止推垫片装配ExitModel>();
+
+            services.AddSingleton<湿区气密EnterModel>();
+            services.AddSingleton<湿区气密ExitModel>();
             #endregion
 
             #region plc交互业务注册

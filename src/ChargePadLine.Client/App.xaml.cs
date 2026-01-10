@@ -135,6 +135,7 @@ public partial class App : Application
         services.AddTransient<后盖超声波焊接And干区气密测试ViewModel>();
         services.AddTransient<转子充磁And装配ViewModel>();
         services.AddTransient<止推垫片装配ViewModel>();
+        services.AddTransient<湿区气密ViewModel>();
         services.AddSingleton<LogViewModel>();
         // 注册Windows
         services.AddTransient<MainWindow>();
