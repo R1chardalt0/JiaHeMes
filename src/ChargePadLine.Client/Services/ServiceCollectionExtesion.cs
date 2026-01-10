@@ -72,6 +72,9 @@ namespace ChargePadLine.Client.Services
 
             services.AddSingleton<转子充磁与装配EnterModel>();
             services.AddSingleton<转子充磁与装配ExitModel>();
+
+            services.AddSingleton<止推垫片装配EnterModel>();
+            services.AddSingleton<止推垫片装配ExitModel>();
             #endregion
 
             #region plc交互业务注册

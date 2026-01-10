@@ -183,7 +183,19 @@
                         <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">止推垫片装配/超声波焊接</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="White"/>
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                                  VerticalContentAlignment="Top" 
+                                  HorizontalContentAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Padding="0"
+                                  Margin="0">
+                        <local:止推垫片装配View Margin="10,0,10,0" 
+                                      VerticalAlignment="Top" 
+                                      HorizontalAlignment="Stretch"
+                                      DataContext="{Binding 止推垫片装配ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
