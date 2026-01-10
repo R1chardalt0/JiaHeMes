@@ -69,6 +69,9 @@ namespace ChargePadLine.Client.Services
             services.AddSingleton<后盖超声波焊接ExitModel>();
             services.AddSingleton<干区气密测试EnterModel>();
             services.AddSingleton<干区气密测试ExitModel>();
+
+            services.AddSingleton<转子充磁与装配EnterModel>();
+            services.AddSingleton<转子充磁与装配ExitModel>();
             #endregion
 
             #region plc交互业务注册
