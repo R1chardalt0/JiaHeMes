@@ -17,10 +17,11 @@ namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
         private readonly ILogService _logService;
         private readonly 湿区气密ExitModel _exitModel;
 
-        public 湿区气密ExitMiddleWare (ILogger<湿区气密ExitMiddleWare > logger, ILogService logService)
+        public 湿区气密ExitMiddleWare(ILogger<湿区气密ExitMiddleWare> logger, ILogService logService, 湿区气密ExitModel exitModel = null)
         {
             _logger = logger;
             _logService = logService;
+            _exitModel = exitModel;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
