@@ -59,6 +59,11 @@ namespace ChargePadLine.Client.Services
             services.AddSingleton<导热胶涂敷ExitModel>();
             services.AddSingleton<电机腔气密测试EnterModel>();
             services.AddSingleton<电机腔气密测试ExitModel>();
+
+            services.AddSingleton<PCBA性能检测EnterModel>();
+            services.AddSingleton<PCBA性能检测ExitModel>();
+            services.AddSingleton<热铆EnterModel>();
+            services.AddSingleton<热铆ExitModel>();
             #endregion
 
             #region plc交互业务注册

@@ -102,6 +102,7 @@
                        DataContext="{Binding 导热胶And气密ViewModel}"/>
                     </ScrollViewer>
                 </Grid>
+                
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
@@ -110,7 +111,19 @@
                         <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">FCT性能测试/热铆</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="White"/>
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                          VerticalContentAlignment="Top" 
+                          HorizontalContentAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Padding="0"
+                          Margin="0">
+                        <local:性能检测And热铆View Margin="10,0,10,0" 
+                         VerticalAlignment="Top" 
+                         HorizontalAlignment="Stretch"
+                         DataContext="{Binding 性能检查And热铆ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
