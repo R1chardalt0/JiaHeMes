@@ -132,6 +132,7 @@ public partial class App : Application
         services.AddTransient<StatorTestViewModel>();
         services.AddTransient<导热胶And气密ViewModel>();
         services.AddTransient<性能检查And热铆ViewModel>();
+        services.AddTransient<后盖超声波焊接And干区气密测试ViewModel>();
         services.AddSingleton<LogViewModel>();
         // 注册Windows
         services.AddTransient<MainWindow>();
