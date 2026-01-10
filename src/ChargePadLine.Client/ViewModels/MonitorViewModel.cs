@@ -16,8 +16,9 @@ namespace ChargePadLine.Client.ViewModels
         public 转子充磁And装配ViewModel 转子充磁And装配ViewModel { get; }
         public 止推垫片装配ViewModel 止推垫片装配ViewModel { get; }
         public 湿区气密ViewModel 湿区气密ViewModel { get; }
+        public 湿区气密ViewModel 湿区气密Vie旋融焊ViewModelwModel { get; }
 
-        public MonitorViewModel(StatorTestViewModel statorTestViewModel, 导热胶And气密ViewModel 导热胶And气密ViewModel, 性能检查And热铆ViewModel 性能检查And热铆ViewModel, 后盖超声波焊接And干区气密测试ViewModel 后盖超声波焊接And干区气密测试ViewModel, 转子充磁And装配ViewModel 转子充磁And装配ViewModel, 止推垫片装配ViewModel 止推垫片装配ViewModel, 湿区气密ViewModel 湿区气密ViewModel)
+        public MonitorViewModel(StatorTestViewModel statorTestViewModel, 导热胶And气密ViewModel 导热胶And气密ViewModel, 性能检查And热铆ViewModel 性能检查And热铆ViewModel, 后盖超声波焊接And干区气密测试ViewModel 后盖超声波焊接And干区气密测试ViewModel, 转子充磁And装配ViewModel 转子充磁And装配ViewModel, 止推垫片装配ViewModel 止推垫片装配ViewModel, 湿区气密ViewModel 湿区气密ViewModel, 湿区气密ViewModel 湿区气密Vie旋融焊ViewModelwModel = null)
         {
             this.StatorTestViewModel = statorTestViewModel;
             this.导热胶And气密ViewModel = 导热胶And气密ViewModel;
@@ -26,6 +27,7 @@ namespace ChargePadLine.Client.ViewModels
             this.转子充磁And装配ViewModel = 转子充磁And装配ViewModel;
             this.止推垫片装配ViewModel = 止推垫片装配ViewModel;
             this.湿区气密ViewModel = 湿区气密ViewModel;
+            this.湿区气密Vie旋融焊ViewModelwModel = 湿区气密Vie旋融焊ViewModelwModel;
         }
     }
 }

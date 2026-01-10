@@ -14,11 +14,13 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
     {
         private readonly ILogger<旋融焊ExitMiddleWare> _logger;
         private readonly ILogService _logService;
+        private readonly 旋融焊ExitModel _exitModel;
 
-        public 旋融焊ExitMiddleWare(ILogger<旋融焊ExitMiddleWare> logger, ILogService logService)
+        public 旋融焊ExitMiddleWare(ILogger<旋融焊ExitMiddleWare> logger, ILogService logService, 旋融焊ExitModel exitModel)
         {
             _logger = logger;
             _logService = logService;
+            _exitModel = exitModel;
         }
         public async Task ExecuteOnceAsync(ModbusConnect modbus, CancellationToken cancellationToken)
         {
@@ -26,11 +28,11 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
             {              
                 var req = modbus.ReadBool("2000.0").Content;
                 var resp = modbus.ReadBool("2001.0").Content;
-                var enterok = modbus.ReadBool("2002.0").Content;//进站OK
-                var enterng = modbus.ReadBool("2003.0").Content;//进站NG
+                var exitok = modbus.ReadBool("2002.0").Content;//进站OK
+                var exitng = modbus.ReadBool("2003.0").Content;//进站NG
                 var sn = modbus.ReadString("2004", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
                 // 更新数据服务
-                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+                _exitModel.UpdateData(req, resp, sn, exitok, exitng);
 
                 if (req && !resp)
                 {

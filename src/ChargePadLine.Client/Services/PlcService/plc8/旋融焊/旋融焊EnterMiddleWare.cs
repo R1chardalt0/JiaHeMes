@@ -15,11 +15,13 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
     {
         private readonly ILogger<旋融焊EnterMiddleWare> _logger;
         private readonly ILogService _logService;
+        private readonly 旋融焊EnterModel _entermodel;
 
-        public 旋融焊EnterMiddleWare(ILogger<旋融焊EnterMiddleWare> logger, ILogService logService)
+        public 旋融焊EnterMiddleWare(ILogger<旋融焊EnterMiddleWare> logger, ILogService logService, 旋融焊EnterModel entermodel = null)
         {
             _logger = logger;
             _logService = logService;
+            _entermodel = entermodel;
         }
         public async Task ExecuteOnceAsync(ModbusConnect modbus, CancellationToken cancellationToken)
         {
@@ -32,7 +34,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                 var enterng = modbus.ReadBool("1003.0").Content;//进站NG
                 var sn = modbus.ReadString("1004", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
                 // 更新数据服务
-                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+                _entermodel.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {
@@ -42,10 +44,10 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                 }
                 else if (!req && resp)
                 {
-                    modbus.Write("1001.0", false);
-                    modbus.Write("1002.0", false);
-                    modbus.Write("1003.0", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求复位");
+                    modbus.Write("1001", false);
+                    modbus.Write("1002", false);
+                    modbus.Write("1003", false);
+                    await _logService.RecordLogAsync(LogLevel.Information, "旋融焊进站请求复位");
                 }
 
                 await Task.CompletedTask;
