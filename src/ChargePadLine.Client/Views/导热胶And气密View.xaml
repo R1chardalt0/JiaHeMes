@@ -99,7 +99,7 @@
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                         IsActive="{Binding 气密ExitOk`}" 
+                         IsActive="{Binding 气密ExitOk}" 
                          ActiveColor="Green"/>
                         <TextBlock Text="出站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>

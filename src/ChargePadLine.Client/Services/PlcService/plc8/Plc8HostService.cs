@@ -15,17 +15,17 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.Services.PlcService.Plc8
 {
-    public class Plc9HostService : BackgroundService
+    public class Plc8HostService : BackgroundService
     {
         private ModbusConnect? _modbus;
         private readonly PlcConfig _plcConfig;
-        private readonly ILogger<Plc9HostService> _logger;
+        private readonly ILogger<Plc8HostService> _logger;
         private readonly IEnumerable<IPlc8Task> _tasks;
         private readonly ILogService _logService;
 
-        public Plc9HostService(
+        public Plc8HostService(
             IOptions<PlcConfig> config,
-            ILogger<Plc9HostService> logger,
+            ILogger<Plc8HostService> logger,
             ILogService logService,
             旋融焊EnterMiddleWare 旋融焊Enter,
             旋融焊ExitMiddleWare 旋融焊Exit

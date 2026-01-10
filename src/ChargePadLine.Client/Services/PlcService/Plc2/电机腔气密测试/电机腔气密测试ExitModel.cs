@@ -10,8 +10,8 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
     {
         private bool _req;
         private bool _resp;
-        private bool _enterOk;
-        private bool _enterNg;
+        private bool _exitOk;
+        private bool _exitNg;
         private string _sn = string.Empty;
 
         /// <summary>
@@ -48,12 +48,12 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
 
         public bool 气密ExitNg
         {
-            get => _enterNg;
+            get => _exitNg;
             private set
             {
-                if (_enterNg != value)
+                if (_exitNg != value)
                 {
-                    _enterNg = value;
+                    _exitNg = value;
                     OnPropertyChanged(nameof(气密ExitNg));
                 }
             }
@@ -62,12 +62,12 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
 
         public bool 气密ExitOk
         {
-            get => _enterOk;
+            get => _exitOk;
             private set
             {
-                if (_enterOk != value)
+                if (_exitOk != value)
                 {
-                    _enterOk = value;
+                    _exitOk = value;
                     OnPropertyChanged(nameof(气密ExitOk));
                 }
             }
@@ -93,13 +93,13 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng)
+        public void UpdateData(bool req, bool resp, string sn, bool exitok, bool exitng)
         {
             气密ExitReq = req;
             气密ExitResp = resp;
             气密ExitSn = sn;
-            气密ExitOk = enterok;
-            气密ExitNg = enterng;
+            气密ExitOk = exitok;
+            气密ExitNg = exitng;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
