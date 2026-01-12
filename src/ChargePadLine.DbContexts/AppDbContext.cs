@@ -49,6 +49,8 @@ namespace ChargePadLine.DbContexts
       modelBuilder.ApplyConfiguration(new TraceProcItemEntityTypeConfiguration());
       modelBuilder.ApplyConfiguration(new MaterialBatchQueueItemEntityTypeConfiguration());
       modelBuilder.ApplyConfiguration(new ProductTraceInfoClaimEntityConfiguration());
+      modelBuilder.ApplyConfiguration(new MesOrderBomBatchEntityTypeConfiguration());
+      modelBuilder.ApplyConfiguration(new MesOrderBomBatchItemEntityTypeConfiguration());
       #endregion
 
 
@@ -90,6 +92,9 @@ namespace ChargePadLine.DbContexts
         //SN列表
         public DbSet<MesSnListCurrent> mesSnListCurrents { get; set; }
         public DbSet<MesSnListHistory> mesSnListHistories { get; set; }
+        //工单BOM批次
+        public DbSet<MesOrderBomBatch> MesOrderBomBatch { get; set; }
+        public DbSet<MesOrderBomBatchItem> MesOrderBomBatchItem { get; set; }
         //批次排队
         public DbSet<BatchMaterialQueueItem> BatchMaterialQueueItems { get; set; }
     public DbSet<CtrlVsn> CtrlVs { get; set; }
