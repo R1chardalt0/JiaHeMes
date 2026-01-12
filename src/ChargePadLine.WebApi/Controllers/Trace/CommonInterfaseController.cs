@@ -25,10 +25,39 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     }
 
         /// <summary>
-        /// 数据上传检查接口
+        /// 物料上传接口
         /// </summary>
         /// <param name="request">设备数据采集参数</param>
         /// <returns>操作结果</returns>
+        [HttpPost("FeedMaterial")]
+        public async Task<IActionResult> FeedMaterial(RequestFeedMaterialParams request)
+        {
+            try
+            {
+                
+                var result = await _iCommonInterfaseService.FeedMaterial(request);
+
+                // 处理结果并返回相应的HTTP响应
+                if (result.ErrorValue.Item1.ToString() == "0")
+                {
+                    return Ok(new { code = 200, message = result.ErrorValue.Item2.ToString() });
+                }
+                else
+                {
+                    var errorResult = result.ErrorValue;
+                    return BadRequest(new { code = errorResult.Item1, message = errorResult.Item2 });
+                }
+            }
+            catch (Exception ex)
+            {
+                // 记录异常并返回500错误
+                return StatusCode(500, new { code = 500, message = $"服务器内部错误: {ex.Message}" });
+            }
+        } /// <summary>
+          /// 数据上传检查接口
+          /// </summary>
+          /// <param name="request">设备数据采集参数</param>
+          /// <returns>操作结果</returns>
         [HttpPost("UploadCheck")]
         public async Task<IActionResult> UploadCheck(RequestUploadCheckParams request)
         {
