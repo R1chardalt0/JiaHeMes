@@ -22,6 +22,8 @@ namespace ChargePadLine.Client.ViewModels
             };
         }
 
+
+        public string 旋融焊Status => _旋融焊EnterModel.旋融焊Status;
         /// <summary>
         /// 旋融焊 - 请求状态
         /// </summary>

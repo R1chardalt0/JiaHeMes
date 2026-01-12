@@ -22,6 +22,8 @@ namespace ChargePadLine.Client.ViewModels
             };
         }
 
+
+        public string EolStatus => _EOLEnterModel.EolStatus;
         /// <summary>
         /// EOLE - 请求状态
         /// </summary>

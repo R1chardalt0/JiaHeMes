@@ -27,14 +27,29 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
         {
             try
             {
-             
+                string statusMessage = "";
+                //plc状态读取
+                var malfunction = modbus.ReadBool("1030.0").Content;//设备故障
+                var auto = modbus.ReadBool("1031.0").Content;//自动模式
+                var idle = modbus.ReadBool("1032.0").Content;//设备空闲
+                var manual = modbus.ReadBool("1033.0").Content;//手动模式
+                var check = modbus.ReadBool("1034.0").Content;//审核模式
+
+                if (malfunction) statusMessage = "设备故障";
+                else if (auto) statusMessage = "自动模式";
+                else if (idle) statusMessage = "设备空闲";
+                else if (manual) statusMessage = "手动模式";
+                else if (check) statusMessage = "审核模式";
+                else statusMessage = "无状态";
+
+
                 var req = modbus.ReadBool("1000.0").Content;
                 var resp = modbus.ReadBool("1001.0").Content;
                 var enterok = modbus.ReadBool("1002.0").Content;//进站OK
                 var enterng = modbus.ReadBool("1003.0").Content;//进站NG
                 var sn = modbus.ReadString("1004", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
                 // 更新数据服务
-                _entermodel.UpdateData(req, resp, sn, enterok, enterng);
+                _entermodel.UpdateData(req, resp, sn, enterok, enterng, statusMessage);
 
                 if (req && !resp)
                 {

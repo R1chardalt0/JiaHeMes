@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance Type=viewModels:后盖超声波焊接And干区气密测试ViewModel}" d:DesignWidth="800" Height="598">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
-            <bar:TitleBar IconText="&#xe6ee;" TitleText="后盖超声波焊接" Margin="0,0,0,0" VerticalAlignment="Top"/>
+            <bar:TitleBar IconText="&#xe6ee;" TitleText="{Binding 后盖超声波焊接Status, StringFormat='后盖超声波焊接({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
 
             <!-- 后盖超声波焊接 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10,10,10,10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
@@ -112,7 +112,7 @@
                 </Grid>
             </GroupBox>
 
-            <bar:TitleBar IconText="&#xe717;" TitleText="干区气密测试" />
+            <bar:TitleBar IconText="&#xe717;" TitleText="{Binding 干区气密测试Status, StringFormat='干区气密测试({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
 
             <!-- 干区气密测试 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">

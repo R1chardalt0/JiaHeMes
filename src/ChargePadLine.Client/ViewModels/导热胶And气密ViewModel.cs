@@ -42,6 +42,8 @@ namespace ChargePadLine.Client.ViewModels
 
         }
 
+        public string 气密Status => _电机腔气密测试EnterModel.气密Status;
+
         /// <summary>
         /// 气密 - 请求状态
         /// </summary>
@@ -94,6 +96,8 @@ namespace ChargePadLine.Client.ViewModels
         public bool 气密ExitNg => _电机腔气密测试ExitModel.气密ExitNg;
 
 
+
+        public string 导热胶Status => _导热胶涂敷EnterModel.导热胶Status;
         /// <summary>
         /// 导热胶 - 请求状态
         /// </summary>

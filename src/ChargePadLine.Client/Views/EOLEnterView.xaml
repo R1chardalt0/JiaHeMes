@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance Type=viewModels:EOLEnterViewModel}" d:DesignWidth="800" Height="598">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
-            <bar:TitleBar IconText="&#xe703;" TitleText="OEOL测试" Margin="0,0,0,0" VerticalAlignment="Top"/>
+            <bar:TitleBar IconText="&#xe703;" TitleText="{Binding EolStatus, StringFormat='OEOL测试({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
 
             <!-- EOL测试 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10,10,10,10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">

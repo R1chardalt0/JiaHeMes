@@ -22,6 +22,8 @@ namespace ChargePadLine.Client.ViewModels
             };
         }
 
+
+        public string 湿区气密Status => _湿区气密EnterModel.湿区气密Status;
         /// <summary>
         /// 湿区气密 - 请求状态
         /// </summary>

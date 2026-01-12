@@ -21,6 +21,8 @@ namespace ChargePadLine.Client.ViewModels
                 OnPropertyChanged(e.PropertyName);
             };
         }
+
+        public string 止推垫片装配Status => _止推垫片装配EnterModel.止推垫片装配Status;
         /// <summary>
         /// 止推垫片装配 - 请求状态
         /// </summary>

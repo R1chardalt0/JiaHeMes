@@ -14,6 +14,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配
         private bool _enterOk;
         private bool _enterNg;
         private string _sn = string.Empty;
+        private string _status = string.Empty;
 
         /// <summary>
         /// 请求状态
@@ -89,18 +90,30 @@ namespace ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配
             }
         }
 
-
+        public string 止推垫片装配Status
+        {
+            get => _status;
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(止推垫片装配Status));
+                }
+            }
+        }
 
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng)
+        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng,string status)
         {
             止推垫片装配EnterReq = req;
             止推垫片装配EnterResp = resp;
             止推垫片装配EnterSn = sn;
             止推垫片装配EnterOk = enterok;
             止推垫片装配EnterNg = enterng;
+            止推垫片装配Status = status;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
