@@ -227,12 +227,16 @@ const MesSnListTracePage: React.FC = () => {
         true: { text: '是', status: 'Error' },
         false: { text: '否', status: 'Success' },
       },
+      search: {
+        transform: (value) => value,
+      },
     },
     {
       title: '异常代码',
       dataIndex: 'abnormalCode',
       key: 'abnormalCode',
       width: 120,
+      search: false
     },
     {
       title: '异常描述',
@@ -250,6 +254,9 @@ const MesSnListTracePage: React.FC = () => {
         true: { text: '是', status: 'Default' },
         false: { text: '否', status: 'Success' },
       },
+      search: {
+        transform: (value) => value,
+      },
     },
     {
       title: '返工次数',
@@ -266,6 +273,9 @@ const MesSnListTracePage: React.FC = () => {
       valueEnum: {
         true: { text: '是', status: 'Default' },
         false: { text: '否', status: 'Success' },
+      },
+      search: {
+        transform: (value) => value,
       },
     },
     {
@@ -379,12 +389,16 @@ const MesSnListTracePage: React.FC = () => {
         true: { text: '是', status: 'Error' },
         false: { text: '否', status: 'Success' },
       },
+      search: {
+        transform: (value) => value,
+      },
     },
     {
       title: '异常代码',
       dataIndex: 'abnormalCode',
       key: 'abnormalCode',
       width: 120,
+      search: false,
     },
     {
       title: '异常描述',
@@ -402,6 +416,9 @@ const MesSnListTracePage: React.FC = () => {
         true: { text: '是', status: 'Default' },
         false: { text: '否', status: 'Success' },
       },
+      search: {
+        transform: (value) => value,
+      },
     },
     {
       title: '返工次数',
@@ -418,6 +435,9 @@ const MesSnListTracePage: React.FC = () => {
       valueEnum: {
         true: { text: '是', status: 'Default' },
         false: { text: '否', status: 'Success' },
+      },
+      search: {
+        transform: (value) => value,
       },
     },
     {
@@ -459,18 +479,20 @@ const MesSnListTracePage: React.FC = () => {
           request={async (
             params
           ): Promise<RequestData<MesSnListCurrentDto>> => {
+            // 使用前端分页：一次性获取所有数据，然后在前端进行分页和搜索
             const queryParams: MesSnListCurrentQueryDto = {
-              pageIndex: Math.max(1, params.current || 1),
-              pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
+              pageIndex: 1,
+              pageSize: 1000, // 设置一个很大的值，确保获取所有数据
               snNumber: params.snNumber,
               stationStatus: params.stationStatus,
             };
 
             try {
+              // 调用 API 获取所有数据
               const response = await getMesSnListCurrentList(queryParams);
 
               // 为每个记录获取产品编码、工单编码、站点编码、产线编码和设备编码
-              const enhancedData = await Promise.all(
+              const allData = await Promise.all(
                 (response.data || []).map(async (record: MesSnListCurrentDto) => {
                   let updatedRecord = { ...record };
 
@@ -545,10 +567,76 @@ const MesSnListTracePage: React.FC = () => {
                 })
               );
 
+              // 在前端进行搜索过滤
+              let filteredData = allData;
+
+              // 产品编码搜索
+              if (params.productCode) {
+                filteredData = filteredData.filter(item =>
+                  item.productCode?.toLowerCase().includes(params.productCode.toLowerCase())
+                );
+              }
+
+              // 工单编码搜索
+              if (params.orderCode) {
+                filteredData = filteredData.filter(item =>
+                  item.orderCode?.toLowerCase().includes(params.orderCode.toLowerCase())
+                );
+              }
+
+              // 站点编码搜索
+              if (params.stationCode) {
+                filteredData = filteredData.filter(item =>
+                  item.stationCode?.toLowerCase().includes(params.stationCode.toLowerCase())
+                );
+              }
+
+              // 产线编码搜索
+              if (params.productionLineCode) {
+                filteredData = filteredData.filter(item =>
+                  item.productionLineCode?.toLowerCase().includes(params.productionLineCode.toLowerCase())
+                );
+              }
+
+              // 设备编码搜索
+              if (params.deviceEnCode) {
+                filteredData = filteredData.filter(item =>
+                  item.deviceEnCode?.toLowerCase().includes(params.deviceEnCode.toLowerCase())
+                );
+              }
+
+              // 是否异常搜索
+              if (params.isAbnormal !== undefined) {
+                filteredData = filteredData.filter(item =>
+                  item.isAbnormal === params.isAbnormal
+                );
+              }
+
+              // 是否锁定搜索
+              if (params.isLocked !== undefined) {
+                filteredData = filteredData.filter(item =>
+                  item.isLocked === params.isLocked
+                );
+              }
+
+              // 是否正在返工搜索
+              if (params.isReworking !== undefined) {
+                filteredData = filteredData.filter(item =>
+                  item.isReworking === params.isReworking
+                );
+              }
+
+              // 在前端进行分页
+              const currentPage = Math.max(1, params.current || 1);
+              const pageSize = Math.min(100, Math.max(1, params.pageSize || 10));
+              const startIndex = (currentPage - 1) * pageSize;
+              const endIndex = startIndex + pageSize;
+              const pagedData = filteredData.slice(startIndex, endIndex);
+
               return {
-                data: enhancedData,
-                total: response.total || 0,
-                success: response.success !== false,
+                data: pagedData,
+                total: filteredData.length,
+                success: true,
               };
             } catch (error) {
               messageApi.error('获取数据失败');
@@ -577,7 +665,93 @@ const MesSnListTracePage: React.FC = () => {
             <ProTable<MesSnListHistoryDto>
               rowKey="snListHistoryId"
               columns={historyColumns}
-              dataSource={historyData}
+              request={async (params) => {
+                // 使用前端筛选：基于已获取的历史数据进行筛选
+                let filteredData = historyData;
+
+                // SN号搜索
+                if (params.snNumber) {
+                  filteredData = filteredData.filter(item =>
+                    item.snNumber?.toLowerCase().includes(params.snNumber.toLowerCase())
+                  );
+                }
+
+                // 产品编码搜索
+                if (params.productCode) {
+                  filteredData = filteredData.filter(item =>
+                    item.productCode?.toLowerCase().includes(params.productCode.toLowerCase())
+                  );
+                }
+
+                // 工单编码搜索
+                if (params.orderCode) {
+                  filteredData = filteredData.filter(item =>
+                    item.orderCode?.toLowerCase().includes(params.orderCode.toLowerCase())
+                  );
+                }
+
+                // 当前状态搜索
+                if (params.stationStatus) {
+                  filteredData = filteredData.filter(item =>
+                    item.stationStatus === params.stationStatus
+                  );
+                }
+
+                // 站点编码搜索
+                if (params.stationCode) {
+                  filteredData = filteredData.filter(item =>
+                    item.stationCode?.toLowerCase().includes(params.stationCode.toLowerCase())
+                  );
+                }
+
+                // 产线编码搜索
+                if (params.productionLineCode) {
+                  filteredData = filteredData.filter(item =>
+                    item.productionLineCode?.toLowerCase().includes(params.productionLineCode.toLowerCase())
+                  );
+                }
+
+                // 设备编码搜索
+                if (params.deviceEnCode) {
+                  filteredData = filteredData.filter(item =>
+                    item.deviceEnCode?.toLowerCase().includes(params.deviceEnCode.toLowerCase())
+                  );
+                }
+
+                // 是否异常搜索
+                if (params.isAbnormal !== undefined) {
+                  filteredData = filteredData.filter(item =>
+                    item.isAbnormal === params.isAbnormal
+                  );
+                }
+
+                // 是否锁定搜索
+                if (params.isLocked !== undefined) {
+                  filteredData = filteredData.filter(item =>
+                    item.isLocked === params.isLocked
+                  );
+                }
+
+                // 是否正在返工搜索
+                if (params.isReworking !== undefined) {
+                  filteredData = filteredData.filter(item =>
+                    item.isReworking === params.isReworking
+                  );
+                }
+
+                // 在前端进行分页
+                const currentPage = Math.max(1, params.current || 1);
+                const pageSize = Math.min(100, Math.max(1, params.pageSize || 10));
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+                const pagedData = filteredData.slice(startIndex, endIndex);
+
+                return {
+                  data: pagedData,
+                  total: filteredData.length,
+                  success: true,
+                };
+              }}
               loading={historyLoading}
               pagination={{
                 pageSize: 10,
