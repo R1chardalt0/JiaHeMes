@@ -130,6 +130,15 @@ public partial class App : Application
         services.AddTransient<MainViewModel>();
         services.AddTransient<MonitorViewModel>();
         services.AddTransient<StatorTestViewModel>();
+        services.AddTransient<导热胶And气密ViewModel>();
+        services.AddTransient<性能检查And热铆ViewModel>();
+        services.AddTransient<后盖超声波焊接And干区气密测试ViewModel>();
+        services.AddTransient<转子充磁And装配ViewModel>();
+        services.AddTransient<止推垫片装配ViewModel>();
+        services.AddTransient<旋融焊ViewModel>();
+        services.AddTransient<湿区气密ViewModel>();
+        services.AddTransient<EOLEnterViewModel>();
+        services.AddTransient<安装支架And激光刻印ViewModel>();
         services.AddSingleton<LogViewModel>();
         // 注册Windows
         services.AddTransient<MainWindow>();

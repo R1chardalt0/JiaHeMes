@@ -13,9 +13,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
     {
         private readonly ILogger<O型圈装配ExitMiddleWare> _logger;
         private readonly ILogService _logService;
+        private readonly RingExitModel _routingExitModel;
 
-        public O型圈装配ExitMiddleWare(ILogger<O型圈装配ExitMiddleWare> logger, ILogService logService)
+        public O型圈装配ExitMiddleWare(ILogger<O型圈装配ExitMiddleWare> logger, ILogService logService, RingExitModel routingExitModel)
         {
+            _routingExitModel = routingExitModel;
             _logger = logger;
             _logService = logService;
         }
@@ -24,16 +26,34 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
         {
             try
             {
-                // TODO: 在这里实现 O 型圈装配相关的 PLC 读写逻辑
-                // 例如：
-                // var req = s7Net.ReadBool("DB201.1000.0").Content;
-                // ...
+                var req = s7Net.ReadBool("DB4020.6.4").Content;
+                var resp = s7Net.ReadBool("DB4020.12.0").Content;
+                var enterok = s7Net.ReadBool("DB4020.2.4").Content;//进站OK
+                var enterng = s7Net.ReadBool("DB4020.2.5").Content;//进站NG
+                var sn = s7Net.ReadString("DB4020.200", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                _routingExitModel.UpdateData(req, resp, sn, enterok, enterng);
+                // 更新数据服务
+                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+
+                if (req && !resp)
+                {
+                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈出站请求收到");
+                    s7Net.Write("DB4020.12.0", true);
+                    s7Net.Write("DB4020.2.4", true);
+                }
+                else if (!req && resp)
+                {
+                    s7Net.Write("DB4020.12.0", false);
+                    s7Net.Write("DB4020.2.4", false);
+                    s7Net.Write("DB4020.2.5", false);
+                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈出站请求复位");
+                }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"O型圈装配MiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"O型圈出站异常: {ex.Message}");
             }
         }
     }

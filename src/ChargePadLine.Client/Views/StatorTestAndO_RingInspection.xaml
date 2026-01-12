@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance Type=viewModels:StatorTestViewModel}">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
-            <bar:TitleBar IconText="&#xe6fa;" TitleText="定子测试" Margin="0,0,0,0" VerticalAlignment="Top"/>
+            <bar:TitleBar IconText="&#xe6ed;" TitleText="定子测试" Margin="0,0,0,0" VerticalAlignment="Top"/>
 
             <!-- 定子检测 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10,10,10,10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
@@ -22,6 +22,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- 左列 -->
@@ -29,14 +30,14 @@
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
                                         IsActive="{Binding Req}" 
                                         ActiveColor="Green"/>
-                        <TextBlock Text="进站请求状态(Req):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="进站请求" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
                                         IsActive="{Binding Resp}" 
                                         ActiveColor="Green"/>
-                        <TextBlock Text="进站响应OK (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="进站响应" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <!-- 右列 -->
@@ -44,12 +45,17 @@
                         <TextBlock Text="序列号 (SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <TextBlock Text="{Binding Sn}" VerticalAlignment="Center"/>
                     </StackPanel>
-
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="False" 
+                         IsActive="{Binding EnterOk}"
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                                         IsActive="{Binding EnterNg}"
                                         ActiveColor="Red"/>
-                        <TextBlock Text="进站响应NG (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="进站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>
@@ -65,39 +71,43 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- 左列 -->
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding Req}" 
+                                        IsActive="{Binding ExitReq}" 
                                         ActiveColor="Green"/>
-                        <TextBlock Text="出站请求状态(Req):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="出站请求" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding Resp}" 
+                                        IsActive="{Binding ExitResp}" 
                                         ActiveColor="Green"/>
-                        <TextBlock Text="出站响应OK (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="出站响应" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="NG原因:" FontWeight="Bold" VerticalAlignment="Center" Margin="28,0,8,0"/>
-                        <TextBlock Text="{Binding Resp, StringFormat={}{0}}" VerticalAlignment="Center"/>
-                    </StackPanel>
+           
 
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ExitSn}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="False" 
-                                        ActiveColor="Red"/>
-                        <TextBlock Text="出站响应NG (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        IsActive="{Binding ExitOk}" 
+                                        ActiveColor="Green"/>
+                        <TextBlock Text="出站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding ExitNg}"  
+                         ActiveColor="Red"/>
+                        <TextBlock Text="出站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>
@@ -114,34 +124,40 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- 左列 -->
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding Req}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="进站请求状态(Req):" FontWeight="Bold" VerticalAlignment="Center"/>
+                         IsActive="{Binding RingEnterReq}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="进站请求" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding Resp}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="进站响应OK (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                         IsActive="{Binding RingEnterResp}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="进站响应" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
-                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center"/>
+                        <TextBlock Text="序列号 (SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding RingEnterSn}" VerticalAlignment="Center"/>
                     </StackPanel>
-
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="False" 
-                                        ActiveColor="Red"/>
-                        <TextBlock Text="进站响应NG (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        IsActive="{Binding RingEnterOk}"
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                          IsActive="{Binding RingEnterNg}"
+                         ActiveColor="Red"/>
+                        <TextBlock Text="进站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>
@@ -157,39 +173,43 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- 左列 -->
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding Req}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="出站请求状态(Req):" FontWeight="Bold" VerticalAlignment="Center"/>
+                          IsActive="{Binding RingExitReq}" 
+                          ActiveColor="Green"/>
+                        <TextBlock Text="出站请求" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding Resp}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="出站响应OK (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                          IsActive="{Binding RingExitResp}" 
+                          ActiveColor="Green"/>
+                        <TextBlock Text="出站响应" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="NG原因:" FontWeight="Bold" VerticalAlignment="Center" Margin="28,0,8,0"/>
-                        <TextBlock Text="{Binding Resp, StringFormat={}{0}}" VerticalAlignment="Center"/>
-                    </StackPanel>
+
 
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding RingExitSn}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="False" 
-                                        ActiveColor="Red"/>
-                        <TextBlock Text="出站响应NG (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                          IsActive="{Binding RingExitOk}" 
+                          ActiveColor="Green"/>
+                        <TextBlock Text="出站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                            IsActive="{Binding RingExitNg}"  
+                            ActiveColor="Red"/>
+                        <TextBlock Text="出站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>

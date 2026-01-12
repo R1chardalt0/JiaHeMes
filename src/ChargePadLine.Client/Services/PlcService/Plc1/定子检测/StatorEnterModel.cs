@@ -1,15 +1,17 @@
 using System;
 using System.ComponentModel;
 
-namespace ChargePadLine.Client.Services.PlcService.Plc1
+namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
 {
     /// <summary>
     /// 定子检测数据服务，用于存储和通知PLC数据变化
     /// </summary>
-    public class StatorTestDataService : INotifyPropertyChanged
+    public class StatorEnterModel : INotifyPropertyChanged
     {
         private bool _req;
         private bool _resp;
+        private bool _enterOk;
+        private bool _enterNg;
         private string _sn = string.Empty;
 
         /// <summary>
@@ -44,6 +46,32 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1
             }
         }
 
+        public bool EnterNg
+        {
+            get => _enterNg;
+            private set
+            {
+                if (_enterNg != value)
+                {
+                    _enterNg = value;
+                    OnPropertyChanged(nameof(EnterNg));
+                }
+            }
+        }
+
+
+        public bool EnterOk
+        {
+            get => _enterOk;
+            private set
+            {
+                if (_enterOk != value)
+                {
+                    _enterOk = value;
+                    OnPropertyChanged(nameof(EnterOk));
+                }
+            }
+        }
         /// <summary>
         /// 序列号
         /// </summary>
@@ -60,14 +88,18 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1
             }
         }
 
+
+
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn)
+        public void UpdateData(bool req, bool resp, string sn,bool enterok, bool enterng)
         {
             Req = req;
             Resp = resp;
             Sn = sn;
+            EnterOk = enterok;
+            EnterNg = enterng;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
