@@ -7,13 +7,12 @@
              xmlns:bar="clr-namespace:ChargePadLine.Client.CustomerControl"
              xmlns:viewModels="clr-namespace:ChargePadLine.Client.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=viewModels:导热胶And气密ViewModel}"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DataContext="{d:DesignInstance Type=viewModels:导热胶And气密ViewModel}" d:DesignWidth="800" Height="598">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
-            <bar:TitleBar IconText="&#xe6fa;" TitleText="导热胶涂敷" Margin="0,0,0,0" VerticalAlignment="Top"/>
+            <bar:TitleBar IconText="&#xe706;" TitleText="电机腔气密测试" Margin="0,0,0,0" VerticalAlignment="Top"/>
 
-            <!-- 导热胶涂敷 - PLC进站 -->
+            <!-- 电机腔气密测试 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10,10,10,10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
                 <Grid HorizontalAlignment="Stretch">
                     <Grid.RowDefinitions>
@@ -23,39 +22,45 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- 左列 -->
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding 导热胶Req}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="进站请求状态(Req):" FontWeight="Bold" VerticalAlignment="Center"/>
+                         IsActive="{Binding 气密EnterReq}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="进站请求" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding 导热胶Resp}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="进站响应OK (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                         IsActive="{Binding 气密EnterResp}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="进站响应" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <TextBlock Text="序列号 (SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding 导热胶Sn}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding 气密EnterSn}" VerticalAlignment="Center"/>
                     </StackPanel>
-
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="False" 
-                                        ActiveColor="Red"/>
-                        <TextBlock Text="进站响应NG (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        IsActive="{Binding 气密EnterOk}"
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                          IsActive="{Binding 气密EnterNg}"
+                         ActiveColor="Red"/>
+                        <TextBlock Text="进站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>
 
-            <!-- 导热胶涂敷 - PLC出站 -->
+            <!-- 电机腔气密测试 - PLC出站 -->
             <GroupBox Header="PLC出站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
                 <Grid HorizontalAlignment="Stretch">
                     <Grid.RowDefinitions>
@@ -66,46 +71,51 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- 左列 -->
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding 导热胶Req}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="出站请求状态(Req):" FontWeight="Bold" VerticalAlignment="Center"/>
+                         IsActive="{Binding 气密ExitReq}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="出站请求" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding 导热胶Resp}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="出站响应OK (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                         IsActive="{Binding 气密ExitResp}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="出站响应" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="NG原因:" FontWeight="Bold" VerticalAlignment="Center" Margin="28,0,8,0"/>
-                        <TextBlock Text="{Binding 导热胶Resp, StringFormat={}{0}}" VerticalAlignment="Center"/>
-                    </StackPanel>
+
 
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding 导热胶Sn}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding 气密ExitSn}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="False" 
-                                        ActiveColor="Red"/>
-                        <TextBlock Text="出站响应NG (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                         IsActive="{Binding 气密ExitOk}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="出站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 气密ExitNg}"  
+                        ActiveColor="Red"/>
+                        <TextBlock Text="出站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>
 
-            <bar:TitleBar IconText="&#xe706;" TitleText="电机腔气密测试" />
+            <bar:TitleBar IconText="&#xe6fa;" TitleText="导热胶涂敷" />
 
-            <!-- 电机腔气密测试 - PLC进站 -->
+
+            <!-- 导热胶涂敷 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
                 <Grid HorizontalAlignment="Stretch">
                     <Grid.RowDefinitions>
@@ -115,39 +125,45 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- 左列 -->
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding 气密Req}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="进站请求状态(Req):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        IsActive="{Binding 导热胶EnterReq}" 
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站请求" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding 气密Resp}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="进站响应OK (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        IsActive="{Binding 导热胶EnterResp}" 
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
-                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding 气密Sn}" VerticalAlignment="Center"/>
+                        <TextBlock Text="序列号 (SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding 导热胶EnterSn}" VerticalAlignment="Center"/>
                     </StackPanel>
-
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="False" 
-                                        ActiveColor="Red"/>
-                        <TextBlock Text="进站响应NG (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        IsActive="{Binding 导热胶EnterOk}"
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 导热胶EnterNg}"
+                        ActiveColor="Red"/>
+                        <TextBlock Text="进站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>
-
-            <!-- 电机腔气密测试 - PLC出站 -->
+           
+            <!--  导热胶涂敷 - PLC出站 -->
             <GroupBox Header="　PLC出站" Margin="10,10,10,0" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
                 <Grid HorizontalAlignment="Stretch">
                     <Grid.RowDefinitions>
@@ -158,39 +174,43 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- 左列 -->
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding 气密Req}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="出站请求状态(Req):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        IsActive="{Binding 导热胶ExitReq}" 
+                        ActiveColor="Green"/>
+                        <TextBlock Text="出站请求" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="{Binding 气密Resp}" 
-                                        ActiveColor="Green"/>
-                        <TextBlock Text="出站响应OK (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        IsActive="{Binding 导热胶ExitResp}" 
+                        ActiveColor="Green"/>
+                        <TextBlock Text="出站响应" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="NG原因:" FontWeight="Bold" VerticalAlignment="Center" Margin="28,0,8,0"/>
-                        <TextBlock Text="{Binding 气密Resp, StringFormat={}{0}}" VerticalAlignment="Center"/>
-                    </StackPanel>
+
 
                     <!-- 右列 -->
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding 气密Sn}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding 导热胶ExitSn}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
                         <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
-                                        IsActive="False" 
-                                        ActiveColor="Red"/>
-                        <TextBlock Text="出站响应NG (Resp):" FontWeight="Bold" VerticalAlignment="Center"/>
+                        IsActive="{Binding 导热胶ExitOk}" 
+                        ActiveColor="Green"/>
+                        <TextBlock Text="出站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 导热胶ExitNg}"  
+                        ActiveColor="Red"/>
+                        <TextBlock Text="出站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>

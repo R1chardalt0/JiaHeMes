@@ -14,21 +14,41 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_
     {
         private readonly ILogger<PCBA性能检测ExitMiddleWare> _logger;
         private readonly ILogService _logService;
+        private readonly PCBA性能检测ExitModel _exitmodel;
 
-        public PCBA性能检测ExitMiddleWare(ILogger<PCBA性能检测ExitMiddleWare> logger, ILogService logService)
+        public PCBA性能检测ExitMiddleWare(ILogger<PCBA性能检测ExitMiddleWare> logger, ILogService logService, PCBA性能检测ExitModel exitmodel)
         {
             _logger = logger;
             _logService = logService;
+            _exitmodel = exitmodel;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
         {
             try
             {
-                // TODO: 在这里实现 O 型圈装配相关的 PLC 读写逻辑
-                // 例如：
-                // var req = s7Net.ReadBool("DB201.1000.0").Content;
-                // ...
+                var req = s7Net.ReadBool("DB4010.6.4").Content;
+                var resp = s7Net.ReadBool("DB4010.12.0").Content;
+                var enterok = s7Net.ReadBool("DB4010.2.4").Content;//进站OK
+                var enterng = s7Net.ReadBool("DB4010.2.5").Content;//进站NG
+                var sn = s7Net.ReadString("DB4010.200", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                _exitmodel.UpdateData(req, resp, sn, enterok, enterng);
+                // 更新数据服务
+                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+
+                if (req && !resp)
+                {
+                    await _logService.RecordLogAsync(LogLevel.Information, "PCBA性能检测出站请求收到");
+                    s7Net.Write("DB4010.12.0", true);
+                    s7Net.Write("DB4010.2.4", true);
+                }
+                else if (!req && resp)
+                {
+                    s7Net.Write("DB4010.12.0", false);
+                    s7Net.Write("DB4010.2.4", false);
+                    s7Net.Write("DB4010.2.5", false);
+                    await _logService.RecordLogAsync(LogLevel.Information, "PCBA性能检测出站请求复位");
+                }
 
                 await Task.CompletedTask;
             }

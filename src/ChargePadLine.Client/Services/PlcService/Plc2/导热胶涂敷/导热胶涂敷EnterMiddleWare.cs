@@ -12,25 +12,46 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷
     {
         private readonly ILogService _logService;
         private readonly ILogger<导热胶涂敷EnterMiddleWare> _logger;
-        public 导热胶涂敷EnterMiddleWare(ILogService logService, ILogger<导热胶涂敷EnterMiddleWare> logger)
+        private readonly 导热胶涂敷EnterModel _enterModel;
+
+        public 导热胶涂敷EnterMiddleWare(ILogService logService, ILogger<导热胶涂敷EnterMiddleWare> logger, 导热胶涂敷EnterModel enterModel)
         {
             _logService = logService;
             _logger = logger;
+            _enterModel = enterModel;
         }
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
         {
             try
             {
-                // TODO: 在这里实现 O 型圈装配相关的 PLC 读写逻辑
-                // 例如：
-                // var req = s7Net.ReadBool("DB201.1000.0").Content;
-                // ...
+                var req = s7Net.ReadBool("DB4020.6.0").Content;
+                var resp = s7Net.ReadBool("DB4020.10.0").Content;
+                var enterok = s7Net.ReadBool("DB4020.2.0").Content;//进站OK
+                var enterng = s7Net.ReadBool("DB4020.2.1").Content;//进站NG
+                var sn = s7Net.ReadString("DB4020.200", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+
+                // 更新数据服务
+                _enterModel.UpdateData(req, resp, sn, enterok, enterng);
+
+                if (req && !resp)
+                {
+                    await _logService.RecordLogAsync(LogLevel.Information, "导热胶涂敷进站请求收到");
+                    s7Net.Write("DB4020.10.0", true);
+                    s7Net.Write("DB4020.2.0", true);
+                }
+                else if (!req && resp)
+                {
+                    s7Net.Write("DB4020.10.0", false);
+                    s7Net.Write("DB4020.2.0", false);
+                    s7Net.Write("DB4020.2.1", false);
+                    await _logService.RecordLogAsync(LogLevel.Information, "导热胶涂敷进站请求复位");
+                }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"{ex},导热胶涂敷MiddleWare异常");
+                await _logService.RecordLogAsync(LogLevel.Error, $"{ex},导热胶涂敷进站MiddleWare异常");
             }
         }
     }

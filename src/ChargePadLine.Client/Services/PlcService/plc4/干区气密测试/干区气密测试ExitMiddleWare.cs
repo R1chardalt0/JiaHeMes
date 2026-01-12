@@ -1,5 +1,7 @@
 ﻿using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.PlcService.plc3.热铆;
 using ChargePadLine.Client.Services.PlcService.Plc4;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +12,52 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
 {
     public class 干区气密测试ExitMiddleWare : IPlc4Task
     {
-        public Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
+        private readonly ILogger<热铆ExitMiddleWare> _logger;
+        private readonly ILogService _logService;
+        private readonly 干区气密测试ExitModel _exitModel;
+
+        public 干区气密测试ExitMiddleWare(ILogger<热铆ExitMiddleWare> logger, ILogService logService, 干区气密测试ExitModel exitModel)
         {
-            throw new NotImplementedException();
+            _logger = logger;
+            _logService = logService;
+            _exitModel = exitModel;
+        }
+
+
+
+        public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var req = s7Net.ReadBool("DB4020.6.4").Content;
+                var resp = s7Net.ReadBool("DB4020.12.0").Content;
+                var exitok = s7Net.ReadBool("DB4020.2.4").Content;//出站OK
+                var exitng = s7Net.ReadBool("DB4020.2.5").Content;//出站NG
+                var sn = s7Net.ReadString("DB4020.200", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+
+                // 更新数据服务
+                _exitModel.UpdateData(req, resp, sn, exitok, exitng);
+
+                if (req && !resp)
+                {
+                    await _logService.RecordLogAsync(LogLevel.Information, "干区气密测试请求收到");
+                    s7Net.Write("DB4020.12.0", true);
+                    s7Net.Write("DB4020.2.4", true);
+                }
+                else if (!req && resp)
+                {
+                    s7Net.Write("DB4020.12.0", false);
+                    s7Net.Write("DB4020.2.4", false);
+                    s7Net.Write("DB4020.2.5", false);
+                    await _logService.RecordLogAsync(LogLevel.Information, "干区气密测试请求复位");
+                }
+
+                await Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                await _logService.RecordLogAsync(LogLevel.Error, $"干区气密测试ExitMiddleWare异常: {ex.Message}");
+            }
         }
     }
 }

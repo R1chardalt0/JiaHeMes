@@ -14,20 +14,39 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
     {
         private readonly ILogger<旋融焊ExitMiddleWare> _logger;
         private readonly ILogService _logService;
+        private readonly 旋融焊ExitModel _exitModel;
 
-        public 旋融焊ExitMiddleWare(ILogger<旋融焊ExitMiddleWare> logger, ILogService logService)
+        public 旋融焊ExitMiddleWare(ILogger<旋融焊ExitMiddleWare> logger, ILogService logService, 旋融焊ExitModel exitModel)
         {
             _logger = logger;
             _logService = logService;
+            _exitModel = exitModel;
         }
         public async Task ExecuteOnceAsync(ModbusConnect modbus, CancellationToken cancellationToken)
         {
             try
-            {
-                // TODO: 在这里实现 O 型圈装配相关的 PLC 读写逻辑
-                // 例如：
-                // var req = s7Net.ReadBool("DB201.1000.0").Content;
-                // ...
+            {              
+                var req = modbus.ReadBool("2000.0").Content;
+                var resp = modbus.ReadBool("2001.0").Content;
+                var exitok = modbus.ReadBool("2002.0").Content;//进站OK
+                var exitng = modbus.ReadBool("2003.0").Content;//进站NG
+                var sn = modbus.ReadString("2004", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                // 更新数据服务
+                _exitModel.UpdateData(req, resp, sn, exitok, exitng);
+
+                if (req && !resp)
+                {
+                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求收到");
+                    modbus.Write("2001.0", true);
+                    modbus.Write("2002.0", true);
+                }
+                else if (!req && resp)
+                {
+                    modbus.Write("2001.0", false);
+                    modbus.Write("2002.0", false);
+                    modbus.Write("2003.0", false);
+                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求复位");
+                }
 
                 await Task.CompletedTask;
             }

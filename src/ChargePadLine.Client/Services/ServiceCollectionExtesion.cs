@@ -24,6 +24,7 @@ using ChargePadLine.Client.Services.PlcService.Plc7;
 using ChargePadLine.Client.Services.PlcService.plc8.旋融焊;
 using ChargePadLine.Client.Services.PlcService.Plc8;
 using ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试;
+using ChargePadLine.Client.Services.PlcService.Plc9;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -43,6 +44,7 @@ namespace ChargePadLine.Client.Services
             services.AddHostedService<Plc4HostService>();
             services.AddHostedService<Plc5HostService>();
             services.AddHostedService<Plc7HostService>();
+            services.AddHostedService<Plc8HostService>();
             services.AddHostedService<Plc9HostService>();
             services.AddHostedService<Plc10HostService>();
             services.AddHostedService<Plc11HostService>();
@@ -55,8 +57,32 @@ namespace ChargePadLine.Client.Services
             services.AddSingleton<RingEnterModel>();
             services.AddSingleton<RingExitModel>();
 
-            services.AddSingleton<导热胶涂敷DataService>();
-            services.AddSingleton<电机腔气密测试DataService>();
+            services.AddSingleton<导热胶涂敷EnterModel>();
+            services.AddSingleton<导热胶涂敷ExitModel>();
+            services.AddSingleton<电机腔气密测试EnterModel>();
+            services.AddSingleton<电机腔气密测试ExitModel>();
+
+            services.AddSingleton<PCBA性能检测EnterModel>();
+            services.AddSingleton<PCBA性能检测ExitModel>();
+            services.AddSingleton<热铆EnterModel>();
+            services.AddSingleton<热铆ExitModel>();
+
+            services.AddSingleton<后盖超声波焊接EnterModel>();
+            services.AddSingleton<后盖超声波焊接ExitModel>();
+            services.AddSingleton<干区气密测试EnterModel>();
+            services.AddSingleton<干区气密测试ExitModel>();
+
+            services.AddSingleton<转子充磁与装配EnterModel>();
+            services.AddSingleton<转子充磁与装配ExitModel>();
+
+            services.AddSingleton<止推垫片装配EnterModel>();
+            services.AddSingleton<止推垫片装配ExitModel>();
+
+            services.AddSingleton<旋融焊EnterModel>();
+            services.AddSingleton<旋融焊ExitModel>();
+
+            services.AddSingleton<湿区气密EnterModel>();
+            services.AddSingleton<湿区气密ExitModel>();
             #endregion
 
             #region plc交互业务注册
@@ -67,9 +93,6 @@ namespace ChargePadLine.Client.Services
 
             services.AddTransient<导热胶涂敷EnterMiddleWare>();
             services.AddTransient<导热胶涂敷ExitMiddleWare>();
-            services.AddTransient<电机腔气密测试EnterMiddleWare>();
-            services.AddTransient<电机腔气密测试ExitMiddleWare>();
-
             services.AddTransient<电机腔气密测试EnterMiddleWare>();
             services.AddTransient<电机腔气密测试ExitMiddleWare>();
    

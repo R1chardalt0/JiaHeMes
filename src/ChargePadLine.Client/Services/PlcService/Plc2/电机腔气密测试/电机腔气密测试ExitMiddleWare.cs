@@ -13,27 +13,47 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试
     {
         private readonly ILogger<电机腔气密测试ExitMiddleWare> _logger;
         private readonly ILogService _logService;
+        private readonly 电机腔气密测试ExitModel _exitModel;
 
-        public 电机腔气密测试ExitMiddleWare(ILogger<电机腔气密测试ExitMiddleWare> logger, ILogService logService)
+        public 电机腔气密测试ExitMiddleWare(ILogger<电机腔气密测试ExitMiddleWare> logger, ILogService logService, 电机腔气密测试ExitModel exitModel)
         {
             _logger = logger;
             _logService = logService;
+            _exitModel = exitModel;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
         {
             try
             {
-                // TODO: 在这里实现 O 型圈装配相关的 PLC 读写逻辑
-                // 例如：
-                // var req = s7Net.ReadBool("DB201.1000.0").Content;
-                // ...
+                var req = s7Net.ReadBool("DB4010.6.4").Content;
+                var resp = s7Net.ReadBool("DB4010.12.0").Content;
+                var enterok = s7Net.ReadBool("DB4010.2.4").Content;//进站OK
+                var enterng = s7Net.ReadBool("DB4010.2.5").Content;//进站NG
+                var sn = s7Net.ReadString("DB4010.200", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                _exitModel.UpdateData(req, resp, sn, enterok, enterng);
+                // 更新数据服务
+                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+
+                if (req && !resp)
+                {
+                    await _logService.RecordLogAsync(LogLevel.Information, "电机腔气密测试出站请求收到");
+                    s7Net.Write("DB4010.12.0", true);
+                    s7Net.Write("DB4010.2.4", true);
+                }
+                else if (!req && resp)
+                {
+                    s7Net.Write("DB4010.12.0", false);
+                    s7Net.Write("DB4010.2.4", false);
+                    s7Net.Write("DB4010.2.5", false);
+                    await _logService.RecordLogAsync(LogLevel.Information, "电机腔气密测试出站请求复位");
+                }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"电机腔气密测试ExitMiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"电机腔气密测试出站ExitMiddleWare异常: {ex.Message}");
             }
         }
     }
