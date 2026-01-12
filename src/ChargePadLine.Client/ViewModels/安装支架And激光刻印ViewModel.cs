@@ -87,7 +87,7 @@ namespace ChargePadLine.Client.ViewModels
         public bool 安装支架ExitNg => _安装支架ExitModel.安装支架ExitNg;
 
 
-        public string 激光刻印status => _激光刻印EnterModel.激光刻印status;
+        public string 激光刻印Status => _激光刻印EnterModel.激光刻印Status;
         /// <summary>
         /// 激光刻印 - 请求状态
         /// </summary>

@@ -89,7 +89,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
             }
         }
 
-        public string 激光刻印status
+        public string 激光刻印Status
         {
             get => _激光刻印status;
             private set
@@ -97,7 +97,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
                 if (_激光刻印status != value)
                 {
                     _激光刻印status = value;
-                    OnPropertyChanged(nameof(激光刻印status));
+                    OnPropertyChanged(nameof(激光刻印Status));
                 }
             }
         }
@@ -114,7 +114,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
             激光刻印EnterSn = sn;
             激光刻印EnterOk = enterok;
             激光刻印EnterNg = enterng;
-            激光刻印status = status;
+            激光刻印Status = status;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
