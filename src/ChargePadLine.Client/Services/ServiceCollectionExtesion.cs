@@ -86,6 +86,11 @@ namespace ChargePadLine.Client.Services
 
             services.AddSingleton<EOLEnterModel>();
             services.AddSingleton<EOLExitModel>();
+
+            services.AddSingleton<激光刻印EnterModel>();
+            services.AddSingleton<激光刻印ExitModel>();
+            services.AddSingleton<安装支架EnterModel>();
+            services.AddSingleton<安装支架ExitModel>();
             #endregion
 
             #region plc交互业务注册
@@ -98,7 +103,7 @@ namespace ChargePadLine.Client.Services
             services.AddTransient<导热胶涂敷ExitMiddleWare>();
             services.AddTransient<电机腔气密测试EnterMiddleWare>();
             services.AddTransient<电机腔气密测试ExitMiddleWare>();
-   
+
             services.AddTransient<PCBA性能检测EnterMiddleWare>();
             services.AddTransient<PCBA性能检测ExitMiddleWare>();
             services.AddTransient<热铆EnterMiddleWare>();
