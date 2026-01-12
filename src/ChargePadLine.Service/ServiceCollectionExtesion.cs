@@ -54,6 +54,9 @@ namespace ChargePadLine.Service
       // 工艺路线服务
       services.AddScoped<IProcessRouteService, ProcessRouteService>();
       services.AddScoped<IProcessRouteItemService, ProcessRouteItemService>();
+      // 工单BOM批次服务
+      services.AddScoped<IMESOrderBomBatchService, MESOrderBomBatchService>();
+      services.AddScoped<IMESOrderBomBatchItemService, MESOrderBomBatchItemService>();
       // SN实时状态服务
       services.AddScoped<IMesSnListCurrentService, MesSnListCurrentService>();
       // SN历史记录服务
