@@ -14,6 +14,7 @@ using Microsoft.FSharp.Core;
 using Microsoft.IdentityModel.Tokens;
 using static Microsoft.FSharp.Core.ByRefKinds;
 using System.Text.RegularExpressions;
+using ChargePadLine.Service.Trace.Dto.BOM;
 
 namespace ChargePadLine.Service.Trace.Impl
 {
@@ -62,16 +63,14 @@ namespace ChargePadLine.Service.Trace.Impl
         public async Task<FSharpResult<ValueTuple, (int, string)>> FeedMaterial(RequestFeedMaterialParams request)
         {
             var batchQty = 0;
+            Guid ResourceId;
             if (request.Resource.IsNullOrEmpty())
             {
-                if (request.WorkOrderCode.IsNullOrEmpty())
-                {
-                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备未绑定工单，设备资源号：{request.Resource}"));
-                }
+               return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备未绑定工单，设备资源号：{request.Resource}"));
             }
             else
             {
-                var DeviceInfosList = _dbContext.DeviceInfos.FirstOrDefault(x => x.Resource == request.Resource);
+                var DeviceInfosList =  _dbContext.DeviceInfos.FirstOrDefault(x => x.Resource == request.Resource);
                 if (DeviceInfosList == null)
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码{request.Resource},不存在"));
@@ -88,6 +87,7 @@ namespace ChargePadLine.Service.Trace.Impl
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，工单编号：{DeviceInfosList.WorkOrderCode}"));
                 }
                 request.WorkOrderCode = DeviceInfosList.WorkOrderCode;
+                ResourceId = DeviceInfosList.ResourceId;
             }
 
             if (request.ProductCode.IsNullOrEmpty())
@@ -115,6 +115,10 @@ namespace ChargePadLine.Service.Trace.Impl
 
             var Order = _dbContext.OrderList.FirstOrDefault(x => x.OrderCode == request.WorkOrderCode);
 
+            if (Order == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，工单编号：{request.WorkOrderCode}"));
+            }
             var BomId = Order?.BomId;
 
             var BomItemList = _dbContext.BomItem.FirstOrDefault(x => x.BomId == BomId && x.StationCode == request.StationCode && x.ProductId == product.ProductListId);
@@ -122,6 +126,11 @@ namespace ChargePadLine.Service.Trace.Impl
             if (BomItemList == null)
             {
                 return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"BOM不存在，BOM编号：{BomId}"));
+            }
+
+            if (request.BatchCode.IsNullOrEmpty() || request.BatchCode == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"批次信息不能为空：{request.BatchCode}"));
             }
 
             // 正则表达式（带分组）
@@ -134,45 +143,54 @@ namespace ChargePadLine.Service.Trace.Impl
             //Match match = regex.Match(request.BatchCode);
             Match match = Regex.Match(request.BatchCode, pattern);
 
-            if (match.Success)
+            if(pattern=="%" && request.BatchQty > 0)
             {
-                Console.WriteLine("匹配成功！");
-                Console.WriteLine($"完整匹配: {match.Value}");
-                Console.WriteLine($"日期: {match.Groups[1].Value}");  // 第一组：日期
-                Console.WriteLine($"数量: {match.Groups[2].Value}");  // 第二组：数量
-                Console.WriteLine($"流水号: {match.Groups[3].Value}"); // 第三组：流水号
-
-
-
-                if (product.ProductCode != match.Groups[1].Value)
-                {
-                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"批次规则错误，批次物料{match.Groups[1].Value}，BOM物料{product.ProductCode}"));
-                }
-
-                var BomItemQty = 0;
-                if (request.BatchQty > 0)
-                {
-                    BomItemQty = Convert.ToInt32(request.BatchQty);
-                }
-                else
-                {
-                    if (BomItemList.BatchQty == true)
-                    {
-                        BomItemQty = Convert.ToInt32(BomItemList.BatchSNQty);
-                    }
-                    else
-                    {
-                        var splitBatchSNQty = BomItemList.BatchSNQty.Split(",");
-                        BomItemQty = Convert.ToInt32(request.BatchCode.Substring(Convert.ToInt32(splitBatchSNQty[0]), Convert.ToInt32(splitBatchSNQty[1])));
-                    }
-                }
-                batchQty = BomItemQty;
+                batchQty = request.BatchQty;
             }
             else
             {
+                if (match.Success)
+                {
+                    //Console.WriteLine("匹配成功！");
+                    //Console.WriteLine($"完整匹配: {match.Value}");
+                    //Console.WriteLine($"日期: {match.Groups[1].Value}");  // 第一组：日期
+                    //Console.WriteLine($"数量: {match.Groups[2].Value}");  // 第二组：数量
+                    //Console.WriteLine($"流水号: {match.Groups[3].Value}"); // 第三组：流水号
 
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"批次规则错误"));
+
+
+                    if (product.ProductCode != match.Groups[1].Value)
+                    {
+                        return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"批次规则错误，批次物料{match.Groups[1].Value}，BOM物料{product.ProductCode}"));
+                    }
+
+                    var BomItemQty = 0;
+                    if (request.BatchQty > 0)
+                    {
+                        BomItemQty = Convert.ToInt32(request.BatchQty);
+                    }
+                    else
+                    {
+                        if (BomItemList.BatchQty == true)
+                        {
+                            BomItemQty = Convert.ToInt32(BomItemList.BatchSNQty);
+                        }
+                        else
+                        {
+                            var splitBatchSNQty = BomItemList.BatchSNQty.Split(",");
+                            BomItemQty = Convert.ToInt32(request.BatchCode.Substring(Convert.ToInt32(splitBatchSNQty[0]), Convert.ToInt32(splitBatchSNQty[1])));
+                        }
+                    }
+                    batchQty = BomItemQty;
+                }
+                else
+                {
+
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"批次规则错误"));
+                }
             }
+
+            
 
             MesOrderBomBatch mesOrderBomBatch = new MesOrderBomBatch();
             mesOrderBomBatch.OrderBomBatchId = Guid.NewGuid();
@@ -185,6 +203,7 @@ namespace ChargePadLine.Service.Trace.Impl
             mesOrderBomBatch.UpdateTime = DateTimeOffset.Now;
             mesOrderBomBatch.OrderBomBatchStatus = 1;
             mesOrderBomBatch.CompletedQty = 0;
+            mesOrderBomBatch.ResourceId = ResourceId;
             _dbContext.MesOrderBomBatch.Add(mesOrderBomBatch);
             _dbContext.SaveChanges();
 
@@ -198,24 +217,48 @@ namespace ChargePadLine.Service.Trace.Impl
         /// </summary>
         public async Task<FSharpResult<ValueTuple, (int, string)>> UploadCheck(RequestUploadCheckParams request)
         {
-            // 1. 根据资源号获取设备信息
-            var DeviceInfosList = _dbContext.DeviceInfos.FirstOrDefault(x => x.Resource == request.Resource);
-            if (DeviceInfosList == null)
+            if (request.Resource.IsNullOrEmpty() && request.WorkOrderCode.IsNullOrEmpty())
             {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码{request.Resource},不存在"));
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码和工单不能同时为空"));
+            }
+            var DeviceInfosList = new Deviceinfo();
+            var workOrder=new OrderList();
+            if (!request.Resource.IsNullOrEmpty())
+            {
+                // 1. 根据资源号获取设备信息
+                DeviceInfosList = _dbContext.DeviceInfos.FirstOrDefault(x => x.Resource == request.Resource);
+                if (DeviceInfosList == null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码{request.Resource},不存在"));
+                }
+
+                // 2. 检查设备是否已绑定工单
+                if (DeviceInfosList.WorkOrderCode == null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备未绑定工单，设备资源号：{request.Resource}"));
+                }
+                request.WorkOrderCode = DeviceInfosList.WorkOrderCode;
+            }
+            //手工站根据SN 获取工单
+            else if (request.WorkOrderCode.IsNullOrEmpty())
+            {
+                var FirstSNList = _dbContext.mesSnListCurrents.First(x => x.SnNumber == request.SN);
+                workOrder = _dbContext.OrderList.FirstOrDefault(x => x.OrderListId == FirstSNList.OrderListId);
+                if (workOrder == null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，SN：{request.SN}"));
+                }
+                request.WorkOrderCode = workOrder.OrderCode;
             }
 
-            // 2. 检查设备是否已绑定工单
-            if (DeviceInfosList.WorkOrderCode == null)
-            {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备未绑定工单，设备资源号：{request.Resource}"));
-            }
+
+
 
             // 3. 检查工单是否存在且状态正确
-            var workOrder = _dbContext.OrderList.FirstOrDefault(x => x.OrderCode == DeviceInfosList.WorkOrderCode);
+            workOrder = _dbContext.OrderList.FirstOrDefault(x => x.OrderCode == request.WorkOrderCode);
             if (workOrder == null)
             {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，工单编号：{DeviceInfosList.WorkOrderCode}"));
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，工单编号：{request.WorkOrderCode}"));
             }
 
             // 4. 检查上传站点是否存在
@@ -236,7 +279,7 @@ namespace ChargePadLine.Service.Trace.Impl
             // 6. 工艺路线为空则直接返回错误
             if (processRouteItems.Count() == 0)
             {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工艺路线不存在，工单编号：{DeviceInfosList.WorkOrderCode}"));
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工艺路线不存在，工单编号：{request.WorkOrderCode}"));
             }
 
             // 7. 找到当前上传站点在工艺路线中的记录
@@ -584,6 +627,8 @@ namespace ChargePadLine.Service.Trace.Impl
                 {
                     // 跳到下一站
                     snCurrent.CurrentStationListId = nextStep.StationId;
+                    snCurrent.ResourceId = deviceInfo.ResourceId;
+                    snCurrent.ProductionLineId = deviceInfo.ProductionLineId;
                 }
 
                 snCurrent.UpdateTime = DateTime.Now;
