@@ -63,11 +63,11 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         {
             try
             {
-                // 参数验证
-                if (string.IsNullOrWhiteSpace(request.Resource))
-                {
-                    return BadRequest(new { code = 400, message = "设备编码不能为空" });
-                }
+                //// 参数验证
+                //if (string.IsNullOrWhiteSpace(request.Resource))
+                //{
+                //    return BadRequest(new { code = 400, message = "设备编码不能为空" });
+                //}
 
                 var result = await _iCommonInterfaseService.UploadCheck(request);
 
@@ -98,11 +98,11 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         {
             try
             {
-                // 参数验证
-                if (string.IsNullOrWhiteSpace(request.Resource))
-                {
-                    return BadRequest(new { code = 400, message = "设备编码不能为空" });
-                }
+                //// 参数验证
+                //if (string.IsNullOrWhiteSpace(request.Resource))
+                //{
+                //    return BadRequest(new { code = 400, message = "设备编码不能为空" });
+                //}
 
                 var result = await _iCommonInterfaseService.UploadData(request);
 

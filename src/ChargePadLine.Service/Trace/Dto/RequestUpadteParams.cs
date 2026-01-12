@@ -130,6 +130,7 @@ namespace ChargePadLine.Service.Trace.Dto
         /// 产品编码
         /// </summary>
         public string? ProductCode { get; set; }
+        
 
     }
     public class RequestMaterialLoadedParams

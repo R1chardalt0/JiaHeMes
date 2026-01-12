@@ -70,6 +70,12 @@ namespace ChargePadLine.Entitys.Trace.Order
         [Description("工单ID")]
         [Column("OrderListId")]
         public Guid? OrderListId { get; set; }
+        /// <summary>
+        /// 工单ID
+        /// </summary>
+        [Description("设备资源ID")]
+        [Column("ResourceId")]
+        public Guid? ResourceId { get; set; }
     }
 
     public class MesOrderBomBatchEntityTypeConfiguration : IEntityTypeConfiguration<MesOrderBomBatch>
