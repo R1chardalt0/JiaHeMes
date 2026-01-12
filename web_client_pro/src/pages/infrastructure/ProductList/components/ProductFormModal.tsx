@@ -1,5 +1,5 @@
 import React, { useImperativeHandle, forwardRef, useRef } from 'react';
-import { Modal, Form, Input, Button } from 'antd';
+import { Modal, Form, Input, Button, Select } from 'antd';
 import type { FormInstance } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { ProductListDto } from '@/services/Model/Infrastructure/ProductList';
@@ -143,10 +143,13 @@ const ProductFormModal = forwardRef<ProductFormModalRef, ProductFormModalProps>(
           label="产品类型"
           name="productType"
           rules={[
-            { required: true, message: '请输入产品类型' },
+            { required: true, message: '请选择产品类型' },
           ]}
         >
-          <Input placeholder="请输入产品类型" />
+          <Select placeholder="请选择产品类型">
+            <Select.Option value={0}>成品</Select.Option>
+            <Select.Option value={1}>物料</Select.Option>
+          </Select>
         </Form.Item>
 
         <Form.Item

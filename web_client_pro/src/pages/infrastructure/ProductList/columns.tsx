@@ -73,6 +73,10 @@ export const getProductColumns = (props: ProductColumnsProps): ProColumns<Produc
       dataIndex: 'productType',
       key: 'productType',
       width: 180,
+      valueEnum: {
+        0: '成品',
+        1: '物料',
+      },
     },
     {
       title: '备注',

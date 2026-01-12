@@ -84,24 +84,20 @@ const BomItemFormModal: React.FC<BomItemFormModalProps> = ({
           }
           return false;
         }}>
-          {({ getFieldValue }) =>
-            getFieldValue('batchQty') ? (
-              <Form.Item name="batchSNQty" label="批次SN数量" rules={[
-                {
-                  validator: (_, value, callback) => {
-                    const batchQty = form.getFieldValue('batchQty');
-                    if (batchQty && !value) {
-                      callback('请输入批次SN数量');
-                    } else {
-                      callback();
-                    }
-                  }
+          <Form.Item name="batchSNQty" label="批次SN数量" rules={[
+            {
+              validator: (_, value, callback) => {
+                const batchQty = form.getFieldValue('batchQty');
+                if (batchQty && !value) {
+                  callback('请输入批次SN数量');
+                } else {
+                  callback();
                 }
-              ]}>
-                <Input placeholder="请输入批次SN数量" />
-              </Form.Item>
-            ) : null
-          }
+              }
+            }
+          ]}>
+            <Input placeholder="请输入批次SN数量" />
+          </Form.Item>
         </Form.Item>
         <Form.Item label="产品ID">
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
