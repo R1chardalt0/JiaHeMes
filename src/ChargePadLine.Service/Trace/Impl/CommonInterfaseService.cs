@@ -64,7 +64,7 @@ namespace ChargePadLine.Service.Trace.Impl
             var batchQty = 0;
             if (request.Resource.IsNullOrEmpty())
             {
-                if(request.WorkOrderCode.IsNullOrEmpty())
+                if (request.WorkOrderCode.IsNullOrEmpty())
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备未绑定工单，设备资源号：{request.Resource}"));
                 }
@@ -117,7 +117,7 @@ namespace ChargePadLine.Service.Trace.Impl
 
             var BomId = Order?.BomId;
 
-            var BomItemList = _dbContext.BomItem.FirstOrDefault(x => x.BomId == BomId && x.StationCode == request.StationCode && x.ProductId==product.ProductListId);
+            var BomItemList = _dbContext.BomItem.FirstOrDefault(x => x.BomId == BomId && x.StationCode == request.StationCode && x.ProductId == product.ProductListId);
 
             if (BomItemList == null)
             {
@@ -146,13 +146,13 @@ namespace ChargePadLine.Service.Trace.Impl
 
                 if (product.ProductCode != match.Groups[1].Value)
                 {
-                   return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"批次规则错误，批次物料{match.Groups[1].Value}，BOM物料{product.ProductCode}"));
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"批次规则错误，批次物料{match.Groups[1].Value}，BOM物料{product.ProductCode}"));
                 }
 
                 var BomItemQty = 0;
                 if (request.BatchQty > 0)
                 {
-                    BomItemQty= Convert.ToInt32(request.BatchQty);
+                    BomItemQty = Convert.ToInt32(request.BatchQty);
                 }
                 else
                 {
@@ -251,7 +251,7 @@ namespace ChargePadLine.Service.Trace.Impl
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"首站站点SN已存在{request.SN}"));
                 }
-                
+
             }
             else
             {
@@ -280,7 +280,7 @@ namespace ChargePadLine.Service.Trace.Impl
                 }
 
                 // 12. 检查 SN 是否异常
-                if (SNList.IsAbnormal)
+                if (SNList.IsAbnormal == true)
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},当前状态异常"));
                 }
@@ -351,7 +351,7 @@ namespace ChargePadLine.Service.Trace.Impl
             {
                 // 17. 检查MesOrderBomBatch上料情况
                 var orderBomBatch = _dbContext.MesOrderBomBatch
-                    .FirstOrDefault(x => x.OrderListId == workOrder.OrderListId && x.StationListId == orderBomItem.Station.StationId && x.ProductListId==orderBomItem.BomItem.ProductId);
+                    .FirstOrDefault(x => x.OrderListId == workOrder.OrderListId && x.StationListId == orderBomItem.Station.StationId && x.ProductListId == orderBomItem.BomItem.ProductId);
                 if (orderBomBatch == null)
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"站点{request.StationCode}未进行上料操作"));
@@ -370,12 +370,13 @@ namespace ChargePadLine.Service.Trace.Impl
                 }
             }
 
-            if (currentprocessRouteList.FirstStation == true){
+            if (currentprocessRouteList.FirstStation == true)
+            {
                 // 首站不继续后续校验，直接返回
                 return FSharpResult<ValueTuple, (int, string)>.NewError((0, $"首站"));
             }
-                // 20. 所有校验通过
-                return FSharpResult<ValueTuple, (int, string)>.NewError((0, $"检查通过"));
+            // 20. 所有校验通过
+            return FSharpResult<ValueTuple, (int, string)>.NewError((0, $"检查通过"));
         }
         /// <summary>
         /// 数据上传主流程：
@@ -459,7 +460,7 @@ namespace ChargePadLine.Service.Trace.Impl
                 await _dbContext.SaveChangesAsync();
                 // 首站到此结束，不再走后续跳站逻辑
             }
-            
+
             {
                 // ---------- 4. 非首站：写历史 + 跳站 ----------
                 var station = await _dbContext.StationList
@@ -500,16 +501,16 @@ namespace ChargePadLine.Service.Trace.Impl
                 }
 
 
-                var orderBom = await(from ord in _dbContext.OrderList
-                               join bomitem in _dbContext.BomItem on ord.BomId equals bomitem.BomId
-                               join sta in _dbContext.StationList on bomitem.StationCode equals sta.StationCode
-                               where ord.OrderListId == workOrder.OrderListId && bomitem.StationCode == request.StationCode
-                               select new
-                               {
-                                   OrderBom = ord,
-                                   BomItem = bomitem,
-                                   Station = sta
-                               }).ToListAsync();
+                var orderBom = await (from ord in _dbContext.OrderList
+                                      join bomitem in _dbContext.BomItem on ord.BomId equals bomitem.BomId
+                                      join sta in _dbContext.StationList on bomitem.StationCode equals sta.StationCode
+                                      where ord.OrderListId == workOrder.OrderListId && bomitem.StationCode == request.StationCode
+                                      select new
+                                      {
+                                          OrderBom = ord,
+                                          BomItem = bomitem,
+                                          Station = sta
+                                      }).ToListAsync();
 
                 foreach (var orderBomItem in orderBom)
                 {
@@ -533,11 +534,11 @@ namespace ChargePadLine.Service.Trace.Impl
                         return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"站点{request.StationCode}上料批次已使用完"));
                     }
                     orderBomBatch.CompletedQty += 1;
-                    if (orderBomBatch.CompletedQty>= orderBomBatch.BatchQty)
+                    if (orderBomBatch.CompletedQty >= orderBomBatch.BatchQty)
                     {
                         orderBomBatch.OrderBomBatchStatus = 2;
                     }
-                    
+
                     var orderBomBatchitem = new MesOrderBomBatchItem
                     {
                         OrderBomBatchId = orderBomBatch.OrderBomBatchId,
@@ -898,151 +899,7 @@ namespace ChargePadLine.Service.Trace.Impl
 
             return FSharpResult<ValueTuple, (int, string)>.NewError((0, $"检查通过"));
         }
-        public async Task<FSharpResult<ValueTuple, (int, string)>> UploadData(RequestUploadCheckParams request)
-        {
-            // 先执行与UploadCheck相同的校验逻辑
-            var checkResult = await UploadCheck(request);
-            if (checkResult.ErrorValue.Item1 != 0)
-            {
-                return checkResult;
-            }
-            // 获取当前工单
-            var deviceInfo = await _dbContext.DeviceInfos
-                .FirstOrDefaultAsync(x => x.Resource == request.Resource);
-            if (deviceInfo == null)
-            {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码{request.Resource}不存在"));
-            }
 
-            var workOrder = await _dbContext.OrderList
-                .FirstOrDefaultAsync(x => x.OrderCode == deviceInfo.WorkOrderCode);
-            if (workOrder == null)
-            {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单{deviceInfo.WorkOrderCode}不存在"));
-            }
-            if (checkResult.ErrorValue.Item2 == "首站")
-            {
-            
-
-            // 获取首站站点
-            var firstStation = await (from p in _dbContext.ProcessRoutes
-                                      join i in _dbContext.ProcessRouteItems on p.Id equals i.HeadId
-                                      join s in _dbContext.StationList on i.StationCode equals s.StationCode
-                                      where p.Id == workOrder.ProcessRouteId && i.FirstStation == true
-                                      select new { s.StationId, s.StationCode })
-                                     .FirstOrDefaultAsync();
-
-            if (firstStation == null)
-            {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, "工艺路线未配置首站"));
-            }
-
-            // 1. 先往 mesSnListCurrents 插入数据
-            var insertSnCurrent = new MesSnListCurrent
-            {
-                SnNumber = request.SN,
-                OrderListId = workOrder.OrderListId,
-                CurrentStationListId = firstStation.StationId,
-                ResourceId = deviceInfo.ResourceId,
-                ProductionLineId = deviceInfo.ProductionLineId,
-                StationStatus = 1,      // PASS
-                IsAbnormal = false,
-                CreateTime = DateTime.Now,
-                UpdateTime = DateTime.Now
-            };
-            await _dbContext.mesSnListCurrents.AddAsync(insertSnCurrent);
-            await _dbContext.SaveChangesAsync();
-
-            // 2. 再往 mesSnListHistories 插入数据
-            var InsertSnHistory = new MesSnListHistory
-            {
-                SnNumber = insertSnCurrent.SnNumber,
-                OrderListId = insertSnCurrent.OrderListId,
-                CurrentStationListId = insertSnCurrent.CurrentStationListId,
-                StationStatus = 1,
-                ResourceId = deviceInfo.ResourceId,
-                ProductionLineId = deviceInfo.ProductionLineId,
-                IsAbnormal = false,
-                CreateTime = DateTime.Now,
-                UpdateTime = DateTime.Now
-            };
-            await _dbContext.mesSnListHistories.AddAsync(InsertSnHistory);
-            await _dbContext.SaveChangesAsync();
-
-            return FSharpResult<ValueTuple, (int, string)>.NewOk(default(ValueTuple));
-
-            }
-            // 获取当前SN在mesSnListCurrents中的记录
-            var snCurrent = await _dbContext.mesSnListCurrents
-                .FirstOrDefaultAsync(x => x.SnNumber == request.SN);
-            if (snCurrent == null)
-            {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN}在Current表中不存在"));
-            }
-
-            // 获取上传站点信息
-            var station = await _dbContext.StationList
-                .FirstOrDefaultAsync(x => x.StationCode == request.StationCode);
-            if (station == null)
-            {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"站点编码{request.StationCode}不存在"));
-            }
-
-            // 将当前记录写入历史表
-            var snHistory = new MesSnListHistory
-            {
-                SnNumber = snCurrent.SnNumber,
-                OrderListId = snCurrent.OrderListId,
-                CurrentStationListId = snCurrent.CurrentStationListId,
-                ProductionLineId = deviceInfo.ProductionLineId,
-                ResourceId = deviceInfo.ResourceId,
-                StationStatus = 1,                 // 默认PASS
-                IsAbnormal = false,
-                CreateTime = DateTime.Now,
-                UpdateTime = DateTime.Now,
-                TestResults=request.TestResult,
-            };
-            await _dbContext.mesSnListHistories.AddAsync(snHistory);
-
-            // 更新Current表：移动到下一站点
-            var processRouteItems = await (from p in _dbContext.ProcessRoutes
-                                     join iitm in _dbContext.ProcessRouteItems on p.Id equals iitm.HeadId
-                                     join s in _dbContext.StationList on iitm.StationCode equals s.StationCode
-                                     join ord in _dbContext.OrderList on p.Id equals ord.ProcessRouteId
-                                     where ord.OrderListId == snCurrent.OrderListId
-                                     orderby iitm.RouteSeq
-                                     select new { iitm.StationCode, s.StationId, iitm.RouteSeq })
-                                    .ToListAsync();
-
-            var currentStep = processRouteItems.FirstOrDefault(x => x.StationCode == request.StationCode);
-            if (currentStep == null)
-            {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工艺路线中找不到站点{request.StationCode}"));
-            }
-
-            var nextStep = processRouteItems
-                .Where(x => x.RouteSeq > currentStep.RouteSeq)
-                .OrderBy(x => x.RouteSeq)
-                .FirstOrDefault();
-
-            if (nextStep == null)
-            {
-                // 最后一站，标记完工
-                //snCurrent.CurrentStationListId = null;
-                snCurrent.StationStatus = 4;
-            }
-            else
-            {
-                snCurrent.CurrentStationListId = nextStep.StationId;
-            }
-
-            snCurrent.UpdateTime = DateTime.Now;
-            _dbContext.mesSnListCurrents.Update(snCurrent);
-            await _dbContext.SaveChangesAsync();
-            
-
-            return FSharpResult<ValueTuple, (int, string)>.NewOk(default(ValueTuple));
-        }
 
 
     }
