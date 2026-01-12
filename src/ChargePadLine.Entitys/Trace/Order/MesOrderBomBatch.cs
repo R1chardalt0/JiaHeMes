@@ -70,6 +70,13 @@ namespace ChargePadLine.Entitys.Trace.Order
     [Description("工单ID")]
     [Column("OrderListId")]
     public Guid? OrderListId { get; set; }
+
+    /// <summary>
+    /// 设备ID
+    /// </summary>
+    [Description("设备ID")]
+    [Column("ResourceId")]
+    public Guid? ResourceId { get; set; }
   }
 
   public class MesOrderBomBatchEntityTypeConfiguration : IEntityTypeConfiguration<MesOrderBomBatch>
@@ -85,6 +92,7 @@ namespace ChargePadLine.Entitys.Trace.Order
       builder.HasIndex(e => e.StationListId);
       builder.HasIndex(e => e.OrderBomBatchStatus);
       builder.HasIndex(e => e.OrderListId);
+      builder.HasIndex(e => e.ResourceId);
     }
   }
 }

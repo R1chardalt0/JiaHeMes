@@ -147,6 +147,12 @@ namespace ChargePadLine.Service.Trace.Impl
         query = query.Where(e => e.OrderListId == queryDto.OrderListId.Value);
       }
 
+      // 根据设备ID查询
+      if (queryDto.ResourceId.HasValue)
+      {
+        query = query.Where(e => e.ResourceId == queryDto.ResourceId.Value);
+      }
+
       // 根据搜索值查询
       if (!string.IsNullOrEmpty(queryDto.SearchValue))
       {
@@ -214,6 +220,7 @@ namespace ChargePadLine.Service.Trace.Impl
         BatchQty = entity.BatchQty,
         CompletedQty = entity.CompletedQty,
         OrderListId = entity.OrderListId,
+        ResourceId = entity.ResourceId,
         SearchValue = entity.SearchValue,
         CreateBy = entity.CreateBy,
         CreateTime = entity.CreateTime,

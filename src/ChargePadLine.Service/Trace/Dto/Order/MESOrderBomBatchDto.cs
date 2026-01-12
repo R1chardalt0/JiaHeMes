@@ -48,6 +48,11 @@ namespace ChargePadLine.Service.Trace.Dto.Order
     public Guid? OrderListId { get; set; }
 
     /// <summary>
+    /// 设备ID
+    /// </summary>
+    public Guid? ResourceId { get; set; }
+
+    /// <summary>
     /// 搜索值
     /// </summary>
     public string? SearchValue { get; set; }
