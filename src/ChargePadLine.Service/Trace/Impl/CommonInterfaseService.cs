@@ -159,10 +159,10 @@ namespace ChargePadLine.Service.Trace.Impl
 
 
 
-                    if (product.ProductCode != match.Groups[1].Value)
-                    {
-                        return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"批次规则错误，批次物料{match.Groups[1].Value}，BOM物料{product.ProductCode}"));
-                    }
+                    //if (product.ProductCode != match.Groups[1].Value)
+                    //{
+                    //    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"批次规则错误，批次物料{match.Groups[1].Value}，BOM物料{product.ProductCode}"));
+                    //}
 
                     var BomItemQty = 0;
                     if (request.BatchQty > 0)
@@ -190,22 +190,35 @@ namespace ChargePadLine.Service.Trace.Impl
                 }
             }
 
-            
+            var checkOrderBomBatch = _dbContext.MesOrderBomBatch.FirstOrDefault(x => x.BatchCode == request.BatchCode);
+            if (checkOrderBomBatch==null)
+            {
+                checkOrderBomBatch = _dbContext.MesOrderBomBatch.FirstOrDefault(x => x.ResourceId == ResourceId && x.OrderBomBatchStatus == 1 && x.StationListId== StationList.StationId);
+                if (checkOrderBomBatch != null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备已有上料记录，批次编号：{checkOrderBomBatch.BatchCode}"));
+                }
+                MesOrderBomBatch mesOrderBomBatch = new MesOrderBomBatch();
+                mesOrderBomBatch.OrderBomBatchId = Guid.NewGuid();
+                mesOrderBomBatch.OrderListId = Order.OrderListId;
+                mesOrderBomBatch.ProductListId = product.ProductListId;
+                mesOrderBomBatch.BatchCode = request.BatchCode;
+                mesOrderBomBatch.BatchQty = batchQty;
+                mesOrderBomBatch.StationListId = StationList.StationId;
+                mesOrderBomBatch.CreateTime = DateTimeOffset.Now;
+                mesOrderBomBatch.UpdateTime = DateTimeOffset.Now;
+                mesOrderBomBatch.OrderBomBatchStatus = 1;
+                mesOrderBomBatch.CompletedQty = 0;
+                mesOrderBomBatch.ResourceId = ResourceId;
+                _dbContext.MesOrderBomBatch.Add(mesOrderBomBatch);
+                _dbContext.SaveChanges();
+            }
+            else
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"批次号已有上料记录[{checkOrderBomBatch.BatchCode}][{checkOrderBomBatch.CreateTime}]错误"));
+            }
 
-            MesOrderBomBatch mesOrderBomBatch = new MesOrderBomBatch();
-            mesOrderBomBatch.OrderBomBatchId = Guid.NewGuid();
-            mesOrderBomBatch.OrderListId = Order.OrderListId;
-            mesOrderBomBatch.ProductListId = product.ProductListId;
-            mesOrderBomBatch.BatchCode = request.BatchCode;
-            mesOrderBomBatch.BatchQty = batchQty;
-            mesOrderBomBatch.StationListId = StationList.StationId;
-            mesOrderBomBatch.CreateTime = DateTimeOffset.Now;
-            mesOrderBomBatch.UpdateTime = DateTimeOffset.Now;
-            mesOrderBomBatch.OrderBomBatchStatus = 1;
-            mesOrderBomBatch.CompletedQty = 0;
-            mesOrderBomBatch.ResourceId = ResourceId;
-            _dbContext.MesOrderBomBatch.Add(mesOrderBomBatch);
-            _dbContext.SaveChanges();
+            
 
 
 
@@ -382,19 +395,21 @@ namespace ChargePadLine.Service.Trace.Impl
             var orderBom = await (from ord in _dbContext.OrderList
                                   join bomitem in _dbContext.BomItem on ord.BomId equals bomitem.BomId
                                   join sta in _dbContext.StationList on bomitem.StationCode equals sta.StationCode
-                                  where ord.OrderListId == workOrder.OrderListId && bomitem.StationCode == request.StationCode
+                                  join dev in _dbContext.DeviceInfos.Where(x=>x.Resource==request.Resource) on ord.OrderCode equals dev.WorkOrderCode  
+                                  where ord.OrderListId == workOrder.OrderListId && bomitem.StationCode == request.StationCode 
                                   select new
                                   {
                                       OrderBom = ord,
                                       BomItem = bomitem,
-                                      Station = sta
+                                      Station = sta,
+                                      DeviceInfo = dev
                                   }).ToListAsync();
 
             foreach (var orderBomItem in orderBom)
             {
                 // 17. 检查MesOrderBomBatch上料情况
                 var orderBomBatch = _dbContext.MesOrderBomBatch
-                    .FirstOrDefault(x => x.OrderListId == workOrder.OrderListId && x.StationListId == orderBomItem.Station.StationId && x.ProductListId == orderBomItem.BomItem.ProductId);
+                    .FirstOrDefault(x => x.OrderListId == workOrder.OrderListId && x.StationListId == orderBomItem.Station.StationId && x.ProductListId == orderBomItem.BomItem.ProductId && x.ResourceId== orderBomItem.DeviceInfo.ResourceId && x.BatchQty>x.CompletedQty);
                 if (orderBomBatch == null)
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"站点{request.StationCode}未进行上料操作"));
@@ -437,19 +452,48 @@ namespace ChargePadLine.Service.Trace.Impl
                 return checkResult;   // 校验不通过直接返回
             }
 
-            // ---------- 2. 提取常用数据 ----------
-            var deviceInfo = await _dbContext.DeviceInfos
-                .FirstOrDefaultAsync(x => x.Resource == request.Resource);
-            if (deviceInfo == null)
+            if (request.Resource.IsNullOrEmpty() && request.WorkOrderCode.IsNullOrEmpty())
             {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码{request.Resource}不存在"));
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码和工单不能同时为空"));
+            }
+            var deviceInfo = new Deviceinfo();
+            var workOrder = new OrderList();
+            if (!request.Resource.IsNullOrEmpty())
+            {
+                // 1. 根据资源号获取设备信息
+                deviceInfo = _dbContext.DeviceInfos.FirstOrDefault(x => x.Resource == request.Resource);
+                if (deviceInfo == null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码{request.Resource},不存在"));
+                }
+
+                // 2. 检查设备是否已绑定工单
+                if (deviceInfo.WorkOrderCode == null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备未绑定工单，设备资源号：{request.Resource}"));
+                }
+                request.WorkOrderCode = deviceInfo.WorkOrderCode;
+            }
+            //手工站根据SN 获取工单
+            else if (request.WorkOrderCode.IsNullOrEmpty())
+            {
+                var FirstSNList = _dbContext.mesSnListCurrents.First(x => x.SnNumber == request.SN);
+                workOrder = _dbContext.OrderList.FirstOrDefault(x => x.OrderListId == FirstSNList.OrderListId);
+                if (workOrder == null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，SN：{request.SN}"));
+                }
+                request.WorkOrderCode = workOrder.OrderCode;
             }
 
-            var workOrder = await _dbContext.OrderList
-                .FirstOrDefaultAsync(x => x.OrderCode == deviceInfo.WorkOrderCode);
+
+
+
+            // 3. 检查工单是否存在且状态正确
+            workOrder = _dbContext.OrderList.FirstOrDefault(x => x.OrderCode == request.WorkOrderCode);
             if (workOrder == null)
             {
-                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单{deviceInfo.WorkOrderCode}不存在"));
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单{workOrder.OrderCode}不存在"));
             }
 
             // 测试结果转换：PASS=1，其它=2
@@ -544,22 +588,25 @@ namespace ChargePadLine.Service.Trace.Impl
                 }
 
 
+
                 var orderBom = await (from ord in _dbContext.OrderList
                                       join bomitem in _dbContext.BomItem on ord.BomId equals bomitem.BomId
                                       join sta in _dbContext.StationList on bomitem.StationCode equals sta.StationCode
+                                      join dev in _dbContext.DeviceInfos.Where(x => x.Resource == request.Resource) on ord.OrderCode equals dev.WorkOrderCode
                                       where ord.OrderListId == workOrder.OrderListId && bomitem.StationCode == request.StationCode
                                       select new
                                       {
                                           OrderBom = ord,
                                           BomItem = bomitem,
-                                          Station = sta
+                                          Station = sta,
+                                          DeviceInfo = dev
                                       }).ToListAsync();
 
                 foreach (var orderBomItem in orderBom)
                 {
                     // 17. 检查MesOrderBomBatch上料情况
                     var orderBomBatch = _dbContext.MesOrderBomBatch
-                        .FirstOrDefault(x => x.OrderListId == workOrder.OrderListId && x.StationListId == orderBomItem.Station.StationId && x.ProductListId == orderBomItem.BomItem.ProductId);
+                        .FirstOrDefault(x => x.OrderListId == workOrder.OrderListId && x.StationListId == orderBomItem.Station.StationId && x.ProductListId == orderBomItem.BomItem.ProductId && x.ResourceId == orderBomItem.DeviceInfo.ResourceId && x.BatchQty > x.CompletedQty);
                     if (orderBomBatch == null)
                     {
                         return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"站点{request.StationCode}未进行上料操作"));
