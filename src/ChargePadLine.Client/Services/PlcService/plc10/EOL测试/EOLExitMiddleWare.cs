@@ -36,7 +36,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "湿区气密出站请求收到");
+                    await _logService.RecordLogAsync(LogLevel.Information, "EOL出站请求收到");
                     s7Net.Write("DB4010.12.0", true);
                     s7Net.Write("DB4010.2.4", true);
                 }
@@ -45,7 +45,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
                     s7Net.Write("DB4010.12.0", false);
                     s7Net.Write("DB4010.2.4", false);
                     s7Net.Write("DB4010.2.5", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "湿区气密出站请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, "EOL出站请求复位");
                 }
 
                 await Task.CompletedTask;
