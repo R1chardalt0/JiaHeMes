@@ -5,6 +5,8 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using ChargePadLine.Entitys.Trace.Order;
+using ChargePadLine.Entitys.Trace.ProcessRouting;
 
 namespace ChargePadLine.Entitys.Trace.TraceInformation
 {
@@ -39,16 +41,22 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     [Description("工单ID")]
     public Guid OrderListId { get; set; }
 
-    /// <summary>
-    /// 当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站
-    /// </summary>
-    [Description("当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站")]
+    [ForeignKey("OrderListId")]
+    public OrderList? OrderList { get; set; }
+        /// <summary>
+        /// 当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站
+        /// </summary>
+        [Description("当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站")]
     public int StationStatus { get; set; }
-
-    /// <summary>
-    /// 当前站点ID
-    /// </summary>
-    [Description("当前站点ID")]
+        /// <summary>
+        /// 站点导航属性
+        /// </summary>
+    [ForeignKey("CurrentStationListId")]
+    public StationList? StationList { get; set; }
+        /// <summary>
+        /// 当前站点ID
+        /// </summary>
+        [Description("当前站点ID")]
     public Guid CurrentStationListId { get; set; }
 
     /// <summary>
@@ -110,7 +118,10 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     /// </summary>
     [Description("返工时间")]
     public DateTimeOffset? ReworkTime { get; set; }
-  }
+
+
+    
+    }
 
   public class MesSnListCurrentEntityTypeConfiguration : IEntityTypeConfiguration<MesSnListCurrent>
   {

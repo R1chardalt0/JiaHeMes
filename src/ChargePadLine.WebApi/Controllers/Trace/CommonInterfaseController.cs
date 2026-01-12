@@ -11,6 +11,8 @@ using ChargePadLine.Service.Trace.Impl;
 using ChargePadLine.Service.Trace.Dto;
 using ChargePadLine.Service;
 using ChargePadLine.Entitys.Trace.Product;
+using Microsoft.FSharp.Core;
+using static ChargePadLine.Service.Trace.Impl.CommonInterfaseService;
 
 namespace ChargePadLine.WebApi.Controllers.Trace
 {
@@ -23,6 +25,21 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     {
             _iCommonInterfaseService = iCommonInterfaseService;
     }
+       /// <summary>
+       /// 获取NS信息
+       /// </summary>
+       /// <param name="sn"></param>
+       /// <returns></returns>
+        [HttpPost("TraceSN")]
+        public async Task<FSharpResult<SnTraceDto, (int, string)>> TraceSN(string sn)
+        {
+             
+                var result = await _iCommonInterfaseService.TraceSN(sn);
+
+                // 处理结果并返回相应的HTTP响应
+                return result;
+           
+        }
 
         /// <summary>
         /// 物料上传接口

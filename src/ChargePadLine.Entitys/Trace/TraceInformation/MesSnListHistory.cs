@@ -5,6 +5,9 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using ChargePadLine.Entitys.Trace.Order;
+using ChargePadLine.Entitys.Trace.ProcessRouting;
+using ChargePadLine.Entitys.Trace;
 
 namespace ChargePadLine.Entitys.Trace.TraceInformation
 {
@@ -62,6 +65,18 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     /// </summary>
     [Description("当前设备ID")]
     public Guid ResourceId { get; set; }
+
+    /// <summary>
+    /// 站点导航属性
+    /// </summary>
+    [ForeignKey("CurrentStationListId")]
+    public StationList? StationList { get; set; }
+
+    /// <summary>
+    /// 设备导航属性
+    /// </summary>
+    [ForeignKey("ResourceId")]
+    public Deviceinfo? Resource { get; set; }
 
 
     /// <summary>
@@ -158,6 +173,7 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     /// </summary>
     [Description("备注")]
     public string? Remark { get; set; }
+
   }
 
   public class MesSnListHistoryEntityTypeConfiguration : IEntityTypeConfiguration<MesSnListHistory>
@@ -167,12 +183,25 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
       // 主键配置
       builder.HasKey(e => e.SNListHistoryId);
 
+      // 导航属性配置
+      builder.HasOne(e => e.StationList)
+          .WithMany()
+          .HasForeignKey(e => e.CurrentStationListId)
+          .OnDelete(DeleteBehavior.Cascade);
+
+      builder.HasOne(e => e.Resource)
+          .WithMany()
+          .HasForeignKey(e => e.ResourceId)
+          .OnDelete(DeleteBehavior.Cascade);
+
       // 常用索引
       builder.HasIndex(e => e.SnNumber);
       builder.HasIndex(e => e.ProductListId);
       builder.HasIndex(e => e.OrderListId);
       builder.HasIndex(e => e.StationStatus);
       builder.HasIndex(e => e.CreateTime);
+      builder.HasIndex(e => e.CurrentStationListId);
+      builder.HasIndex(e => e.ResourceId);
     }
   }
 }

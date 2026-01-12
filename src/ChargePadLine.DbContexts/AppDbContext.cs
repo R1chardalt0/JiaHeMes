@@ -92,6 +92,8 @@ namespace ChargePadLine.DbContexts
         //SN列表
         public DbSet<MesSnListCurrent> mesSnListCurrents { get; set; }
         public DbSet<MesSnListHistory> mesSnListHistories { get; set; }
+        public DbSet<MesSnTestData> mesSnTestDatas { get; set; }
+
         //工单BOM批次
         public DbSet<MesOrderBomBatch> MesOrderBomBatch { get; set; }
         public DbSet<MesOrderBomBatchItem> MesOrderBomBatchItem { get; set; }
