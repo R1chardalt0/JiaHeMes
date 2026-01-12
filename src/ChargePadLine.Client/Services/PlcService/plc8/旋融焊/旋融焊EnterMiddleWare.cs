@@ -38,15 +38,15 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求收到");
+                    await _logService.RecordLogAsync(LogLevel.Information, "旋融焊进站请求收到");
                     modbus.Write("1001.0", true);
                     modbus.Write("1002.0", true);
                 }
                 else if (!req && resp)
                 {
-                    modbus.Write("1001", false);
-                    modbus.Write("1002", false);
-                    modbus.Write("1003", false);
+                    modbus.Write("1001.0", false);
+                    modbus.Write("1002.0", false);
+                    modbus.Write("1003.0", false);
                     await _logService.RecordLogAsync(LogLevel.Information, "旋融焊进站请求复位");
                 }
 

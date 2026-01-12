@@ -25,7 +25,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
         public async Task ExecuteOnceAsync(ModbusConnect modbus, CancellationToken cancellationToken)
         {
             try
-            {              
+            {
                 var req = modbus.ReadBool("2000.0").Content;
                 var resp = modbus.ReadBool("2001.0").Content;
                 var exitok = modbus.ReadBool("2002.0").Content;//进站OK
@@ -36,7 +36,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求收到");
+                    await _logService.RecordLogAsync(LogLevel.Information, "旋融焊出站请求收到");
                     modbus.Write("2001.0", true);
                     modbus.Write("2002.0", true);
                 }
@@ -45,7 +45,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                     modbus.Write("2001.0", false);
                     modbus.Write("2002.0", false);
                     modbus.Write("2003.0", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, "旋融焊出站请求复位");
                 }
 
                 await Task.CompletedTask;
