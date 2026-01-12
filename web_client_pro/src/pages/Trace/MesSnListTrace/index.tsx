@@ -124,7 +124,7 @@ const MesSnListTracePage: React.FC = () => {
               const device = response.data;
               updatedRecord = {
                 ...updatedRecord,
-                deviceEnCode: device.deviceEnCode || ''
+                deviceEnCode: device.resource || ''
               };
             } catch (error) {
               console.error('获取设备编码失败:', error);
@@ -534,7 +534,7 @@ const MesSnListTracePage: React.FC = () => {
                       const device = response.data;
                       updatedRecord = {
                         ...updatedRecord,
-                        deviceEnCode: device.deviceEnCode || ''
+                        deviceEnCode: device.resource || ''
                       };
                     } catch (error) {
                       console.error('获取设备编码失败:', error);
