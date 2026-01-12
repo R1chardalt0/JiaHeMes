@@ -1,4 +1,5 @@
 using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.Mes;
 using ChargePadLine.Client.Services.PlcService;
 using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
@@ -138,6 +139,8 @@ namespace ChargePadLine.Client.Services
             #region 系统信息服务注册
             // services.AddSingleton<ISystemInfoService, SystemInfoService>();
             #endregion
+
+            services.AddSingleton<IMesApiService, MesApiService>();
 
             return services;
         }
