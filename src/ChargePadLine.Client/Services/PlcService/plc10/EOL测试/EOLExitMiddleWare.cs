@@ -1,5 +1,6 @@
 ﻿using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService.Plc10;
+using ChargePadLine.Client.Services.PlcService.plc3.热铆;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,21 +14,39 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
     {
         private readonly ILogger<EOLExitMiddleWare> _logger;
         private readonly ILogService _logService;
+        private readonly EOLExitModel _exitModel;
 
-        public EOLExitMiddleWare(ILogger<EOLExitMiddleWare> logger, ILogService logService)
+        public EOLExitMiddleWare(ILogger<EOLExitMiddleWare> logger, ILogService logService, EOLExitModel exitModel)
         {
             _logger = logger;
             _logService = logService;
+            _exitModel = exitModel;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
         {
             try
             {
-                // TODO: 在这里实现 EOLEnterMiddleWare相关的 PLC 读写逻辑
-                // 例如：
-                // var req = s7Net.ReadBool("DB201.1000.0").Content;
-                // ...
+                var req = s7Net.ReadBool("DB4010.6.4").Content;
+                var resp = s7Net.ReadBool("DB4010.12.0").Content;
+                var enterok = s7Net.ReadBool("DB4010.2.4").Content;//进站OK
+                var enterng = s7Net.ReadBool("DB4010.2.5").Content;//进站NG
+                var sn = s7Net.ReadString("DB4010.200", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                _exitModel.UpdateData(req, resp, sn, enterok, enterng);
+
+                if (req && !resp)
+                {
+                    await _logService.RecordLogAsync(LogLevel.Information, "湿区气密出站请求收到");
+                    s7Net.Write("DB4010.12.0", true);
+                    s7Net.Write("DB4010.2.4", true);
+                }
+                else if (!req && resp)
+                {
+                    s7Net.Write("DB4010.12.0", false);
+                    s7Net.Write("DB4010.2.4", false);
+                    s7Net.Write("DB4010.2.5", false);
+                    await _logService.RecordLogAsync(LogLevel.Information, "湿区气密出站请求复位");
+                }
 
                 await Task.CompletedTask;
             }
