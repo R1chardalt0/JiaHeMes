@@ -137,6 +137,7 @@ public partial class App : Application
         services.AddTransient<止推垫片装配ViewModel>();
         services.AddTransient<旋融焊ViewModel>();
         services.AddTransient<湿区气密ViewModel>();
+        services.AddTransient<EOLEnterViewModel>();
         services.AddSingleton<LogViewModel>();
         // 注册Windows
         services.AddTransient<MainWindow>();
