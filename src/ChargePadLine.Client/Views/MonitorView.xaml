@@ -102,7 +102,7 @@
                        DataContext="{Binding 导热胶And气密ViewModel}"/>
                     </ScrollViewer>
                 </Grid>
-                
+
             </TabItem>
             <TabItem Height="25" VerticalAlignment="Bottom">
                 <TabItem.Header>
@@ -269,7 +269,21 @@
                         <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">激光刻/支架安装/打包</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
-                <Grid Background="White"/>
+
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                  VerticalContentAlignment="Top" 
+                  HorizontalContentAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Padding="0"
+                  Margin="0">
+                        <local:安装支架And激光刻印View Margin="10,0,10,0" 
+                      VerticalAlignment="Top" 
+                      HorizontalAlignment="Stretch"
+                      DataContext="{Binding 安装支架And激光刻印ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+
             </TabItem>
         </TabControl>
     </Grid>

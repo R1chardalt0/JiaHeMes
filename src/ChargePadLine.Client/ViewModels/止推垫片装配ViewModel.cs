@@ -1,9 +1,4 @@
 using ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.ViewModels
 {

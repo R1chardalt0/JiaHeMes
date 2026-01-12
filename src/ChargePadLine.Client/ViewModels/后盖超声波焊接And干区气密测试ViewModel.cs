@@ -1,11 +1,5 @@
-﻿using ChargePadLine.Client.Models;
-using ChargePadLine.Client.Services.PlcService.plc4.后盖超声波焊接;
+﻿using ChargePadLine.Client.Services.PlcService.plc4.后盖超声波焊接;
 using ChargePadLine.Client.Services.PlcService.plc4.干区气密测试;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.ViewModels
 {

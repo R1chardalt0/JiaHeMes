@@ -1,7 +1,5 @@
-using ChargePadLine.Client.Services.PlcService;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
-using ChargePadLine.Client.ViewModels;
 
 namespace ChargePadLine.Client.ViewModels
 {

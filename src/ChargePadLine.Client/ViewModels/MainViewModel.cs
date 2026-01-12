@@ -1,8 +1,4 @@
-using System.Windows.Input;
-using ChargePadLine.Client.Commands;
-using ChargePadLine.Client.Services;
 using Reactive.Bindings;
-using System.Timers;
 
 namespace ChargePadLine.Client.ViewModels;
 

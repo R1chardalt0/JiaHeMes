@@ -138,6 +138,7 @@ public partial class App : Application
         services.AddTransient<旋融焊ViewModel>();
         services.AddTransient<湿区气密ViewModel>();
         services.AddTransient<EOLEnterViewModel>();
+        services.AddTransient<安装支架And激光刻印ViewModel>();
         services.AddSingleton<LogViewModel>();
         // 注册Windows
         services.AddTransient<MainWindow>();
