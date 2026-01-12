@@ -93,6 +93,8 @@ namespace ChargePadLine.Client.ViewModels
         public bool ExitNg => _statorTestDataExitService.ExitNg;
 
 
+
+        public string O型圈装配Status => _ringEnter.O型圈装配Status;
         /// <summary>
         /// 请求状态
         /// </summary>

@@ -14,6 +14,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
         private bool _enterOk;
         private bool _enterNg;
         private string _sn = string.Empty;
+        private string _status = string.Empty;
 
         /// <summary>
         /// 请求状态
@@ -74,12 +75,23 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
             }
         }
 
-
+        public string 旋融焊Status
+        {
+            get => _status;
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(旋融焊Status));
+                }
+            }
+        }
 
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng)
+        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng,string status)
         {
             // 强制更新，即使值相同也触发PropertyChanged
             旋融焊EnterReq = req;
@@ -87,6 +99,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
             旋融焊EnterSn = sn;
             旋融焊EnterOk = enterok;
             旋融焊EnterNg = enterng;
+            旋融焊Status = status;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

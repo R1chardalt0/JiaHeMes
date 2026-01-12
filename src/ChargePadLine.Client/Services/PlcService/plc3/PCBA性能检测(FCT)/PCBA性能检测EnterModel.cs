@@ -16,6 +16,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_
         private bool _enterOk;
         private bool _enterNg;
         private string _sn = string.Empty;
+        private string _status = string.Empty;
 
         /// <summary>
         /// 请求状态
@@ -91,18 +92,30 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_
             }
         }
 
-
+        public string 性能检查Status
+        {
+            get => _status;
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(性能检查Status));
+                }
+            }
+        }
 
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng)
+        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng,string status)
         {
             性能检查EnterReq = req;
             性能检查EnterResp = resp;
             性能检查EnterSn = sn;
             性能检查EnterOk = enterok;
             性能检查EnterNg = enterng;
+            性能检查Status = status;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

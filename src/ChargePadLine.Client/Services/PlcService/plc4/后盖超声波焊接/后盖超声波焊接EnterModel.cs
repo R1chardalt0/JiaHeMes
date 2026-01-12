@@ -14,6 +14,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.后盖超声波焊接
         private bool _enterOk;
         private bool _enterNg;
         private string _sn = string.Empty;
+        private string _status = string.Empty;
 
         /// <summary>
         /// 请求状态
@@ -89,18 +90,30 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.后盖超声波焊接
             }
         }
 
-
+        public string 后盖超声波焊接Status
+        {
+            get => _status;
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(后盖超声波焊接Status));
+                }
+            }
+        }
 
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng)
+        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng,string status)
         {
             后盖超声波焊接EnterReq = req;
             后盖超声波焊接EnterResp = resp;
             后盖超声波焊接EnterSn = sn;
             后盖超声波焊接EnterOk = enterok;
             后盖超声波焊接EnterNg = enterng;
+            后盖超声波焊接Status = status;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

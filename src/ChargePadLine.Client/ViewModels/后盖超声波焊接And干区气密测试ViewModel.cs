@@ -35,6 +35,8 @@ namespace ChargePadLine.Client.ViewModels
                 OnPropertyChanged(e.PropertyName);
             };
         }
+
+        public string 后盖超声波焊接Status => _后盖超声波焊接EnterModel.后盖超声波焊接Status;
         /// <summary>
         /// 后盖超声波焊接 - 请求状态
         /// </summary>
@@ -87,6 +89,8 @@ namespace ChargePadLine.Client.ViewModels
         public bool 后盖超声波焊接ExitNg => _后盖超声波焊接ExitModel.后盖超声波焊接ExitNg;
 
 
+
+        public string 干区气密测试Status => _干区气密测试EnterModel.干区气密测试Status;
         /// <summary>
         /// 干区气密测试 - 请求状态
         /// </summary>

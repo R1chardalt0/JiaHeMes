@@ -111,8 +111,7 @@
                     </StackPanel>
                 </Grid>
             </GroupBox>
-
-            <bar:TitleBar IconText="&#xe706;" TitleText="O型圈检测" />
+            <bar:TitleBar IconText="&#xe706;" TitleText="{Binding O型圈装配Status, StringFormat='O型圈装配({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
 
             <!-- O型圈检测 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">

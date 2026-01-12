@@ -14,6 +14,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
         private bool _enterOk;
         private bool _enterNg;
         private string _sn = string.Empty;
+        private string _status = string.Empty;
 
         /// <summary>
         /// 请求状态
@@ -89,18 +90,30 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
             }
         }
 
-
+        public string EolStatus
+        {
+            get => _status;
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(EolStatus));
+                }
+            }
+        }
 
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng)
+        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng,string status)
         {
             EolEnterReq = req;
             EolEnterResp = resp;
             EolEnterSn = sn;
             EolEnterOk = enterok;
             EolEnterNg = enterng;
+            EolStatus = status;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

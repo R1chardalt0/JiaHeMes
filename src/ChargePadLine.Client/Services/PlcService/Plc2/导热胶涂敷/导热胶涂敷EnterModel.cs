@@ -13,6 +13,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷
         private bool _enterOk;
         private bool _enterNg;
         private string _sn = string.Empty;
+        private string _status = string.Empty;
 
         /// <summary>
         /// 请求状态
@@ -88,18 +89,30 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷
             }
         }
 
-
+        public string 导热胶Status
+        {
+            get => _status;
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(导热胶Status));
+                }
+            }
+        }
 
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng)
+        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng,string status)
         {
             导热胶EnterReq = req;
             导热胶EnterResp = resp;
             导热胶EnterSn = sn;
             导热胶EnterOk = enterok;
             导热胶EnterNg = enterng;
+            导热胶Status = status;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
