@@ -112,7 +112,7 @@
                 </Grid>
             </GroupBox>
 
-            <bar:TitleBar IconText="&#xe719;" TitleText="安装支架" />
+            <bar:TitleBar IconText="&#xe6e7;" TitleText="安装支架" />
 
             <!-- 安装支架 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">

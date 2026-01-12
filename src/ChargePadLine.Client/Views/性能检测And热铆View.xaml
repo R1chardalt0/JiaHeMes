@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance Type=viewModels:性能检查And热铆ViewModel}" d:DesignWidth="800" Height="598">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
-            <bar:TitleBar IconText="&#xe706;" TitleText="PCBA性能检测" Margin="0,0,0,0" VerticalAlignment="Top"/>
+            <bar:TitleBar IconText="&#xe6e2;" TitleText="PCBA性能检测" Margin="0,0,0,0" VerticalAlignment="Top"/>
 
             <!-- PCBA性能检测 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10,10,10,10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
@@ -112,7 +112,7 @@
                 </Grid>
             </GroupBox>
 
-            <bar:TitleBar IconText="&#xe6fa;" TitleText="热铆" />
+            <bar:TitleBar IconText="&#xe71c;" TitleText="热铆" />
 
             <!-- 热铆 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">

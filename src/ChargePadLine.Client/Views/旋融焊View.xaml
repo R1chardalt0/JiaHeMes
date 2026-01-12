@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance Type=viewModels:旋融焊ViewModel}" d:DesignWidth="800" Height="598">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
-            <bar:TitleBar IconText="&#xe6ee;" TitleText="旋融焊" Margin="0,0,0,0" VerticalAlignment="Top"/>
+            <bar:TitleBar IconText="&#xe716;" TitleText="旋融焊" Margin="0,0,0,0" VerticalAlignment="Top"/>
 
             <!-- 旋融焊 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10,10,10,10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
