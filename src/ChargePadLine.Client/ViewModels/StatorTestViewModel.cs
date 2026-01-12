@@ -39,6 +39,8 @@ namespace ChargePadLine.Client.ViewModels
             };
         }
 
+        public string 定子检测Status => _statorTestDataEnterService.定子检测Status;
+
         /// <summary>
         /// 请求状态
         /// </summary>

@@ -13,6 +13,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
         private bool _enterOk;
         private bool _enterNg;
         private string _sn = string.Empty;
+        private string _status = string.Empty;
 
         /// <summary>
         /// 请求状态
@@ -88,18 +89,32 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
             }
         }
 
+        public string 定子检测Status
+        {
+            get => _status;
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(定子检测Status));
+                }
+            }
+        }
+
 
 
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn,bool enterok, bool enterng)
+        public void UpdateData(bool req, bool resp, string sn,bool enterok, bool enterng,string status)
         {
             Req = req;
             Resp = resp;
             Sn = sn;
             EnterOk = enterok;
             EnterNg = enterng;
+            定子检测Status= status;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
