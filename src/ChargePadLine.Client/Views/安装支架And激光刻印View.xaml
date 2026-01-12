@@ -10,7 +10,7 @@
              d:DataContext="{d:DesignInstance Type=viewModels:安装支架And激光刻印ViewModel}" d:DesignWidth="800" Height="598">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
-            <bar:TitleBar IconText="&#xe719;" TitleText="激光刻印" Margin="0,0,0,0" VerticalAlignment="Top"/>
+            <bar:TitleBar IconText="&#xe719;" TitleText="{Binding 激光刻印Status, StringFormat='激光刻印({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
 
             <!-- 激光刻印 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10,10,10,10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
@@ -112,7 +112,7 @@
                 </Grid>
             </GroupBox>
 
-            <bar:TitleBar IconText="&#xe6e7;" TitleText="安装支架" />
+            <bar:TitleBar IconText="&#xe6e7;" TitleText="{Binding 安装支架Status, StringFormat='安装支架({0})'}" />
 
             <!-- 安装支架 - PLC进站 -->
             <GroupBox Header="　PLC进站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
