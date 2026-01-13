@@ -1,4 +1,4 @@
-﻿using ChargePadLine.Client.Services.Mes.Model;
+﻿using ChargePadLine.Client.Services.Mes.Dto;
 using log4net.Core;
 using Microsoft.Extensions.Logging;
 using System;
