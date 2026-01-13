@@ -69,9 +69,9 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                        resource = _stationconfig.Station15.Resource,
+                        stationCode = _stationconfig.Station15.StationCode,
+                        workOrderCode = _stationconfig.Station15.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
                     if (res.code == 0)

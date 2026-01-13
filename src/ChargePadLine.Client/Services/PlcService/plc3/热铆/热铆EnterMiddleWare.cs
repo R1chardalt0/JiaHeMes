@@ -66,9 +66,9 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.热铆
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                        resource = _stationconfig.Station6.Resource,
+                        stationCode = _stationconfig.Station6.StationCode,
+                        workOrderCode = _stationconfig.Station6.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
                     if (res.code == 0)

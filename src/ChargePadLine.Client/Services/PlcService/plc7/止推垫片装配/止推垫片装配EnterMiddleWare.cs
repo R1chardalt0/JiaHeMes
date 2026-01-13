@@ -68,9 +68,9 @@ namespace ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                        resource = _stationconfig.Station11.Resource,
+                        stationCode = _stationconfig.Station11.StationCode,
+                        workOrderCode = _stationconfig.Station11.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
                     if (res.code == 0)

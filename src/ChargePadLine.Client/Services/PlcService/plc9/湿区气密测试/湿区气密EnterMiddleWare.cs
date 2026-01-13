@@ -69,9 +69,9 @@ namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                        resource = _stationconfig.Station13.Resource,
+                        stationCode = _stationconfig.Station13.StationCode,
+                        workOrderCode = _stationconfig.Station13.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
                     if (res.code == 0)

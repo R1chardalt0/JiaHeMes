@@ -67,9 +67,9 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.后盖超声波焊接
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                        resource = _stationconfig.Station7.Resource,
+                        stationCode = _stationconfig.Station7.StationCode,
+                        workOrderCode = _stationconfig.Station7.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
                     if (res.code == 0)

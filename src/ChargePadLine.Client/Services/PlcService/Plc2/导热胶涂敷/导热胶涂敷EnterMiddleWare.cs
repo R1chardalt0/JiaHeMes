@@ -64,9 +64,9 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                        resource = _stationconfig.Station4.Resource,
+                        stationCode = _stationconfig.Station4.StationCode,
+                        workOrderCode = _stationconfig.Station4.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
                     if (res.code == 0)

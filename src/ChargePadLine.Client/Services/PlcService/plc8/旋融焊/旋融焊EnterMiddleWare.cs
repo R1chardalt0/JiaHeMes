@@ -67,9 +67,9 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                        resource = _stationconfig.Station12.Resource,
+                        stationCode = _stationconfig.Station12.StationCode,
+                        workOrderCode = _stationconfig.Station12.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
                     if (res.code == 0)
@@ -81,7 +81,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                     else
                     {
                         modbus.Write("1001.0", true);
-                        modbus.Write("1002.0", true);
+                        modbus.Write("1003.0", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验失败，mes返回:{res.message}");
                     }
                 }

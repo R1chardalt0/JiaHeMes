@@ -68,9 +68,9 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                        resource = _stationconfig.Station14.Resource,
+                        stationCode = _stationconfig.Station14.StationCode,
+                        workOrderCode = _stationconfig.Station14.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
                     if (res.code == 0)
