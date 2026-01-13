@@ -1,8 +1,12 @@
-﻿using ChargePadLine.Client.Helpers;
+﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.Mes;
+using ChargePadLine.Client.Services.Mes.Dto;
 using ChargePadLine.Client.Services.PlcService.plc10.EOL测试;
 using ChargePadLine.Client.Services.PlcService.plc3.热铆;
 using ChargePadLine.Client.Services.PlcService.Plc9;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +20,17 @@ namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
         private readonly ILogger<湿区气密EnterMiddleWare> _logger;
         private readonly ILogService _logService;
         private readonly 湿区气密EnterModel _enterModel;
+        private readonly StationConfig _stationconfig;
+        private readonly IMesApiService _mesApi;
+        private const string PlcName = "【湿区气密】";
 
-        public 湿区气密EnterMiddleWare(ILogger<湿区气密EnterMiddleWare> logger, ILogService logService, 湿区气密EnterModel enterModel)
+        public 湿区气密EnterMiddleWare(ILogger<湿区气密EnterMiddleWare> logger, ILogService logService, 湿区气密EnterModel enterModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
             _logService = logService;
             _enterModel = enterModel;
+            _stationconfig = stationconfig.Value;
+            _mesApi = mesApi;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -54,23 +63,43 @@ namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "湿区气密进站请求收到");
-                    s7Net.Write("DB4010.10.0", true);
-                    s7Net.Write("DB4010.2.0", true);
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求收到");
+
+
+                    var reqParam = new ReqDto
+                    {
+                        sn = sn,
+                        resource = _stationconfig.Station13.Resource,
+                        stationCode = _stationconfig.Station13.StationCode,
+                        workOrderCode = _stationconfig.Station13.WorkOrderCode
+                    };
+                    var res = await _mesApi.UploadCheck(reqParam);
+                    if (res.code == 0)
+                    {
+                        s7Net.Write("DB4010.10.0", true);
+                        s7Net.Write("DB4010.2.0", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验成功");
+                    }
+                    else
+                    {
+                        s7Net.Write("DB4010.10.0", true);
+                        s7Net.Write("DB4010.2.1", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验失败，mes返回:{res.message}");
+                    }
                 }
                 else if (!req && resp)
                 {
                     s7Net.Write("DB4010.10.0", false);
                     s7Net.Write("DB4010.2.0", false);
                     s7Net.Write("DB4010.2.1", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "湿区气密进站请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求复位");
                 }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"湿区气密EnterMiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}EnterMiddleWare异常: {ex.Message}");
             }
         }
     }

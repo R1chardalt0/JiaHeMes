@@ -1,7 +1,11 @@
-﻿using ChargePadLine.Client.Helpers;
+﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.Mes;
+using ChargePadLine.Client.Services.Mes.Dto;
 using ChargePadLine.Client.Services.PlcService.Plc11;
 using ChargePadLine.Client.Services.PlcService.plc3.热铆;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +19,18 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
         private readonly ILogger<激光刻印ExitMiddleWare> _logger;
         private readonly ILogService _logService;
         private readonly 激光刻印ExitModel _exitModel;
+        private readonly StationConfig _stationconfig;
+        private readonly IMesApiService _mesApi;
+        private const string PlcName = "【激光刻印】";
+        private List<TestDataItem> testDatas = new List<TestDataItem>();
 
-        public 激光刻印ExitMiddleWare(ILogger<激光刻印ExitMiddleWare> logger, ILogService logService, 激光刻印ExitModel exitModel)
+        public 激光刻印ExitMiddleWare(ILogger<激光刻印ExitMiddleWare> logger, ILogService logService, 激光刻印ExitModel exitModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
             _logService = logService;
             _exitModel = exitModel;
+            _stationconfig = stationconfig.Value;
+            _mesApi = mesApi;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -36,9 +46,56 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
 
                 if (req && !resp)
                 {
+                    var isok = s7Net.ReadBool("DB4010.16.0").Content;
+
                     await _logService.RecordLogAsync(LogLevel.Information, "激光刻印出站请求收到");
-                    s7Net.Write("DB4010.12.0", true);
-                    s7Net.Write("DB4010.2.4", true);
+
+                    testDatas = new List<TestDataItem>()
+                    {
+                        new TestDataItem
+                        {
+                            ParametricKey = "绝缘电阻",
+                            TestValue = "",
+                            Units = "MΩ",
+                            Upperlimit = 1000,
+                            Lowerlimit = 50,
+                            TestResult = "Pass",
+                            Remark = ""
+                        },
+                        new TestDataItem
+                        {
+                            ParametricKey = "耐压测试",
+                            TestValue = "",
+                            Units = "V",
+                            Upperlimit = 2000,
+                            Lowerlimit = 1500,
+                            TestResult ="",
+                            Remark = ""
+                        }
+                    };
+
+                    var reqParam = new ReqDto
+                    {
+                        sn = sn,
+                        resource = _stationconfig.Station15.Resource,
+                        stationCode = _stationconfig.Station15.StationCode,
+                        workOrderCode = _stationconfig.Station15.WorkOrderCode,
+                        testResult = isok ? "Pass" : "Fail",
+                        testData = testDatas
+                    };
+                    var res = await _mesApi.UploadData(reqParam);
+                    if (res.code == 0)
+                    {
+                        s7Net.Write("DB4010.12.0", true);
+                        s7Net.Write("DB4010.2.4", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站收集完成");
+                    }
+                    else
+                    {
+                        s7Net.Write("DB4010.12.0", true);
+                        s7Net.Write("DB4010.2.5", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站收集失败，mes返回:{res.message}");
+                    }
                 }
                 else if (!req && resp)
                 {

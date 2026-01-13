@@ -1,6 +1,10 @@
-﻿using ChargePadLine.Client.Helpers;
+﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.Mes;
+using ChargePadLine.Client.Services.Mes.Dto;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +18,17 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试
         private readonly ILogger<电机腔气密测试EnterMiddleWare> _logger;
         private readonly ILogService _logService;
         private readonly 电机腔气密测试EnterModel _enterModel;
+        private readonly StationConfig _stationconfig;
+        private readonly IMesApiService _mesApi;
+        private const string PlcName = "【电机腔气密测试】";
 
-        public 电机腔气密测试EnterMiddleWare(ILogger<电机腔气密测试EnterMiddleWare> logger, ILogService logService, 电机腔气密测试EnterModel enterModel = null)
+        public 电机腔气密测试EnterMiddleWare(ILogger<电机腔气密测试EnterMiddleWare> logger, ILogService logService, 电机腔气密测试EnterModel enterModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
             _logService = logService;
             _enterModel = enterModel;
+            _stationconfig = stationconfig.Value;
+            _mesApi = mesApi;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -52,23 +61,43 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "电机腔气密测试进站请求收到");
-                    s7Net.Write("DB4010.10.0", true);
-                    s7Net.Write("DB4010.2.0", true);
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求收到");
+
+                    var reqParam = new ReqDto
+                    {
+                        sn = sn,
+                        resource = _stationconfig.Station3.Resource,
+                        stationCode = _stationconfig.Station3.StationCode,
+                        workOrderCode = _stationconfig.Station3.WorkOrderCode
+                    };
+                    var res = await _mesApi.UploadCheck(reqParam);
+                    if (res.code == 0)
+                    {
+                        s7Net.Write("DB4010.10.0", true);
+                        s7Net.Write("DB4010.2.0", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验成功");
+                    }
+                    else
+                    {
+                        s7Net.Write("DB4010.10.0", true);
+                        s7Net.Write("DB4010.2.1", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验失败，mes返回:{res.message}");
+                    }
+
                 }
                 else if (!req && resp)
                 {
                     s7Net.Write("DB4010.10.0", false);
                     s7Net.Write("DB4010.2.0", false);
                     s7Net.Write("DB4010.2.1", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "电机腔气密测试进站请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求复位");
                 }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"电机腔气密测试进站EnterMiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}进站EnterMiddleWare异常: {ex.Message}");
             }
         }
     }

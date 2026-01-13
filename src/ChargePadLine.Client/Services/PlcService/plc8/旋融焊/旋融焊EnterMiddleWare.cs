@@ -1,8 +1,12 @@
-﻿using ChargePadLine.Client.Helpers;
+﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.Mes;
+using ChargePadLine.Client.Services.Mes.Dto;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc8;
 using HslCommunication.Profinet.LSIS;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +20,17 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
         private readonly ILogger<旋融焊EnterMiddleWare> _logger;
         private readonly ILogService _logService;
         private readonly 旋融焊EnterModel _entermodel;
+        private readonly StationConfig _stationconfig;
+        private readonly IMesApiService _mesApi;
+        private const string PlcName = "【旋融焊】";
 
-        public 旋融焊EnterMiddleWare(ILogger<旋融焊EnterMiddleWare> logger, ILogService logService, 旋融焊EnterModel entermodel = null)
+        public 旋融焊EnterMiddleWare(ILogger<旋融焊EnterMiddleWare> logger, ILogService logService, 旋融焊EnterModel entermodel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
             _logService = logService;
             _entermodel = entermodel;
+            _stationconfig = stationconfig.Value;
+            _mesApi = mesApi;
         }
         public async Task ExecuteOnceAsync(ModbusConnect modbus, CancellationToken cancellationToken)
         {
@@ -53,23 +62,42 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "旋融焊进站请求收到");
-                    modbus.Write("1001.0", true);
-                    modbus.Write("1002.0", true);
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求收到");
+
+                    var reqParam = new ReqDto
+                    {
+                        sn = sn,
+                        resource = _stationconfig.Station12.Resource,
+                        stationCode = _stationconfig.Station12.StationCode,
+                        workOrderCode = _stationconfig.Station12.WorkOrderCode
+                    };
+                    var res = await _mesApi.UploadCheck(reqParam);
+                    if (res.code == 0)
+                    {
+                        modbus.Write("1001.0", true);
+                        modbus.Write("1002.0", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验成功");
+                    }
+                    else
+                    {
+                        modbus.Write("1001.0", true);
+                        modbus.Write("1003.0", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验失败，mes返回:{res.message}");
+                    }
                 }
                 else if (!req && resp)
                 {
                     modbus.Write("1001.0", false);
                     modbus.Write("1002.0", false);
                     modbus.Write("1003.0", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "旋融焊进站请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求复位");
                 }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"旋融焊EnterMiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}EnterMiddleWare异常: {ex.Message}");
             }
         }
     }

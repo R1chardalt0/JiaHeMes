@@ -1,8 +1,12 @@
-﻿using ChargePadLine.Client.Helpers;
+﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.Mes;
+using ChargePadLine.Client.Services.Mes.Dto;
 using ChargePadLine.Client.Services.PlcService.plc3.热铆;
 using ChargePadLine.Client.Services.PlcService.plc5.转子充磁与装配;
 using ChargePadLine.Client.Services.PlcService.Plc7;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +20,17 @@ namespace ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配
         private readonly ILogger<止推垫片装配EnterMiddleWare> _logger;
         private readonly ILogService _logService;
         private readonly 止推垫片装配EnterModel _enterModel;
+        private readonly StationConfig _stationconfig;
+        private readonly IMesApiService _mesApi;
+        private const string PlcName = "【止推垫片装配】";
 
-        public 止推垫片装配EnterMiddleWare(ILogger<止推垫片装配EnterMiddleWare> logger, ILogService logService, 止推垫片装配EnterModel enterModel)
+        public 止推垫片装配EnterMiddleWare(ILogger<止推垫片装配EnterMiddleWare> logger, ILogService logService, 止推垫片装配EnterModel enterModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
             _logService = logService;
             _enterModel = enterModel;
+            _stationconfig = stationconfig.Value;
+            _mesApi = mesApi;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -54,23 +63,42 @@ namespace ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "止推垫片装配进站请求收到");
-                    s7Net.Write("DB4010.10.0", true);
-                    s7Net.Write("DB4010.2.0", true);
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求收到");
+
+                    var reqParam = new ReqDto
+                    {
+                        sn = sn,
+                        resource = _stationconfig.Station11.Resource,
+                        stationCode = _stationconfig.Station11.StationCode,
+                        workOrderCode = _stationconfig.Station11.WorkOrderCode
+                    };
+                    var res = await _mesApi.UploadCheck(reqParam);
+                    if (res.code == 0)
+                    {
+                        s7Net.Write("DB4010.10.0", true);
+                        s7Net.Write("DB4010.2.0", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验成功");
+                    }
+                    else
+                    {
+                        s7Net.Write("DB4010.10.0", true);
+                        s7Net.Write("DB4010.2.1", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验失败，mes返回:{res.message}");
+                    }
                 }
                 else if (!req && resp)
                 {
                     s7Net.Write("DB4010.10.0", false);
                     s7Net.Write("DB4010.2.0", false);
                     s7Net.Write("DB4010.2.1", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "止推垫片装配进站请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求复位");
                 }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"止推垫片装配EnterMiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}EnterMiddleWare异常: {ex.Message}");
             }
         }
     }
