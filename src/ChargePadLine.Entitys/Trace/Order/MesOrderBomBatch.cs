@@ -5,6 +5,8 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel;
+using ChargePadLine.Entitys.Trace.ProcessRouting;
+using ChargePadLine.Entitys.Trace.Product;
 
 namespace ChargePadLine.Entitys.Trace.Order
 {
@@ -42,6 +44,11 @@ namespace ChargePadLine.Entitys.Trace.Order
     [Description("站点")]
     [Column("StationListId")]
     public Guid? StationListId { get; set; }
+    /// <summary>
+    /// 站点导航属性
+    /// </summary>
+    [ForeignKey("StationListId")]
+    public StationList? StationList { get; set; }
 
     /// <summary>
     /// 状态：1-正常，2-已使用完，3-已下料
@@ -77,6 +84,13 @@ namespace ChargePadLine.Entitys.Trace.Order
     [Description("设备ID")]
     [Column("ResourceId")]
     public Guid? ResourceId { get; set; }
+
+  
+    /// <summary>
+    /// 物料导航属性
+    /// </summary>
+    [ForeignKey("ProductListId")]
+    public ProductList? ProductList { get; set; }
   }
 
   public class MesOrderBomBatchEntityTypeConfiguration : IEntityTypeConfiguration<MesOrderBomBatch>
@@ -85,6 +99,17 @@ namespace ChargePadLine.Entitys.Trace.Order
     {
       // 主键配置
       builder.HasKey(e => e.OrderBomBatchId);
+
+      // 外键配置
+      builder.HasOne(e => e.StationList)
+          .WithMany()
+          .HasForeignKey(e => e.StationListId)
+          .OnDelete(DeleteBehavior.Cascade);
+
+      builder.HasOne(e => e.ProductList)
+          .WithMany()
+          .HasForeignKey(e => e.ProductListId)
+          .OnDelete(DeleteBehavior.Cascade);
 
       // 索引配置
       builder.HasIndex(e => e.ProductListId);
