@@ -1,5 +1,9 @@
-﻿using ChargePadLine.Client.Helpers;
+﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.Mes;
+using ChargePadLine.Client.Services.Mes.Dto;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,12 +17,17 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷
         private readonly ILogService _logService;
         private readonly ILogger<导热胶涂敷EnterMiddleWare> _logger;
         private readonly 导热胶涂敷EnterModel _enterModel;
+        private readonly StationConfig _stationconfig;
+        private readonly IMesApiService _mesApi;
+        private const string PlcName = "【导热胶涂敷】";
 
-        public 导热胶涂敷EnterMiddleWare(ILogService logService, ILogger<导热胶涂敷EnterMiddleWare> logger, 导热胶涂敷EnterModel enterModel)
+        public 导热胶涂敷EnterMiddleWare(ILogService logService, ILogger<导热胶涂敷EnterMiddleWare> logger, 导热胶涂敷EnterModel enterModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logService = logService;
             _logger = logger;
             _enterModel = enterModel;
+            _stationconfig = stationconfig.Value;
+            _mesApi = mesApi;
         }
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
         {
@@ -50,23 +59,42 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "导热胶涂敷进站请求收到");
-                    s7Net.Write("DB4020.10.0", true);
-                    s7Net.Write("DB4020.2.0", true);
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求收到");
+
+                    var reqParam = new ReqDto
+                    {
+                        sn = sn,
+                        resource = _stationconfig.Station1.Resource,
+                        stationCode = _stationconfig.Station1.StationCode,
+                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                    };
+                    var res = await _mesApi.UploadCheck(reqParam);
+                    if (res.code == 0)
+                    {
+                        s7Net.Write("DB4020.10.0", true);
+                        s7Net.Write("DB4020.2.0", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验成功");
+                    }
+                    else
+                    {
+                        s7Net.Write("DB4020.10.0", true);
+                        s7Net.Write("DB4020.2.1", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验失败，mes返回:{res.message}");
+                    }    
                 }
                 else if (!req && resp)
                 {
                     s7Net.Write("DB4020.10.0", false);
                     s7Net.Write("DB4020.2.0", false);
                     s7Net.Write("DB4020.2.1", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "导热胶涂敷进站请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求复位");
                 }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"{ex},导热胶涂敷进站MiddleWare异常");
+                await _logService.RecordLogAsync(LogLevel.Error, $"{ex},{PlcName}进站MiddleWare异常");
             }
         }
     }

@@ -1,7 +1,11 @@
-﻿using ChargePadLine.Client.Helpers;
+﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.Mes;
+using ChargePadLine.Client.Services.Mes.Dto;
 using ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试;
 using ChargePadLine.Client.Services.PlcService.Plc3;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +19,17 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_
         private readonly ILogger<PCBA性能检测EnterMiddleWare> _logger;
         private readonly ILogService _logService;
         private readonly PCBA性能检测EnterModel _entermodel;
+        private readonly StationConfig _stationconfig;
+        private readonly IMesApiService _mesApi;
+        private const string PlcName = "【PCBA性能检测】";
 
-        public PCBA性能检测EnterMiddleWare(ILogger<PCBA性能检测EnterMiddleWare> logger, ILogService logService, PCBA性能检测EnterModel entermodel)
+        public PCBA性能检测EnterMiddleWare(ILogger<PCBA性能检测EnterMiddleWare> logger, ILogService logService, PCBA性能检测EnterModel entermodel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
             _logService = logService;
             _entermodel = entermodel;
+            _stationconfig = stationconfig.Value;
+            _mesApi = mesApi;
         }
 
 
@@ -54,22 +63,42 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "PCBA性能检测进站请求收到");
-                    s7Net.Write("DB4010.10.0", true);
-                    s7Net.Write("DB4010.2.0", true);
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求收到");
+
+                    var reqParam = new ReqDto
+                    {
+                        sn = sn,
+                        resource = _stationconfig.Station1.Resource,
+                        stationCode = _stationconfig.Station1.StationCode,
+                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                    };
+                    var res = await _mesApi.UploadCheck(reqParam);
+                    if (res.code == 0)
+                    {
+                        s7Net.Write("DB4010.10.0", true);
+                        s7Net.Write("DB4010.2.0", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验成功");
+                    }
+                    else
+                    {
+                        s7Net.Write("DB4010.10.0", true);
+                        s7Net.Write("DB4010.2.1", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验失败，mes返回:{res.message}");
+                    }
+
                 }
                 else if (!req && resp)
                 {
                     s7Net.Write("DB4010.10.0", false);
                     s7Net.Write("DB4010.2.0", false);
                     s7Net.Write("DB4010.2.1", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "PCBA性能检测进站请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, "${PlcName}进站请求复位");
                 }
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"PCBA性能检测EnterMiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}EnterMiddleWare异常: {ex.Message}");
             }
         }
     }

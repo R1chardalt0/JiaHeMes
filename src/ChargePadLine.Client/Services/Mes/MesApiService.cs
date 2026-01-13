@@ -39,7 +39,7 @@ namespace ChargePadLine.Client.Services.Mes
         {
             try
             {
-                var result = await _apiClient.PostAsync<ReqDto, RespDto>("/api/CommonInterfase/UploadData", req);
+                var result = await _apiClient.PostAsync<ReqDto, RespDto>("api/CommonInterfase/UploadData", req);
                 return result ?? new RespDto { code = -1, message = "No response received" };
             }
             catch (Exception ex)

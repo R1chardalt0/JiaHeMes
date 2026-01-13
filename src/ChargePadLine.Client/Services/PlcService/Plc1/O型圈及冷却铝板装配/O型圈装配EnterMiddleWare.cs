@@ -1,5 +1,9 @@
-﻿using ChargePadLine.Client.Helpers;
+﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.Mes;
+using ChargePadLine.Client.Services.Mes.Dto;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,12 +18,17 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
         private readonly ILogger<O型圈装配EnterMiddleWare> _logger;
         private readonly ILogService _logService;
         private readonly RingEnterModel _routingEnterModel;
+        private readonly StationConfig _stationconfig;
+        private readonly IMesApiService _mesApi;
+        private const string PlcName = "【O型圈】";
 
-        public O型圈装配EnterMiddleWare(ILogger<O型圈装配EnterMiddleWare> logger, ILogService logService, RingEnterModel routingEnterModel)
+        public O型圈装配EnterMiddleWare(ILogger<O型圈装配EnterMiddleWare> logger, ILogService logService, RingEnterModel routingEnterModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
             _logService = logService;
             _routingEnterModel = routingEnterModel;
+            _stationconfig = stationconfig.Value;
+            _mesApi = mesApi;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -52,22 +61,42 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求收到");
-                    s7Net.Write("DB4020.10.0", true);
-                    s7Net.Write("DB4020.2.0", true);
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求收到");
+
+                    var reqParam = new ReqDto
+                    {
+                        sn = sn,
+                        resource = _stationconfig.Station1.Resource,
+                        stationCode = _stationconfig.Station1.StationCode,
+                        workOrderCode = _stationconfig.Station1.WorkOrderCode
+                    };
+                    var res = await _mesApi.UploadCheck(reqParam);
+                    if (res.code == 0)
+                    {
+                        s7Net.Write("DB4020.10.0", true);
+                        s7Net.Write("DB4020.2.0", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验成功");
+                    }
+                    else
+                    {
+                        s7Net.Write("DB4020.10.0", true);
+                        s7Net.Write("DB4020.2.1", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验校验失败，mes返回:{res.message}");
+                    }
+
                 }
                 else if (!req && resp)
                 {
                     s7Net.Write("DB4020.10.0", false);
                     s7Net.Write("DB4020.2.0", false);
                     s7Net.Write("DB4020.2.1", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "O型圈进站请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求复位");
                 }
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"O型圈进站异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}进站异常: {ex.Message}");
             }
         }
     }

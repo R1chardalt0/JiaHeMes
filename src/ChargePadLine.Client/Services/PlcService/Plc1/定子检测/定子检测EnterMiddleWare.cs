@@ -21,6 +21,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
         private readonly ILogService _logService;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
+        private const string PlcName = "【定子检测】";
 
         public 定子检测EnterMiddleWare(ILogger<定子检测EnterMiddleWare> logger, StatorEnterModel statorTestDataService, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
@@ -65,7 +66,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
 
                 if (req && !resp)
                 {
-                    await _logService.RecordLogAsync(LogLevel.Information, "定子检测进站请求收到");
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求收到");
 
                     var reqParam = new ReqDto
                     {
@@ -79,13 +80,13 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
                     {
                         s7Net.Write("DB4010.10.0", true);
                         s7Net.Write("DB4010.2.0", true);
-                        await _logService.RecordLogAsync(LogLevel.Information, "定子检测进站校验成功");
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验成功");
                     }
                     else
                     {
                         s7Net.Write("DB4010.10.0", true);
                         s7Net.Write("DB4010.2.1", true);
-                        await _logService.RecordLogAsync(LogLevel.Information, $"定子检测进站校验失败，mes返回:{res.message}");
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验失败，mes返回:{res.message}");
                     }
 
                 }
@@ -94,14 +95,14 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
                     s7Net.Write("DB4010.10.0", false);
                     s7Net.Write("DB4010.2.0", false);
                     s7Net.Write("DB4010.2.1", false);
-                    await _logService.RecordLogAsync(LogLevel.Information, "定子检测进站请求复位");
+                    await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求复位");
                 }
 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                await _logService.RecordLogAsync(LogLevel.Error, $"定子检测进站MiddleWare异常: {ex.Message}");
+                await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}进站MiddleWare异常: {ex.Message}");
             }
         }
     }
