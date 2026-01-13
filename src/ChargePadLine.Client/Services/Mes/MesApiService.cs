@@ -50,7 +50,16 @@ namespace ChargePadLine.Client.Services.Mes
         {
             try
             {
-                var result = await _apiClient.PostAsync<ReqDto, RespDto>("api/CommonInterfase/UploadData", req);
+                var request = new UploadCheckRequestDto
+                {
+                    SN = req.sn,
+                    Resource = req.resource,
+                    StationCode = req.stationCode,
+                    WorkOrderCode = req.workOrderCode ?? string.Empty,
+                    TestResult = req.testResult ?? string.Empty,
+                    TestData = JsonSerializer.Serialize(req.testData ?? new List<TestDataItem>())
+                };
+                var result = await _apiClient.PostAsync<UploadCheckRequestDto, RespDto>("api/CommonInterfase/UploadData", request);
                 return result ?? new RespDto { code = -1, message = "No response received" };
             }
             catch (Exception ex)
