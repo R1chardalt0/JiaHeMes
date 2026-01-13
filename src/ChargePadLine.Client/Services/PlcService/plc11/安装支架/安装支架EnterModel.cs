@@ -14,6 +14,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
         private bool _enterOk;
         private bool _enterNg;
         private string _sn = string.Empty;
+        private string _安装支架status = string.Empty;
+
 
         /// <summary>
         /// 请求状态
@@ -60,6 +62,18 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
             }
         }
 
+        public string 安装支架Status
+        {
+            get => _安装支架status;
+            private set
+            {
+                if (_安装支架status != value)
+                {
+                    _安装支架status = value;
+                    OnPropertyChanged(nameof(安装支架Status));
+                }
+            }
+        }
 
         public bool 安装支架EnterOk
         {
@@ -94,13 +108,14 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng)
+        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng,string status)
         {
             安装支架EnterReq = req;
             安装支架EnterResp = resp;
             安装支架EnterSn = sn;
             安装支架EnterOk = enterok;
             安装支架EnterNg = enterng;
+            安装支架Status = status;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

@@ -14,6 +14,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
         private bool _ringEnterOk;
         private bool _ringEnterNg;
         private string _ringEnterSn = string.Empty;
+        private string _status=string.Empty;
 
         /// <summary>
         /// 请求状态
@@ -89,18 +90,32 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
             }
         }
 
+        public string O型圈装配Status
+        {
+            get => _status;
+            private set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(O型圈装配Status));
+                }
+            }
+        }
 
 
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng)
+        public void UpdateData(bool req, bool resp, string sn, bool enterok, bool enterng,string statusMessage)
         {
             RingEnterReq = req;
             RingEnterResp = resp;
             RingEnterSn = sn;
             RingEnterOk = enterok;
             RingEnterNg = enterng;
+            O型圈装配Status=statusMessage;
+
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

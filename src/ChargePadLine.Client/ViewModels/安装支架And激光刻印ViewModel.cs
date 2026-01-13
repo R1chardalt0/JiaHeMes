@@ -34,7 +34,7 @@ namespace ChargePadLine.Client.ViewModels
                 OnPropertyChanged(e.PropertyName);
             };
         }
-
+        public string 安装支架Status => _安装支架EnterModel.安装支架Status;
         /// <summary>
         /// 安装支架 - 请求状态
         /// </summary>
@@ -87,6 +87,7 @@ namespace ChargePadLine.Client.ViewModels
         public bool 安装支架ExitNg => _安装支架ExitModel.安装支架ExitNg;
 
 
+        public string 激光刻印Status => _激光刻印EnterModel.激光刻印Status;
         /// <summary>
         /// 激光刻印 - 请求状态
         /// </summary>

@@ -109,6 +109,7 @@ public partial class App : Application
         });
         //添加PLC配置绑定
         services.AddOptions<PlcConfig>().Bind(_configuration.GetSection("PlcConfig"));
+        services.AddOptions<StationConfig>().Bind(_configuration.GetSection("StationConfig"));
         // 注册 DbContext
         services.AddDbContext<AppDbContext>(options =>
         {

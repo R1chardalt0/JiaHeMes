@@ -41,6 +41,7 @@ namespace ChargePadLine.Client.ViewModels
         }
 
 
+        public string 性能检查Status => _PCBA性能检测EnterModel.性能检查Status;
         /// <summary>
         /// PCBA性能检测 - 请求状态
         /// </summary>
@@ -93,6 +94,7 @@ namespace ChargePadLine.Client.ViewModels
         public bool 性能检测ExitNg => _PCBA性能检测ExitModel.性能检测ExitNg;
 
 
+        public string 热铆Status => _热铆EnterModel.热铆Status;
         /// <summary>
         /// 热铆 - 请求状态
         /// </summary>

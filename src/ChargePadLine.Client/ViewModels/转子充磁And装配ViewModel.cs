@@ -21,6 +21,8 @@ namespace ChargePadLine.Client.ViewModels
                 OnPropertyChanged(e.PropertyName);
             };
         }
+
+        public string 转子充磁与装配Status => _转子充磁与装配EnterModel.转子充磁与装配Status;
         /// <summary>
         /// 转子充磁与装配 - 请求状态
         /// </summary>
