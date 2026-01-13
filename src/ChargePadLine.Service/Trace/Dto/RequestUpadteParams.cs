@@ -104,6 +104,35 @@ namespace ChargePadLine.Service.Trace.Dto
         /// </summary>
          public string TestData { get; set; }
     }
+    public class RequestFeedMaterialParams
+    {
+        /// <summary>
+        /// 批次号
+        /// </summary>
+        public string? BatchCode { get; set; }
+        /// <summary>
+        /// 设备资源标识
+        /// </summary>
+        public string? Resource { get; set; }
+        /// <summary>
+        /// 站点
+        /// </summary>
+        public string? StationCode { get; set; }
+        /// <summary>
+        /// 工单编号
+        /// </summary>
+        public string? WorkOrderCode { get; set; }
+        /// <summary>
+        /// 数量
+        /// </summary>
+        public int BatchQty { get; set; } = 0;
+        /// <summary>
+        /// 产品编码
+        /// </summary>
+        public string? ProductCode { get; set; }
+        
+
+    }
     public class RequestMaterialLoadedParams
     {
         /// <summary>

@@ -586,6 +586,10 @@ const ProductList: React.FC = () => {
               {
                 title: '产品类型',
                 dataIndex: 'productType',
+                valueEnum: {
+                  0: '成品',
+                  1: '物料',
+                },
               },
               {
                 title: '备注',

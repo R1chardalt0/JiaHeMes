@@ -1,4 +1,5 @@
 using ChargePadLine.Entitys.Systems;
+using ChargePadLine.Entitys.Trace.Product;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -42,7 +43,8 @@ namespace ChargePadLine.Entitys.Trace.Order
     [Required]
     [Column("ProductListId")]
     public Guid ProductListId { get; set; }
-
+    [ForeignKey("ProductListId")]
+    public ProductList? ProductList { get; set; }
     /// <summary>
     /// BOM ID
     /// </summary>
