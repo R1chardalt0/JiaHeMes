@@ -1,7 +1,7 @@
 using ChargePadLine.Client.Controls;
 using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.Mes;
-using ChargePadLine.Client.Services.Mes.Model;
+using ChargePadLine.Client.Services.Mes.Dto;
 using ChargePadLine.Client.Services.PlcService;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
