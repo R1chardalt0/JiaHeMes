@@ -1,9 +1,13 @@
+using ChargePadLine.Client.Controls;
 using ChargePadLine.Client.Helpers;
+using ChargePadLine.Client.Services.Mes;
+using ChargePadLine.Client.Services.Mes.Dto;
+using ChargePadLine.Client.Services.PlcService;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ChargePadLine.Client.Services.PlcService;
 
 namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
 {
@@ -13,14 +17,20 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
     public class 定子检测ExitMiddleWare : IPlc1Task
     {
         private readonly ILogger<定子检测ExitMiddleWare> _logger;
-        private readonly StatorExitModel  _statorTestDataService;
+        private readonly StatorExitModel _statorTestDataService;
         private readonly ILogService _logService;
+        private readonly StationConfig _stationconfig;
+        private readonly IMesApiService _mesApi;
+        private const string PlcName = "【定子检测】";
+        private List<TestDataItem> testDatas = new List<TestDataItem>();
 
-        public 定子检测ExitMiddleWare(ILogger<定子检测ExitMiddleWare> logger, StatorExitModel  statorTestDataService, ILogService logService)
+        public 定子检测ExitMiddleWare(ILogger<定子检测ExitMiddleWare> logger, StatorExitModel statorTestDataService, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
             _statorTestDataService = statorTestDataService;
             _logService = logService;
+            _stationconfig = stationconfig.Value;
+            _mesApi = mesApi;
         }
 
         private bool _isInitialized = false;
@@ -33,16 +43,63 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
                 var resp = s7Net.ReadBool("DB4010.12.0").Content;
                 var enterok = s7Net.ReadBool("DB4010.2.4").Content;//出站OK
                 var enterng = s7Net.ReadBool("DB4010.2.5").Content;//出站NG
-                var sn = s7Net.ReadString("DB4010.66.0",100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                var sn = s7Net.ReadString("DB4010.66.0", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
 
                 // 更新数据服务
                 _statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {
+                    var isok = s7Net.ReadBool("DB4010.16.0").Content;
+
                     await _logService.RecordLogAsync(LogLevel.Information, "定子检测出站请求收到");
-                    s7Net.Write("DB4010.12.0", true);
-                    s7Net.Write("DB4010.2.4", true);
+
+                    testDatas = new List<TestDataItem>()
+                    {
+                        new TestDataItem
+                        {
+                            ParametricKey = "绝缘电阻",
+                            TestValue = "",
+                            Units = "MΩ",
+                            Upperlimit = 1000,
+                            Lowerlimit = 50,
+                            TestResult = "Pass",
+                            Remark = ""
+                        },
+                        new TestDataItem
+                        {
+                            ParametricKey = "耐压测试",
+                            TestValue = "",
+                            Units = "V",
+                            Upperlimit = 2000,
+                            Lowerlimit = 1500,
+                            TestResult ="",
+                            Remark = ""
+                        }
+                    };
+
+                    var reqParam = new ReqDto
+                    {
+                        sn = sn,
+                        resource = _stationconfig.Station1.Resource,
+                        stationCode = _stationconfig.Station1.StationCode,
+                        workOrderCode = _stationconfig.Station1.WorkOrderCode,
+                        testResult= isok ? "Pass" : "Fail",
+                        testData = testDatas
+                    };
+                    var res = await _mesApi.UploadData(reqParam);
+                    if (res.code == 0)
+                    {
+                        s7Net.Write("DB4010.12.0", true);
+                        s7Net.Write("DB4010.2.4", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站收集完成");
+                    }
+                    else
+                    {
+                        s7Net.Write("DB4010.12.0", true);
+                        s7Net.Write("DB4010.2.5", true);
+                        await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站收集失败，mes返回:{res.message}");
+                    }
                 }
                 else if (!req && resp)
                 {
