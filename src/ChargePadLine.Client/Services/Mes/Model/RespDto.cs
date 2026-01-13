@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Client.Services.Mes.Model
+namespace ChargePadLine.Client.Services.Mes.Dto
 {
     public class RespDto
     {

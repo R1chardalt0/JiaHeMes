@@ -1,4 +1,4 @@
-﻿using ChargePadLine.Client.Services.Mes.Model;
+﻿using ChargePadLine.Client.Services.Mes.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
