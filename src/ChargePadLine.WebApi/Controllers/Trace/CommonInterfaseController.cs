@@ -62,7 +62,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         else
         {
           var errorResult = result.ErrorValue;
-          return BadRequest(new { code = errorResult.Item1, message = errorResult.Item2 });
+          return Ok(new { code = errorResult.Item1, message = errorResult.Item2 });
         }
       }
       catch (Exception ex)
@@ -98,7 +98,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         else
         {
           var errorResult = result.ErrorValue;
-          return BadRequest(new { code = errorResult.Item1, message = errorResult.Item2 });
+          return Ok(new { code = errorResult.Item1, message = errorResult.Item2 });
         }
       }
       catch (Exception ex)
@@ -133,7 +133,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         else
         {
           var errorResult = result.ErrorValue;
-          return BadRequest(new { code = errorResult.Item1, message = errorResult.Item2 });
+          return Ok(new { code = errorResult.Item1, message = errorResult.Item2 });
         }
       }
       catch (Exception ex)
