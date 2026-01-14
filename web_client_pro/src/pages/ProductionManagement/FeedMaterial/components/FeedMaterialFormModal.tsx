@@ -434,7 +434,7 @@ const FeedMaterialFormModal = forwardRef<FeedMaterialFormModalRef, FeedMaterialF
 
           <Form.Item>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <Button onClick={handleCancel}>取消</Button>
+              <Button onClick={handleCancel}>重置</Button>
               <Button type="primary" onClick={handleSave}>保存</Button>
             </div>
           </Form.Item>
