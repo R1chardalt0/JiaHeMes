@@ -7,9 +7,9 @@
              xmlns:bar="clr-namespace:ChargePadLine.Client.CustomerControl"
              xmlns:viewModels="clr-namespace:ChargePadLine.Client.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=viewModels:安装支架And激光刻印ViewModel}" d:DesignWidth="800" Height="598">
+             d:DataContext="{d:DesignInstance Type=viewModels:安装支架And激光刻印ViewModel}" d:DesignWidth="800" Height="885">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
+        <StackPanel Orientation="Vertical" Height="856" VerticalAlignment="Top">
             <bar:TitleBar IconText="&#xe719;" TitleText="{Binding 激光刻印Status, StringFormat='激光刻印({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
 
             <!-- 激光刻印 - PLC进站 -->

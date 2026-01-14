@@ -7,7 +7,7 @@
              xmlns:bar="clr-namespace:ChargePadLine.Client.CustomerControl"
              xmlns:viewModels="clr-namespace:ChargePadLine.Client.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=viewModels:后盖超声波焊接And干区气密测试ViewModel}" d:DesignWidth="800" Height="598">
+             d:DataContext="{d:DesignInstance Type=viewModels:后盖超声波焊接And干区气密测试ViewModel}" d:DesignWidth="800" Height="915">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
             <bar:TitleBar IconText="&#xe6ee;" TitleText="{Binding 后盖超声波焊接Status, StringFormat='后盖超声波焊接({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>

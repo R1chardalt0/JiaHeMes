@@ -2,21 +2,27 @@
 
 namespace ChargePadLine.Client.ViewModels
 {
-    public class EOLEnterViewModel:ViewModelBase
+    public class EOLEnterViewModel : ViewModelBase
     {
         private readonly EOLEnterModel _EOLEnterModel;
         private readonly EOLExitModel _EOLExitModel;
+        private readonly EOLMasterModel _EOLMasterModel;
 
-        public EOLEnterViewModel(EOLEnterModel eOLEnterModel, EOLExitModel eOLExitModel)
+        public EOLEnterViewModel(EOLEnterModel EOLEnterModel, EOLExitModel EOLExitModel, EOLMasterModel EOLMasterModel)
         {
-            _EOLEnterModel = eOLEnterModel;
-            _EOLExitModel = eOLExitModel;
+            _EOLEnterModel = EOLEnterModel;
+            _EOLExitModel = EOLExitModel;
+            _EOLMasterModel = EOLMasterModel;
 
-            eOLEnterModel.PropertyChanged += (sender, e) =>
+            _EOLEnterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
-            eOLExitModel.PropertyChanged += (sender, e) =>
+            _EOLExitModel.PropertyChanged += (sender, e) =>
+            {
+                OnPropertyChanged(e.PropertyName);
+            };
+            _EOLMasterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
@@ -74,5 +80,30 @@ namespace ChargePadLine.Client.ViewModels
         /// 出站ng状态
         /// </summary>
         public bool EolExitNg => _EOLExitModel.EolExitNg;
+
+        /// <summary>
+        /// EOLE - 请求状态
+        /// </summary>
+        public bool EolMasterReq => _EOLMasterModel.EolMasterReq;
+
+        /// <summary>
+        /// EOLE - 响应状态
+        /// </summary>
+        public bool EolMasterResp => _EOLMasterModel.EolMasterResp;
+
+        /// <summary>
+        /// EOLE - 序列号
+        /// </summary>
+        public string EolMasterSn => _EOLMasterModel.EolMasterSn;
+
+        /// <summary>
+        /// 出站ok状态
+        /// </summary>
+        public bool EolMasterOk => _EOLMasterModel.EolMasterOk;
+
+        /// <summary>
+        /// 出站ng状态
+        /// </summary>
+        public bool EolMasterNg => _EOLMasterModel.EolMasterNg;
     }
 }

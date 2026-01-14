@@ -7,7 +7,7 @@
              xmlns:bar="clr-namespace:ChargePadLine.Client.CustomerControl"
              xmlns:viewModels="clr-namespace:ChargePadLine.Client.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=viewModels:性能检查And热铆ViewModel}" d:DesignWidth="800" Height="598">
+             d:DataContext="{d:DesignInstance Type=viewModels:性能检查And热铆ViewModel}" d:DesignWidth="800" Height="940">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
             <bar:TitleBar IconText="&#xe6e2;" TitleText="{Binding 性能检查Status, StringFormat='PCBA性能检测({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
