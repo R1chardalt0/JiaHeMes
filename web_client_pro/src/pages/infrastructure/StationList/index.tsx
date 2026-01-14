@@ -1,18 +1,18 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions } from '@ant-design/pro-components';
-import React, { useRef, useState } from 'react';
-import { Drawer, Button, message, Modal, Form, Input, Popconfirm } from 'antd';
+import React, { useRef, useState, useCallback } from 'react';
+import { Drawer, Button, message, Modal, Form, Input, Popconfirm, Switch } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getStationListList, createStationList, updateStationList, deleteStationList } from '@/services/Api/Infrastructure/StationList';
+import { getStationTestProjectByStationId, updateStationTestProject, createStationTestProject, deleteStationTestProject } from '@/services/Api/Infrastructure/StationTest';
 import { StationListDto, StationListQueryDto } from '@/services/Model/Infrastructure/StationList';
+import { StationTestProjectDto } from '@/services/Model/Infrastructure/StationTest';
 import type { RequestData } from '@ant-design/pro-components';
 
 const StationList: React.FC = () => {
   const actionRef = useRef<ActionType | null>(null);
-  const [showDetail, setShowDetail] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [currentRow, setCurrentRow] = useState<StationListDto>();
   const [editingRow, setEditingRow] = useState<StationListDto>();
   const [messageApi] = message.useMessage();
   const [form] = Form.useForm<StationListDto>();
@@ -22,6 +22,18 @@ const StationList: React.FC = () => {
     current: 1,
     pageSize: 50
   });
+
+  // 站点测试项相关状态
+  const [testProjects, setTestProjects] = useState<StationTestProjectDto[]>([]);
+  const [testProjectsLoading, setTestProjectsLoading] = useState(false);
+  const [showTestProjects, setShowTestProjects] = useState(false);
+  const [selectedStation, setSelectedStation] = useState<StationListDto | null>(null);
+  const testProjectActionRef = useRef<ActionType | null>(null);
+
+  // 测试项编辑和新增相关状态
+  const [showTestProjectModal, setShowTestProjectModal] = useState(false);
+  const [editingTestProject, setEditingTestProject] = useState<StationTestProjectDto>();
+  const [testProjectForm] = Form.useForm<StationTestProjectDto>();
 
   // 处理新建站点
   const handleCreateStation = async (values: StationListDto) => {
@@ -91,15 +103,239 @@ const StationList: React.FC = () => {
     setShowEditModal(true);
   };
 
+  /**
+   * 双击行处理函数
+   * @param record 当前站点记录
+   */
+  const handleRowDoubleClick = useCallback(async (record: StationListDto) => {
+    try {
+      setSelectedStation(record);
+      setTestProjectsLoading(true);
+
+      // 根据站点ID获取测试项列表
+      const response = await getStationTestProjectByStationId(record.stationId!);
+      setTestProjects(response);
+      setShowTestProjects(true);
+    } catch (error) {
+      messageApi.error('获取站点测试项失败');
+      console.error('获取站点测试项失败:', error);
+    } finally {
+      setTestProjectsLoading(false);
+    }
+  }, [messageApi]);
+
+  /**
+   * 打开新增测试项弹窗
+   */
+  const handleAddTestProject = () => {
+    if (!selectedStation) return;
+
+    setEditingTestProject(undefined);
+    testProjectForm.resetFields();
+    setShowTestProjectModal(true);
+  };
+
+  /**
+   * 打开编辑测试项弹窗
+   * @param record 测试项记录
+   */
+  const handleEditTestProject = (record: StationTestProjectDto) => {
+    setEditingTestProject(record);
+    testProjectForm.setFieldsValue({
+      stationTestProjectId: record.stationTestProjectId,
+      stationId: record.stationId,
+      parametricKey: record.parametricKey,
+      upperLimit: record.upperLimit,
+      lowerLimit: record.lowerLimit,
+      units: record.units,
+      searchValue: record.searchValue,
+      isCheck: record.isCheck,
+      remark: record.remark,
+    });
+    setShowTestProjectModal(true);
+  };
+
+  /**
+   * 保存测试项（新增或编辑）
+   */
+  const handleSaveTestProject = async () => {
+    try {
+      const values = await testProjectForm.validateFields();
+
+      if (editingTestProject) {
+        // 编辑模式
+        await updateStationTestProject(editingTestProject.stationTestProjectId!, {
+          stationTestProjectId: editingTestProject.stationTestProjectId!,
+          stationId: editingTestProject.stationId || selectedStation?.stationId!,
+          parametricKey: values.parametricKey!,
+          upperLimit: values.upperLimit,
+          lowerLimit: values.lowerLimit,
+          units: values.units,
+          searchValue: values.searchValue,
+          isCheck: values.isCheck,
+          remark: values.remark,
+        });
+        messageApi.success('更新测试项成功');
+      } else {
+        // 新增模式
+        await createStationTestProject({
+          stationId: selectedStation?.stationId!,
+          parametricKey: values.parametricKey!,
+          upperLimit: values.upperLimit,
+          lowerLimit: values.lowerLimit,
+          units: values.units,
+          searchValue: values.searchValue,
+          isCheck: values.isCheck,
+          remark: values.remark,
+        });
+        messageApi.success('新增测试项成功');
+      }
+
+      // 重新获取测试项列表
+      if (selectedStation) {
+        const response = await getStationTestProjectByStationId(selectedStation.stationId!);
+        setTestProjects(response);
+        // 强制刷新测试项列表
+        testProjectActionRef.current?.reload();
+      }
+
+      setShowTestProjectModal(false);
+      testProjectForm.resetFields();
+    } catch (error) {
+      messageApi.error('保存测试项失败');
+      console.error('保存测试项失败:', error);
+    }
+  };
+
+  /**
+   * 删除测试项
+   * @param id 测试项ID
+   */
+  const handleDeleteTestProject = async (id: string) => {
+    try {
+      await deleteStationTestProject(id);
+      messageApi.success('删除测试项成功');
+
+      // 重新获取测试项列表
+      if (selectedStation) {
+        const response = await getStationTestProjectByStationId(selectedStation.stationId!);
+        setTestProjects(response);
+        // 强制刷新测试项列表
+        testProjectActionRef.current?.reload();
+      }
+    } catch (error) {
+      messageApi.error('删除测试项失败');
+      console.error('删除测试项失败:', error);
+    }
+  };
+
+  /**
+   * 站点测试项列定义
+   */
+  const testProjectColumns: ProColumns<StationTestProjectDto>[] = [
+    {
+      title: '测试项',
+      dataIndex: 'parametricKey',
+      key: 'parametricKey',
+      width: 180,
+      search: false,
+    },
+    {
+      title: '上限',
+      dataIndex: 'upperLimit',
+      key: 'upperLimit',
+      width: 100,
+      search: false,
+    },
+    {
+      title: '下限',
+      dataIndex: 'lowerLimit',
+      key: 'lowerLimit',
+      width: 100,
+      search: false,
+    },
+    {
+      title: '单位',
+      dataIndex: 'units',
+      key: 'units',
+      width: 80,
+      search: false,
+    },
+    {
+      title: '搜索值',
+      dataIndex: 'searchValue',
+      key: 'searchValue',
+      width: 150,
+      search: false,
+    },
+    {
+      title: '是否检查',
+      dataIndex: 'isCheck',
+      key: 'isCheck',
+      width: 100,
+      valueEnum: {
+        true: { text: '是', status: 'Success' },
+        false: { text: '否', status: 'Default' },
+      },
+    },
+    {
+      title: '备注',
+      dataIndex: 'remark',
+      key: 'remark',
+      ellipsis: true,
+      search: false,
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      key: 'createTime',
+      width: 180,
+      valueType: 'dateTime',
+      search: false,
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 150,
+      valueType: 'option',
+      render: (_, record) => (
+        <div>
+          <Button
+            key="edit"
+            type="link"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => handleEditTestProject(record)}
+          >
+            编辑
+          </Button>
+          <Popconfirm
+            key="delete"
+            title="确定删除此测试项吗？"
+            onConfirm={() => handleDeleteTestProject(record.stationTestProjectId!)}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+            >
+              删除
+            </Button>
+          </Popconfirm>
+        </div>
+      ),
+    },
+  ];
+
   const columns: ProColumns<StationListDto>[] = [
     {
       title: '站点编码',
       dataIndex: 'stationCode',
       key: 'stationCode',
       width: 180,
-      render: (dom, entity) => (
-        <a onClick={() => { setCurrentRow(entity); setShowDetail(true); }}>{dom}</a>
-      )
     },
     {
       title: '站点名称',
@@ -262,7 +498,7 @@ const StationList: React.FC = () => {
         }}
         columns={columns}
         pagination={{
-          defaultPageSize: 20,
+          defaultPageSize: 10,
           pageSizeOptions: ['10', '20', '50', '100'],
           showSizeChanger: true,
           showTotal: (total) => `共 ${total} 条数据`,
@@ -299,86 +535,11 @@ const StationList: React.FC = () => {
           },
         }}
         onRow={(record) => ({
-          onClick: () => {
-            setCurrentRow(record);
-            setShowDetail(true);
+          onDoubleClick: () => {
+            handleRowDoubleClick(record);
           },
         })}
       />
-
-      <Drawer
-        width={600}
-        placement="right"
-        open={showDetail}
-        onClose={() => setShowDetail(false)}
-        closable={true}
-        title="站点详情"
-        className="station-info-drawer"
-        rootClassName="station-info-drawer"
-        styles={{
-          content: {
-            background: '#fff',
-            borderLeft: '1px solid rgba(72,115,255,0.32)',
-            boxShadow:
-              '0 0 0 1px rgba(72,115,255,0.12) inset, 0 12px 40px rgba(10,16,32,0.55), 0 0 20px rgba(64,196,255,0.16)'
-          },
-          header: {
-            background: '#fff',
-            borderBottom: '1px solid rgba(72,115,255,0.22)'
-          },
-          body: {
-            background: '#fff'
-          },
-          mask: {
-            background: 'rgba(4,10,22,0.35)',
-            backdropFilter: 'blur(2px)'
-          }
-        }}
-      >
-        {currentRow && (
-          <ProDescriptions<StationListDto>
-            column={2}
-            title={`站点：${currentRow.stationCode}`}
-            dataSource={currentRow}
-            columns={[
-              {
-                title: '站点ID',
-                dataIndex: 'stationId',
-              },
-              {
-                title: '站点编码',
-                dataIndex: 'stationCode',
-              },
-              {
-                title: '站点名称',
-                dataIndex: 'stationName',
-              },
-              {
-                title: '备注',
-                dataIndex: 'remark',
-              },
-              {
-                title: '创建时间',
-                dataIndex: 'createTime',
-                valueType: 'dateTime',
-              },
-              {
-                title: '创建人',
-                dataIndex: 'createBy',
-              },
-              {
-                title: '更新时间',
-                dataIndex: 'updateTime',
-                valueType: 'dateTime',
-              },
-              {
-                title: '更新人',
-                dataIndex: 'updateBy',
-              },
-            ]}
-          />
-        )}
-      </Drawer>
 
       <Modal
         title="新建站点"
@@ -475,6 +636,157 @@ const StationList: React.FC = () => {
             ]}
           >
             <Input placeholder="请输入站点名称" />
+          </Form.Item>
+
+          <Form.Item
+            label="备注"
+            name="remark"
+          >
+            <Input.TextArea rows={4} placeholder="请输入备注" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 站点测试项列表 */}
+      {showTestProjects && selectedStation && (
+        <div style={{ marginTop: 20, padding: 16, border: '1px solid #e8e8e8', borderRadius: 8, background: '#fafafa' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h3 style={{ margin: 0 }}>
+              站点测试项列表 - {selectedStation.stationCode} ({selectedStation.stationName})
+            </h3>
+            <div>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                style={{ marginRight: 8 }}
+                onClick={handleAddTestProject}
+              >
+                新建测试项
+              </Button>
+              <Button
+                type="default"
+                onClick={() => setShowTestProjects(false)}
+              >
+                关闭
+              </Button>
+            </div>
+          </div>
+
+          <ProTable<StationTestProjectDto>
+            actionRef={testProjectActionRef}
+            rowKey="stationTestProjectId"
+            columns={testProjectColumns}
+            request={async (params) => {
+              // 使用前端筛选：基于已获取的测试项数据进行筛选
+              let filteredData = testProjects;
+
+              // 按是否检查筛选
+              if (params.isCheck !== undefined && params.isCheck !== null) {
+                filteredData = filteredData.filter(item => item.isCheck === params.isCheck);
+              }
+
+              // 按测试项搜索
+              if (params.parametricKey) {
+                filteredData = filteredData.filter(item =>
+                  item.parametricKey?.toLowerCase().includes(params.parametricKey.toLowerCase())
+                );
+              }
+
+              // 按单位搜索
+              if (params.units) {
+                filteredData = filteredData.filter(item =>
+                  item.units?.toLowerCase().includes(params.units.toLowerCase())
+                );
+              }
+
+              // 在前端进行分页
+              const currentPage = Math.max(1, params.current || 1);
+              const pageSize = Math.min(100, Math.max(1, params.pageSize || 10));
+              const startIndex = (currentPage - 1) * pageSize;
+              const endIndex = startIndex + pageSize;
+              const pagedData = filteredData.slice(startIndex, endIndex);
+
+              return {
+                data: pagedData,
+                total: filteredData.length,
+                success: true,
+              };
+            }}
+            loading={testProjectsLoading}
+            pagination={{
+              defaultPageSize: 10,
+              pageSizeOptions: ['10', '20', '50'],
+              showSizeChanger: true,
+              showTotal: (total) => `共 ${total} 条数据`,
+            }}
+            search={{
+              labelWidth: 'auto',
+            }}
+            toolBarRender={false}
+          />
+        </div>
+      )}
+
+      {/* 测试项编辑和新增弹窗 */}
+      <Modal
+        title={editingTestProject ? "编辑测试项" : "新增测试项"}
+        open={showTestProjectModal}
+        onCancel={() => {
+          setShowTestProjectModal(false);
+          testProjectForm.resetFields();
+        }}
+        onOk={handleSaveTestProject}
+        width={600}
+        destroyOnClose
+      >
+        <Form
+          form={testProjectForm}
+          layout="vertical"
+          autoComplete="off"
+        >
+          <Form.Item
+            label="测试项"
+            name="parametricKey"
+            rules={[{ required: true, message: '请输入测试项' }]}
+          >
+            <Input placeholder="请输入测试项" />
+          </Form.Item>
+
+          <Form.Item
+            label="上限"
+            name="upperLimit"
+          >
+            <Input type="number" placeholder="请输入上限" />
+          </Form.Item>
+
+          <Form.Item
+            label="下限"
+            name="lowerLimit"
+          >
+            <Input type="number" placeholder="请输入下限" />
+          </Form.Item>
+
+          <Form.Item
+            label="单位"
+            name="units"
+          >
+            <Input placeholder="请输入单位" />
+          </Form.Item>
+
+          <Form.Item
+            label="搜索值"
+            name="searchValue"
+          >
+            <Input placeholder="请输入搜索值" />
+          </Form.Item>
+
+          <Form.Item
+            label="是否检查"
+            name="isCheck"
+            valuePropName="checked"
+            initialValue={false}
+          >
+            <Switch />
           </Form.Item>
 
           <Form.Item

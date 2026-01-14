@@ -43,8 +43,6 @@ const ProcessRouteItemCard: React.FC<ProcessRouteItemCardProps> = ({ item, onEdi
         }
       >
         <div style={{ lineHeight: '1.8', fontSize: '14px' }}>
-          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>工艺路线子项ID:</strong> {item.id}</p>
-          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>主表ID:</strong> {item.headId}</p>
           <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>站点编码:</strong> {item.stationCode}</p>
           <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>工艺路线序号:</strong> {item.routeSeq}</p>
           <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>是否必经站点:</strong> {item.mustPassStation ? '是' : '否'}</p>
