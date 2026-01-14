@@ -21,7 +21,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
         private readonly EOLExitModel _exitModel;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
-        private const string PlcName = "【EOL】";
+        private const string PlcName = "【EOL测试】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
         public EOLExitMiddleWare(ILogger<EOLExitMiddleWare> logger, ILogService logService, EOLExitModel exitModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)

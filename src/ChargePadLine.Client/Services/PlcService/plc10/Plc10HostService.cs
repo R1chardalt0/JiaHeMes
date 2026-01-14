@@ -20,7 +20,8 @@ namespace ChargePadLine.Client.Services.PlcService.Plc10
             ILogger<Plc10HostService> logger,
             ILogService logService,
             EOLEnterMiddleWare EOLEnter,
-            EOLExitMiddleWare EOLEXit
+            EOLExitMiddleWare EOLEXit,
+            EOLMasterMiddleWare EOLMaster
             )
         {
             _plcConfig = config.Value;
@@ -28,11 +29,12 @@ namespace ChargePadLine.Client.Services.PlcService.Plc10
             _logService = logService;
 
             //在这里统一整合 PLC10 下的所有业务任务
-           _tasks = new IPlc10Task[]
-           {
+            _tasks = new IPlc10Task[]
+            {
                 EOLEnter,
-                EOLEXit
-           };
+                EOLEXit,
+                EOLMaster
+            };
         }
 
         private void InitializeModbusConnection()

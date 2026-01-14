@@ -14,17 +14,17 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
 {
-    public class 干区气密测试ExitMiddleWare : IPlc4Task
+    public class 干区气密ExitMiddleWare : IPlc4Task
     {
         private readonly ILogger<热铆ExitMiddleWare> _logger;
         private readonly ILogService _logService;
-        private readonly 干区气密测试ExitModel _exitModel;
+        private readonly 干区气密ExitModel _exitModel;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
         private const string PlcName = "【干区气密测试】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
-        public 干区气密测试ExitMiddleWare(ILogger<热铆ExitMiddleWare> logger, ILogService logService, 干区气密测试ExitModel exitModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
+        public 干区气密ExitMiddleWare(ILogger<热铆ExitMiddleWare> logger, ILogService logService, 干区气密ExitModel exitModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
             _logService = logService;

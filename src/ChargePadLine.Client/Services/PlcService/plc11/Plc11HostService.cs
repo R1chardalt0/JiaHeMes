@@ -22,8 +22,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc11
             ILogService logService,
             激光刻印EnterMiddleWare 激光刻印Enter,
             激光刻印ExitMiddleWare 激光刻印Exit,
+            激光刻印MasterMiddleWare 激光刻印Master,
             安装支架EnterMiddleWare 安装支架Enter,
-            安装支架ExitMiddleWare 安装支架Exit
+            安装支架ExitMiddleWare 安装支架Exit,
+            安装支架MasterMiddleWare 安装支架Master
             )
         {
             _plcConfig = config.Value;
@@ -35,8 +37,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc11
             {
                 激光刻印Enter,
                 激光刻印Exit,
+                激光刻印Master,
                 安装支架Enter,
-                安装支架Exit
+                安装支架Exit,
+                安装支架Master
             };
         }
 

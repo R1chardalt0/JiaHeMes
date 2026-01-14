@@ -30,8 +30,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc3
             ILogService logService,
             PCBA性能检测EnterMiddleWare PCBA性能检测Enter,
             PCBA性能检测ExitMiddleWare PCBA性能检测Exit,
+            PCBA性能检测MasterMiddleWare PCBA性能检测Master,
             热铆EnterMiddleWare 热铆Enter,
-            热铆ExitMiddleWare 热铆Exit
+            热铆ExitMiddleWare 热铆Exit,
+            热铆MasterMiddleWare 热铆Master
             )
         {
             _plcConfig = config.Value;
@@ -43,8 +45,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc3
             {
                 PCBA性能检测Enter,
                 PCBA性能检测Exit,
+                PCBA性能检测Master,
                 热铆Enter,
                 热铆Exit,
+                热铆Master
             };
         }
 

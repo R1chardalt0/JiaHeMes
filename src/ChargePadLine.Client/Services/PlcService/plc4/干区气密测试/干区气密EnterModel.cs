@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
 {
-    public class 干区气密测试EnterModel:INotifyPropertyChanged
+    public class 干区气密EnterModel:INotifyPropertyChanged
     {
         private bool _req;
         private bool _resp;

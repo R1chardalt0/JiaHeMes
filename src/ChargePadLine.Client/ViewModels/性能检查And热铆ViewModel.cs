@@ -6,35 +6,47 @@ namespace ChargePadLine.Client.ViewModels
     /// <summary>
     /// 性能检查And热铆视图模型
     /// </summary>
-    public class 性能检查And热铆ViewModel:ViewModelBase
+    public class 性能检查And热铆ViewModel : ViewModelBase
     {
         private readonly PCBA性能检测EnterModel _PCBA性能检测EnterModel;
         private readonly PCBA性能检测ExitModel _PCBA性能检测ExitModel;
+        private readonly PCBA性能检测MasterModel _PCBA性能检测MasterModel;
 
         private readonly 热铆EnterModel _热铆EnterModel;
         private readonly 热铆ExitModel _热铆ExitModel;
+        private readonly 热铆MasterModel _热铆MasterModel;
 
-        public 性能检查And热铆ViewModel(PCBA性能检测EnterModel PCBA性能检测EnterModel, PCBA性能检测ExitModel PCBA性能检测ExitModel, 热铆EnterModel 热铆EnterModel, 热铆ExitModel 热铆ExitModel)
+        public 性能检查And热铆ViewModel(PCBA性能检测EnterModel PCBA性能检测EnterModel, PCBA性能检测ExitModel PCBA性能检测ExitModel, 热铆EnterModel 热铆EnterModel, 热铆ExitModel 热铆ExitModel, PCBA性能检测MasterModel pCBA性能检测MasterModel, 热铆MasterModel 热铆MasterModel)
         {
             _PCBA性能检测EnterModel = PCBA性能检测EnterModel;
             _PCBA性能检测ExitModel = PCBA性能检测ExitModel;
+            _PCBA性能检测MasterModel = pCBA性能检测MasterModel;
             _热铆EnterModel = 热铆EnterModel;
             _热铆ExitModel = 热铆ExitModel;
+            _热铆MasterModel = 热铆MasterModel;
 
 
-            PCBA性能检测EnterModel.PropertyChanged += (sender, e) =>
+            _PCBA性能检测EnterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
-            PCBA性能检测ExitModel.PropertyChanged += (sender, e) =>
+            _PCBA性能检测ExitModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
-            热铆EnterModel.PropertyChanged += (sender, e) =>
+            _PCBA性能检测MasterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
-            热铆ExitModel.PropertyChanged += (sender, e) =>
+            _热铆EnterModel.PropertyChanged += (sender, e) =>
+            {
+                OnPropertyChanged(e.PropertyName);
+            };
+            _热铆ExitModel.PropertyChanged += (sender, e) =>
+            {
+                OnPropertyChanged(e.PropertyName);
+            };
+            _热铆MasterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
@@ -93,6 +105,31 @@ namespace ChargePadLine.Client.ViewModels
         /// </summary>
         public bool 性能检测ExitNg => _PCBA性能检测ExitModel.性能检测ExitNg;
 
+        /// <summary>
+        /// PCBA性能检测 - 请求状态
+        /// </summary>
+        public bool 性能检测MasterReq => _PCBA性能检测MasterModel.性能检测MasterReq;
+
+        /// <summary>
+        /// PCBA性能检测 - 响应状态
+        /// </summary>
+        public bool 性能检测MasterResp => _PCBA性能检测MasterModel.性能检测MasterResp;
+
+        /// <summary>
+        /// PCBA性能检测 - 序列号
+        /// </summary>
+        public string 性能检测MasterSn => _PCBA性能检测MasterModel.性能检测MasterSn;
+
+        /// <summary>
+        /// 出站ok状态
+        /// </summary>
+        public bool 性能检测MasterOk => _PCBA性能检测MasterModel.性能检测MasterOk;
+
+        /// <summary>
+        /// 出站ng状态
+        /// </summary>
+        public bool 性能检测MasterNg => _PCBA性能检测MasterModel.性能检测MasterNg;
+
 
         public string 热铆Status => _热铆EnterModel.热铆Status;
         /// <summary>
@@ -146,5 +183,30 @@ namespace ChargePadLine.Client.ViewModels
         /// 出站ng状态
         /// </summary>
         public bool 热铆ExitNg => _热铆ExitModel.热铆ExitNg;
+
+        /// <summary>
+        /// 热铆 - 请求状态
+        /// </summary>
+        public bool 热铆MasterReq => _热铆MasterModel.热铆MasterReq;
+
+        /// <summary>
+        /// 热铆 - 响应状态
+        /// </summary>
+        public bool 热铆MasterResp => _热铆MasterModel.热铆MasterResp;
+
+        /// <summary>
+        /// 热铆 - 序列号
+        /// </summary>
+        public string 热铆MasterSn => _热铆MasterModel.热铆MasterSn;
+
+        /// <summary>
+        /// 出站ok状态
+        /// </summary>
+        public bool 热铆MasterOk => _热铆MasterModel.热铆MasterOk;
+
+        /// <summary>
+        /// 出站ng状态
+        /// </summary>
+        public bool 热铆MasterNg => _热铆MasterModel.热铆MasterNg;
     }
 }

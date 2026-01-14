@@ -13,16 +13,16 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试
 {
-    public class 电机腔气密测试EnterMiddleWare : IPlc2Task
+    public class 电机腔气密EnterMiddleWare : IPlc2Task
     {
-        private readonly ILogger<电机腔气密测试EnterMiddleWare> _logger;
+        private readonly ILogger<电机腔气密EnterMiddleWare> _logger;
         private readonly ILogService _logService;
-        private readonly 电机腔气密测试EnterModel _enterModel;
+        private readonly 电机腔气密EnterModel _enterModel;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
         private const string PlcName = "【电机腔气密测试】";
 
-        public 电机腔气密测试EnterMiddleWare(ILogger<电机腔气密测试EnterMiddleWare> logger, ILogService logService, 电机腔气密测试EnterModel enterModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
+        public 电机腔气密EnterMiddleWare(ILogger<电机腔气密EnterMiddleWare> logger, ILogService logService, 电机腔气密EnterModel enterModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
             _logService = logService;

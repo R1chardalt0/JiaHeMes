@@ -28,7 +28,8 @@ namespace ChargePadLine.Client.Services.PlcService.Plc7
             ILogger<Plc7HostService> logger,
             ILogService logService,
             止推垫片装配EnterMiddleWare 止推垫片装配Enter,
-            止推垫片装配ExitMiddleWare 止推垫片装配Exit
+            止推垫片装配ExitMiddleWare 止推垫片装配Exit,
+            止推垫片装配MasterMiddleWare 止推垫片装配Master
             )
         {
             _plcConfig = config.Value;
@@ -39,7 +40,8 @@ namespace ChargePadLine.Client.Services.PlcService.Plc7
             _tasks = new IPlc7Task[]
             {
                 止推垫片装配Enter,
-                止推垫片装配Exit
+                止推垫片装配Exit,
+                止推垫片装配Master
             };
         }
 

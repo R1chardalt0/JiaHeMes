@@ -21,7 +21,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
         private readonly RingExitModel _routingExitModel;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
-        private const string PlcName = "O型圈装配";
+        private const string PlcName = "【O型圈装配】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
         public O型圈装配ExitMiddleWare(ILogger<O型圈装配ExitMiddleWare> logger, ILogService logService, RingExitModel routingExitModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)

@@ -2,21 +2,27 @@
 
 namespace ChargePadLine.Client.ViewModels
 {
-    public class 旋融焊ViewModel:ViewModelBase
+    public class 旋融焊ViewModel : ViewModelBase
     {
         private readonly 旋融焊EnterModel _旋融焊EnterModel;
         private readonly 旋融焊ExitModel _旋融焊ExitModel;
+        private readonly 旋融焊MasterModel _旋融焊MasterModel;
 
-        public 旋融焊ViewModel(旋融焊EnterModel 旋融焊EnterModel, 旋融焊ExitModel 旋融焊ExitModel)
+        public 旋融焊ViewModel(旋融焊EnterModel 旋融焊EnterModel, 旋融焊ExitModel 旋融焊ExitModel, 旋融焊MasterModel 旋融焊MasterModel)
         {
             _旋融焊EnterModel = 旋融焊EnterModel;
             _旋融焊ExitModel = 旋融焊ExitModel;
+            _旋融焊MasterModel = 旋融焊MasterModel;
 
-            旋融焊EnterModel.PropertyChanged += (sender, e) =>
+            _旋融焊EnterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
-            旋融焊ExitModel.PropertyChanged += (sender, e) =>
+            _旋融焊ExitModel.PropertyChanged += (sender, e) =>
+            {
+                OnPropertyChanged(e.PropertyName);
+            };
+            _旋融焊MasterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
@@ -74,5 +80,31 @@ namespace ChargePadLine.Client.ViewModels
         /// 出站ng状态
         /// </summary>
         public bool 旋融焊ExitNg => _旋融焊ExitModel.旋融焊ExitNg;
+
+
+        /// <summary>
+        /// 旋融焊 - 请求状态
+        /// </summary>
+        public bool 旋融焊MasterReq => _旋融焊MasterModel.旋融焊MasterReq;
+
+        /// <summary>
+        /// 旋融焊 - 响应状态
+        /// </summary>
+        public bool 旋融焊MasterResp => _旋融焊MasterModel.旋融焊MasterResp;
+
+        /// <summary>
+        /// 旋融焊 - 序列号
+        /// </summary>
+        public string 旋融焊MasterSn => _旋融焊MasterModel.旋融焊MasterSn;
+
+        /// <summary>
+        /// 出站ok状态
+        /// </summary>
+        public bool 旋融焊MasterOk => _旋融焊MasterModel.旋融焊MasterOk;
+
+        /// <summary>
+        /// 出站ng状态
+        /// </summary>
+        public bool 旋融焊MasterNg => _旋融焊MasterModel.旋融焊MasterNg;
     }
 }
