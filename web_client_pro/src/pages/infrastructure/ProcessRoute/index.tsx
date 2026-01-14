@@ -74,7 +74,13 @@ const ProcessRoutePage: React.FC = () => {
 
       // 获取工艺路线子项
       const itemsResponse = await getProcessRouteItemsByHeadId(record.id);
-      setProcessRouteItems(itemsResponse);
+      // 按工艺路线序号升序排序
+      const sortedItems = [...itemsResponse].sort((a, b) => {
+        const seqA = a.routeSeq || 0;
+        const seqB = b.routeSeq || 0;
+        return seqA - seqB;
+      });
+      setProcessRouteItems(sortedItems);
     } catch (error) {
       messageApi.error('获取详情失败');
       console.error('获取详情失败:', error);
@@ -209,7 +215,13 @@ const ProcessRoutePage: React.FC = () => {
           // 重新获取子项列表
           if (currentRow) {
             const itemsResponse = await getProcessRouteItemsByHeadId(currentRow.id);
-            setProcessRouteItems(itemsResponse);
+            // 按工艺路线序号升序排序
+            const sortedItems = [...itemsResponse].sort((a, b) => {
+              const seqA = a.routeSeq || 0;
+              const seqB = b.routeSeq || 0;
+              return seqA - seqB;
+            });
+            setProcessRouteItems(sortedItems);
           }
         } catch (error) {
           message.error('工艺路线子项删除失败');
@@ -261,6 +273,7 @@ const ProcessRoutePage: React.FC = () => {
           firstStation: values.firstStation,
           checkAll: values.checkAll,
           routeSeq: values.routeSeq,
+          maxNGCount: values.maxNGCount,
         };
 
         await updateProcessRouteItem(editingProcessRouteItem.id, updatedItem);
@@ -276,6 +289,7 @@ const ProcessRoutePage: React.FC = () => {
           firstStation: values.firstStation,
           checkAll: values.checkAll,
           routeSeq: values.routeSeq,
+          maxNGCount: values.maxNGCount,
         };
 
         await createProcessRouteItem(newItem);

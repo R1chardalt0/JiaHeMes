@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Select, Switch } from 'antd';
+import { Form, Input, Select, Switch, InputNumber } from 'antd';
 import { StationListDto } from '@/services/Model/Infrastructure/StationList';
 
 interface ProcessRouteItemFormProps {
@@ -118,6 +118,13 @@ const ProcessRouteItemForm: React.FC<ProcessRouteItemFormProps> = ({ form, stati
         initialValue={false}
       >
         <Switch />
+      </Form.Item>
+      <Form.Item
+        name="maxNGCount"
+        label="最大NG次数"
+        initialValue={0}
+      >
+        <InputNumber placeholder="请输入最大NG次数" min={0} style={{ width: '100%' }} />
       </Form.Item>
     </Form>
   );

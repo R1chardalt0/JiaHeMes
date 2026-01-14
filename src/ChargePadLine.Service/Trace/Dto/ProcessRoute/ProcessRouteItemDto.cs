@@ -17,12 +17,12 @@ namespace ChargePadLine.Service.Trace.Dto.ProcessRoute
     public Guid Id { get; set; }
 
     /// <summary>
-    /// 工艺路线ID
+    /// 主表ID
     /// </summary>
     public Guid HeadId { get; set; }
 
     /// <summary>
-    /// 工艺路线编号
+    /// 站点编码
     /// </summary>
     public string StationCode { get; set; } = "";
 
@@ -45,14 +45,21 @@ namespace ChargePadLine.Service.Trace.Dto.ProcessRoute
     /// 是否全检
     /// </summary>
     public bool CheckAll { get; set; } = false;
-        /// <summary>
-        /// 工艺路线顺序
-        /// </summary>
-        public int? RouteSeq { get; set; } = 0;
-        /// <summary>
-        /// 备注信息
-        /// </summary>
-        public string? Remark { get; set; }
+
+    /// <summary>
+    /// 工艺路线序号
+    /// </summary>
+    public int? RouteSeq { get; set; } = 0;
+
+    /// <summary>
+    /// 最大NG次数
+    /// </summary>
+    public int? MaxNGCount { get; set; } = 0;
+
+    /// <summary>
+    /// 备注信息
+    /// </summary>
+    public string? Remark { get; set; }
 
     /// <summary>
     /// 创建时间
