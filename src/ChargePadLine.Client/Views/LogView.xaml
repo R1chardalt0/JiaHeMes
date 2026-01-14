@@ -62,7 +62,7 @@
                                     <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss.fff}}" 
                                                Foreground="Gray" 
                                                FontSize="11"
-                                               Margin="0,1.5,5,0"
+                                               Margin="0,1.8,5,0"
                                                VerticalAlignment="Center"/>
                                     
                                     <!-- 日志类型标识 -->

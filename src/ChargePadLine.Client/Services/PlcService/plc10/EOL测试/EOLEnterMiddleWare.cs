@@ -22,7 +22,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
         private readonly EOLEnterModel _enterModel;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
-        private const string PlcName = "【EOL】";
+        private const string PlcName = "【EOL测试】";
 
         public EOLEnterMiddleWare(ILogger<EOLEnterMiddleWare> logger, ILogService logService, EOLEnterModel enterModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
