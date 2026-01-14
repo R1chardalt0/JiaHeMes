@@ -57,6 +57,8 @@ namespace ChargePadLine.Service
       // 工单BOM批次服务
       services.AddScoped<IMESOrderBomBatchService, MESOrderBomBatchService>();
       services.AddScoped<IMESOrderBomBatchItemService, MESOrderBomBatchItemService>();
+      // 站点测试项服务
+      services.AddScoped<IStationTestProjectService, StationTestProjectService>();
       // SN实时状态服务
       services.AddScoped<IMesSnListCurrentService, MesSnListCurrentService>();
       // SN历史记录服务

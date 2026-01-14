@@ -1,5 +1,5 @@
 using ChargePadLine.Entitys.Trace.ProcessRouting;
-using ChargePadLine.Service.Trace.Dto;
+using ChargePadLine.Service.Trace.Dto.Station;
 using ChargePadLine.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using System;

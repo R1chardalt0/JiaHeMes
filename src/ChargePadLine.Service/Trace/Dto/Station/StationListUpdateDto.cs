@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Service.Trace.Dto
+namespace ChargePadLine.Service.Trace.Dto.Station
 {
   /// <summary>
   /// 站点更新数据传输对象

@@ -107,6 +107,8 @@ namespace ChargePadLine.DbContexts
     public DbSet<ProcessRouteItem> ProcessRouteItems { get; set; }
     public DbSet<RoutingOperation> RoutingOperations { get; set; }
     public DbSet<ProductProcessState> ProductProcessStates { get; set; }
+    // 站点测试项
+    public DbSet<StationTestProject> StationTestProject { get; set; }
 
     //质量检验
     public DbSet<DefectRecord> DefectRecords { get; set; }
