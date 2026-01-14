@@ -11,8 +11,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
     {
         private bool _req;
         private bool _resp;
-        private bool _MasterOk;
-        private bool _MasterNg;
+        private bool _masterOk;
+        private bool _masterNg;
         private string _sn = string.Empty;
 
         /// <summary>
@@ -49,12 +49,12 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
 
         public bool 干区气密MasterNg
         {
-            get => _MasterNg;
+            get => _masterNg;
             private set
             {
-                if (_MasterNg != value)
+                if (_masterNg != value)
                 {
-                    _MasterNg = value;
+                    _masterNg = value;
                     OnPropertyChanged(nameof(干区气密MasterNg));
                 }
             }
@@ -63,12 +63,12 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
 
         public bool 干区气密MasterOk
         {
-            get => _MasterOk;
+            get => _masterOk;
             private set
             {
-                if (_MasterOk != value)
+                if (_masterOk != value)
                 {
-                    _MasterOk = value;
+                    _masterOk = value;
                     OnPropertyChanged(nameof(干区气密MasterOk));
                 }
             }
@@ -94,13 +94,13 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool Masterok, bool Masterng)
+        public void UpdateData(bool req, bool resp, string sn, bool masterok, bool masterng)
         {
             干区气密MasterReq = req;
             干区气密MasterResp = resp;
             干区气密MasterSn = sn;
-            干区气密MasterOk = Masterok;
-            干区气密MasterNg = Masterng;
+            干区气密MasterOk = masterok;
+            干区气密MasterNg = masterng;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
