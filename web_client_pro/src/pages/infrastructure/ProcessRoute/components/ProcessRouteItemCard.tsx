@@ -1,32 +1,40 @@
 import React from 'react';
 import { Card, Button, Col } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import { ProcessRouteItem } from '@/services/Model/Infrastructure/ProcessRoute/ProcessRouteItem';
 
 interface ProcessRouteItemCardProps {
   item: ProcessRouteItem;
   onEdit: (item: ProcessRouteItem) => void;
   onDelete: (id: string) => void;
+  onViewTestItems: (processRouteItemId: string) => void;
 }
 
 /**
  * 工艺路线子项卡片组件
  * 用于显示单个工艺路线子项的详细信息
  */
-const ProcessRouteItemCard: React.FC<ProcessRouteItemCardProps> = ({ item, onEdit, onDelete }) => {
+const ProcessRouteItemCard: React.FC<ProcessRouteItemCardProps> = ({ item, onEdit, onDelete, onViewTestItems }) => {
   return (
     <Col xs={24} sm={12} md={8} style={{ marginBottom: 16 }}>
       <Card
-        title={`站点编码: ${item.stationCode}`}
+        title={`${item.stationCode}`}
         bordered={true}
         extra={
-          <div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button
+              type="link"
+              size="small"
+              icon={<EyeOutlined />}
+              onClick={() => onViewTestItems(item.id)}
+            >
+              查看测试项
+            </Button>
             <Button
               type="link"
               size="small"
               icon={<EditOutlined />}
               onClick={() => onEdit(item)}
-              style={{ marginRight: 8 }}
             >
               编辑
             </Button>

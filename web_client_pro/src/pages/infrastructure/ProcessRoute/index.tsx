@@ -1,13 +1,15 @@
 import type { ActionType } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ProDescriptions } from '@ant-design/pro-components';
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { Button, Tabs, message, Modal, Form, Select, Switch } from 'antd';
+import { Button, Tabs, message, Modal, Form, Select, Switch, Input } from 'antd';
 import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { getProcessRouteList, getProcessRouteById, createProcessRoute, updateProcessRoute, deleteProcessRoute } from '@/services/Api/Infrastructure/ProcessRoute/ProcessRoute';
 import { getProcessRouteItemsByHeadId, createProcessRouteItem, updateProcessRouteItem, deleteProcessRouteItem, getProcessRouteItemById } from '@/services/Api/Infrastructure/ProcessRoute/ProcessRouteItem';
+import { getProcessRouteItemTestList, getProcessRouteItemTestById, getProcessRouteItemTestByProcessRouteItemId, createProcessRouteItemTest, updateProcessRouteItemTest, deleteProcessRouteItemTest } from '@/services/Api/Infrastructure/ProcessRoute/ProcessRouteItemTest';
 import { getStationListList } from '@/services/Api/Infrastructure/StationList';
 import { ProcessRouteDto, ProcessRouteQueryDto, ProcessRouteCreateDto, ProcessRouteUpdateDto } from '@/services/Model/Infrastructure/ProcessRoute/ProcessRoute';
 import { ProcessRouteItem, ProcessRouteItemCreateDto, ProcessRouteItemUpdateDto } from '@/services/Model/Infrastructure/ProcessRoute/ProcessRouteItem';
+import { ProcessRouteItemTest, ProcessRouteItemTestCreateDto, ProcessRouteItemTestUpdateDto, ProcessRouteItemTestQueryDto } from '@/services/Model/Infrastructure/ProcessRoute/ProcessRouteItemTest';
 import { StationListDto } from '@/services/Model/Infrastructure/StationList';
 
 import type { RequestData } from '@ant-design/pro-components';
@@ -43,6 +45,15 @@ const ProcessRoutePage: React.FC = () => {
   // 站点列表状态
   const [stations, setStations] = useState<StationListDto[]>([]);
   const [stationLoading, setStationLoading] = useState(false);
+
+  // 测试项相关状态
+  const [isTestItemModalVisible, setIsTestItemModalVisible] = useState(false);
+  const [isAddTestItemModalVisible, setIsAddTestItemModalVisible] = useState(false);
+  const [isEditTestItemModalVisible, setIsEditTestItemModalVisible] = useState(false);
+  const [currentProcessRouteItemId, setCurrentProcessRouteItemId] = useState<string>('');
+  const [testItems, setTestItems] = useState<ProcessRouteItemTest[]>([]);
+  const [editingTestItem, setEditingTestItem] = useState<ProcessRouteItemTest | null>(null);
+  const [testItemForm] = Form.useForm<ProcessRouteItemTestCreateDto>();
 
   // 获取工位列表
   useEffect(() => {
@@ -308,6 +319,112 @@ const ProcessRoutePage: React.FC = () => {
     }
   }, [form, editingProcessRouteItem, currentRow]);
 
+  // 查看测试项
+  const handleViewTestItems = useCallback(async (processRouteItemId: string) => {
+    try {
+      setCurrentProcessRouteItemId(processRouteItemId);
+      // 获取测试项列表
+      const testItemsResponse = await getProcessRouteItemTestByProcessRouteItemId(processRouteItemId);
+      setTestItems(testItemsResponse);
+      setIsTestItemModalVisible(true);
+    } catch (error) {
+      message.error('获取测试项列表失败');
+      console.error('获取测试项列表失败:', error);
+    }
+  }, []);
+
+  // 打开添加测试项模态框
+  const handleAddTestItem = useCallback(() => {
+    testItemForm.resetFields();
+    setEditingTestItem(null);
+    setIsAddTestItemModalVisible(true);
+  }, [testItemForm]);
+
+  // 打开编辑测试项模态框
+  const handleEditTestItem = useCallback(async (testItem: ProcessRouteItemTest) => {
+    setEditingTestItem(testItem);
+    testItemForm.setFieldsValue({
+      upperLimit: testItem.upperLimit,
+      lowerLimit: testItem.lowerLimit,
+      units: testItem.units,
+      parametricKey: testItem.parametricKey,
+      isCheck: testItem.isCheck,
+      remark: testItem.remark
+    });
+    setIsEditTestItemModalVisible(true);
+  }, [testItemForm]);
+
+  // 删除测试项
+  const handleDeleteTestItem = useCallback((testItemId: string) => {
+    Modal.confirm({
+      title: '确认删除',
+      content: '确认要删除这条测试项信息吗？',
+      onOk: async () => {
+        try {
+          await deleteProcessRouteItemTest(testItemId);
+          message.success('测试项删除成功');
+          // 重新获取测试项列表
+          if (currentProcessRouteItemId) {
+            const testItemsResponse = await getProcessRouteItemTestByProcessRouteItemId(currentProcessRouteItemId);
+            setTestItems(testItemsResponse);
+          }
+        } catch (error) {
+          message.error('测试项删除失败');
+          console.error('Delete test item error:', error);
+        }
+      }
+    });
+  }, [currentProcessRouteItemId]);
+
+  // 保存测试项
+  const handleSaveTestItem = useCallback(async () => {
+    try {
+      const values = await testItemForm.validateFields();
+
+      if (editingTestItem) {
+        // 更新测试项
+        const updatedTestItem: ProcessRouteItemTestUpdateDto = {
+          proRouteItemStationTestId: editingTestItem.proRouteItemStationTestId,
+          processRouteItemId: currentProcessRouteItemId,
+          upperLimit: values.upperLimit,
+          lowerLimit: values.lowerLimit,
+          units: values.units,
+          parametricKey: values.parametricKey,
+          isCheck: values.isCheck,
+          remark: values.remark
+        };
+
+        await updateProcessRouteItemTest(editingTestItem.proRouteItemStationTestId, updatedTestItem);
+        message.success('测试项更新成功');
+        setIsEditTestItemModalVisible(false);
+      } else {
+        // 创建测试项
+        const newTestItem: ProcessRouteItemTestCreateDto = {
+          processRouteItemId: currentProcessRouteItemId,
+          upperLimit: values.upperLimit,
+          lowerLimit: values.lowerLimit,
+          units: values.units,
+          parametricKey: values.parametricKey,
+          isCheck: values.isCheck,
+          remark: values.remark
+        };
+
+        await createProcessRouteItemTest(newTestItem);
+        message.success('测试项添加成功');
+        setIsAddTestItemModalVisible(false);
+      }
+
+      // 重新获取测试项列表
+      if (currentProcessRouteItemId) {
+        const testItemsResponse = await getProcessRouteItemTestByProcessRouteItemId(currentProcessRouteItemId);
+        setTestItems(testItemsResponse);
+      }
+    } catch (error) {
+      message.error('保存失败，请检查输入');
+      console.error('Save test item error:', error);
+    }
+  }, [testItemForm, editingTestItem, currentProcessRouteItemId]);
+
   return (
     <PageContainer title="工艺路线管理">
       <ProTable<ProcessRouteDto>
@@ -429,6 +546,7 @@ const ProcessRoutePage: React.FC = () => {
                 processRouteItems={processRouteItems}
                 onEdit={handleEditProcessRouteItem}
                 onDelete={handleDeleteProcessRouteItem}
+                onViewTestItems={handleViewTestItems}
               />
             </TabPane>
           </Tabs>
@@ -468,6 +586,204 @@ const ProcessRoutePage: React.FC = () => {
         <ProcessRouteForm
           form={processRouteForm}
         />
+      </Modal>
+
+      {/* 测试项列表模态框 */}
+      <Modal
+        title="测试项列表"
+        open={isTestItemModalVisible}
+        onCancel={() => setIsTestItemModalVisible(false)}
+        width={800}
+        footer={null}
+      >
+        <ProTable<ProcessRouteItemTest>
+          rowKey="proRouteItemStationTestId"
+          columns={[
+            {
+              title: '测试项',
+              dataIndex: 'parametricKey',
+              key: 'parametricKey',
+            },
+            {
+              title: '上限',
+              dataIndex: 'upperLimit',
+              key: 'upperLimit',
+              search: false,
+            },
+            {
+              title: '下限',
+              dataIndex: 'lowerLimit',
+              key: 'lowerLimit',
+              search: false,
+            },
+            {
+              title: '单位',
+              dataIndex: 'units',
+              key: 'units',
+              search: false,
+            },
+            {
+              title: '是否检查',
+              dataIndex: 'isCheck',
+              key: 'isCheck',
+              render: (text) => (text ? '是' : '否'),
+              valueType: 'select',
+              valueEnum: {
+                true: {
+                  text: '是',
+                },
+                false: {
+                  text: '否',
+                },
+              },
+              search: {
+                name: 'isCheck',
+              },
+            },
+            {
+              title: '操作',
+              key: 'action',
+              search: false,
+              render: (_: any, record: ProcessRouteItemTest) => (
+                <div>
+                  <Button
+                    type="link"
+                    size="small"
+                    icon={<EditOutlined />}
+                    onClick={() => handleEditTestItem(record)}
+                    style={{ marginRight: 8 }}
+                  >
+                    编辑
+                  </Button>
+                  <Button
+                    type="link"
+                    size="small"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleDeleteTestItem(record.proRouteItemStationTestId)}
+                  >
+                    删除
+                  </Button>
+                </div>
+              ),
+            },
+          ]}
+          dataSource={testItems}
+          pagination={{
+            pageSize: 10,
+          }}
+          search={false}
+          toolBarRender={() => (
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddTestItem}
+              style={{ marginBottom: 16 }}
+            >
+              新建测试项
+            </Button>
+          )}
+        />
+      </Modal>
+
+      {/* 添加测试项模态框 */}
+      <Modal
+        title="添加测试项"
+        open={isAddTestItemModalVisible}
+        onOk={handleSaveTestItem}
+        onCancel={() => setIsAddTestItemModalVisible(false)}
+        width={600}
+      >
+        <Form form={testItemForm} layout="vertical">
+          <Form.Item
+            name="parametricKey"
+            label="测试项"
+            rules={[{ required: true, message: '请输入测试项' }]}
+          >
+            <Input placeholder="请输入测试项" />
+          </Form.Item>
+          <Form.Item
+            name="upperLimit"
+            label="上限"
+          >
+            <Input type="number" placeholder="请输入上限" />
+          </Form.Item>
+          <Form.Item
+            name="lowerLimit"
+            label="下限"
+          >
+            <Input type="number" placeholder="请输入下限" />
+          </Form.Item>
+          <Form.Item
+            name="units"
+            label="单位"
+          >
+            <Input placeholder="请输入单位" />
+          </Form.Item>
+          <Form.Item
+            name="isCheck"
+            label="是否检查"
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
+          <Form.Item
+            name="remark"
+            label="备注"
+          >
+            <Input.TextArea rows={4} placeholder="请输入备注" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 编辑测试项模态框 */}
+      <Modal
+        title="编辑测试项"
+        open={isEditTestItemModalVisible}
+        onOk={handleSaveTestItem}
+        onCancel={() => setIsEditTestItemModalVisible(false)}
+        width={600}
+      >
+        <Form form={testItemForm} layout="vertical">
+          <Form.Item
+            name="parametricKey"
+            label="测试项"
+            rules={[{ required: true, message: '请输入测试项' }]}
+          >
+            <Input placeholder="请输入测试项" />
+          </Form.Item>
+          <Form.Item
+            name="upperLimit"
+            label="上限"
+          >
+            <Input type="number" placeholder="请输入上限" />
+          </Form.Item>
+          <Form.Item
+            name="lowerLimit"
+            label="下限"
+          >
+            <Input type="number" placeholder="请输入下限" />
+          </Form.Item>
+          <Form.Item
+            name="units"
+            label="单位"
+          >
+            <Input placeholder="请输入单位" />
+          </Form.Item>
+          <Form.Item
+            name="isCheck"
+            label="是否检查"
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
+          <Form.Item
+            name="remark"
+            label="备注"
+          >
+            <Input.TextArea rows={4} placeholder="请输入备注" />
+          </Form.Item>
+        </Form>
       </Modal>
     </PageContainer >
   );
