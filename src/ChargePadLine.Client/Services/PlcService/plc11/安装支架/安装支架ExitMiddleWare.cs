@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
 {
-    public class 安装支架ExitMiddleWare:IPlc11Task
+    public class 安装支架ExitMiddleWare : IPlc11Task
     {
         private readonly ILogger<安装支架ExitMiddleWare> _logger;
         private readonly ILogService _logService;

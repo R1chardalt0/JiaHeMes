@@ -10,22 +10,31 @@ namespace ChargePadLine.Client.ViewModels
     {
         private readonly StatorEnterModel _statorTestDataEnterService;
         private readonly StatorExitModel _statorTestDataExitService;
+        private readonly StatorMasterModel _statorMasterModel;
+
         private readonly RingEnterModel _ringEnter;
         private readonly RingExitModel _ringExit;
+        private readonly RingMasterModel _ringMaster;
 
 
-       public StatorTestViewModel(StatorEnterModel statorTestDataEnterService,StatorExitModel statorTestDataExitService, RingEnterModel ringEnter, RingExitModel ringExit)
+        public StatorTestViewModel(StatorEnterModel statorTestDataEnterService, StatorExitModel statorTestDataExitService, RingEnterModel ringEnter, RingExitModel ringExit, StatorMasterModel statorMasterModel, RingMasterModel ringMaster)
         {
             _statorTestDataEnterService = statorTestDataEnterService;
-            _statorTestDataExitService= statorTestDataExitService;
+            _statorTestDataExitService = statorTestDataExitService;
+            _statorMasterModel = statorMasterModel;
 
             _ringEnter = ringEnter;
             _ringExit = ringExit;
-            statorTestDataEnterService.PropertyChanged += (sender, e) =>
+            _ringMaster = ringMaster;
+            _statorTestDataEnterService.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
             _statorTestDataExitService.PropertyChanged += (sender, e) =>
+            {
+                OnPropertyChanged(e.PropertyName);
+            };
+            _statorMasterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
@@ -34,6 +43,10 @@ namespace ChargePadLine.Client.ViewModels
                 OnPropertyChanged(e.PropertyName);
             };
             _ringExit.PropertyChanged += (sender, e) =>
+            {
+                OnPropertyChanged(e.PropertyName);
+            };
+            _ringMaster.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
@@ -93,6 +106,32 @@ namespace ChargePadLine.Client.ViewModels
         public bool ExitNg => _statorTestDataExitService.ExitNg;
 
 
+        /// <summary>
+        /// 请求状态
+        /// </summary>
+        public bool MasterReq => _statorMasterModel.MasterReq;
+
+        /// <summary>
+        /// 响应状态
+        /// </summary>
+        public bool MasterResp => _statorMasterModel.MasterResp;
+
+        /// <summary>
+        /// 序列号
+        /// </summary>
+        public string MasterSn => _statorMasterModel.Sn;
+
+        /// <summary>
+        /// 进站ok状态
+        /// </summary>
+        public bool MasterOk => _statorMasterModel.MasterOk;
+
+        /// <summary>
+        /// 进站ng状态
+        /// </summary>
+        public bool MasterNg => _statorMasterModel.MasterNg;
+
+
 
         public string O型圈装配Status => _ringEnter.O型圈装配Status;
         /// <summary>
@@ -146,5 +185,33 @@ namespace ChargePadLine.Client.ViewModels
         /// 进站ng状态
         /// </summary>
         public bool RingExitNg => _ringExit.RingExitNg;
+
+
+
+
+        /// <summary>
+        /// 请求状态
+        /// </summary>
+        public bool RingMasterReq => _ringMaster.RingMasterReq;
+
+        /// <summary>
+        /// 响应状态
+        /// </summary>
+        public bool RingMasterResp => _ringMaster.RingMasterResp;
+
+        /// <summary>
+        /// 序列号
+        /// </summary>
+        public string RingMasterSn => _ringMaster.RingMasterSn;
+
+        /// <summary>
+        /// 进站ok状态
+        /// </summary>
+        public bool RingMasterOk => _ringMaster.RingMasterOk;
+
+        /// <summary>
+        /// 进站ng状态
+        /// </summary>
+        public bool RingMasterNg => _ringMaster.RingMasterNg;
     }
 }

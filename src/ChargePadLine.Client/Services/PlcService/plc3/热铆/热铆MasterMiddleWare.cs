@@ -20,15 +20,17 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.热铆
         private readonly ILogService _logService;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
+        private readonly 热铆MasterModel _masterModel;
         private const string PlcName = "【热铆】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
-        public 热铆MasterMiddleWare(ILogger<热铆MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
+        public 热铆MasterMiddleWare(ILogger<热铆MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi, 热铆MasterModel masterModel)
         {
             _logger = logger;
             _logService = logService;
             _stationconfig = stationconfig.Value;
             _mesApi = mesApi;
+            _masterModel = masterModel;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -42,7 +44,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.热铆
                 var sn = s7Net.ReadString("DB4020.66.0", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
 
                 // 更新数据服务
-                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+                _masterModel.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {
@@ -77,9 +79,9 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.热铆
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode,
+                        resource = _stationconfig.Station6.Resource,
+                        stationCode = _stationconfig.Station6.StationCode,
+                        workOrderCode = _stationconfig.Station6.WorkOrderCode,
                         testResult = isok ? "Pass" : "Fail",
                         testData = testDatas
                     };

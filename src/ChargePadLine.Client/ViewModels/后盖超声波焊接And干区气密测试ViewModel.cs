@@ -3,37 +3,52 @@ using ChargePadLine.Client.Services.PlcService.plc4.干区气密测试;
 
 namespace ChargePadLine.Client.ViewModels
 {
-    public class 后盖超声波焊接And干区气密测试ViewModel: ViewModelBase
+    public class 后盖超声波焊接And干区气密测试ViewModel : ViewModelBase
     {
         private readonly 后盖超声波焊接EnterModel _后盖超声波焊接EnterModel;
         private readonly 后盖超声波焊接ExitModel _后盖超声波焊接ExitModel;
+        private readonly 后盖超声波焊接MasterModel _后盖超声波焊接MasterModel;
 
-        private readonly 干区气密测试EnterModel _干区气密测试EnterModel;
-        private readonly 干区气密测试ExitModel _干区气密测试ExitModel;
+        private readonly 干区气密EnterModel _干区气密测试EnterModel;
+        private readonly 干区气密ExitModel _干区气密测试ExitModel;
+        private readonly 干区气密MasterModel _干区气密测试MasterModel;
 
-        public 后盖超声波焊接And干区气密测试ViewModel(后盖超声波焊接EnterModel 后盖超声波焊接EnterModel, 后盖超声波焊接ExitModel 后盖超声波焊接ExitModel, 干区气密测试EnterModel 干区气密测试EnterModel, 干区气密测试ExitModel 干区气密测试ExitModel)
+        public 后盖超声波焊接And干区气密测试ViewModel(后盖超声波焊接EnterModel 后盖超声波焊接EnterModel, 后盖超声波焊接ExitModel 后盖超声波焊接ExitModel, 干区气密EnterModel 干区气密测试EnterModel, 干区气密ExitModel 干区气密测试ExitModel, 后盖超声波焊接MasterModel 后盖超声波焊接MasterModel, 干区气密MasterModel 干区气密测试MasterModel)
         {
             _后盖超声波焊接EnterModel = 后盖超声波焊接EnterModel;
             _后盖超声波焊接ExitModel = 后盖超声波焊接ExitModel;
+            _后盖超声波焊接MasterModel = 后盖超声波焊接MasterModel;
             _干区气密测试EnterModel = 干区气密测试EnterModel;
             _干区气密测试ExitModel = 干区气密测试ExitModel;
+            _干区气密测试MasterModel = 干区气密测试MasterModel;
 
-            后盖超声波焊接EnterModel.PropertyChanged += (sender, e) =>
+            _后盖超声波焊接EnterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
-            后盖超声波焊接ExitModel.PropertyChanged += (sender, e) =>
+            _后盖超声波焊接ExitModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
-            干区气密测试EnterModel.PropertyChanged += (sender, e) =>
+            _后盖超声波焊接MasterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
-            干区气密测试ExitModel.PropertyChanged += (sender, e) =>
+
+            _干区气密测试EnterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
+            _干区气密测试ExitModel.PropertyChanged += (sender, e) =>
+            {
+                OnPropertyChanged(e.PropertyName);
+            };
+            _干区气密测试MasterModel.PropertyChanged += (sender, e) =>
+            {
+                OnPropertyChanged(e.PropertyName);
+            };
+
+
         }
 
         public string 后盖超声波焊接Status => _后盖超声波焊接EnterModel.后盖超声波焊接Status;
@@ -87,6 +102,31 @@ namespace ChargePadLine.Client.ViewModels
         /// 出站ng状态
         /// </summary>
         public bool 后盖超声波焊接ExitNg => _后盖超声波焊接ExitModel.后盖超声波焊接ExitNg;
+
+        /// <summary>
+        /// 后盖超声波焊接 - 请求状态
+        /// </summary>
+        public bool 后盖超声波焊接MasterReq => _后盖超声波焊接MasterModel.后盖超声波焊接MasterReq;
+
+        /// <summary>
+        /// 后盖超声波焊接 - 响应状态
+        /// </summary>
+        public bool 后盖超声波焊接MasterResp => _后盖超声波焊接MasterModel.后盖超声波焊接MasterResp;
+
+        /// <summary>
+        /// 后盖超声波焊接 - 序列号
+        /// </summary>
+        public string 后盖超声波焊接MasterSn => _后盖超声波焊接MasterModel.后盖超声波焊接MasterSn;
+
+        /// <summary>
+        /// 出站ok状态
+        /// </summary>
+        public bool 后盖超声波焊接MasterOk => _后盖超声波焊接MasterModel.后盖超声波焊接MasterOk;
+
+        /// <summary>
+        /// 出站ng状态
+        /// </summary>
+        public bool 后盖超声波焊接MasterNg => _后盖超声波焊接MasterModel.后盖超声波焊接MasterNg;
 
 
 
@@ -142,5 +182,30 @@ namespace ChargePadLine.Client.ViewModels
         /// 出站ng状态
         /// </summary>
         public bool 干区气密测试ExitNg => _干区气密测试ExitModel.干区气密测试ExitNg;
+
+        /// <summary>
+        /// 干区气密测试 - 请求状态
+        /// </summary>
+        public bool 干区气密测试MasterReq => _干区气密测试MasterModel.干区气密MasterReq;
+
+        /// <summary>
+        /// 干区气密测试 - 响应状态
+        /// </summary>
+        public bool 干区气密测试MasterResp => _干区气密测试MasterModel.干区气密MasterResp;
+
+        /// <summary>
+        /// 干区气密测试 - 序列号
+        /// </summary>
+        public string 干区气密测试MasterSn => _干区气密测试MasterModel.干区气密MasterSn;
+
+        /// <summary>
+        /// 出站ok状态
+        /// </summary>
+        public bool 干区气密测试MasterOk => _干区气密测试MasterModel.干区气密MasterOk;
+
+        /// <summary>
+        /// 出站ng状态
+        /// </summary>
+        public bool 干区气密测试MasterNg => _干区气密测试MasterModel.干区气密MasterNg;
     }
 }

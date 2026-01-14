@@ -2,8 +2,7 @@
 using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.Mes;
 using ChargePadLine.Client.Services.Mes.Dto;
-using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
-using ChargePadLine.Client.Services.PlcService.Plc9;
+using ChargePadLine.Client.Services.PlcService.Plc11;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -12,23 +11,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
+namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
 {
-    public class 湿区气密测试MasterMiddleWare:IPlc9Task
+    public class 激光刻印MasterMiddleWare : IPlc11Task
     {
-        private readonly ILogger<湿区气密测试MasterMiddleWare> _logger;
+        private readonly ILogger<激光刻印ExitMiddleWare> _logger;
         private readonly ILogService _logService;
+        private readonly 激光刻印MasterModel _masterModel;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
-        private const string PlcName = "【湿区气密测试】";
+        private const string PlcName = "【激光刻印】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
-        public 湿区气密测试MasterMiddleWare(ILogger<湿区气密测试MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
+        public 激光刻印MasterMiddleWare(ILogger<激光刻印ExitMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi, 激光刻印MasterModel masterModel)
         {
             _logger = logger;
             _logService = logService;
             _stationconfig = stationconfig.Value;
             _mesApi = mesApi;
+            _masterModel = masterModel;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -38,12 +39,12 @@ namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
             {
                 var req = s7Net.ReadBool("DB4010.7.0").Content;
                 var resp = s7Net.ReadBool("DB4010.14.0").Content;
-                var enterok = s7Net.ReadBool("DB4010.3.0").Content;//出站OK
-                var enterng = s7Net.ReadBool("DB4010.3.1").Content;//出站NG
+                var enterok = s7Net.ReadBool("DB4010.3.0").Content;
+                var enterng = s7Net.ReadBool("DB4010.3.1").Content;
                 var sn = s7Net.ReadString("DB4010.66.0", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
 
                 // 更新数据服务
-                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+                _masterModel.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {
@@ -78,9 +79,9 @@ namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode,
+                        resource = _stationconfig.Station15.Resource,
+                        stationCode = _stationconfig.Station15.StationCode,
+                        workOrderCode = _stationconfig.Station15.WorkOrderCode,
                         testResult = isok ? "Pass" : "Fail",
                         testData = testDatas
                     };

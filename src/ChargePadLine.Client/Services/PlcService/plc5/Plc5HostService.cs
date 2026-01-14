@@ -29,7 +29,8 @@ namespace ChargePadLine.Client.Services.PlcService.Plc5
             ILogger<Plc5HostService> logger,
             ILogService logService,
             转子充磁与装配EnterMiddleWare 转子充磁与装配Enter,
-            转子充磁与装配ExitMiddleWare 转子充磁与装配Exit
+            转子充磁与装配ExitMiddleWare 转子充磁与装配Exit,
+            转子充磁与装配MasterMiddleWare 转子充磁与装配Master
             )
         {
             _plcConfig = config.Value;
@@ -41,7 +42,8 @@ namespace ChargePadLine.Client.Services.PlcService.Plc5
             {
                 转子充磁与装配Enter,
                 转子充磁与装配Exit,
-        };
+                转子充磁与装配Master
+            };
         }
 
         private void InitializeModbusConnection()

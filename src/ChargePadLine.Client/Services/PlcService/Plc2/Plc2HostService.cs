@@ -22,8 +22,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
             IOptions<PlcConfig> config,
             导热胶涂敷EnterMiddleWare 导热胶涂敷Enter,
             导热胶涂敷ExitMiddleWare 导热胶涂敷Exit,
-            电机腔气密测试EnterMiddleWare 电机腔气密测试Enter,
-            电机腔气密测试ExitMiddleWare 电机腔气密测试Exit
+            导热胶涂敷MasterMiddleWare 导热胶涂敷Master,
+            电机腔气密EnterMiddleWare 电机腔气密Enter,
+            电机腔气密ExitMiddleWare 电机腔气密Exit,
+            电机腔气密MasterMiddleWare 电机枪气密Master
             )
         {
             _plcConfig = config.Value;
@@ -35,8 +37,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
              {
                  导热胶涂敷Enter,
                  导热胶涂敷Exit,
-                 电机腔气密测试Enter,
-                 电机腔气密测试Exit,
+                 导热胶涂敷Master,
+                 电机腔气密Enter,
+                 电机腔气密Exit,
+                 电机枪气密Master
              };
             _logService = logService;
         }

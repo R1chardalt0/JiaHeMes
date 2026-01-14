@@ -26,11 +26,14 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1
         public Plc1HostService(
             IOptions<PlcConfig> config,
             ILogger<Plc1HostService> logger,
+            ILogService logService,
             定子检测EnterMiddleWare 定子检测Enter,
             定子检测ExitMiddleWare 定子检测Exit,
+            定子检测MasterMiddleWare 定子检测Master,
             O型圈装配EnterMiddleWare o型圈装配Enter,
             O型圈装配ExitMiddleWare o型圈装配Exit,
-            ILogService logService)
+            O型圈装配MasterMiddleWare o型圈装配Master
+            )
         {
             _plcConfig = config.Value;
             _logger = logger;
@@ -40,8 +43,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1
             {
                 定子检测Enter,
                 定子检测Exit,
+                定子检测Master,
                 o型圈装配Enter,
-                o型圈装配Exit
+                o型圈装配Exit,
+                o型圈装配Master
             };
             _logService = logService;
         }

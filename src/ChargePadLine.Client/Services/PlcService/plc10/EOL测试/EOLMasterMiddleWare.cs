@@ -2,6 +2,8 @@
 using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.Mes;
 using ChargePadLine.Client.Services.Mes.Dto;
+using ChargePadLine.Client.Services.PlcService.Plc10;
+using ChargePadLine.Client.Services.PlcService.plc3.热铆;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -10,27 +12,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
+namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
 {
-    public class 定子检测MasterMiddleWare : IPlc1Task
+    public class EOLMasterMiddleWare : IPlc10Task
     {
-        private readonly ILogger<定子检测MasterMiddleWare> _logger;
+
+        private readonly ILogger<EOLExitMiddleWare> _logger;
         private readonly ILogService _logService;
+        private readonly EOLMasterModel _masterModel;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
-        private const string PlcName = "【定子检测】";
-        private readonly StatorMasterModel _statorMaster;
+        private const string PlcName = "【EOL测试】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
-
-        public 定子检测MasterMiddleWare(ILogger<定子检测MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi, StatorMasterModel statorMaster)
+        public EOLMasterMiddleWare(ILogger<EOLExitMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, EOLMasterModel masterModel, IMesApiService mesApi)
         {
             _logger = logger;
             _logService = logService;
+            _masterModel = masterModel;
             _stationconfig = stationconfig.Value;
             _mesApi = mesApi;
-            _statorMaster = statorMaster;
         }
-
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
 
         {
@@ -38,12 +39,12 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
             {
                 var req = s7Net.ReadBool("DB4010.7.0").Content;
                 var resp = s7Net.ReadBool("DB4010.14.0").Content;
-                var enterok = s7Net.ReadBool("DB4010.3.0").Content;//出站OK
-                var enterng = s7Net.ReadBool("DB4010.3.1").Content;//出站NG
+                var enterok = s7Net.ReadBool("DB4010.3.0").Content;
+                var enterng = s7Net.ReadBool("DB4010.3.1").Content;
                 var sn = s7Net.ReadString("DB4010.66.0", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
 
                 // 更新数据服务
-                _statorMaster.UpdateData(req, resp, sn, enterok, enterng);
+                _masterModel.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {
@@ -78,9 +79,9 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode,
+                        resource = _stationconfig.Station14.Resource,
+                        stationCode = _stationconfig.Station14.StationCode,
+                        workOrderCode = _stationconfig.Station14.WorkOrderCode,
                         testResult = isok ? "Pass" : "Fail",
                         testData = testDatas
                     };

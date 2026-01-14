@@ -13,21 +13,23 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷
 {
-    public class 导热胶涂敷MasterMiddleWare: IPlc2Task
+    public class 导热胶涂敷MasterMiddleWare : IPlc2Task
     {
         private readonly ILogger<导热胶涂敷MasterMiddleWare> _logger;
         private readonly ILogService _logService;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
+        private readonly 导热胶涂敷MasterModel _masterModel;
         private const string PlcName = "【导热胶涂敷】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
-        public 导热胶涂敷MasterMiddleWare(ILogger<导热胶涂敷MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
+        public 导热胶涂敷MasterMiddleWare(ILogger<导热胶涂敷MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi, 导热胶涂敷MasterModel masterModel)
         {
             _logger = logger;
             _logService = logService;
             _stationconfig = stationconfig.Value;
             _mesApi = mesApi;
+            _masterModel = masterModel;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -41,7 +43,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷
                 var sn = s7Net.ReadString("DB4020.66.0", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
 
                 // 更新数据服务
-                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+                _masterModel.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {
@@ -76,9 +78,9 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode,
+                        resource = _stationconfig.Station4.Resource,
+                        stationCode = _stationconfig.Station4.StationCode,
+                        workOrderCode = _stationconfig.Station4.WorkOrderCode,
                         testResult = isok ? "Pass" : "Fail",
                         testData = testDatas
                     };

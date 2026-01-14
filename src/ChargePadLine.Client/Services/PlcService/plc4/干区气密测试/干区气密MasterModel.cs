@@ -1,23 +1,24 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ChargePadLine.Client.Services.PlcService.Plc2
+namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
 {
-    /// <summary>
-    /// 电机腔气密测试数据服务，用于存储和通知PLC数据变化
-    /// </summary>
-    public class 电机腔气密测试ExitModel : INotifyPropertyChanged
+    public class 干区气密MasterModel : INotifyPropertyChanged
     {
         private bool _req;
         private bool _resp;
-        private bool _exitOk;
-        private bool _exitNg;
+        private bool _MasterOk;
+        private bool _MasterNg;
         private string _sn = string.Empty;
 
         /// <summary>
         /// 请求状态
         /// </summary>
-        public bool 气密ExitReq
+        public bool 干区气密MasterReq
         {
             get => _req;
             private set
@@ -25,7 +26,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
                 if (_req != value)
                 {
                     _req = value;
-                    OnPropertyChanged(nameof(气密ExitReq));
+                    OnPropertyChanged(nameof(干区气密MasterReq));
                 }
             }
         }
@@ -33,7 +34,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
         /// <summary>
         /// 响应状态
         /// </summary>
-        public bool 气密ExitResp
+        public bool 干区气密MasterResp
         {
             get => _resp;
             private set
@@ -41,41 +42,41 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
                 if (_resp != value)
                 {
                     _resp = value;
-                    OnPropertyChanged(nameof(气密ExitResp));
+                    OnPropertyChanged(nameof(干区气密MasterResp));
                 }
             }
         }
 
-        public bool 气密ExitNg
+        public bool 干区气密MasterNg
         {
-            get => _exitNg;
+            get => _MasterNg;
             private set
             {
-                if (_exitNg != value)
+                if (_MasterNg != value)
                 {
-                    _exitNg = value;
-                    OnPropertyChanged(nameof(气密ExitNg));
+                    _MasterNg = value;
+                    OnPropertyChanged(nameof(干区气密MasterNg));
                 }
             }
         }
 
 
-        public bool 气密ExitOk
+        public bool 干区气密MasterOk
         {
-            get => _exitOk;
+            get => _MasterOk;
             private set
             {
-                if (_exitOk != value)
+                if (_MasterOk != value)
                 {
-                    _exitOk = value;
-                    OnPropertyChanged(nameof(气密ExitOk));
+                    _MasterOk = value;
+                    OnPropertyChanged(nameof(干区气密MasterOk));
                 }
             }
         }
         /// <summary>
         /// 序列号
         /// </summary>
-        public string 气密ExitSn
+        public string 干区气密MasterSn
         {
             get => _sn;
             private set
@@ -83,7 +84,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
                 if (_sn != value)
                 {
                     _sn = value;
-                    OnPropertyChanged(nameof(气密ExitSn));
+                    OnPropertyChanged(nameof(干区气密MasterSn));
                 }
             }
         }
@@ -93,13 +94,13 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
         /// <summary>
         /// 更新数据
         /// </summary>
-        public void UpdateData(bool req, bool resp, string sn, bool exitok, bool exitng)
+        public void UpdateData(bool req, bool resp, string sn, bool Masterok, bool Masterng)
         {
-            气密ExitReq = req;
-            气密ExitResp = resp;
-            气密ExitSn = sn;
-            气密ExitOk = exitok;
-            气密ExitNg = exitng;
+            干区气密MasterReq = req;
+            干区气密MasterResp = resp;
+            干区气密MasterSn = sn;
+            干区气密MasterOk = Masterok;
+            干区气密MasterNg = Masterng;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

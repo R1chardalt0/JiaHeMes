@@ -2,24 +2,31 @@
 
 namespace ChargePadLine.Client.ViewModels
 {
-    public class 湿区气密ViewModel:ViewModelBase
+    public class 湿区气密ViewModel : ViewModelBase
     {
         private readonly 湿区气密EnterModel _湿区气密EnterModel;
         private readonly 湿区气密ExitModel _湿区气密ExitModel;
+        private readonly 湿区气密MasterModel _湿区气密MasterModel;
 
-        public 湿区气密ViewModel(湿区气密EnterModel 湿区气密EnterModel, 湿区气密ExitModel 湿区气密ExitModel)
+        public 湿区气密ViewModel(湿区气密EnterModel 湿区气密EnterModel, 湿区气密ExitModel 湿区气密ExitModel, 湿区气密MasterModel 湿区气密MasterModel)
         {
             _湿区气密EnterModel = 湿区气密EnterModel;
             _湿区气密ExitModel = 湿区气密ExitModel;
+            _湿区气密MasterModel = 湿区气密MasterModel;
 
-            湿区气密EnterModel.PropertyChanged += (sender, e) =>
+            _湿区气密EnterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
-            湿区气密ExitModel.PropertyChanged += (sender, e) =>
+            _湿区气密ExitModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
+            _湿区气密MasterModel.PropertyChanged += (sender, e) =>
+            {
+                OnPropertyChanged(e.PropertyName);
+            };
+
         }
 
 
@@ -74,5 +81,31 @@ namespace ChargePadLine.Client.ViewModels
         /// 出站ng状态
         /// </summary>
         public bool 湿区气密ExitNg => _湿区气密ExitModel.湿区气密ExitNg;
+
+
+        /// <summary>
+        /// 湿区气密 - 请求状态
+        /// </summary>
+        public bool 湿区气密MasterReq => _湿区气密MasterModel.湿区气密MasterReq;
+
+        /// <summary>
+        /// 湿区气密 - 响应状态
+        /// </summary>
+        public bool 湿区气密MasterResp => _湿区气密MasterModel.湿区气密MasterResp;
+
+        /// <summary>
+        /// 湿区气密 - 序列号
+        /// </summary>
+        public string 湿区气密MasterSn => _湿区气密MasterModel.湿区气密MasterSn;
+
+        /// <summary>
+        /// 出站ok状态
+        /// </summary>
+        public bool 湿区气密MasterOk => _湿区气密MasterModel.湿区气密MasterOk;
+
+        /// <summary>
+        /// 出站ng状态
+        /// </summary>
+        public bool 湿区气密MasterNg => _湿区气密MasterModel.湿区气密MasterNg;
     }
 }

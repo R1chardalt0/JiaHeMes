@@ -2,6 +2,8 @@
 using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.Mes;
 using ChargePadLine.Client.Services.Mes.Dto;
+using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
+using ChargePadLine.Client.Services.PlcService.Plc9;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -10,25 +12,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
+namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
 {
-    public class 定子检测MasterMiddleWare : IPlc1Task
+    public class 湿区气密MasterMiddleWare : IPlc9Task
     {
-        private readonly ILogger<定子检测MasterMiddleWare> _logger;
+        private readonly ILogger<湿区气密MasterMiddleWare> _logger;
         private readonly ILogService _logService;
         private readonly StationConfig _stationconfig;
+        private readonly 湿区气密MasterModel _masterModel;
         private readonly IMesApiService _mesApi;
-        private const string PlcName = "【定子检测】";
-        private readonly StatorMasterModel _statorMaster;
+        private const string PlcName = "【湿区气密测试】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
-        public 定子检测MasterMiddleWare(ILogger<定子检测MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi, StatorMasterModel statorMaster)
+        public 湿区气密MasterMiddleWare(ILogger<湿区气密MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi, 湿区气密MasterModel masterModel)
         {
             _logger = logger;
             _logService = logService;
             _stationconfig = stationconfig.Value;
             _mesApi = mesApi;
-            _statorMaster = statorMaster;
+            _masterModel = masterModel;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -43,7 +45,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
                 var sn = s7Net.ReadString("DB4010.66.0", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
 
                 // 更新数据服务
-                _statorMaster.UpdateData(req, resp, sn, enterok, enterng);
+                _masterModel.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {
@@ -78,9 +80,9 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode,
+                        resource = _stationconfig.Station13.Resource,
+                        stationCode = _stationconfig.Station13.StationCode,
+                        workOrderCode = _stationconfig.Station13.WorkOrderCode,
                         testResult = isok ? "Pass" : "Fail",
                         testData = testDatas
                     };

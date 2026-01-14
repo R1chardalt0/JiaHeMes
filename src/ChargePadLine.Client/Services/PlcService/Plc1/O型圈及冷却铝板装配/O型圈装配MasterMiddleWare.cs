@@ -13,21 +13,23 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配
 {
-    public class O型圈及冷却铝板装配MasterMiddleWare : IPlc1Task
+    public class O型圈装配MasterMiddleWare : IPlc1Task
     {
-        private readonly ILogger<O型圈及冷却铝板装配MasterMiddleWare> _logger;
+        private readonly ILogger<O型圈装配MasterMiddleWare> _logger;
         private readonly ILogService _logService;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
+        private readonly RingMasterModel _ringMaster;
         private const string PlcName = "【O型圈及冷却铝板装配】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
-        public O型圈及冷却铝板装配MasterMiddleWare(ILogger<O型圈及冷却铝板装配MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
+        public O型圈装配MasterMiddleWare(ILogger<O型圈装配MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi, RingMasterModel ringMaster)
         {
             _logger = logger;
             _logService = logService;
             _stationconfig = stationconfig.Value;
             _mesApi = mesApi;
+            _ringMaster = ringMaster;
         }
 
         public async Task ExecuteOnceAsync(S7NetConnect s7Net, CancellationToken cancellationToken)
@@ -41,7 +43,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                 var sn = s7Net.ReadString("DB4020.66.0", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
 
                 // 更新数据服务
-                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+                _ringMaster.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {
@@ -76,9 +78,9 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                     var reqParam = new ReqDto
                     {
                         sn = sn,
-                        resource = _stationconfig.Station1.Resource,
-                        stationCode = _stationconfig.Station1.StationCode,
-                        workOrderCode = _stationconfig.Station1.WorkOrderCode,
+                        resource = _stationconfig.Station2.Resource,
+                        stationCode = _stationconfig.Station2.StationCode,
+                        workOrderCode = _stationconfig.Station2.WorkOrderCode,
                         testResult = isok ? "Pass" : "Fail",
                         testData = testDatas
                     };

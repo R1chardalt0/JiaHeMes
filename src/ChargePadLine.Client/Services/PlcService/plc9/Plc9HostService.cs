@@ -20,7 +20,8 @@ namespace ChargePadLine.Client.Services.PlcService.Plc9
             ILogger<Plc9HostService> logger,
             ILogService logService,
             湿区气密EnterMiddleWare 湿区气密Enter,
-            湿区气密ExitMiddleWare 湿区气密Exit
+            湿区气密ExitMiddleWare 湿区气密Exit,
+            湿区气密MasterMiddleWare 湿区气密Master
             )
         {
             _plcConfig = config.Value;
@@ -31,7 +32,8 @@ namespace ChargePadLine.Client.Services.PlcService.Plc9
             _tasks = new IPlc9Task[]
             {
                 湿区气密Enter,
-                湿区气密Exit
+                湿区气密Exit,
+                湿区气密Master
             };
         }
 

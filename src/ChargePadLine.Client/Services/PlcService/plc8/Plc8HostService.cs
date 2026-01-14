@@ -28,7 +28,8 @@ namespace ChargePadLine.Client.Services.PlcService.Plc8
             ILogger<Plc8HostService> logger,
             ILogService logService,
             旋融焊EnterMiddleWare 旋融焊Enter,
-            旋融焊ExitMiddleWare 旋融焊Exit
+            旋融焊ExitMiddleWare 旋融焊Exit,
+            旋融焊MasterMiddleWare 旋融焊Master
             )
         {
             _plcConfig = config.Value;
@@ -39,7 +40,8 @@ namespace ChargePadLine.Client.Services.PlcService.Plc8
             _tasks = new IPlc8Task[]
             {
                 旋融焊Enter,
-                旋融焊Exit
+                旋融焊Exit,
+                旋融焊Master
             };
         }
 
