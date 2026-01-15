@@ -343,6 +343,8 @@ namespace ChargePadLine.Service.Trace.Impl
                 return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，工单编号：{request.WorkOrderCode}"));
             }
 
+           
+
             // 5. 检查上传站点是否存在（异步查询）
             var StationList = await _dbContext.StationList.FirstOrDefaultAsync(x => x.StationCode == request.StationCode);
             if (StationList == null)
@@ -554,6 +556,17 @@ namespace ChargePadLine.Service.Trace.Impl
             {
                 // 首站不继续后续校验，直接返回
                 return FSharpResult<ValueTuple, (int, string)>.NewError((0, $"首站"));
+            }
+            var checkFirstSNList = await _dbContext.mesSnListCurrents.FirstAsync(x => x.SnNumber == request.SN);
+            var checkWorkOrder = await _dbContext.OrderList.FirstOrDefaultAsync(x => x.OrderListId == checkFirstSNList.OrderListId);
+
+            if (checkWorkOrder == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，SN：{request.SN}"));
+            }
+            if (checkWorkOrder.OrderListId != workOrder.OrderListId)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不一致，SN工单编号：{checkWorkOrder.OrderCode},机台工单编号：{workOrder.OrderCode}"));
             }
 
             // 14. 所有校验通过
@@ -889,6 +902,128 @@ namespace ChargePadLine.Service.Trace.Impl
         }
 
 
+
+        public async Task<FSharpResult<ValueTuple, (int, string)>> UploadMaster(RequestUploadCheckParams request)
+        {
+            
+            // 2. 再次验证设备编码和工单不能同时为空
+            if (request.Resource.IsNullOrEmpty() && request.WorkOrderCode.IsNullOrEmpty())
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码和工单不能同时为空"));
+            }
+
+            var deviceInfo = new Deviceinfo(); // 设备信息
+            var workOrder = new OrderList(); // 工单信息
+
+            // 3.1 根据资源号获取设备信息（异步查询）
+            deviceInfo = await _dbContext.DeviceInfos.FirstOrDefaultAsync(x => x.Resource == request.Resource);
+            if (deviceInfo == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备编码{request.Resource},不存在"));
+            }
+
+            // 3.2 检查设备是否已绑定工单
+            if (deviceInfo.WorkOrderCode == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"设备未绑定工单，设备资源号：{request.Resource}"));
+            }
+            var firstSNList = await _dbContext.mesSnListCurrents.FirstAsync(x => x.SnNumber == request.SN);
+            workOrder = await _dbContext.OrderList.FirstOrDefaultAsync(x => x.OrderListId == firstSNList.OrderListId);
+            if (workOrder == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在，SN：{request.SN}"));
+            }
+            request.WorkOrderCode = workOrder.OrderCode;
+
+
+            // 6. 测试结果转换：将字符串结果转换为数字状态码 6=点检
+            var uploadStationStatus = 6;
+
+
+            // ---------- 8. 非首站逻辑：写历史记录 + 跳站处理 ----------
+            {
+                // 8.1 根据站点编码获取站点信息（异步查询）
+                var station = await _dbContext.StationList
+                    .FirstOrDefaultAsync(x => x.StationCode == request.StationCode);
+                if (station == null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"站点编码{request.StationCode}不存在"));
+                }
+
+                // 8.2 根据SN获取当前状态记录（异步查询）
+                var snCurrent = await _dbContext.mesSnListCurrents
+                    .FirstOrDefaultAsync(x => x.SnNumber == request.SN);
+                if (snCurrent == null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN}在Current表中不存在"));
+                }
+
+                // 8.3 将当前站点记录写入历史表
+                var snHistory = new MesSnListHistory
+                {
+                    SNListHistoryId = Guid.NewGuid(),                  // 历史记录ID
+                    SnNumber = snCurrent.SnNumber,                     // SN号
+                    OrderListId = snCurrent.OrderListId,               // 关联工单
+                    CurrentStationListId = station.StationId, // 当前站点ID
+                    ProductionLineId = deviceInfo.ProductionLineId,    // 生产线ID
+                    ProductListId = workOrder.ProductListId,           // 产品ID
+                    ResourceId = deviceInfo.ResourceId,                // 设备资源ID
+                    StationStatus = uploadStationStatus,               // 站点状态
+                    IsAbnormal = false,                                // 是否异常
+                    CreateTime = DateTime.Now,                         // 创建时间
+                    UpdateTime = DateTime.Now,                         // 更新时间
+                    TestData = request.TestData,                         // 测试数据
+                    Remark="点检"
+                };
+                await _mesSNListHistory.InsertAsync(snHistory);   // 使用仓储插入历史记录
+
+                // 8.4 处理测试数据：将JSON字符串反序列化并批量插入MesSnTestData表
+                List<MesSnTestData> mesSnTestData = new List<MesSnTestData>();
+                if (!string.IsNullOrWhiteSpace(request.TestData))
+                {
+                    try
+                    {
+                        var testDataArray = JsonSerializer.Deserialize<List<MesSnTestData>>(request.TestData);
+                        if (testDataArray != null)
+                        {
+                            foreach (var item in testDataArray)
+                            {
+                                var testData = new MesSnTestData
+                                {
+                                    SNListHistoryId = snHistory.SNListHistoryId, // 关联历史记录ID
+                                    ParametricKey = item.ParametricKey,         // 参数名称
+                                    TestValue = item.TestValue,                 // 测试值
+                                    Upperlimit = item.Upperlimit,               // 上限
+                                    Lowerlimit = item.Lowerlimit,               // 下限
+                                    Units = item.Units,                         // 单位
+                                    TestResult = item.TestResult,               // 测试结果
+                                    Remark = item.Remark,                       // 备注
+                                    CreateTime = DateTime.Now,                  // 创建时间
+                                    UpdateTime = DateTime.Now                   // 更新时间
+                                };
+                                mesSnTestData.Add(testData);
+                            }
+                            if (mesSnTestData.Any())
+                            {
+                                await _dbContext.mesSnTestDatas.AddRangeAsync(mesSnTestData);
+                                // 延迟保存，与后续操作一起批量提交
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // 记录日志或根据业务需要处理异常
+                        // 此处选择继续流程，仅忽略测试数据插入失败
+                    }
+                }
+           
+                }
+                // 8.11 批量提交所有待处理的数据库操作
+                await _dbContext.SaveChangesAsync();
+            // ---------- 5. 全部完成 ----------
+            return FSharpResult<ValueTuple, (int, string)>.NewOk(default(ValueTuple));
+        }
+
         /// <summary>
         /// SN追溯方法
         /// 负责查询单个SN的完整生产记录，包括站点过站记录、上料批次信息和测试数据
@@ -954,7 +1089,7 @@ namespace ChargePadLine.Service.Trace.Impl
                     StationName = h.StationList.StationName,
                     StationStatus = h.StationStatus,
                     ResourceCode = h.Resource?.Resource,
-                    TestResult = h.StationStatus == 1 ? "PASS" : "NG",
+                    TestResult = h.StationStatus == 1 ? "PASS" : h.StationStatus == 6 ? "点检" : "NG",
                     TestTime = h.CreateTime.Value.DateTime,
                     TestData = testData
                         .Where(t => t.SNListHistoryId == h.SNListHistoryId)

@@ -22,6 +22,7 @@ namespace ChargePadLine.Service.Trace
         Task<FSharpResult<ValueTuple, (int, string)>> UploadData(RequestUploadCheckParams request);
         Task<FSharpResult<ValueTuple, (int, string)>> FeedMaterial(RequestFeedMaterialParams request);
         Task<FSharpResult<SnTraceDto, (int, string)>> TraceSN(string sn);
+        Task<FSharpResult<ValueTuple, (int, string)>> UploadMaster(RequestUploadCheckParams request);
 
     }
 }

@@ -45,7 +45,7 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     /// <summary>
     /// 当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站
     /// </summary>
-    [Description("当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站")]
+    [Description("当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站,6-点检")]
     public int StationStatus { get; set; }
 
     /// <summary>
