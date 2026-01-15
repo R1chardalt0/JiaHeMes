@@ -290,8 +290,11 @@ const MesSnListTracePage: React.FC = () => {
       dataIndex: 'reworkTime',
       key: 'reworkTime',
       width: 180,
-      search: false,
-      valueType: 'dateTime',
+      search: true,
+      valueType: 'dateRange',
+      fieldProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+      },
     },
     {
       title: '备注',
@@ -372,6 +375,7 @@ const MesSnListTracePage: React.FC = () => {
       key: 'testData',
       width: 150,
       search: false,
+      ellipsis: true,
     },
     {
       title: '批次数据',
@@ -379,6 +383,7 @@ const MesSnListTracePage: React.FC = () => {
       key: 'batchResults',
       width: 150,
       search: false,
+      ellipsis: true,
     },
     {
       title: '是否异常',
@@ -486,6 +491,12 @@ const MesSnListTracePage: React.FC = () => {
               snNumber: params.snNumber,
               stationStatus: params.stationStatus,
             };
+
+            // 处理返工时间范围参数
+            if (params.reworkTime && Array.isArray(params.reworkTime)) {
+              queryParams.reworkStartTime = params.reworkTime[0];
+              queryParams.reworkEndTime = params.reworkTime[1];
+            }
 
             try {
               // 调用 API 获取所有数据
@@ -665,6 +676,7 @@ const MesSnListTracePage: React.FC = () => {
             <ProTable<MesSnListHistoryDto>
               rowKey="snListHistoryId"
               columns={historyColumns}
+              scroll={{ x: 'max-content' }}
               request={async (params) => {
                 // 使用前端筛选：基于已获取的历史数据进行筛选
                 let filteredData = historyData;

@@ -8,27 +8,30 @@ interface ProcessRouteItemListProps {
   processRouteItems: ProcessRouteItem[];
   onEdit: (item: ProcessRouteItem) => void;
   onDelete: (id: string) => void;
+  onViewTestItems: (processRouteItemId: string) => void;
 }
 
 /**
  * 工艺路线子项列表组件
  * 用于显示工艺路线子项的列表
  */
-const ProcessRouteItemList: React.FC<ProcessRouteItemListProps> = ({ 
-  processRouteItems, 
-  onEdit, 
-  onDelete 
+const ProcessRouteItemList: React.FC<ProcessRouteItemListProps> = ({
+  processRouteItems,
+  onEdit,
+  onDelete,
+  onViewTestItems
 }) => {
   return (
     <>
       <Row gutter={[16, 16]}>
         {processRouteItems.length > 0 ? (
           processRouteItems.map((item) => (
-            <ProcessRouteItemCard 
-              key={item.id} 
-              item={item} 
-              onEdit={onEdit} 
-              onDelete={onDelete} 
+            <ProcessRouteItemCard
+              key={item.id}
+              item={item}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onViewTestItems={onViewTestItems}
             />
           ))
         ) : (

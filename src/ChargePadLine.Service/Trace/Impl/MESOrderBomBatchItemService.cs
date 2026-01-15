@@ -37,7 +37,7 @@ namespace ChargePadLine.Service.Trace.Impl
     public async Task<MesOrderBomBatchItemDto> GetByIdAsync(Guid id)
     {
       var entity = await _context.Set<MesOrderBomBatchItem>()
-          .Include(e => e.MesOrderBomBatch)
+          .Include(e => e.OrderBomBatch)
           .FirstOrDefaultAsync(e => e.OrderBomBatchItemId == id);
       if (entity == null)
       {
@@ -86,7 +86,7 @@ namespace ChargePadLine.Service.Trace.Impl
     public async Task<List<MesOrderBomBatchItemDto>> GetByOrderBomBatchIdAsync(Guid orderBomBatchId)
     {
       var entities = await _context.Set<MesOrderBomBatchItem>()
-          .Include(e => e.MesOrderBomBatch)
+          .Include(e => e.OrderBomBatch)
           .Where(e => e.OrderBomBatchId == orderBomBatchId)
           .ToListAsync();
       return entities.Select(MapToDto).ToList();
@@ -100,7 +100,7 @@ namespace ChargePadLine.Service.Trace.Impl
     public async Task<MesOrderBomBatchItemDto> GetBySnNumberAsync(string snNumber)
     {
       var entity = await _context.Set<MesOrderBomBatchItem>()
-          .Include(e => e.MesOrderBomBatch)
+          .Include(e => e.OrderBomBatch)
           .FirstOrDefaultAsync(e => e.SnNumber == snNumber);
       if (entity == null)
       {
@@ -118,7 +118,7 @@ namespace ChargePadLine.Service.Trace.Impl
     private IQueryable<MesOrderBomBatchItem> BuildQuery(MESOrderBomBatchItemQueryDto queryDto)
     {
       var query = _context.Set<MesOrderBomBatchItem>()
-          .Include(e => e.MesOrderBomBatch)
+          .Include(e => e.OrderBomBatch)
           .AsQueryable();
 
       // 根据ID查询
@@ -203,18 +203,18 @@ namespace ChargePadLine.Service.Trace.Impl
       };
 
       // 映射关联的工单BOM批次信息
-      if (entity.MesOrderBomBatch != null)
+      if (entity.OrderBomBatch != null)
       {
         dto.MesOrderBomBatch = new MESOrderBomBatchDto
         {
-          OrderBomBatchId = entity.MesOrderBomBatch.OrderBomBatchId,
-          ProductListId = entity.MesOrderBomBatch.ProductListId,
-          BatchCode = entity.MesOrderBomBatch.BatchCode,
-          StationListId = entity.MesOrderBomBatch.StationListId,
-          OrderBomBatchStatus = entity.MesOrderBomBatch.OrderBomBatchStatus,
-          BatchQty = entity.MesOrderBomBatch.BatchQty,
-          CompletedQty = entity.MesOrderBomBatch.CompletedQty,
-          OrderListId = entity.MesOrderBomBatch.OrderListId
+          OrderBomBatchId = entity.OrderBomBatch.OrderBomBatchId,
+          ProductListId = entity.OrderBomBatch.ProductListId,
+          BatchCode = entity.OrderBomBatch.BatchCode,
+          StationListId = entity.OrderBomBatch.StationListId,
+          OrderBomBatchStatus = entity.OrderBomBatch.OrderBomBatchStatus,
+          BatchQty = entity.OrderBomBatch.BatchQty,
+          CompletedQty = entity.OrderBomBatch.CompletedQty,
+          OrderListId = entity.OrderBomBatch.OrderListId
         };
       }
 

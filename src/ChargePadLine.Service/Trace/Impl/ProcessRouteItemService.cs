@@ -74,6 +74,9 @@ namespace ChargePadLine.Service.Trace.Impl
         // 获取总数
         var totalCount = await query.CountAsync();
 
+        // 按工艺路线序号升序排列
+        query = query.OrderBy(b => b.RouteSeq);
+
         // 分页
         var routeItems = await query
           .Skip((queryDto.PageIndex - 1) * queryDto.PageSize)
@@ -116,6 +119,7 @@ namespace ChargePadLine.Service.Trace.Impl
       {
         var routeItems = await _routeItemRepo.GetQueryable()
             .Where(b => b.HeadId == headId)
+            .OrderBy(b => b.RouteSeq)
             .ToListAsync();
 
         return routeItems.Select(b => ToDto(b));
@@ -145,6 +149,8 @@ namespace ChargePadLine.Service.Trace.Impl
           FirstStation = dto.FirstStation,
           CheckAll = dto.CheckAll,
           RouteSeq = dto.RouteSeq,
+          MaxNGCount = dto.MaxNGCount,
+          Remark = dto.Remark,
         };
 
         // 保存工艺路线子项
@@ -185,9 +191,12 @@ namespace ChargePadLine.Service.Trace.Impl
         existingRouteItem.StationCode = dto.StationCode;
         existingRouteItem.MustPassStation = dto.MustPassStation;
         existingRouteItem.CheckStationList = dto.CheckStationList;
+        existingRouteItem.SearchValue = dto.SearchValue;
         existingRouteItem.FirstStation = dto.FirstStation;
         existingRouteItem.CheckAll = dto.CheckAll;
-                existingRouteItem.RouteSeq = dto.RouteSeq;
+        existingRouteItem.RouteSeq = dto.RouteSeq;
+        existingRouteItem.MaxNGCount = dto.MaxNGCount;
+        existingRouteItem.Remark = dto.Remark;
 
         // 保存更新
         var result = await _routeItemRepo.UpdateAsync(existingRouteItem);
@@ -255,7 +264,11 @@ namespace ChargePadLine.Service.Trace.Impl
         CheckStationList = routeItem.CheckStationList,
         FirstStation = routeItem.FirstStation,
         CheckAll = routeItem.CheckAll,
-        RouteSeq = routeItem.RouteSeq
+        RouteSeq = routeItem.RouteSeq,
+        MaxNGCount = routeItem.MaxNGCount,
+        Remark = routeItem.Remark,
+        CreateTime = routeItem.CreateTime,
+        UpdateTime = routeItem.UpdateTime
       };
     }
   }

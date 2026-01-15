@@ -83,6 +83,16 @@ namespace ChargePadLine.Service.Trace.Dto.MesSnList
     public DateTimeOffset? ReworkTime { get; set; }
 
     /// <summary>
+    /// 返工开始时间
+    /// </summary>
+    public DateTimeOffset? ReworkStartTime { get; set; }
+
+    /// <summary>
+    /// 返工结束时间
+    /// </summary>
+    public DateTimeOffset? ReworkEndTime { get; set; }
+
+    /// <summary>
     /// 创建人
     /// </summary>
     public string CreateBy { get; set; } = "";

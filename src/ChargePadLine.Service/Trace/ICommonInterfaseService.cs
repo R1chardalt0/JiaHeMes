@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ChargePadLine.Service.Trace.Impl.CommonInterfaseService;
 
 namespace ChargePadLine.Service.Trace
 {
@@ -20,6 +21,7 @@ namespace ChargePadLine.Service.Trace
         Task<FSharpResult<ValueTuple, (int, string)>> UploadCheck(RequestUploadCheckParams request);
         Task<FSharpResult<ValueTuple, (int, string)>> UploadData(RequestUploadCheckParams request);
         Task<FSharpResult<ValueTuple, (int, string)>> FeedMaterial(RequestFeedMaterialParams request);
+        Task<FSharpResult<SnTraceDto, (int, string)>> TraceSN(string sn);
 
     }
 }

@@ -136,6 +136,17 @@ namespace ChargePadLine.Service.Trace.Impl
           query = query.Where(p => p.CreateTime <= queryDto.EndTime.Value);
         }
 
+        // 返工时间范围过滤
+        if (queryDto.ReworkStartTime.HasValue)
+        {
+          query = query.Where(p => p.ReworkTime >= queryDto.ReworkStartTime.Value);
+        }
+
+        if (queryDto.ReworkEndTime.HasValue)
+        {
+          query = query.Where(p => p.ReworkTime <= queryDto.ReworkEndTime.Value);
+        }
+
         // 排序
         if (!string.IsNullOrEmpty(queryDto.SortField))
         {

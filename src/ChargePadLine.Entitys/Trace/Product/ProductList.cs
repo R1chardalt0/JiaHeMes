@@ -63,6 +63,11 @@ namespace ChargePadLine.Entitys.Trace.Product
     [Column("Remark")]
     [MaxLength(500)]
     public string? Remark { get; set; }
+    /// <summary>
+    /// 最大返工次数
+    /// </summary>
+    [Column("MaxReworkCount")]
+    public int ? MaxReworkCount { get; set;}
 
   }
 }

@@ -33,7 +33,7 @@ namespace ChargePadLine.Entitys.Trace.Order
     /// 关联的批次主表
     /// </summary>
     [ForeignKey("OrderBomBatchId")]
-    public MesOrderBomBatch? MesOrderBomBatch { get; set; }
+    public MesOrderBomBatch? OrderBomBatch { get; set; }
 
     /// <summary>
     /// SN编码
@@ -51,7 +51,7 @@ namespace ChargePadLine.Entitys.Trace.Order
       builder.HasKey(e => e.OrderBomBatchItemId);
 
       // 外键配置
-      builder.HasOne(e => e.MesOrderBomBatch)
+      builder.HasOne(e => e.OrderBomBatch)
           .WithMany()
           .HasForeignKey(e => e.OrderBomBatchId)
           .OnDelete(DeleteBehavior.Cascade);

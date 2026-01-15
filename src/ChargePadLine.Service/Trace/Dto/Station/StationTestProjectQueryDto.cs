@@ -1,38 +1,40 @@
-using ChargePadLine.Entitys.Trace.WorkOrders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChargePadLine.Service.Trace.Dto
+namespace ChargePadLine.Service.Trace.Dto.Station
 {
   /// <summary>
-  /// 工单数据传输对象
+  /// 站点测试项查询数据传输对象
   /// </summary>
-  public class StationListQueryDto
+  public class StationTestProjectQueryDto
   {
-    public Guid StationId { get; set; }
+    /// <summary>
+    /// 站点ID
+    /// </summary>
+    public Guid? StationId { get; set; }
 
     /// <summary>
-    /// 站点名称
+    /// 测试项
     /// </summary>
-    public string StationName { get; set; } = "";
-    /// <summary>
-    /// 站点编号
-    /// </summary>
+    public string ParametricKey { get; set; } = "";
 
-    public string StationCode { get; set; } = "";
+    /// <summary>
+    /// 搜索值
+    /// </summary>
+    public string SearchValue { get; set; } = "";
 
     /// <summary>
     /// 创建时间起始（包含）
     /// </summary>
-    public DateTime? StartTime { get; set; }
+    public DateTimeOffset? StartTime { get; set; }
 
     /// <summary>
     /// 创建时间结束（包含）
     /// </summary>
-    public DateTime? EndTime { get; set; }
+    public DateTimeOffset? EndTime { get; set; }
 
     /// <summary>
     /// 当前页码（最小值为1）

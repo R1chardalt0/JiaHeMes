@@ -89,14 +89,16 @@ namespace ChargePadLine.DbContexts
     public DbSet<TraceInfo> TraceInfos { get; set; }
     public DbSet<TraceBomItem> TraceBomItems { get; set; }
     public DbSet<TraceProcItem> TraceProcItems { get; set; }
-        //SN列表
-        public DbSet<MesSnListCurrent> mesSnListCurrents { get; set; }
-        public DbSet<MesSnListHistory> mesSnListHistories { get; set; }
-        //工单BOM批次
-        public DbSet<MesOrderBomBatch> MesOrderBomBatch { get; set; }
-        public DbSet<MesOrderBomBatchItem> MesOrderBomBatchItem { get; set; }
-        //批次排队
-        public DbSet<BatchMaterialQueueItem> BatchMaterialQueueItems { get; set; }
+    //SN列表
+    public DbSet<MesSnListCurrent> mesSnListCurrents { get; set; }
+    public DbSet<MesSnListHistory> mesSnListHistories { get; set; }
+    public DbSet<MesSnTestData> mesSnTestDatas { get; set; }
+
+    //工单BOM批次
+    public DbSet<MesOrderBomBatch> MesOrderBomBatch { get; set; }
+    public DbSet<MesOrderBomBatchItem> MesOrderBomBatchItem { get; set; }
+    //批次排队
+    public DbSet<BatchMaterialQueueItem> BatchMaterialQueueItems { get; set; }
     public DbSet<CtrlVsn> CtrlVs { get; set; }
 
     //工艺路线
@@ -105,6 +107,9 @@ namespace ChargePadLine.DbContexts
     public DbSet<ProcessRouteItem> ProcessRouteItems { get; set; }
     public DbSet<RoutingOperation> RoutingOperations { get; set; }
     public DbSet<ProductProcessState> ProductProcessStates { get; set; }
+    public DbSet<ProcessRouteItemTest> ProcessRouteItemTest { get; set; }
+    // 站点测试项
+    public DbSet<StationTestProject> StationTestProject { get; set; }
 
     //质量检验
     public DbSet<DefectRecord> DefectRecords { get; set; }
