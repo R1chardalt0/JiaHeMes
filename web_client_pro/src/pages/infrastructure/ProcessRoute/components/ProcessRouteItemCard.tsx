@@ -17,7 +17,7 @@ const ProcessRouteItemCard: React.FC<ProcessRouteItemCardProps> = ({ item, onEdi
   return (
     <Col xs={24} sm={12} md={8} style={{ marginBottom: 16 }}>
       <Card
-        title={`站点: ${item.stationCode}`}
+        title={`站点编码: ${item.stationCode}`}
         bordered={true}
         extra={
           <div>
@@ -43,14 +43,33 @@ const ProcessRouteItemCard: React.FC<ProcessRouteItemCardProps> = ({ item, onEdi
         }
       >
         <div style={{ lineHeight: '1.8', fontSize: '14px' }}>
-          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>工艺路线子项ID:</strong> {item.id}</p>
-          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>主表ID:</strong> {item.headId}</p>
-          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>站点编码:</strong> {item.stationCode}</p>
-          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>工艺路线序号:</strong> {item.routeSeq}</p>
-          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>是否必经站点:</strong> {item.mustPassStation ? '是' : '否'}</p>
-          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>检查站点列表:</strong> {item.checkStationList}</p>
-          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>是否首站点:</strong> {item.firstStation ? '是' : '否'}</p>
-          <p style={{ marginBottom: '8px', wordBreak: 'break-all' }}><strong>是否检查所有:</strong> {item.checkAll ? '是' : '否'}</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '8px' }}>
+            <div style={{ flex: '1 1 40%', minWidth: '150px' }}>
+              <strong>站点编码:</strong> {item.stationCode}
+            </div>
+            <div style={{ flex: '1 1 40%', minWidth: '150px' }}>
+              <strong>工艺路线序号:</strong> {item.routeSeq}
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '8px' }}>
+            <div style={{ flex: '1 1 40%', minWidth: '150px' }}>
+              <strong>是否必经站点:</strong> {item.mustPassStation ? '是' : '否'}
+            </div>
+            <div style={{ flex: '1 1 40%', minWidth: '150px' }}>
+              <strong>是否首站点:</strong> {item.firstStation ? '是' : '否'}
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '8px' }}>
+            <div style={{ flex: '1 1 40%', minWidth: '150px' }}>
+              <strong>是否检查所有:</strong> {item.checkAll ? '是' : '否'}
+            </div>
+            <div style={{ flex: '1 1 40%', minWidth: '150px' }}>
+              <strong>最大NG次数:</strong> {item.maxNGCount}
+            </div>
+          </div>
+          <div style={{ marginBottom: '8px', wordBreak: 'break-all' }}>
+            <strong>检查站点列表:</strong> {item.checkStationList}
+          </div>
         </div>
       </Card>
     </Col>
