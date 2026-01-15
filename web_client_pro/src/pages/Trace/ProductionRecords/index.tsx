@@ -21,12 +21,14 @@ const TableList: React.FC = () => {
       dataIndex: 'resource',
       key: 'resource',
       width: 120,
+      search: false,
     },
     {
       title: '设备名称',
       dataIndex: 'deviceName',
       key: 'deviceName',
       width: 120,
+      search: true,
     },
     {
       title: '总产量',
