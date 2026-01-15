@@ -52,6 +52,22 @@ export interface BomItemQueryDto {
    * 产品编码
    */
   productCode?: string;
+/**
+ * 日期序列
+ */
+dataIndex?: number;
+/**
+ * 数量序列
+ */
+numberIndex?: number;
+/**
+ * 物料保质期（分钟）
+ */
+shelfLife?: number;
+/**
+ * 物料号序列
+ */
+dateIndex?: number;
 }
 
 /**
@@ -102,6 +118,22 @@ export interface BomItemDto {
    * 产品编码
    */
   productCode?: string;
+  /**
+ * 日期序列
+ */
+dataIndex?: number;
+/**
+ * 数量序列
+ */
+numberIndex?: number;
+/**
+ * 物料保质期（分钟）
+ */
+shelfLife?: number;
+/**
+ * 物料号序列
+ */
+dateIndex?: number;
 
   /**
    * BOM主表（多对一关联）
@@ -182,6 +214,22 @@ export interface BomItemCreateDto {
    * 产品编码
    */
   productCode?: string;
+  /**
+ * 产品序列
+ */
+productIndex?: number;
+/**
+ * 数量序列
+ */
+numberIndex?: number;
+/**
+ * 物料保质期（分钟）
+ */
+shelfLife?: number;
+/**
+ * 物料号序列
+ */
+dateIndex?: number;
 }
 
 /**
@@ -232,6 +280,22 @@ export interface BomItemUpdateDto {
    * 产品编码
    */
   productCode?: string;
+  /**
+ * 产品序列
+ */
+productIndex?: number;
+/**
+ * 数量序列
+ */
+numberIndex?: number;
+/**
+ * 物料保质期（分钟）
+ */
+shelfLife?: number;
+/**
+ * 物料号序列
+ */
+dateIndex?: number;
 }
 
 /**

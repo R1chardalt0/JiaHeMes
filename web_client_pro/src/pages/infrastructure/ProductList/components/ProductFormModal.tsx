@@ -22,6 +22,16 @@ export interface ProductFormModalProps {
   onOpenProcessRouteModal: () => void;
 }
 
+const productTypeList = [
+  {
+    label: '成品',
+    value: '0',
+  },
+  {
+    label: '物料',
+    value: '1',
+  },
+];
 // 产品表单模态框引用接口
 export interface ProductFormModalRef {
   // 获取表单实例
@@ -104,6 +114,15 @@ const ProductFormModal = forwardRef<ProductFormModalRef, ProductFormModalProps>(
         >
           <Input placeholder="请输入产品名称" />
         </Form.Item>
+        <Form.Item
+          label="最大返工次数"
+          name="maxReworkCount"
+          rules={[
+            { required: true, message: '请输入最大返工次数' },
+          ]}
+        >
+          <Input type="number" placeholder="请输入最大返工次数" />
+        </Form.Item>
 
         <Form.Item label="BOM ID" rules={[{ required: true, message: '请选择BOM' }]}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
@@ -147,8 +166,9 @@ const ProductFormModal = forwardRef<ProductFormModalRef, ProductFormModalProps>(
           ]}
         >
           <Select placeholder="请选择产品类型">
-            <Select.Option value={0}>成品</Select.Option>
-            <Select.Option value={1}>物料</Select.Option>
+            {productTypeList.map(item => (
+              <Select.Option key={item.value} value={item.value}>{item.label}</Select.Option>
+            ))}
           </Select>
         </Form.Item>
 

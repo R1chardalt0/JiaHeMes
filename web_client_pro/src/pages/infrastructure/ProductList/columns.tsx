@@ -31,6 +31,12 @@ export const getProductColumns = (props: ProductColumnsProps): ProColumns<Produc
       width: 180,
     },
     {
+      title: '最大返工次数',
+      dataIndex: 'maxReworkCount',
+      key: 'maxReworkCount',
+      width: 180,
+    },
+    {
       title: 'BOM编号',
       dataIndex: 'bomCode',
       key: 'bomCode',

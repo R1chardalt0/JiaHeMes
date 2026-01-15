@@ -45,5 +45,9 @@ namespace ChargePadLine.Service.Trace.Dto
     /// 备注信息
     /// </summary>
     public string? Remark { get; set; }
+    /// <summary>
+    /// 最大返工次数
+    /// </summary>
+    public int? MaxReworkCount { get; set; }
   }
 }
