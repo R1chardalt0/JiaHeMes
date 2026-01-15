@@ -28,6 +28,10 @@ export interface MesSnListCurrentQueryDto {
   startTime?: string;
   /** 结束时间 */
   endTime?: string;
+  /** 返工开始时间 */
+  reworkStartTime?: string;
+  /** 返工结束时间 */
+  reworkEndTime?: string;
   /** 页码 */
   pageIndex?: number;
   /** 每页大小 */

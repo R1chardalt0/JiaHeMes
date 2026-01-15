@@ -608,42 +608,26 @@ const ProcessRoutePage: React.FC = () => {
               title: '上限',
               dataIndex: 'upperLimit',
               key: 'upperLimit',
-              search: false,
             },
             {
               title: '下限',
               dataIndex: 'lowerLimit',
               key: 'lowerLimit',
-              search: false,
             },
             {
               title: '单位',
               dataIndex: 'units',
               key: 'units',
-              search: false,
             },
             {
               title: '是否检查',
               dataIndex: 'isCheck',
               key: 'isCheck',
               render: (text) => (text ? '是' : '否'),
-              valueType: 'select',
-              valueEnum: {
-                true: {
-                  text: '是',
-                },
-                false: {
-                  text: '否',
-                },
-              },
-              search: {
-                name: 'isCheck',
-              },
             },
             {
               title: '操作',
               key: 'action',
-              search: false,
               render: (_: any, record: ProcessRouteItemTest) => (
                 <div>
                   <Button
@@ -673,8 +657,9 @@ const ProcessRoutePage: React.FC = () => {
             pageSize: 10,
           }}
           search={false}
-          toolBarRender={() => (
+          toolBarRender={() => [
             <Button
+              key="add"
               type="primary"
               icon={<PlusOutlined />}
               onClick={handleAddTestItem}
@@ -682,7 +667,7 @@ const ProcessRoutePage: React.FC = () => {
             >
               新建测试项
             </Button>
-          )}
+          ]}
         />
       </Modal>
 
