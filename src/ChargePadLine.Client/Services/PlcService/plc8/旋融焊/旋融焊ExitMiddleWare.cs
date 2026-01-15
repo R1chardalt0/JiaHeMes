@@ -93,8 +93,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                     }
                     else
                     {
-                        modbus.Write("2001.0", false);
-                        modbus.Write("2003.0", false);
+                        modbus.Write("2001.0", true);
+                        modbus.Write("2003.0", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站收集失败，mes返回:{res.message}");
                     }
 
