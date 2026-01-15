@@ -57,12 +57,18 @@ namespace ChargePadLine.Service
       // 工单BOM批次服务
       services.AddScoped<IMESOrderBomBatchService, MESOrderBomBatchService>();
       services.AddScoped<IMESOrderBomBatchItemService, MESOrderBomBatchItemService>();
+      // 站点测试项服务
+      services.AddScoped<IStationTestProjectService, StationTestProjectService>();
+      // 工艺路线工位测试服务
+      services.AddScoped<IProcessRouteItemTestService, ProcessRouteItemTestService>();
       // SN实时状态服务
       services.AddScoped<IMesSnListCurrentService, MesSnListCurrentService>();
       // SN历史记录服务
       services.AddScoped<IMesSnListHistoryService, MesSnListHistoryService>();
       //通用接口服务
       services.AddScoped<ICommonInterfaseService, CommonInterfaseService>();
+      // 生产报告服务
+      services.AddScoped<IReportService, ReportService>();
       #endregion
 
       #region 数据迁移服务配置

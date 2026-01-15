@@ -1,5 +1,5 @@
 using ChargePadLine.Service.Trace;
-using ChargePadLine.Service.Trace.Dto;
+using ChargePadLine.Service.Trace.Dto.Station;
 using Microsoft.AspNetCore.Mvc;
 using ChargePadLine.Service;
 using Microsoft.Extensions.Logging;

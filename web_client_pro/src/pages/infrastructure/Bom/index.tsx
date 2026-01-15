@@ -341,7 +341,11 @@ const BomPage: React.FC = () => {
           batchSNQty: values.batchSNQty,
           productId: values.productId,
           productName: values.productName,
-          productCode: values.productCode
+          productCode: values.productCode,
+          productIndex: values.productIndex,
+          numberIndex: values.numberIndex,
+          shelfLife: values.shelfLife,
+          dateIndex: values.dateIndex,
         };
 
         await updateBomItem(editingBomItem.bomItemId, updatedItem);
@@ -357,7 +361,11 @@ const BomPage: React.FC = () => {
           batchSNQty: values.batchSNQty,
           productId: values.productId,
           productName: values.productName,
-          productCode: values.productCode
+          productCode: values.productCode,
+          productIndex: values.productIndex, 
+          numberIndex: values.numberIndex,
+          shelfLife: values.shelfLife,
+          dateIndex: values.dateIndex,
         };
 
         await createBomItem(newItem);

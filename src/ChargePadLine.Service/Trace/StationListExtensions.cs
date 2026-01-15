@@ -1,6 +1,6 @@
 using ChargePadLine.Entitys.Trace.ProcessRouting;
 using ChargePadLine.Entitys.Trace.WorkOrders;
-using ChargePadLine.Service.Trace.Dto;
+using ChargePadLine.Service.Trace.Dto.Station;
 
 namespace ChargePadLine.Service.Trace
 {
@@ -8,7 +8,7 @@ namespace ChargePadLine.Service.Trace
   /// WorkOrder扩展方法
   /// </summary>
   public static class StationListExtensions
-    {
+  {
     /// <summary>
     /// 转换为Dto
     /// </summary>

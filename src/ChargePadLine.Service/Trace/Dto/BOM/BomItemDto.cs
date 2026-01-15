@@ -43,6 +43,26 @@ namespace ChargePadLine.Service.Trace.Dto.BOM
     public Guid? ProductId { get; set; }
 
     /// <summary>
+    /// 日期序列
+    /// </summary>
+    public int? DateIndex { get; set; }
+
+    /// <summary>
+    /// 数量序列
+    /// </summary>
+    public int? NumberIndex { get; set; }
+
+    /// <summary>
+    /// 物料保质期（分钟）
+    /// </summary>
+    public int? ShelfLife { get; set; }
+
+    /// <summary>
+    /// 物料号序列
+    /// </summary>
+    public int? ProductIndex { get; set; }
+
+    /// <summary>
     /// 创建时间
     /// </summary>
     public DateTimeOffset? CreateTime { get; set; }
