@@ -1,5 +1,6 @@
 ﻿using DeviceManage.DBContext;
 using DeviceManage.DBContext.Repository;
+using DeviceManage.Helpers;
 using DeviceManage.Models;
 using Microsoft.Extensions.Logging;
 using System;
@@ -14,13 +15,15 @@ namespace DeviceManage.Services.DeviceMagService.Impl
     {
         private readonly IRepository<PlcDevice> _plcDeviceRepo;
         private readonly AppDbContext _dbContext;
+        private readonly ILogService _logService;
         private ILogger<PlcDeviceService> _logger;
 
 
-        public PlcDeviceService(IRepository<PlcDevice> plcDeviceRepo, AppDbContext dbContext, ILogger<PlcDeviceService> logge)
+        public PlcDeviceService(IRepository<PlcDevice> plcDeviceRepo, AppDbContext dbContext, ILogService logService, ILogger<PlcDeviceService> logge)
         {
             _plcDeviceRepo = plcDeviceRepo;
             _dbContext = dbContext;
+            _logService = logService;
             _logger = logge;
         }
 
@@ -38,6 +41,14 @@ namespace DeviceManage.Services.DeviceMagService.Impl
         {
             await _plcDeviceRepo.InsertAsync(plcDevice);
             await _dbContext.SaveChangesAsync();
+
+            await _logService.LogAsync(
+                CurrentUserContext.UserId,
+                CurrentUserContext.Username,
+                OperationType.Create,
+                "PLC设备管理",
+                $"新增PLC设备：{plcDevice.PLCName} (ID:{plcDevice.Id})");
+
             return plcDevice;
         }
 
@@ -58,6 +69,14 @@ namespace DeviceManage.Services.DeviceMagService.Impl
 
             _plcDeviceRepo.Update(existingDevice);
             await _dbContext.SaveChangesAsync();
+
+            await _logService.LogAsync(
+                CurrentUserContext.UserId,
+                CurrentUserContext.Username,
+                OperationType.Update,
+                "PLC设备管理",
+                $"修改PLC设备：{existingDevice.PLCName} (ID:{existingDevice.Id})");
+
             return existingDevice;
         }
 
@@ -66,8 +85,18 @@ namespace DeviceManage.Services.DeviceMagService.Impl
             var plcDevice = await _plcDeviceRepo.GetAsync(r => r.Id == id);
             if (plcDevice != null)
             {
+                var plcName = plcDevice.PLCName;
+                var plcId = plcDevice.Id;
+
                 _plcDeviceRepo.Delete(plcDevice);
                 await _dbContext.SaveChangesAsync();
+
+                await _logService.LogAsync(
+                    CurrentUserContext.UserId,
+                    CurrentUserContext.Username,
+                    OperationType.Delete,
+                    "PLC设备管理",
+                    $"删除PLC设备：{plcName} (ID:{plcId})");
             }
             else
             {

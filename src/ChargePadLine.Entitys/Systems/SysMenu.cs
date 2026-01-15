@@ -528,7 +528,7 @@ namespace ChargePadLine.Entitys.Systems
                     ParentId = 6,
                     OrderNum = 1,
                     Path = "/history/product",
-                    Component = "History/ProductTraceInfo/index",
+                    Component = "History/ProductTraceInfo",
                     Query = null,
                     RouteName = null,
                     IsFrame = "1",

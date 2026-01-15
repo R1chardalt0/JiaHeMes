@@ -1,0 +1,290 @@
+<UserControl x:Class="ChargePadLine.Client.Views.MonitorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ChargePadLine.Client.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="FICON" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="../font/#iconfont"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="TextAlignment"  Value="Center"/>
+        </Style>
+
+        <!-- Tab 高亮：选中(点击) / 悬停(鼠标 hover) -->
+        <Style x:Key="MonitorTabItemStyle" TargetType="TabItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <!-- TabItem 高度 -->
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter x:Name="ContentPresenter"
+                                              ContentSource="Header"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- 悬停高亮 -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1A2F80ED"/>
+                            </Trigger>
+                            <!-- 点击选中高亮 -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#332F80ED"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <TabControl TabStripPlacement="Left"
+                    ItemContainerStyle="{StaticResource MonitorTabItemStyle}">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6ed;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">定子检测/O型圈及冷却</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                                  VerticalContentAlignment="Top" 
+                                  HorizontalContentAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Padding="0"
+                                  Margin="0">
+                        <local:StatorTestAndO_RingInspection Margin="10,0,10,0" 
+                                      VerticalAlignment="Top" 
+                                      HorizontalAlignment="Stretch"
+                                      DataContext="{Binding StatorTestViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6fd;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">电机腔气密测试/导热胶涂敷</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                   VerticalContentAlignment="Top" 
+                   HorizontalContentAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   Padding="0"
+                   Margin="0">
+                        <local:导热胶And气密View Margin="10,0,10,0" 
+                       VerticalAlignment="Top" 
+                       HorizontalAlignment="Stretch"
+                       DataContext="{Binding 导热胶And气密ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6e2;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">FCT性能测试/热铆</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                          VerticalContentAlignment="Top" 
+                          HorizontalContentAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Padding="0"
+                          Margin="0">
+                        <local:性能检测And热铆View Margin="10,0,10,0" 
+                         VerticalAlignment="Top" 
+                         HorizontalAlignment="Stretch"
+                         DataContext="{Binding 性能检查And热铆ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6ee;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">后盖超声波焊接/干区气密测试</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                                  VerticalContentAlignment="Top" 
+                                  HorizontalContentAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Padding="0"
+                                  Margin="0">
+                        <local:后盖超声波焊接And干区气密测试View Margin="10,0,10,0" 
+                                      VerticalAlignment="Top" 
+                                      HorizontalAlignment="Stretch"
+                                      DataContext="{Binding 后盖超声波焊接And干区气密测试ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6e7;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">转子充磁与装配</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                                  VerticalContentAlignment="Top" 
+                                  HorizontalContentAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Padding="0"
+                                  Margin="0">
+                        <local:转子充磁And装配View Margin="10,0,10,0" 
+                                      VerticalAlignment="Top" 
+                                      HorizontalAlignment="Stretch"
+                                      DataContext="{Binding 转子充磁And装配ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6e4;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">测功机</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="White"/>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe6fb;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">止推垫片装配/超声波焊接</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                                  VerticalContentAlignment="Top" 
+                                  HorizontalContentAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Padding="0"
+                                  Margin="0">
+                        <local:止推垫片装配View Margin="10,0,10,0" 
+                                      VerticalAlignment="Top" 
+                                      HorizontalAlignment="Stretch"
+                                      DataContext="{Binding 止推垫片装配ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe716;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">旋融焊</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                   VerticalContentAlignment="Top" 
+                   HorizontalContentAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   Padding="0"
+                   Margin="0">
+                        <local:旋融焊View Margin="10,0,10,0" 
+                       VerticalAlignment="Top" 
+                       HorizontalAlignment="Stretch"
+                       DataContext="{Binding 旋融焊ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe713;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">湿区气密测试</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                                  VerticalContentAlignment="Top" 
+                                  HorizontalContentAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Padding="0"
+                                  Margin="0">
+                        <local:湿区气密View Margin="10,0,10,0" 
+                                      VerticalAlignment="Top" 
+                                      HorizontalAlignment="Stretch"
+                                      DataContext="{Binding 湿区气密ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe703;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">EOL测试</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                                  VerticalContentAlignment="Top" 
+                                  HorizontalContentAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Padding="0"
+                                  Margin="0">
+                        <local:EOLEnterView Margin="10,0,10,0" 
+                                      VerticalAlignment="Top" 
+                                      HorizontalAlignment="Stretch"
+                                      DataContext="{Binding EOLEnterViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Height="25" VerticalAlignment="Bottom">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource FICON}" Text="&#xe719;" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Margin="5,0" FontWeight="Heavy" VerticalAlignment="Center">激光刻/支架安装/打包</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <Grid Background="White" VerticalAlignment="Stretch">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                  VerticalContentAlignment="Top" 
+                  HorizontalContentAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Padding="0"
+                  Margin="0">
+                        <local:安装支架And激光刻印View Margin="10,0,10,0" 
+                      VerticalAlignment="Top" 
+                      HorizontalAlignment="Stretch"
+                      DataContext="{Binding 安装支架And激光刻印ViewModel}"/>
+                    </ScrollViewer>
+                </Grid>
+
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>
