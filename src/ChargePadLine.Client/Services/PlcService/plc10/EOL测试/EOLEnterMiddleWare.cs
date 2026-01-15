@@ -72,7 +72,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
                         stationCode = _stationconfig.Station14.StationCode,
                         workOrderCode = _stationconfig.Station14.WorkOrderCode
                     };
-                    var res = await _mesApi.UploadCheck(reqParam);
+                    var res = await _mesApi.UploadMaster(reqParam);
                     if (res.code == 0)
                     {
                         s7Net.Write("DB4010.10.0", true);

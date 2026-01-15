@@ -83,7 +83,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                         testResult = isok ? "Pass" : "Fail",
                         testData = testDatas
                     };
-                    var res = await _mesApi.UploadData(reqParam);
+                    var res = await _mesApi.UploadMaster(reqParam);
                     if (res.code == 0)
                     {
                         modbus.Write("3001.0", true);

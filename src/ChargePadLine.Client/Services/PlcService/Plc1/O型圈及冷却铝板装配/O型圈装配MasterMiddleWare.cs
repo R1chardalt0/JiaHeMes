@@ -84,7 +84,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                         testResult = isok ? "Pass" : "Fail",
                         testData = testDatas
                     };
-                    var res = await _mesApi.UploadData(reqParam);
+                    var res = await _mesApi.UploadMaster(reqParam);
                     if (res.code == 0)
                     {
                         s7Net.Write("DB4020.14.0", true);

@@ -85,7 +85,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.后盖超声波焊接
                         testResult = isok ? "Pass" : "Fail",
                         testData = testDatas
                     };
-                    var res = await _mesApi.UploadData(reqParam);
+                    var res = await _mesApi.UploadMaster(reqParam);
                     if (res.code == 0)
                     {
                         s7Net.Write("DB4010.14.0", true);
