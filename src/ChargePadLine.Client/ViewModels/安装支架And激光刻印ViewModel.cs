@@ -12,7 +12,7 @@ namespace ChargePadLine.Client.ViewModels
         private readonly 激光刻印ExitModel _激光刻印ExitModel;
         private readonly 激光刻印MasterModel _激光刻印MasterModel;
 
-        public 安装支架And激光刻印ViewModel(安装支架EnterModel 安装支架EnterModel, 安装支架ExitModel 安装支架ExitModel, 激光刻印EnterModel 激光刻印EnterModel = null, 激光刻印ExitModel 激光刻印ExitModel = null, 安装支架MasterModel 安装支架MasterModel = null, 激光刻印MasterModel 激光刻印MasterModel = null)
+        public 安装支架And激光刻印ViewModel(安装支架EnterModel 安装支架EnterModel, 安装支架ExitModel 安装支架ExitModel, 激光刻印EnterModel 激光刻印EnterModel, 激光刻印ExitModel 激光刻印ExitModel, 安装支架MasterModel 安装支架MasterModel, 激光刻印MasterModel 激光刻印MasterModel)
         {
             _安装支架EnterModel = 安装支架EnterModel;
             _安装支架ExitModel = 安装支架ExitModel;

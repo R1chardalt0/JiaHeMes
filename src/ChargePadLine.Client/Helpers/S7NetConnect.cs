@@ -2,7 +2,9 @@
 using HslCommunication.Core.Pipe;
 using HslCommunication.Profinet.Siemens;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ChargePadLine.Client.Helpers
 {
@@ -432,30 +434,33 @@ namespace ChargePadLine.Client.Helpers
         /// <param name="address">寄存器地址</param>
         /// <param name="length">字符串长度</param>
         /// <returns>读取结果</returns>
-        public OperateResult<string> ReadString(string address, ushort length)
+        //public OperateResult<string> ReadString(string address, ushort length)
+        //{
+        //    try
+        //    {
+        //        var result = _s7net.ReadString(address, length, Encoding.ASCII);
+        //        return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger?.LogError(string.Format($"S7Net读取字符串异常 - 地址: {0}, 长度: {1}", address, length), ex);
+        //        return new OperateResult<string>(ex.Message);
+        //    }
+        //}
+        public string ReadString(string address, ushort length)
         {
             try
             {
-                var result = _s7net.ReadString(address, length, Encoding.ASCII);
-                return result;
+                var value = _s7net.ReadString(address, length).Content;
+                string cleanedValue = Regex.Replace(value, @"[\u0000-\u001F]", "");
+                cleanedValue = Regex.Unescape(cleanedValue);
+                cleanedValue = cleanedValue.Trim();
+                return cleanedValue;
             }
             catch (Exception ex)
             {
                 _logger?.LogError(string.Format($"S7Net读取字符串异常 - 地址: {0}, 长度: {1}", address, length), ex);
-                return new OperateResult<string>(ex.Message);
-            }
-        }
-        public OperateResult<string> ReadString(string address)
-        {
-            try
-            {
-                var result = _s7net.ReadString(address, Encoding.ASCII);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(string.Format($"S7Net读取字符串异常 - 地址: {0}", address), ex);
-                return new OperateResult<string>(ex.Message);
+                return new string(ex.Message);
             }
         }
 

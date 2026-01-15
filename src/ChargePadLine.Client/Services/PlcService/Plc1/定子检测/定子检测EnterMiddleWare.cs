@@ -17,16 +17,16 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
     public class 定子检测EnterMiddleWare : IPlc1Task
     {
         private readonly ILogger<定子检测EnterMiddleWare> _logger;
-        private readonly StatorEnterModel _statorTestDataService;
+        private readonly StatorEnterModel _statorEnterModel;
         private readonly ILogService _logService;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
         private const string PlcName = "【定子检测】";
 
-        public 定子检测EnterMiddleWare(ILogger<定子检测EnterMiddleWare> logger, StatorEnterModel statorTestDataService, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
+        public 定子检测EnterMiddleWare(ILogger<定子检测EnterMiddleWare> logger, StatorEnterModel statorEnterModel, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
-            _statorTestDataService = statorTestDataService;
+            _statorEnterModel = statorEnterModel;
             _logService = logService;
             _stationconfig = stationconfig.Value;
             _mesApi = mesApi;
@@ -59,10 +59,10 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
                 var resp = s7Net.ReadBool("DB4010.10.0").Content;
                 var enterok = s7Net.ReadBool("DB4010.2.0").Content;//进站OK
                 var enterng = s7Net.ReadBool("DB4010.2.1").Content;//进站NG
-                var sn = s7Net.ReadString("DB4010.200", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                var sn = s7Net.ReadString("DB4010.200", 100);
 
                 // 更新数据服务
-                _statorTestDataService.UpdateData(req, resp, sn, enterok, enterng, statusMessage);
+                _statorEnterModel.UpdateData(req, resp, sn, enterok, enterng, statusMessage);
 
                 if (req && !resp)
                 {

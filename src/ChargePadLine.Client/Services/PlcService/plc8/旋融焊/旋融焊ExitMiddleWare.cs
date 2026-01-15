@@ -41,7 +41,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                 var resp = modbus.ReadBool("2001.0").Content;
                 var exitok = modbus.ReadBool("2002.0").Content;//进站OK
                 var exitng = modbus.ReadBool("2003.0").Content;//进站NG
-                var sn = modbus.ReadString("2004", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                var sn = modbus.ReadString("2004", 100);
                 // 更新数据服务
                 _exitModel.UpdateData(req, resp, sn, exitok, exitng);
 
@@ -93,8 +93,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                     }
                     else
                     {
-                        modbus.Write("2001.0", false);
-                        modbus.Write("2003.0", false);
+                        modbus.Write("2001.0", true);
+                        modbus.Write("2003.0", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站收集失败，mes返回:{res.message}");
                     }
 
