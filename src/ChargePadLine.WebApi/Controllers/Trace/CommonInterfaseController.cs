@@ -30,7 +30,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
        /// </summary>
        /// <param name="sn"></param>
        /// <returns></returns>
-        [HttpPost("TraceSN")]
+        [HttpGet("TraceSN")]
         public async Task<FSharpResult<SnTraceDto, (int, string)>> TraceSN(string sn)
         {
              

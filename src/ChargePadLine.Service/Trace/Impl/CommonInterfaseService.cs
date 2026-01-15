@@ -236,13 +236,13 @@ namespace ChargePadLine.Service.Trace.Impl
                 }
             }
 
-            // 15. 检查批次是否已存在或设备是否已有上料记录（合并查询优化性能）
+            // 15. 检查批次是否已存在或设备是否已有上料记录（合并查询优化性能） x.BatchQty>1 单批次物料可以上多个
             var checkOrderBomBatch = await _dbContext.MesOrderBomBatch.FirstOrDefaultAsync(x =>
                 x.BatchCode == request.BatchCode ||
                 (x.ResourceId == ResourceId &&
                  x.OrderBomBatchStatus == 1 &&
                  x.StationListId == StationList.StationId &&
-                 x.ProductListId == product.ProductListId));
+                 x.ProductListId == product.ProductListId && x.BatchQty>1));
 
             if (checkOrderBomBatch != null)
             {
@@ -418,6 +418,14 @@ namespace ChargePadLine.Service.Trace.Impl
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},当前站点不一致，SN站点{SNStationList.StationCode}，上传站点{request.StationCode}"));
                 }
 
+                var CurrentStationList= processRouteItems.Where(x=>x.StationId == SNList.CurrentStationListId).First();
+                var RequestStationList = processRouteItems.Where(x => x.StationCode == request.StationCode).First();
+
+                if (CurrentStationList.RouteSeq < RequestStationList.RouteSeq)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号,当前站点{CurrentStationList.StationCode},不能小于{RequestStationList.StationCode}站点，顺序不一致"));
+                }
+
                 // 10.4 检查 SN 是否异常
                 if (SNList.IsAbnormal == true)
                 {
@@ -485,6 +493,10 @@ namespace ChargePadLine.Service.Trace.Impl
                         {
                             return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},上一必过站点{prevMustPassStation.StationCode}没有PASS记录"));
                         }
+                    }
+                    if(SnListhistory.Where(x=>x.Station.StationCode==request.StationCode && x.SnHistory.StationStatus == 1).Any() == true)
+                    {
+                        return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},站点{request.StationCode}已有PASS记录"));
                     }
                 }
             }
@@ -693,7 +705,7 @@ namespace ChargePadLine.Service.Trace.Impl
                     SNListHistoryId = Guid.NewGuid(),                  // 历史记录ID
                     SnNumber = snCurrent.SnNumber,                     // SN号
                     OrderListId = snCurrent.OrderListId,               // 关联工单
-                    CurrentStationListId = snCurrent.CurrentStationListId, // 当前站点ID
+                    CurrentStationListId = station.StationId, // 当前站点ID
                     ProductionLineId = deviceInfo.ProductionLineId,    // 生产线ID
                     ProductListId = workOrder.ProductListId,           // 产品ID
                     ResourceId = deviceInfo.ResourceId,                // 设备资源ID
@@ -795,7 +807,7 @@ namespace ChargePadLine.Service.Trace.Impl
                     }
 
                     // 8.7.4 更新上料批次的已完成数量
-                    orderBomBatch.CompletedQty += 1;
+                    orderBomBatch.CompletedQty = (orderBomBatch.CompletedQty ?? 0) + 1;
                     if (orderBomBatch.CompletedQty >= orderBomBatch.BatchQty)
                     {
                         // 如果已完成数量达到批次数量，将上料状态标记为已完成(2)
@@ -841,7 +853,7 @@ namespace ChargePadLine.Service.Trace.Impl
                 }
 
                 // 8.10 处理非必过站的跳站逻辑
-                if (currentStep.MustPassStation == false)
+                if (currentStep.MustPassStation == true)
                 {
                     // 8.10.1 查找下一个必过站
                     var nextStep = processRouteItems
@@ -895,6 +907,7 @@ namespace ChargePadLine.Service.Trace.Impl
             var snCurrent = await _dbContext.mesSnListCurrents
                 .Include(c => c.OrderList)       // 包含工单信息
                 .Include(c => c.StationList)     // 包含当前站点信息
+                .Include(c => c.ProductList) // 包含产品信息
                 .FirstOrDefaultAsync(c => c.SnNumber == sn);
 
             if (snCurrent == null)
@@ -929,7 +942,7 @@ namespace ChargePadLine.Service.Trace.Impl
             {
                 SN = sn,                                     // SN号
                 OrderCode = snCurrent.OrderList?.OrderCode,   // 工单编码
-                ProductCode = snCurrent.OrderList?.ProductList?.ProductCode, // 产品编码
+                ProductCode = snCurrent?.ProductList?.ProductCode, // 产品编码
                 CurrentStation = snCurrent.StationList?.StationCode, // 当前站点
                 StationStatus = snCurrent.StationStatus,      // 站点状态
                 IsAbnormal = snCurrent.IsAbnormal,            // 是否异常
@@ -1032,6 +1045,10 @@ namespace ChargePadLine.Service.Trace.Impl
             public string SnNumber { get; set; }
             public DateTime CreateTime { get; set; }
         }
+
+
+
+
 
 
     }
