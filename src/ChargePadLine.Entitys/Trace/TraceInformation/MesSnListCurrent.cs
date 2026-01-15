@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using ChargePadLine.Entitys.Trace.Order;
 using ChargePadLine.Entitys.Trace.ProcessRouting;
+using ChargePadLine.Entitys.Trace.Product;
 
 namespace ChargePadLine.Entitys.Trace.TraceInformation
 {
@@ -34,7 +35,12 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
         /// </summary>
         [Description("产品ID")]
         public Guid ProductListId { get; set; }
-
+        /// <summary>
+        /// 产品
+        /// </summary>
+        [Description("产品")]
+        [ForeignKey("ProductListId")]
+        public ProductList? ProductList { get; set; }
         /// <summary>
         /// 工单ID
         /// </summary>
