@@ -15,6 +15,12 @@ namespace DeviceManage.ViewModels
         public ReactiveProperty<string> Value { get; } = new ReactiveProperty<string>();
         public ReactiveProperty<string?> Unit { get; } = new ReactiveProperty<string?>();
         public ReactiveProperty<string> Remarks { get; } = new ReactiveProperty<string>();
+        
+        // 判断是否为 Bool 类型的计算属性
+        public ReactiveProperty<bool> IsBoolType { get; } = new ReactiveProperty<bool>(false);
+        
+        // 用于跟踪之前的数据类型，以便检测从 Bool 切换到其他类型
+        private DataType? _previousDataType = null;
 
         public TagDetailRow()
         {
@@ -24,12 +30,45 @@ namespace DeviceManage.ViewModels
             Value.Value = string.Empty;
             Unit.Value = null;
             Remarks.Value = string.Empty;
+            
+            // 初始化 IsBoolType
+            IsBoolType.Value = DataType.Value == Models.DataType.Bool;
+            _previousDataType = DataType.Value;
+            
+            // 订阅数据类型变化，当切换到 Bool 时自动调整值，从 Bool 切换到其他类型时清空值
+            DataType.Subscribe(dt =>
+            {
+                // 检查是否从 Bool 切换到其他类型
+                if (_previousDataType == Models.DataType.Bool && dt != Models.DataType.Bool)
+                {
+                    // 从 Bool 切换到其他类型，清空值
+                    Value.Value = string.Empty;
+                }
+                
+                // 更新 IsBoolType 属性
+                IsBoolType.Value = dt == Models.DataType.Bool;
+                
+                if (dt == Models.DataType.Bool)
+                {
+                    // 如果当前值不是 "true" 或 "false"，则设置为 "true"
+                    var currentValue = Value.Value?.Trim().ToLower();
+                    if (currentValue != "true" && currentValue != "false")
+                    {
+                        Value.Value = "true";
+                    }
+                }
+                
+                // 更新之前的数据类型
+                _previousDataType = dt;
+            });
         }
 
         public TagDetailRow(TagDetail detail) : this()
         {
             TagName.Value = detail.TagName;
             Address.Value = detail.Address;
+            // 先设置之前的数据类型，避免触发清空逻辑
+            _previousDataType = detail.DataType;
             DataType.Value = detail.DataType;
             Value.Value = detail.Value;
             Unit.Value = detail.Unit;

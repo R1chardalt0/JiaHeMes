@@ -46,9 +46,14 @@ public class ApiClient
             var json = JsonConvert.SerializeObject(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(endpoint, content);
-            response.EnsureSuccessStatusCode();
-            var responseJson = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<TResponse>(responseJson);
+            var responseText = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException($"Response status code does not indicate success: {(int)response.StatusCode} ({response.ReasonPhrase}). Body: {responseText}");
+            }
+
+            return JsonConvert.DeserializeObject<TResponse>(responseText);
         }
         catch (Exception ex)
         {

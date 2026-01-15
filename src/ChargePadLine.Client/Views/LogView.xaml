@@ -1,0 +1,120 @@
+<UserControl x:Class="ChargePadLine.Client.Views.LogView"     
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:vm="clr-namespace:ChargePadLine.Client.ViewModels">
+    <Border Background="{DynamicResource RegionBrush}">
+        <DockPanel>
+            <!-- 标题栏和工具栏 -->
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="100,0,0,5">
+                <TextBlock 
+                   Text="{Binding Header.Value}" 
+                   Style="{StaticResource TextBlockTitle}" 
+                   FontFamily="Microsoft YaHei" 
+                   FontWeight="Heavy"
+                   VerticalAlignment="Center"
+                   Margin="0,0,10,0"/>
+                <Button Content="清空"  
+                        Command="{Binding ClearLogs}"
+                        Padding="8,4"
+                        Margin="60,0,5,0"
+                        FontSize="12"/>
+            </StackPanel>
+            
+            <!-- 日志列表 -->
+            <hc:ScrollViewer 
+                 Name="scroll"
+                 ScrollChanged="Scroll_ScrollChanged"
+                 HorizontalScrollBarVisibility="Disabled" 
+                 VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Logs.Value}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="3,2" Margin="0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Level}" Value="Warning">
+                                                    <Setter Property="Foreground" Value="Orange"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Level}" Value="Error">
+                                                    <Setter Property="Foreground" Value="Red"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Level}" Value="Critical">
+                                                    <Setter Property="Foreground" Value="DarkRed"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                </DataTrigger>
+                                                <!-- 操作日志样式 -->
+                                                <DataTrigger Binding="{Binding Type}" Value="Operation">
+                                                    <Setter Property="Foreground" Value="#0066CC"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Resources>
+                                    
+                                    <!-- 时间戳 -->
+                                    <TextBlock Grid.Column="0" Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss.fff}}" 
+                                               Foreground="Gray" 
+                                               FontSize="11"
+                                               Margin="0,1.8,5,0"
+                                               VerticalAlignment="Center"/>
+                                    
+                                    <!-- 日志类型标识 -->
+                                    <!--<TextBlock Margin="0,0,5,0" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="[系统]"/>
+                                                <Setter Property="Foreground" Value="#666"/>
+                                                <Setter Property="FontSize" Value="10"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Operation">
+                                                        <Setter Property="Text" Value="[操作]"/>
+                                                        <Setter Property="Foreground" Value="#0066CC"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>-->
+                                    
+                                    <!-- 用户名（如果有） -->
+                                    <TextBlock Grid.Column="1" Text="{Binding UserName, StringFormat={}[{0}]}" 
+                                               Foreground="#009900"
+                                               FontSize="11"
+                                               Margin="0,0,5,0"
+                                               VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <!-- 当 Text 不为空时显示（Text 是格式化后的 UserName） -->
+                                                    <Trigger Property="Text" Value="">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </Trigger>
+                                                    <Trigger Property="Text" Value="[]">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    
+                                    <!-- 日志内容 -->
+                                    <TextBlock Grid.Column="2" Text="{Binding Content}" 
+                                               TextWrapping="Wrap"
+                                               TextTrimming="None"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </hc:ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

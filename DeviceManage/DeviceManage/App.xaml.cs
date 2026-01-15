@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
 using System.Data;
+using System.Threading;
 using System.Windows;
 using HandyControl.Controls;
 using MessageBox = HandyControl.Controls.MessageBox;
@@ -22,9 +23,25 @@ namespace DeviceManage
     {
         private ServiceProvider? _serviceProvider;
         private IConfiguration? _configuration;
+        private Mutex? _mutex;
+        private const string MutexName = "设备管理软件";
+        private Helpers.IdleDetectionService? _idleDetectionService;
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            // 检查是否已有实例在运行
+            bool createdNew;
+            _mutex = new Mutex(true, MutexName, out createdNew);
+            
+            if (!createdNew)
+            {
+                // 如果 Mutex 已存在，说明程序已在运行
+                MessageBox.Show("当前程序已启动，无法重复运行。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                _mutex?.Dispose();
+                Shutdown(1);
+                return;
+            }
+
             try
             {
                 base.OnStartup(e);
@@ -48,6 +65,15 @@ namespace DeviceManage
                 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
                 InitializeDatabaseAndStartServices(_serviceProvider);
 
+                // 启动空闲检测服务（根据配置决定是否启用）
+                var idleDetectionEnabled = _configuration.GetValue<bool>("IdleDetection:Enabled", true);
+                if (idleDetectionEnabled)
+                {
+                    var idleTimeoutMinutes = _configuration.GetValue<int>("IdleDetection:TimeoutMinutes", 3);
+                    _idleDetectionService = new Helpers.IdleDetectionService(idleTimeoutMinutes: idleTimeoutMinutes);
+                    _idleDetectionService.Start();
+                }
+
                 var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
                 loginWindow.Show();
             }
@@ -67,6 +93,11 @@ namespace DeviceManage
         {
             // 注册配置
             services.AddSingleton(_configuration!);
+            // 添加日志服务
+            services.AddLogging(logging =>
+            {
+                logging.AddLog4Net();
+            });
 
             // 从配置读取API地址
             var apiBaseUrl = _configuration!["ApiSettings:BaseUrl"] ?? "http://localhost:5000";
@@ -100,17 +131,26 @@ namespace DeviceManage
             services.AddTransient<SystemSettingsViewModel>();
             services.AddTransient<LogManagementViewModel>();
             services.AddTransient<UserManagementViewModel>();
+            services.AddTransient<UserViewModel>();
             services.AddTransient<RecipeViewModel>();
             services.AddTransient<TagViewModel>();
 
             // 注册Windows
             services.AddTransient<MainWindow>();
             services.AddTransient<LoginWindow>();
+
+           
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
+            // 停止空闲检测服务
+            _idleDetectionService?.Stop();
+            _idleDetectionService?.Dispose();
+            
             _serviceProvider?.Dispose();
+            _mutex?.ReleaseMutex();
+            _mutex?.Dispose();
             base.OnExit(e);
         }
 
@@ -124,8 +164,9 @@ namespace DeviceManage
                 {
                     // 初始化AppDbContext数据库
                     var dbContext = scopedServices.GetRequiredService<AppDbContext>();
-                    dbContext.Database.EnsureCreated();
                     var logger = scopedServices.GetRequiredService<ILogger<App>>();
+
+                    dbContext.Database.EnsureCreated();
                     logger.LogInformation("数据库创建成功");
                 }
                 catch (Exception ex)

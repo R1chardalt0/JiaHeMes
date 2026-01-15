@@ -1,0 +1,323 @@
+﻿<UserControl x:Class="ChargePadLine.Client.Views.后盖超声波焊接And干区气密测试View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ChargePadLine.Client.Views"
+             xmlns:bar="clr-namespace:ChargePadLine.Client.CustomerControl"
+             xmlns:viewModels="clr-namespace:ChargePadLine.Client.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewModels:后盖超声波焊接And干区气密测试ViewModel}" d:DesignWidth="800" Height="915">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
+            <bar:TitleBar IconText="&#xe6ee;" TitleText="{Binding 后盖超声波焊接Status, StringFormat='后盖超声波焊接({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
+
+            <!-- 后盖超声波焊接 - PLC进站 -->
+            <GroupBox Header="　PLC进站" Margin="10,10,10,10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding 后盖超声波焊接EnterReq}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="进站请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding 后盖超声波焊接EnterResp}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="进站响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号 (SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding 后盖超声波焊接EnterSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 后盖超声波焊接EnterOk}"
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                          IsActive="{Binding 后盖超声波焊接EnterNg}"
+                         ActiveColor="Red"/>
+                        <TextBlock Text="进站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- 后盖超声波焊接 - PLC出站 -->
+            <GroupBox Header="PLC出站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding 后盖超声波焊接ExitReq}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="出站请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding 后盖超声波焊接ExitResp}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="出站响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding 后盖超声波焊接ExitSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding 后盖超声波焊接ExitOk}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="出站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 后盖超声波焊接ExitNg}"  
+                        ActiveColor="Red"/>
+                        <TextBlock Text="出站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- 后盖超声波焊接 - PLC点检 -->
+            <GroupBox Header="PLC点检" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+               IsActive="{Binding 后盖超声波焊接MasterReq}" 
+               ActiveColor="Green"/>
+                        <TextBlock Text="点检请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+               IsActive="{Binding 后盖超声波焊接MasterResp}" 
+               ActiveColor="Green"/>
+                        <TextBlock Text="点检响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding 后盖超声波焊接MasterSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+               IsActive="{Binding 后盖超声波焊接MasterOk}" 
+               ActiveColor="Green"/>
+                        <TextBlock Text="点检响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+              IsActive="{Binding 后盖超声波焊接MasterNg}"  
+              ActiveColor="Red"/>
+                        <TextBlock Text="点检响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <bar:TitleBar IconText="&#xe717;" TitleText="{Binding 干区气密测试Status, StringFormat='干区气密测试({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
+
+            <!-- 干区气密测试 - PLC进站 -->
+            <GroupBox Header="　PLC进站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 干区气密测试EnterReq}" 
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 干区气密测试EnterResp}" 
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号 (SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding 干区气密测试EnterSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 干区气密测试EnterOk}"
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 干区气密测试EnterNg}"
+                        ActiveColor="Red"/>
+                        <TextBlock Text="进站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+           
+            <!--  干区气密测试 - PLC出站 -->
+            <GroupBox Header="　PLC出站" Margin="10,10,10,0" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 干区气密测试ExitReq}" 
+                        ActiveColor="Green"/>
+                        <TextBlock Text="出站请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 干区气密测试ExitResp}" 
+                        ActiveColor="Green"/>
+                        <TextBlock Text="出站响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding 干区气密测试ExitSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 干区气密测试ExitOk}" 
+                        ActiveColor="Green"/>
+                        <TextBlock Text="出站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding 干区气密测试ExitNg}"  
+                        ActiveColor="Red"/>
+                        <TextBlock Text="出站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!--  干区气密测试 - PLC点检 -->
+            <GroupBox Header="　PLC点检" Margin="10,10,10,0" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+             IsActive="{Binding 干区气密MasterReq}" 
+             ActiveColor="Green"/>
+                        <TextBlock Text="点检请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+             IsActive="{Binding 干区气密MasterResp}" 
+             ActiveColor="Green"/>
+                        <TextBlock Text="点检响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding 干区气密MasterSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+             IsActive="{Binding 干区气密MasterOk}" 
+             ActiveColor="Green"/>
+                        <TextBlock Text="点检响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+             IsActive="{Binding 干区气密MasterNg}"  
+             ActiveColor="Red"/>
+                        <TextBlock Text="点检响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

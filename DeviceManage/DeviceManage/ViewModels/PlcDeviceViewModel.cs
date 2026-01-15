@@ -3,6 +3,7 @@ using DeviceManage.Models;
 using DeviceManage.Services.DeviceMagService;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -17,6 +18,7 @@ namespace DeviceManage.ViewModels
     public class PlcDeviceViewModel : ViewModelBase
     {
         public readonly IPlcDeviceService _plcDeviceService;
+        private readonly IRecipeService _recipeService;
         private readonly ILogger<PlcDeviceViewModel> _logger;
 
         /// <summary>
@@ -44,9 +46,10 @@ namespace DeviceManage.ViewModels
         /// </summary>
         public ReactiveProperty<bool> IsDialogOpen { get; }
 
-        public PlcDeviceViewModel(IPlcDeviceService plcDeviceService, ILogger<PlcDeviceViewModel> logger)
+        public PlcDeviceViewModel(IPlcDeviceService plcDeviceService, IRecipeService recipeService, ILogger<PlcDeviceViewModel> logger)
         {
             this._plcDeviceService = plcDeviceService;
+            this._recipeService = recipeService;
             this._logger = logger;
 
             // 初始化ReactiveProperty
@@ -195,7 +198,6 @@ namespace DeviceManage.ViewModels
                 await _plcDeviceService.DeletePlcDeviceAsync(device.Id);
                 _logger.LogInformation($"成功删除PLC设备 (ID: {device.Id}, 名称: {deviceName})");
 
-                MessageBox.Show($"PLC设备 \"{deviceName}\" 已成功删除！","删除成功", MessageBoxButton.OK,MessageBoxImage.Information);
                 await LoadPlcDevicesAsync();
                 if (SelectedPlcDevice.Value != null && SelectedPlcDevice.Value.Id == device.Id)
                 {
@@ -267,6 +269,22 @@ namespace DeviceManage.ViewModels
         {
             IsDialogOpen.Value = false;
             EditingPlcDevice.Value = new PlcDevice();
+        }
+        
+        /// <summary>
+        /// 根据配方ID获取标签列表
+        /// </summary>
+        public async Task<List<DeviceManage.Models.Tag>> GetTagListByRecipeIdAsync(int id)
+        {
+            try
+            {
+                return await _recipeService.GetTagListByRecipeIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"根据配方ID获取标签列表失败 (RecipeId: {id}): {ex.Message}");
+                throw;
+            }
         }
     }
 }
