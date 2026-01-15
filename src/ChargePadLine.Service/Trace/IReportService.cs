@@ -12,12 +12,14 @@ namespace ChargePadLine.Service.Trace
     public interface IReportService
     {
         /// <summary>
-        /// 获取当日每小时产出统计
+        /// 获取每小时产出统计
         /// </summary>
         /// <param name="productionLineId">生产线ID（可选）</param>
         /// <param name="workOrderId">工单ID（可选）</param>
+        /// <param name="startTime">开始时间（可选）</param>
+        /// <param name="endTime">结束时间（可选）</param>
         /// <returns>每小时产出统计数据</returns>
-        Task<List<HourlyOutputDto>> GetHourlyOutputAsync(Guid? productionLineId = null, Guid? workOrderId = null);
+        Task<List<HourlyOutputDto>> GetHourlyOutputAsync(Guid? productionLineId = null, Guid? workOrderId = null, DateTime? startTime = null, DateTime? endTime = null);
 
         /// <summary>
         /// 计算OEE（设备综合效率）

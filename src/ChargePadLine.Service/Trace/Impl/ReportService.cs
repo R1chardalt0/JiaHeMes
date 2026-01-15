@@ -61,19 +61,22 @@ namespace ChargePadLine.Service.Trace.Impl
     }
 
     /// <summary>
-    /// 获取当日每小时产出统计
+    /// 获取每小时产出统计
     /// </summary>
     /// <param name="productionLineId">生产线ID（可选）</param>
     /// <param name="workOrderId">工单ID（可选）</param>
+    /// <param name="startTime">开始时间（可选）</param>
+    /// <param name="endTime">结束时间（可选）</param>
     /// <returns>每小时产出统计数据</returns>
-    public async Task<List<HourlyOutputDto>> GetHourlyOutputAsync(Guid? productionLineId = null, Guid? workOrderId = null)
+    public async Task<List<HourlyOutputDto>> GetHourlyOutputAsync(Guid? productionLineId = null, Guid? workOrderId = null, DateTime? startTime = null, DateTime? endTime = null)
     {
-      var today = DateTime.Today;
-      var tomorrow = today.AddDays(1);
+      // 如果没有提供开始和结束时间，默认使用当天
+      var today = startTime?.Date ?? DateTime.Today;
+      var tomorrow = endTime?.Date.AddDays(1) ?? today.AddDays(1);
 
-      // 查询当日所有生产记录
+      // 查询指定时间范围内的所有生产记录
       var query = _dbContext.mesSnListHistories
-          .Where(h => h.CreateTime >= today && h.CreateTime < tomorrow);
+          .Where(h => h.CreateTime >= (startTime ?? today) && h.CreateTime < (endTime ?? tomorrow));
 
       // 添加生产线过滤
       if (productionLineId.HasValue)
@@ -102,24 +105,47 @@ namespace ChargePadLine.Service.Trace.Impl
           })
           .ToList();
 
-      // 构建完整的24小时数据
+      // 构建时间范围内的每小时数据
       var result = new List<HourlyOutputDto>();
-      for (int hour = 0; hour < 24; hour++)
-      {
-        var stat = hourlyStats.FirstOrDefault(s => s.Hour == hour);
-        var hourStartTime = today.AddHours(hour);
-        var hourEndTime = hourStartTime.AddHours(1);
 
-        result.Add(new HourlyOutputDto
+      // 确定时间范围的开始和结束小时
+      var startDate = startTime?.Date ?? today;
+      var endDate = endTime?.Date ?? tomorrow.AddDays(-1);
+
+      // 遍历时间范围内的每一天
+      for (var date = startDate; date <= endDate; date = date.AddDays(1))
+      {
+        // 对于当天，只处理从0到23小时
+        for (int hour = 0; hour < 24; hour++)
         {
-          Hour = hour,
-          OutputQuantity = stat?.TotalCount ?? 0,
-          PassQuantity = stat?.PassCount ?? 0,
-          FailQuantity = stat?.FailCount ?? 0,
-          HourStartTime = hourStartTime,
-          HourEndTime = hourEndTime
-        });
+          var stat = hourlyStats.FirstOrDefault(s => s.Hour == hour);
+          var hourStartTime = date.AddHours(hour);
+          var hourEndTime = hourStartTime.AddHours(1);
+
+          // 只添加在指定时间范围内的小时
+          if ((!startTime.HasValue || hourStartTime >= startTime.Value) && (!endTime.HasValue || hourEndTime <= endTime.Value))
+          {
+            result.Add(new HourlyOutputDto
+            {
+              Hour = hour,
+              OutputQuantity = stat?.TotalCount ?? 0,
+              PassQuantity = stat?.PassCount ?? 0,
+              FailQuantity = stat?.FailCount ?? 0,
+              HourStartTime = hourStartTime,
+              HourEndTime = hourEndTime
+            });
+          }
+        }
       }
+
+      // 如果没有数据，返回空列表
+      if (result.Count == 0)
+      {
+        return result;
+      }
+
+      // 按时间排序
+      result = result.OrderBy(r => r.HourStartTime).ToList();
 
       return result;
     }

@@ -91,7 +91,19 @@ const Analysis: React.FC = () => {
     { manual: true, refreshDeps: [dateRange, selectedProductionLine] }
   );
 
-
+  // 获取各站NG件统计
+  const {
+    data: stationNGData,
+    loading: stationNGLoading,
+    run: runStationNGStatistics
+  } = useRequest(
+    () => getStationNGStatistics(
+      formatDateTime(dateRange[0]),
+      formatDateTime(dateRange[1]),
+      selectedProductionLine
+    ),
+    { manual: true, refreshDeps: [dateRange, selectedProductionLine] }
+  );
 
   // 获取生产线列表
   const {
@@ -114,6 +126,7 @@ const Analysis: React.FC = () => {
     runHourlyOutput();
     runFirstPassYield();
     runQualityRate();
+    runStationNGStatistics();
   };
 
   // 监听生产线数据变化，更新生产线列表
@@ -208,6 +221,36 @@ const Analysis: React.FC = () => {
       .filter(Boolean); // 过滤无效数据
   }, [hourlyOutputData]);
 
+  // 处理站点NG统计数据，用于饼状图
+  const stationNGChartData = useMemo(() => {
+    if (!stationNGData) return [];
+
+    // 先过滤出有效数据
+    const validData = stationNGData
+      .map((item: any) => {
+        if (!item.stationName || item.ngCount === undefined || item.ngCount === null || item.ngRate === undefined) {
+          console.warn('缺失站点NG数据:', item);
+          return null;
+        }
+        return {
+          station: item.stationName,
+          value: safeNumber(item.ngCount),
+          ngRate: safeNumber(item.ngRate), // 直接使用后端返回的NG率
+          rate: safeNumber(item.ngRate) * 100, // 转换为百分比
+        };
+      })
+      .filter(Boolean) as Array<{ station: string; value: number; ngRate: number; rate: number }>;
+
+    // 计算总NG数量
+    const totalNGCount = validData.reduce((sum, item) => sum + item.value, 0);
+
+    // 添加百分比字段
+    return validData.map(item => ({
+      ...item,
+      percentage: totalNGCount > 0 ? (item.value / totalNGCount) * 100 : 0
+    }));
+  }, [stationNGData]);
+
 
 
   // 小时产量统计图配置
@@ -215,9 +258,6 @@ const Analysis: React.FC = () => {
     data: hourlyChartData,
     xField: 'timeLabel', // ← 字符串作为 xField
     yField: 'totalCount',
-    theme: 'light',
-
-    // ✅ 正确：使用 axis，不是 xAxis/yAxis
     axis: {
       x: {
         visible: true,
@@ -251,10 +291,10 @@ const Analysis: React.FC = () => {
     },
 
     label: {
-      visible: false,
+      visible: true,
     },
     tooltip: {
-      title: '今日小时产量统计',
+      title: '小时产量统计',
       showTitle: true,
       shared: true,
       showCrosshairs: true,
@@ -323,6 +363,8 @@ const Analysis: React.FC = () => {
           visible: true,
           text: '良率 (%)',
           style: { fill: '#1890ff', fontSize: 12, fontWeight: 'bold' },
+          offset: 60, // 增加偏移量，确保标题不被遮挡
+          textAlign: 'center', // 确保标题居中显示
         },
         label: {
           visible: true,
@@ -356,6 +398,63 @@ const Analysis: React.FC = () => {
         value: `${safeNumber(datum.yieldRate).toFixed(2)}%`,
       }),
     },
+  };
+
+  // 计算总NG数
+  const totalNGCount = useMemo(() => {
+    if (!stationNGChartData || stationNGChartData.length === 0) return 0;
+    return stationNGChartData.reduce((sum, item) => sum + item.value, 0);
+  }, [stationNGChartData]);
+
+  // 站点NG统计饼状图配置
+  const stationNGChartConfig = {
+    data: stationNGChartData,
+    angleField: 'value',
+    colorField: 'station',
+    radius: 0.8,
+    label: {
+      type: 'outer',
+      content: '{station}: {value} ({percentage}%)',
+      style: {
+        fill: '#1890ff',
+        fontSize: 12,
+      },
+    },
+    tooltip: {
+      title: '站点NG统计',
+      formatter: (datum: any) => {
+        return [
+          { name: '站点', value: datum.station },
+          { name: 'NG数量', value: datum.value },
+          { name: 'NG率', value: `${datum.rate.toFixed(2)}%` },
+          { name: '占比', value: `${datum.percentage.toFixed(2)}%` },
+        ];
+      },
+    },
+    legend: {
+      position: 'right',
+      orient: 'vertical',
+      itemName: {
+        formatter: (datum: any) => {
+          const item = stationNGChartData.find(item => item.station === datum);
+          if (item) {
+            const yieldRate = (100 - item.rate).toFixed(2); // 使用后端返回的ngRate计算良率
+            return `${datum}: ${item.value} (良率: ${yieldRate}%)`;
+          }
+          return datum;
+        },
+        style: {
+          fill: '#1890ff',
+          fontSize: 12,
+        },
+      },
+    },
+    // 自动生成不同颜色
+    color: [
+      '#1890ff', '#52c41a', '#faad14', '#f5222d',
+      '#722ed1', '#13c2c2', '#eb2f96', '#fa8c16',
+      '#a0d911', '#2f54eb', '#fa541c', '#1890ff'
+    ],
   };
 
   // 添加全局样式
@@ -551,10 +650,23 @@ const Analysis: React.FC = () => {
             <Button
               type="primary"
               onClick={refreshData}
-              loading={hourlyOutputLoading || firstPassYieldLoading || qualityRateLoading}
+              loading={hourlyOutputLoading || firstPassYieldLoading || qualityRateLoading || stationNGLoading}
               style={{ marginLeft: 8, width: 60 }}
             >
               查询
+            </Button>
+            <Button
+              onClick={() => {
+                // 重置时间范围为当天
+                setDateRange([dayjs().startOf('day'), dayjs().endOf('day')]);
+                // 重置生产线选择
+                setSelectedProductionLine('');
+                // 刷新数据
+                refreshData();
+              }}
+              style={{ marginLeft: 8, width: 60 }}
+            >
+              重置
             </Button>
           </Col>
         </Row>
@@ -563,58 +675,54 @@ const Analysis: React.FC = () => {
       {/* 统计卡片区域 */}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
-          <Card
-            style={{ ...panelStyles.panelStyle }}
-            bodyStyle={{ padding: 24 }}
-          >
-            <Statistic
-              title="总产出"
-              value={hourlyOutputData?.reduce((sum: number, item: any) => sum + safeNumber(item.outputQuantity), 0) || 0}
-              valueStyle={{ color: '#3f8600', fontSize: 24 }}
-              suffix="件"
-            />
+          <Card style={panelStyles.panelStyle}>
+            <div style={{ padding: 24 }}>
+              <Statistic
+                title="总产出"
+                value={hourlyOutputData?.reduce((sum: number, item: any) => sum + safeNumber(item.outputQuantity), 0) || 0}
+                valueStyle={{ color: '#3f8600', fontSize: 24 }}
+                suffix="件"
+              />
+            </div>
           </Card>
         </Col>
         <Col span={6}>
-          <Card
-            style={{ ...panelStyles.panelStyle }}
-            bodyStyle={{ padding: 24 }}
-          >
-            <Statistic
-              title="一次通过率"
-              value={(firstPassYieldData?.firstPassYield || 0) * 100}
-              precision={2}
-              valueStyle={{ color: '#1890ff', fontSize: 24 }}
-              suffix="%"
-            />
+          <Card style={panelStyles.panelStyle}>
+            <div style={{ padding: 24 }}>
+              <Statistic
+                title="一次通过率"
+                value={(firstPassYieldData?.firstPassYield || 0) * 100}
+                precision={2}
+                valueStyle={{ color: '#1890ff', fontSize: 24 }}
+                suffix="%"
+              />
+            </div>
           </Card>
         </Col>
         <Col span={6}>
-          <Card
-            style={{ ...panelStyles.panelStyle }}
-            bodyStyle={{ padding: 24 }}
-          >
-            <Statistic
-              title="合格率"
-              value={(qualityRateData?.passRate || 0) * 100}
-              precision={2}
-              valueStyle={{ color: '#13c2c2', fontSize: 24 }}
-              suffix="%"
-            />
+          <Card style={panelStyles.panelStyle}>
+            <div style={{ padding: 24 }}>
+              <Statistic
+                title="合格率"
+                value={(qualityRateData?.passRate || 0) * 100}
+                precision={2}
+                valueStyle={{ color: '#13c2c2', fontSize: 24 }}
+                suffix="%"
+              />
+            </div>
           </Card>
         </Col>
         <Col span={6}>
-          <Card
-            style={{ ...panelStyles.panelStyle }}
-            bodyStyle={{ padding: 24 }}
-          >
-            <Statistic
-              title="不良率"
-              value={(qualityRateData?.failRate || 0) * 100}
-              precision={2}
-              valueStyle={{ color: '#ff4d4f', fontSize: 24 }}
-              suffix="%"
-            />
+          <Card style={panelStyles.panelStyle}>
+            <div style={{ padding: 24 }}>
+              <Statistic
+                title="不良率"
+                value={(qualityRateData?.failRate || 0) * 100}
+                precision={2}
+                valueStyle={{ color: '#ff4d4f', fontSize: 24 }}
+                suffix="%"
+              />
+            </div>
           </Card>
         </Col>
       </Row>
@@ -624,32 +732,66 @@ const Analysis: React.FC = () => {
         {/* 小时产量统计 */}
         <Col span={14}>
           <Card
-            title="今日小时产量统计"
-            style={{ ...panelStyles.panelStyle, height: '100%' }}
-            headStyle={panelStyles.headStyle}
-            bodyStyle={{ ...panelStyles.bodyStyle, height: 400 }}
+            title="小时产量统计"
+            style={{
+              ...panelStyles.panelStyle,
+              height: '100%'
+            }}
           >
-            {hourlyChartData.length > 0 ? (
-              <Column {...hourlyChartConfig} />
-            ) : (
-              <div style={{ textAlign: 'center', padding: 40 }}>暂无数据</div>
-            )}
+            <div style={{ height: 400 }}>
+              {hourlyChartData.length > 0 ? (
+                <Column {...hourlyChartConfig} />
+              ) : (
+                <div style={{ textAlign: 'center', padding: 40 }}>暂无数据</div>
+              )}
+            </div>
           </Card>
         </Col>
 
         {/* 良率分布趋势 */}
         <Col span={10}>
           <Card
-            title="今日良率分布趋势"
-            style={{ ...panelStyles.panelStyle, height: '100%' }}
-            headStyle={panelStyles.headStyle}
-            bodyStyle={{ ...panelStyles.bodyStyle, height: 400 }}
+            title="良率分布趋势"
+            style={{
+              ...panelStyles.panelStyle,
+              height: '100%'
+            }}
           >
-            {yieldRateData.length > 0 ? (
-              <Line {...yieldRateConfig} />
-            ) : (
-              <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>暂无数据</div>
-            )}
+            <div style={{ height: 400 }}>
+              {yieldRateData.length > 0 ? (
+                <Line {...yieldRateConfig} />
+              ) : (
+                <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>暂无数据</div>
+              )}
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* 站点NG统计区域 */}
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col span={12}>
+          <Card
+            title={
+              <div>
+                <span>各站NG件统计</span>
+                <span style={{ marginLeft: 20, fontSize: 14, color: '#ff4d4f' }}>
+                  总NG数: {totalNGCount}
+                </span>
+              </div>
+            }
+            style={{
+              ...panelStyles.panelStyle,
+              height: '100%'
+            }}
+          >
+            <div style={{ height: 400 }}>
+              {stationNGChartData.length > 0 ? (
+                <Pie {...stationNGChartConfig} />
+              ) : (
+                <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>暂无数据</div>
+              )}
+            </div>
           </Card>
         </Col>
       </Row>
