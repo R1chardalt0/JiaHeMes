@@ -54,6 +54,30 @@ namespace ChargePadLine.Entitys.Trace.BOM
     public Guid? ProductId { get; set; }
 
     /// <summary>
+    /// 日期序列
+    /// </summary>
+    [Column("DateIndex")]
+    public int? DateIndex { get; set; }
+
+    /// <summary>
+    /// 数量序列
+    /// </summary>
+    [Column("NumberIndex")]
+    public int? NumberIndex { get; set; }
+
+    /// <summary>
+    /// 物料保质期（分钟）
+    /// </summary>
+    [Column("ShelfLife")]
+    public int? ShelfLife { get; set; }
+
+    /// <summary>
+    /// 物料号序列
+    /// </summary>
+    [Column("ProductIndex")]
+    public int? ProductIndex { get; set; }
+
+    /// <summary>
     /// BOM主表（多对一关联）
     /// </summary>
     [ForeignKey("BomId")]

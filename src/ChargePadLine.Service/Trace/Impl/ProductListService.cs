@@ -138,6 +138,7 @@ namespace ChargePadLine.Service.Trace.Impl
           ProductType = dto.ProductType,
           Remark = dto.Remark,
           CreateTime = DateTimeOffset.Now
+          ,MaxReworkCount = dto.MaxReworkCount
         };
 
         // 保存产品
@@ -192,6 +193,7 @@ namespace ChargePadLine.Service.Trace.Impl
         existingProduct.ProductType = dto.ProductType;
         existingProduct.Remark = dto.Remark;
         existingProduct.UpdateTime = DateTimeOffset.Now;
+        existingProduct.MaxReworkCount = dto.MaxReworkCount;
 
         // 保存更新
         var result = await _productListRepo.UpdateAsync(existingProduct);

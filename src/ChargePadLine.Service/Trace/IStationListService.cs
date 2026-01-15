@@ -1,4 +1,4 @@
-using ChargePadLine.Service.Trace.Dto;
+using ChargePadLine.Service.Trace.Dto.Station;
 using System;
 using System.Collections.Generic;
 using System.Linq;

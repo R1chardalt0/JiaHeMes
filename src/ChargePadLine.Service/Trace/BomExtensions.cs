@@ -23,7 +23,13 @@ namespace ChargePadLine.Service.Trace
       BatchSNQty = bomItem.BatchSNQty,
       ProductId = bomItem.ProductId,
       CreateTime = bomItem.CreateTime,
-      UpdateTime = bomItem.UpdateTime
+      UpdateTime = bomItem.UpdateTime,
+      ProductIndex = bomItem.ProductIndex,
+      DateIndex = bomItem.DateIndex,
+      NumberIndex = bomItem.NumberIndex
+        ,ShelfLife = bomItem.ShelfLife
+
+        
     };
 
     /// <summary>

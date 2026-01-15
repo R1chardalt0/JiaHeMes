@@ -357,6 +357,7 @@ const ProductList: React.FC = () => {
         processRouteName: record.processRouteName,
         productType: record.productType,
         remark: record.remark,
+        maxReworkCount: record.maxReworkCount,
       });
     }
     setShowEditModal(true);
@@ -574,6 +575,10 @@ const ProductList: React.FC = () => {
               {
                 title: '产品名称',
                 dataIndex: 'productName',
+              },
+              {
+                title: '最大返工次数',
+                dataIndex: 'maxReworkCount',
               },
               {
                 title: 'BOM ID',

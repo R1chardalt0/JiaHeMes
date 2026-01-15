@@ -50,6 +50,10 @@ export interface ProcessRouteItemQueryDto {
    * 是否检查所有
    */
   checkAll?: boolean;
+  /**
+   * 最大NG次数
+   */
+  maxNGCount?: number;
 }
 
 /**
@@ -96,6 +100,11 @@ export interface ProcessRouteItemDto {
   checkAll: boolean;
 
   /**
+   * 最大NG次数
+   */
+  maxNGCount?: number;
+
+  /**
    * 工艺路线主表（多对一关联）
    */
   processRoute?: import('./ProcessRoute').ProcessRoute;
@@ -124,6 +133,11 @@ export interface ProcessRouteItemDto {
    * 更新时间
    */
   updateTime?: string;
+
+  /**
+   * 备注信息
+   */
+  remark?: string;
 
   /**
    * 请求参数
@@ -168,6 +182,16 @@ export interface ProcessRouteItemCreateDto {
    * 是否检查所有
    */
   checkAll: boolean;
+
+  /**
+   * 最大NG次数
+   */
+  maxNGCount?: number;
+
+  /**
+   * 备注信息
+   */
+  remark?: string;
 }
 
 /**
@@ -212,6 +236,16 @@ export interface ProcessRouteItemUpdateDto {
    * 是否检查所有
    */
   checkAll: boolean;
+
+  /**
+   * 最大NG次数
+   */
+  maxNGCount?: number;
+
+  /**
+   * 备注信息
+   */
+  remark?: string;
 }
 
 /**
