@@ -1,4 +1,5 @@
 using DeviceManage.Services;
+using DeviceManage.Services.DeviceMagService;
 using Reactive.Bindings;
 using System.Windows;
 using DeviceManage.Views;
@@ -10,15 +11,20 @@ namespace DeviceManage.ViewModels;
 /// <summary>
 /// 主窗口视图模型 - 使用简化的MVVM页面加载
 /// </summary>
-public class MainViewModel : ViewModelBase
-{
-    private readonly ApiClient _apiClient;
-    public ReactiveProperty<string> CurrentPageTitle { get; }
-    public ReactiveProperty<object?> CurrentView { get; }
-    public ReactiveProperty<bool> SidebarVisible { get; }
+    public class MainViewModel : ViewModelBase
+    {
+        private readonly ApiClient _apiClient;
+        public ReactiveProperty<string> CurrentPageTitle { get; }
+        public ReactiveProperty<object?> CurrentView { get; }
+        public ReactiveProperty<bool> SidebarVisible { get; }
+        public ReactiveProperty<string> CurrentUserName { get; }
+        public ReactiveProperty<string> CurrentUserRole { get; }
 
     // 页面映射字典
     private readonly Dictionary<string, PageInfo> _pageMap;
+    
+    // 标记是否是退出登录操作
+    private bool _isLoggingOut = false;
 
     public MainViewModel(ApiClient apiClient)
     {
@@ -28,6 +34,8 @@ public class MainViewModel : ViewModelBase
         CurrentPageTitle = new ReactiveProperty<string>("仪表盘");
         CurrentView = new ReactiveProperty<object?>();
         SidebarVisible = new ReactiveProperty<bool>(true);
+        CurrentUserName = new ReactiveProperty<string>("管理员");
+        CurrentUserRole = new ReactiveProperty<string>("管理员");
 
         // 初始化页面映射
         _pageMap = new Dictionary<string, PageInfo>
@@ -40,7 +48,7 @@ public class MainViewModel : ViewModelBase
             { "Configuration", new PageInfo("配置管理", typeof(ConfigurationViewModel)) },
             { "SystemSettings", new PageInfo("系统设置", typeof(SystemSettingsViewModel)) },
             { "LogManagement", new PageInfo("日志管理", typeof(LogManagementViewModel)) },
-            { "UserManagement", new PageInfo("用户管理", typeof(UserManagementViewModel)) }
+            { "UserManagement", new PageInfo("用户管理", typeof(UserViewModel)) }
         };
 
         NavigateToCommand = new ReactiveCommand<string>().WithSubscribe(NavigateTo);
@@ -130,6 +138,26 @@ public class MainViewModel : ViewModelBase
                         view = tagView;
                         break;
                     }
+                case "UserManagement":
+                    {
+                        var userVm = (UserViewModel)DeviceManage.Helpers.ViewModelLocator
+                            .Instance
+                            .GetViewModel(typeof(UserViewModel));
+                        var userView = new Views.UserView();
+                        userView.DataContext = userVm;
+                        view = userView;
+                        break;
+                    }
+                case "LogManagement":
+                    {
+                        var logVm = (LogManagementViewModel)DeviceManage.Helpers.ViewModelLocator
+                            .Instance
+                            .GetViewModel(typeof(LogManagementViewModel));
+                        var logView = new Views.LogManagementView();
+                        logView.DataContext = logVm;
+                        view = logView;
+                        break;
+                    }
                 default:
                     {
                         var viewModel = DeviceManage.Helpers.ViewModelLocator.Instance.GetViewModel(pageInfo.ViewModelType);
@@ -153,8 +181,12 @@ public class MainViewModel : ViewModelBase
             var serviceProvider = DeviceManage.Helpers.ViewModelLocator.Instance.GetServiceProvider();
             if (serviceProvider != null)
             {
+                // 标记为退出登录操作，避免弹出关闭确认对话框
+                _isLoggingOut = true;
+                
                 var newMainViewModel = serviceProvider.GetRequiredService<MainViewModel>();
-                var loginWindow = new LoginWindow(newMainViewModel);
+                var userService = serviceProvider.GetRequiredService<IUserService>();
+                var loginWindow = new LoginWindow(newMainViewModel, userService);
                 loginWindow.Show();
 
                 var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
@@ -172,11 +204,44 @@ public class MainViewModel : ViewModelBase
         {
             MessageBox.Show($"退出登录失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+        finally
+        {
+            // 重置标志
+            _isLoggingOut = false;
+        }
     }
 
     private void ToggleSidebar()
     {
         SidebarVisible.Value = !SidebarVisible.Value;
+    }
+
+    /// <summary>
+    /// 确认是否关闭窗口
+    /// </summary>
+    /// <returns>如果用户确认关闭返回 true，否则返回 false</returns>
+    public bool CanCloseWindow()
+    {
+        // 如果是退出登录操作，直接允许关闭，不显示确认对话框
+        if (_isLoggingOut)
+        {
+            DeviceManage.Helpers.CurrentUserContext.Clear();
+            return true;
+        }
+
+        var result = MessageBox.Show(
+            "确定要关闭程序吗？",
+            "确认关闭",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            DeviceManage.Helpers.CurrentUserContext.Clear();
+            return true;
+        }
+
+        return false;
     }
 
     #endregion

@@ -1,5 +1,6 @@
 using DeviceManage.DBContext;
 using DeviceManage.DBContext.Repository;
+using DeviceManage.Helpers;
 using DeviceManage.Models;
 using DeviceManage.Services.DeviceMagService;
 using DeviceManage.Services.DeviceMagService.Dto;
@@ -19,12 +20,14 @@ namespace DeviceManage.Services.DeviceMagService.Impl
     {
         private readonly IRepository<Tag> _repo;
         private readonly AppDbContext _db;
+        private readonly ILogService _logService;
         private readonly ILogger<TagService> _logger;
 
-        public TagService(IRepository<Tag> repo, AppDbContext db, ILogger<TagService> logger)
+        public TagService(IRepository<Tag> repo, AppDbContext db, ILogService logService, ILogger<TagService> logger)
         {
             _repo = repo;
             _db = db;
+            _logService = logService;
             _logger = logger;
         }
 
@@ -72,6 +75,14 @@ namespace DeviceManage.Services.DeviceMagService.Impl
 
             await _repo.InsertAsync(tag);
             await _db.SaveChangesAsync();
+
+            await _logService.LogAsync(
+                CurrentUserContext.UserId,
+                CurrentUserContext.Username,
+                OperationType.Create,
+                "点位管理",
+                $"新增点位：{tag.PlcTagName} (ID:{tag.Id})");
+
             return tag;
         }
 
@@ -80,14 +91,23 @@ namespace DeviceManage.Services.DeviceMagService.Impl
             var exist = await _repo.GetAsync(t => t.Id == tag.Id);
             if (exist == null) return tag;
 
-            exist.PlcTagName=tag.PlcTagName;
+            exist.PlcTagName = tag.PlcTagName;
             exist.PlcDeviceId = tag.PlcDeviceId;
             exist.RecipeId = tag.RecipeId;
             exist.Remarks = tag.Remarks;
             exist.TagDetailDataArray = tag.TagDetailDataArray;
+            exist.UpdatedAt = DateTime.Now;
 
             _repo.Update(exist);
             await _db.SaveChangesAsync();
+
+            await _logService.LogAsync(
+                CurrentUserContext.UserId,
+                CurrentUserContext.Username,
+                OperationType.Update,
+                "点位管理",
+                $"修改点位：{exist.PlcTagName} (ID:{exist.Id})");
+
             return exist;
         }
 
@@ -96,8 +116,18 @@ namespace DeviceManage.Services.DeviceMagService.Impl
             var exist = await _repo.GetAsync(t => t.Id == id);
             if (exist != null)
             {
+                var tagName = exist.PlcTagName;
+                var tagId = exist.Id;
+
                 _repo.Delete(exist);
                 await _db.SaveChangesAsync();
+
+                await _logService.LogAsync(
+                    CurrentUserContext.UserId,
+                    CurrentUserContext.Username,
+                    OperationType.Delete,
+                    "点位管理",
+                    $"删除点位：{tagName} (ID:{tagId})");
             }
         }
     }

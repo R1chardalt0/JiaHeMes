@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="ChargePadLine.Client.CustomerControl.LightSignal"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="root"
+             Loaded="UserControl_Loaded">
+    <!-- 使用 ViewBox 实现自动缩放 -->
+    <Viewbox Stretch="Uniform">
+        <Grid Width="50" Height="50">
+            <!-- 固定内部尺寸 -->
+            <!-- 外层金属边框 -->
+            <Ellipse Stroke="#FFD3D3D3" StrokeThickness="2" Width="50" Height="50">
+                <Ellipse.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFE6E6E6" Offset="0"/>
+                        <GradientStop Color="#FFA8A8A8" Offset="1"/>
+                    </LinearGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <!-- 主灯体 -->
+            <Ellipse x:Name="Light" Width="40" Height="40" Fill="Gray">
+                <Ellipse.Style>
+                    <Style TargetType="Ellipse">
+                        <Setter Property="Fill" Value="Gray"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsActive, ElementName=root}" Value="True">
+                                <Setter Property="Fill" Value="{Binding ActiveColor, ElementName=root}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Ellipse.Style>
+            </Ellipse>
+        </Grid>
+    </Viewbox>
+</UserControl>

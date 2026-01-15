@@ -3,19 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:views="clr-namespace:DeviceManage.Views"
-             xmlns:converters="clr-namespace:DeviceManage.Helpers.Converters"
              xmlns:conv="clr-namespace:DeviceManage.Converters"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="1000">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converters:BoolToTextConverter x:Key="BoolToTextConverter"/>
+        <conv:BoolToTextConverter x:Key="BoolToTextConverter"/>
         <conv:BooleanToIndexConverter x:Key="BooleanToIndexConverter"/>
         <conv:BooleanToColorConverter x:Key="BooleanToColorConverter"/>
     </UserControl.Resources>
-
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -31,39 +30,57 @@
         </StackPanel>
 
         <!-- 列表 -->
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Recipes.Value}"
-                  SelectedItem="{Binding SelectedRecipe.Value, Mode=TwoWay}"
-                  AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding RecipeId}" Width="60"/>
-                <DataGridTextColumn Header="配方名称" Binding="{Binding RecipeName}" Width="*"/>
-                <DataGridTextColumn Header="版本" Binding="{Binding Version}" Width="80"/>
-                <DataGridTemplateColumn Header="状态" Width="80">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Status, Converter={StaticResource BoolToTextConverter}, ConverterParameter='启用|禁用'}"
-                                   Foreground="{Binding Status, Converter={StaticResource BooleanToColorConverter}}"
-                                   FontWeight="Bold"/>
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-                <DataGridTextColumn Header="描述" Binding="{Binding Remarks}" Width="2*"/>
-                <DataGridTemplateColumn Header="操作" Width="150">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                <Button Content="编辑" Style="{StaticResource ButtonDashedSuccess}" Margin="0,0,10,0"
-                                        Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                        CommandParameter="{Binding}"/>
-                                <Button Content="删除" Style="{StaticResource ButtonDashedDanger}"
-                                        Command="{Binding DataContext.DeleteRecipeCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                        CommandParameter="{Binding}"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="300"/>
+            </Grid.RowDefinitions>
+
+            <DataGrid Grid.Row="0" ItemsSource="{Binding Recipes.Value}"
+                      SelectedItem="{Binding SelectedRecipe.Value, Mode=TwoWay}"
+                      AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDoubleClick">
+                        <i:InvokeCommandAction Command="{Binding ViewRecipeTagsCommand}" 
+                                               CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding RecipeId}" Width="60"/>
+                    <DataGridTextColumn Header="配方名称" Binding="{Binding RecipeName}" Width="*"/>
+                    <DataGridTextColumn Header="版本" Binding="{Binding Version}" Width="80"/>
+                    <DataGridTemplateColumn Header="状态" Width="80">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Status, Converter={StaticResource BoolToTextConverter}, ConverterParameter='启用|禁用'}"
+                                           Foreground="{Binding Status, Converter={StaticResource BooleanToColorConverter}}"
+                                           FontWeight="Bold"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="描述" Binding="{Binding Remarks}" Width="2*"/>
+                    <DataGridTemplateColumn Header="操作" Width="150">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <Button Content="编辑" Style="{StaticResource ButtonDashedSuccess}" Margin="0,0,10,0"
+                                            Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"/>
+                                    <Button Content="删除" Style="{StaticResource ButtonDashedDanger}"
+                                            Command="{Binding DataContext.DeleteRecipeCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- 标签列表 -->
+            <views:TagListView Grid.Row="1" 
+                               Visibility="{Binding IsTagsListVisible.Value, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                               Margin="0,10,0,0"/>
+        </Grid>
 
         <!-- 主弹窗：新增/编辑配方 -->
         <Border Grid.RowSpan="2" Background="#80000000"

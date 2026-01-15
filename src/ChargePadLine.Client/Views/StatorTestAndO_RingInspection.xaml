@@ -1,0 +1,321 @@
+﻿<UserControl x:Class="ChargePadLine.Client.Views.StatorTestAndO_RingInspection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ChargePadLine.Client.Views"
+             xmlns:bar="clr-namespace:ChargePadLine.Client.CustomerControl"
+             xmlns:viewModels="clr-namespace:ChargePadLine.Client.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewModels:StatorTestViewModel}">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
+            <bar:TitleBar IconText="&#xe6ed;" TitleText="{Binding 定子检测Status, StringFormat='定子测试({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
+
+            <!-- 定子检测 - PLC进站 -->
+            <GroupBox Header="　PLC进站" Margin="10,10,10,10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                                        IsActive="{Binding Req}" 
+                                        ActiveColor="Green"/>
+                        <TextBlock Text="进站请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                                        IsActive="{Binding Resp}" 
+                                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号 (SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding Sn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding EnterOk}"
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                                         IsActive="{Binding EnterNg}"
+                                        ActiveColor="Red"/>
+                        <TextBlock Text="进站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- 定子检测 - PLC出站 -->
+            <GroupBox Header="PLC出站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                                        IsActive="{Binding ExitReq}" 
+                                        ActiveColor="Green"/>
+                        <TextBlock Text="出站请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                                        IsActive="{Binding ExitResp}" 
+                                        ActiveColor="Green"/>
+                        <TextBlock Text="出站响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+           
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding ExitSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                                        IsActive="{Binding ExitOk}" 
+                                        ActiveColor="Green"/>
+                        <TextBlock Text="出站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding ExitNg}"  
+                         ActiveColor="Red"/>
+                        <TextBlock Text="出站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            <!-- 定子检测 - PLC点检 -->
+            <GroupBox Header="PLC点检" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                             IsActive="{Binding MasterReq}" 
+                             ActiveColor="Green"/>
+                        <TextBlock Text="点检请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                             IsActive="{Binding MasterResp}" 
+                             ActiveColor="Green"/>
+                        <TextBlock Text="点检响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding MasterSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                             IsActive="{Binding MasterOk}" 
+                             ActiveColor="Green"/>
+                        <TextBlock Text="点检响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+             IsActive="{Binding MasterNg}"  
+              ActiveColor="Red"/>
+                        <TextBlock Text="点检响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            <bar:TitleBar IconText="&#xe706;" TitleText="{Binding O型圈装配Status, StringFormat='O型圈装配({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
+
+            <!-- O型圈检测 - PLC进站 -->
+            <GroupBox Header="　PLC进站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding RingEnterReq}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="进站请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding RingEnterResp}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="进站响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号 (SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding RingEnterSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding RingEnterOk}"
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                          IsActive="{Binding RingEnterNg}"
+                         ActiveColor="Red"/>
+                        <TextBlock Text="进站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- O型圈检测 - PLC出站 -->
+            <GroupBox Header="　PLC出站" Margin="10,10,10,0" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                          IsActive="{Binding RingExitReq}" 
+                          ActiveColor="Green"/>
+                        <TextBlock Text="出站请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                          IsActive="{Binding RingExitResp}" 
+                          ActiveColor="Green"/>
+                        <TextBlock Text="出站响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding RingExitSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                          IsActive="{Binding RingExitOk}" 
+                          ActiveColor="Green"/>
+                        <TextBlock Text="出站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                            IsActive="{Binding RingExitNg}"  
+                            ActiveColor="Red"/>
+                        <TextBlock Text="出站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- O型圈检测 - PLC点检 -->
+            <GroupBox Header="　PLC点检" Margin="10,10,10,0" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+               IsActive="{Binding RingMasterReq}" 
+               ActiveColor="Green"/>
+                        <TextBlock Text="点检请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+               IsActive="{Binding RingMasterResp}" 
+               ActiveColor="Green"/>
+                        <TextBlock Text="点检响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding RingMasterSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+               IsActive="{Binding RingMasterOk}" 
+               ActiveColor="Green"/>
+                        <TextBlock Text="点检响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                 IsActive="{Binding RingMasterNg}"  
+                 ActiveColor="Red"/>
+                        <TextBlock Text="点检响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+        </StackPanel>
+    </Grid>
+</UserControl>
