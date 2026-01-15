@@ -49,7 +49,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="font\logo.ico" />
+	  <Resource Include="font\logo.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
