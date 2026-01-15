@@ -63,6 +63,8 @@ namespace ChargePadLine.Service
       services.AddScoped<IMesSnListHistoryService, MesSnListHistoryService>();
       //通用接口服务
       services.AddScoped<ICommonInterfaseService, CommonInterfaseService>();
+      // 生产报告服务
+      services.AddScoped<IReportService, ReportService>();
       #endregion
 
       #region 数据迁移服务配置

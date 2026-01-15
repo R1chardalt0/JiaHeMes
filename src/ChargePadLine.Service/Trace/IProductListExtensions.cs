@@ -25,7 +25,8 @@ namespace ChargePadLine.Service.Trace
       CreateBy = productList.CreateBy,
       CreateTime = productList.CreateTime,
       UpdateBy = productList.UpdateBy,
-      UpdateTime = productList.UpdateTime
+      UpdateTime = productList.UpdateTime,
+      MaxReworkCount = productList.MaxReworkCount
     };
   }
 }

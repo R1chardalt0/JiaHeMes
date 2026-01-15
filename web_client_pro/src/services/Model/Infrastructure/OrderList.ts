@@ -43,6 +43,10 @@ export interface OrderListQueryDto {
    */
   productName?: string;
   /**
+   * 最大返工次数
+   */
+  maxReworkCount?: number;
+  /**
    * BOM ID
    */
   bomId?: string;
@@ -108,6 +112,10 @@ export interface OrderListDto {
    * 产品名称
    */
   productName: string;
+  /**
+   * 最大返工次数
+   */
+  maxReworkCount?: number;
   /**
    * BOM ID
    */
@@ -219,6 +227,10 @@ export interface OrderListCreateDto {
    */
   productName: string;
   /**
+   * 最大返工次数
+   */
+  maxReworkCount?: number;
+  /**
    * BOM ID
    */
   bomId?: string;
@@ -296,6 +308,10 @@ export interface OrderListUpdateDto {
    * 产品名称
    */
   productName: string;
+  /**
+   * 最大返工次数
+   */
+  maxReworkCount?: number;
   /**
    * BOM ID
    */

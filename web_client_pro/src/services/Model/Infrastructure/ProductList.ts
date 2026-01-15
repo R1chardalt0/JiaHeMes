@@ -39,6 +39,10 @@ export interface ProductListQueryDto {
    * 产品名称
    */
   productName?: string;
+   /**
+   * 最大返工次数
+   */
+  maxReworkCount?: number;
   /**
    * 产品编码
    */
@@ -61,10 +65,16 @@ export interface ProductListDto {
    * 产品名称
    */
   productName: string;
+  
+
   /**
    * 产品编码
    */
   productCode: string;
+  /**
+   * 最大返工次数
+   */
+  maxReworkCount?: number;
   /**
    * BOM ID
    */
@@ -143,6 +153,11 @@ export interface ProductListCreateDto {
    * 备注信息
    */
   remark?: string;
+ /**
+   * 最大返工次数
+   */
+  maxReworkCount?: number;
+  
 }
 
 /**
@@ -158,6 +173,10 @@ export interface ProductListUpdateDto {
    * 产品编码
    */
   productCode: string;
+  /**
+   * 最大返工次数
+   */
+  maxReworkCount?: number;
   /**
    * BOM ID
    */

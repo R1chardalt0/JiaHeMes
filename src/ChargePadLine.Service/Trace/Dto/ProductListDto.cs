@@ -25,6 +25,10 @@ namespace ChargePadLine.Service.Trace.Dto
     /// 产品名称
     /// </summary>
     public string ProductName { get; set; } = "";
+        /// <summary>
+        /// 最大返工次数
+        /// </summary>
+        public int ? MaxReworkCount { get; set; }
 
     /// <summary>
     /// BOMID
