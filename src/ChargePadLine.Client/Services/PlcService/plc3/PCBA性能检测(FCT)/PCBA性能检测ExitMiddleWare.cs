@@ -42,9 +42,9 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_
                 var enterok = s7Net.ReadBool("DB4010.2.4").Content;//进站OK
                 var enterng = s7Net.ReadBool("DB4010.2.5").Content;//进站NG
                 var sn = s7Net.ReadString("DB4010.66", 100);
-                _exitmodel.UpdateData(req, resp, sn, enterok, enterng);
+               
                 // 更新数据服务
-                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+                _exitmodel.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {

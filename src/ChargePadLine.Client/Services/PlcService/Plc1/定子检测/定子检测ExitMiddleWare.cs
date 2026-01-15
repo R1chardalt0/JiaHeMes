@@ -17,17 +17,17 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
     public class 定子检测ExitMiddleWare : IPlc1Task
     {
         private readonly ILogger<定子检测ExitMiddleWare> _logger;
-        private readonly StatorExitModel _statorTestDataService;
+        private readonly StatorExitModel _statorExitModel;
         private readonly ILogService _logService;
         private readonly StationConfig _stationconfig;
         private readonly IMesApiService _mesApi;
         private const string PlcName = "【定子检测】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
-        public 定子检测ExitMiddleWare(ILogger<定子检测ExitMiddleWare> logger, StatorExitModel statorTestDataService, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
+        public 定子检测ExitMiddleWare(ILogger<定子检测ExitMiddleWare> logger, StatorExitModel statorExitModel, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
-            _statorTestDataService = statorTestDataService;
+            _statorExitModel = statorExitModel;
             _logService = logService;
             _stationconfig = stationconfig.Value;
             _mesApi = mesApi;
@@ -46,7 +46,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
                 var sn = s7Net.ReadString("DB4010.66", 100);
 
                 // 更新数据服务
-                _statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+                _statorExitModel.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {
