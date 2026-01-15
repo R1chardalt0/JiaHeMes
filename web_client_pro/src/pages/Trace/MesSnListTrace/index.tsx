@@ -287,14 +287,34 @@ const MesSnListTracePage: React.FC = () => {
     },
     {
       title: '返工时间',
+      key: 'reworkTimeRange',
       dataIndex: 'reworkTime',
-      key: 'reworkTime',
+      valueType: 'dateTimeRange',
+      fieldProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        placeholder: ['开始时间', '结束时间'],
+        showTime: true,
+      },
+      hideInTable: true, // 不显示在表格中
+      search: {
+        transform: (value: [string, string]) => ({
+          // 将选择的返工时间范围转换为 reworkStartTime 和 reworkEndTime
+          reworkStartTime: value[0],
+          reworkEndTime: value[1],
+        }),
+      },
+    },
+    {
+      title: '返工时间',
+      dataIndex: 'reworkTime',
+      key: 'reworkTimeActual',
       width: 180,
-      search: true,
-      valueType: 'dateRange',
+      search: false,
+      valueType: 'dateTime',
       fieldProps: {
         format: 'YYYY-MM-DD HH:mm:ss',
       },
+      render: (reworkTime) => reworkTime ? reworkTime : '-',
     },
     {
       title: '备注',
@@ -455,10 +475,14 @@ const MesSnListTracePage: React.FC = () => {
     {
       title: '返工时间',
       dataIndex: 'reworkTime',
-      key: 'reworkTime',
+      key: 'reworkTimeActual',
       width: 180,
       search: false,
       valueType: 'dateTime',
+      fieldProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+      },
+      render: (reworkTime) => reworkTime ? reworkTime : '-',
     },
     {
       title: '备注',
