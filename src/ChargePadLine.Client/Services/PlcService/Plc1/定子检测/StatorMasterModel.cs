@@ -12,7 +12,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
         private bool _resp;
         private bool _masterOk;
         private bool _masterNg;
-        private string _sn = string.Empty;
+        private string _masterSn = string.Empty;
 
         /// <summary>
         /// 请求状态
@@ -75,15 +75,15 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
         /// <summary>
         /// 序列号
         /// </summary>
-        public string Sn
+        public string MasterSn
         {
-            get => _sn;
+            get => _masterSn;
             private set
             {
-                if (_sn != value)
+                if (_masterSn != value)
                 {
-                    _sn = value;
-                    OnPropertyChanged(nameof(Sn));
+                    _masterSn = value;
+                    OnPropertyChanged(nameof(MasterSn));
                 }
             }
         }
@@ -97,7 +97,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
         {
             MasterReq = req;
             MasterResp = resp;
-            Sn = sn;
+            MasterSn = sn;
             MasterOk = masterOk;
             MasterNg = masterNg;
         }

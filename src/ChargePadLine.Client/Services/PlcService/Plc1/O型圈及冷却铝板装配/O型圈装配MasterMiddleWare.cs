@@ -40,7 +40,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                 var resp = s7Net.ReadBool("DB4020.14.0").Content;
                 var enterok = s7Net.ReadBool("DB4020.3.0").Content;//出站OK
                 var enterng = s7Net.ReadBool("DB4020.3.1").Content;//出站NG
-                var sn = s7Net.ReadString("DB4020.66.0", 100);
+                var sn = s7Net.ReadString("DB4020.300.0", 100);
 
                 // 更新数据服务
                 _ringMaster.UpdateData(req, resp, sn, enterok, enterng);

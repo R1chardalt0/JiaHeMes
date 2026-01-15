@@ -93,7 +93,7 @@ namespace ChargePadLine.Client.ViewModels
         /// <summary>
         /// 序列号
         /// </summary>
-        public string ExitSn => _statorTestDataExitService.Sn;
+        public string ExitSn => _statorTestDataExitService.ExitSn;
 
         /// <summary>
         /// 进站ok状态
@@ -119,7 +119,7 @@ namespace ChargePadLine.Client.ViewModels
         /// <summary>
         /// 序列号
         /// </summary>
-        public string MasterSn => _statorMasterModel.Sn;
+        public string MasterSn => _statorMasterModel.MasterSn;
 
         /// <summary>
         /// 进站ok状态
