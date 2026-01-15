@@ -65,10 +65,11 @@ namespace ChargePadLine.Service.Trace.Impl
     /// </summary>
     /// <param name="productionLineId">生产线ID（可选）</param>
     /// <param name="workOrderId">工单ID（可选）</param>
+    /// <param name="resourceId">设备ID（可选）</param>
     /// <param name="startTime">开始时间（可选）</param>
     /// <param name="endTime">结束时间（可选）</param>
     /// <returns>每小时产出统计数据</returns>
-    public async Task<List<HourlyOutputDto>> GetHourlyOutputAsync(Guid? productionLineId = null, Guid? workOrderId = null, DateTime? startTime = null, DateTime? endTime = null)
+    public async Task<List<HourlyOutputDto>> GetHourlyOutputAsync(Guid? productionLineId = null, Guid? workOrderId = null, Guid? resourceId = null, DateTime? startTime = null, DateTime? endTime = null)
     {
       // 如果没有提供开始和结束时间，默认使用当天
       var today = startTime?.Date ?? DateTime.Today;
@@ -88,6 +89,12 @@ namespace ChargePadLine.Service.Trace.Impl
       if (workOrderId.HasValue)
       {
         query = query.Where(h => h.OrderListId == workOrderId.Value);
+      }
+
+      // 添加设备过滤
+      if (resourceId.HasValue)
+      {
+        query = query.Where(h => h.ResourceId == resourceId.Value);
       }
 
       // 先获取数据到客户端，然后在客户端进行时间转换和分组

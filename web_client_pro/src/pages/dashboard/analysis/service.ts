@@ -122,11 +122,12 @@ export interface TopDefectDto {
  * 获取每小时产出统计
  * @param productionLineId 生产线ID
  * @param workOrderId 工单ID
+ * @param resourceId 设备ID
  * @param startTime 开始时间
  * @param endTime 结束时间
  * @returns 每小时产出统计数据
  */
-export async function getHourlyOutput(productionLineId?: string, workOrderId?: string, startTime?: string, endTime?: string): Promise<ApiResponse<HourlyOutputDto[]>> {
+export async function getHourlyOutput(productionLineId?: string, workOrderId?: string, resourceId?: string, startTime?: string, endTime?: string): Promise<ApiResponse<HourlyOutputDto[]>> {
   const params: Record<string, any> = {};
 
   if (productionLineId) {
@@ -135,6 +136,10 @@ export async function getHourlyOutput(productionLineId?: string, workOrderId?: s
 
   if (workOrderId) {
     params.workOrderId = workOrderId;
+  }
+
+  if (resourceId) {
+    params.resourceId = resourceId;
   }
 
   if (startTime) {

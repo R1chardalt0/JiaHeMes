@@ -16,6 +16,9 @@ import {
 // 导入生产线API
 import { getProductionLineList } from '@/services/Api/Trace/ProductionEquipment‌/productionLineInfo';
 import type { ProductionLineQueryParams, productionLine, PagedResult } from '@/services/Model/Trace/ProductionEquipment‌/productionLineInfo';
+// 导入设备API
+import { getAllDeviceInfos, getDeviceInfosByProductionLineId } from '@/services/Api/Trace/ProductionEquipment‌/equipmentInfo';
+import type { DeviceInfo } from '@/services/Model/Trace/ProductionEquipment‌/equipmentInfo';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -28,8 +31,12 @@ const Analysis: React.FC = () => {
   ]);
   // 生产线选择状态
   const [selectedProductionLine, setSelectedProductionLine] = useState<string>('');
+  // 设备选择状态
+  const [selectedEquipment, setSelectedEquipment] = useState<string>('');
   // 生产线列表数据
   const [productionLines, setProductionLines] = useState<productionLine[]>([]);
+  // 设备列表数据
+  const [equipmentList, setEquipmentList] = useState<any[]>([]);
 
 
   // 处理时间范围选择
@@ -57,8 +64,8 @@ const Analysis: React.FC = () => {
     loading: hourlyOutputLoading,
     run: runHourlyOutput
   } = useRequest(
-    () => getHourlyOutput(selectedProductionLine, undefined, formatDateTime(dateRange[0]), formatDateTime(dateRange[1])),
-    { manual: true, refreshDeps: [dateRange, selectedProductionLine] }
+    () => getHourlyOutput(selectedProductionLine, undefined, selectedEquipment, formatDateTime(dateRange[0]), formatDateTime(dateRange[1])),
+    { manual: true, refreshDeps: [dateRange, selectedProductionLine, selectedEquipment] }
   );
 
 
@@ -115,6 +122,26 @@ const Analysis: React.FC = () => {
     { manual: true }
   );
 
+  // 获取设备列表
+  const {
+    data: deviceResponse,
+    loading: deviceLoading,
+    run: runGetDevices
+  } = useRequest(
+    async () => {
+      if (selectedProductionLine) {
+        // 根据生产线ID获取设备列表
+        const response = await getDeviceInfosByProductionLineId(selectedProductionLine);
+        return response;
+      } else {
+        // 获取所有设备列表
+        const response = await getAllDeviceInfos();
+        return response;
+      }
+    },
+    { manual: true }
+  );
+
   // 初始加载 & 刷新数据
   useEffect(() => {
     refreshData();
@@ -123,6 +150,7 @@ const Analysis: React.FC = () => {
   const refreshData = () => {
     // 先获取生产线列表，再获取其他数据
     runGetProductionLines();
+    runGetDevices();
     runHourlyOutput();
     runFirstPassYield();
     runQualityRate();
@@ -136,9 +164,21 @@ const Analysis: React.FC = () => {
     }
   }, [productionLineData]);
 
+  // 监听设备数据变化，更新设备列表
+  useEffect(() => {
+    if (deviceResponse) {
+      setEquipmentList(deviceResponse);
+    }
+  }, [deviceResponse]);
+
   // 监听生产线选择变化，自动刷新数据
   useEffect(() => {
-    refreshData();
+    // 先获取设备列表，再刷新其他数据
+    runGetDevices();
+    runHourlyOutput();
+    runFirstPassYield();
+    runQualityRate();
+    runStationNGStatistics();
   }, [selectedProductionLine, dateRange]);
 
   // 仅用于“时间范围：”标签的两行展示（自动每两字换行）
@@ -613,6 +653,23 @@ const Analysis: React.FC = () => {
             </Select>
           </Col>
 
+          <Col xs={24} sm={24} md={8} lg={6} xl={5} style={{ display: 'flex', alignItems: 'center', marginBottom: 0 }}>
+            <span style={{ marginRight: 0, color: '#000000', fontWeight: 500 }}>设备：</span>
+            <Select
+              value={selectedEquipment}
+              onChange={(value) => setSelectedEquipment(value)}
+              style={{ width: '60%', height: 32 }}
+              placeholder="请选择设备"
+              allowClear
+              loading={deviceLoading}
+            >
+              <Option value="">全部</Option>
+              {equipmentList.map((device) => (
+                <Option key={device.resourceId} value={device.resourceId}>{device.resourceName}</Option>
+              ))}
+            </Select>
+          </Col>
+
           <Col xs={24} sm={24} md={24} lg={6} xl={14} style={{ display: 'flex', alignItems: 'center', marginBottom: 0 }}>
             <span style={{ marginRight: 0, color: '#000000', fontWeight: 500 }}>时间：</span>
             <RangePicker
@@ -661,6 +718,8 @@ const Analysis: React.FC = () => {
                 setDateRange([dayjs().startOf('day'), dayjs().endOf('day')]);
                 // 重置生产线选择
                 setSelectedProductionLine('');
+                // 重置设备选择
+                setSelectedEquipment('');
                 // 刷新数据
                 refreshData();
               }}
@@ -676,7 +735,7 @@ const Analysis: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card style={panelStyles.panelStyle}>
-            <div style={{ padding: 24 }}>
+            <div style={{ padding: 4, textAlign: 'center' }}>
               <Statistic
                 title="总产出"
                 value={hourlyOutputData?.reduce((sum: number, item: any) => sum + safeNumber(item.outputQuantity), 0) || 0}
@@ -688,7 +747,7 @@ const Analysis: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card style={panelStyles.panelStyle}>
-            <div style={{ padding: 24 }}>
+            <div style={{ padding: 4, textAlign: 'center' }}>
               <Statistic
                 title="一次通过率"
                 value={(firstPassYieldData?.firstPassYield || 0) * 100}
@@ -701,7 +760,7 @@ const Analysis: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card style={panelStyles.panelStyle}>
-            <div style={{ padding: 24 }}>
+            <div style={{ padding: 4, textAlign: 'center' }}>
               <Statistic
                 title="合格率"
                 value={(qualityRateData?.passRate || 0) * 100}
@@ -714,7 +773,7 @@ const Analysis: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card style={panelStyles.panelStyle}>
-            <div style={{ padding: 24 }}>
+            <div style={{ padding: 4, textAlign: 'center' }}>
               <Statistic
                 title="不良率"
                 value={(qualityRateData?.failRate || 0) * 100}

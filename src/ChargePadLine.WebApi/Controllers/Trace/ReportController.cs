@@ -34,17 +34,18 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// </summary>
     /// <param name="productionLineId">生产线ID（可选），用于过滤特定生产线的数据</param>
     /// <param name="workOrderId">工单ID（可选），用于过滤特定工单的数据</param>
+    /// <param name="resourceId">设备ID（可选），用于过滤特定设备的数据</param>
     /// <param name="startTime">开始时间（可选），用于指定统计的开始时间</param>
     /// <param name="endTime">结束时间（可选），用于指定统计的结束时间</param>
     /// <returns>返回每小时产出统计数据的列表，包含小时、产出数量、合格数量、不合格数量等信息</returns>
     /// <response code="200">获取成功，返回统计数据</response>
     /// <response code="500">服务器内部错误</response>
     [HttpGet("HourlyOutput")]
-    public async Task<IActionResult> GetHourlyOutput(Guid? productionLineId = null, Guid? workOrderId = null, DateTime? startTime = null, DateTime? endTime = null)
+    public async Task<IActionResult> GetHourlyOutput(Guid? productionLineId = null, Guid? workOrderId = null, Guid? resourceId = null, DateTime? startTime = null, DateTime? endTime = null)
     {
       try
       {
-        var result = await _reportService.GetHourlyOutputAsync(productionLineId, workOrderId, startTime, endTime);
+        var result = await _reportService.GetHourlyOutputAsync(productionLineId, workOrderId, resourceId, startTime, endTime);
         return Ok(new { code = 200, data = result, message = "获取成功" });
       }
       catch (Exception ex)
