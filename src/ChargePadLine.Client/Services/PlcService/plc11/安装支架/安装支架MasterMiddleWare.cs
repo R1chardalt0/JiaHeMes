@@ -40,7 +40,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
                 var resp = s7Net.ReadBool("DB4020.14.0").Content;
                 var enterok = s7Net.ReadBool("DB4020.3.0").Content;
                 var enterng = s7Net.ReadBool("DB4020.3.1").Content;
-                var sn = s7Net.ReadString("DB4020.66.0", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                var sn = s7Net.ReadString("DB4020.66.0", 100);
 
                 // 更新数据服务
                 _masterModel.UpdateData(req, resp, sn, enterok, enterng);

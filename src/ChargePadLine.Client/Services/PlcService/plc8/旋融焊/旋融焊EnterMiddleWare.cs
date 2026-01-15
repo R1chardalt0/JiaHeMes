@@ -56,7 +56,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                 var resp = modbus.ReadBool("1001.0").Content;
                 var enterok = modbus.ReadBool("1002.0").Content;//进站OK
                 var enterng = modbus.ReadBool("1003.0").Content;//进站NG
-                var sn = modbus.ReadString("1004", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                var sn = modbus.ReadString("1004", 100);
                 // 更新数据服务
                 _entermodel.UpdateData(req, resp, sn, enterok, enterng, statusMessage);
 

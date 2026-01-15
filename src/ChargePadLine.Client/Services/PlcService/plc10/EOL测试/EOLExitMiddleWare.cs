@@ -41,7 +41,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
                 var resp = s7Net.ReadBool("DB4010.12.0").Content;
                 var enterok = s7Net.ReadBool("DB4010.2.4").Content;//进站OK
                 var enterng = s7Net.ReadBool("DB4010.2.5").Content;//进站NG
-                var sn = s7Net.ReadString("DB4010.200", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                var sn = s7Net.ReadString("DB4010.200", 100);
                 _exitModel.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
