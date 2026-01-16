@@ -495,9 +495,6 @@ namespace ChargePadLine.Service.Trace.Impl
       var defectQuery = _dbContext.DefectRecords
           .Where(d => d.FoundTime >= startTime && d.FoundTime <= endTime);
 
-      // 注意：DefectRecord实体中没有ProductionLineId字段，因此移除生产线过滤
-      // 如需按生产线过滤，需要在DefectRecord实体中添加ProductionLineId字段
-
       // 按缺陷类型分组统计数量
       var defectStats = await defectQuery
           .GroupBy(d => d.DefectType)
