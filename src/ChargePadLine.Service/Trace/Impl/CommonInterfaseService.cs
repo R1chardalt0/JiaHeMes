@@ -557,7 +557,7 @@ namespace ChargePadLine.Service.Trace.Impl
                 // 首站不继续后续校验，直接返回
                 return FSharpResult<ValueTuple, (int, string)>.NewError((0, $"首站"));
             }
-            var checkFirstSNList = await _dbContext.mesSnListCurrents.FirstAsync(x => x.SnNumber == request.SN);
+             var checkFirstSNList = await _dbContext.mesSnListCurrents.FirstAsync(x => x.SnNumber == request.SN);
             var checkWorkOrder = await _dbContext.OrderList.FirstOrDefaultAsync(x => x.OrderListId == checkFirstSNList.OrderListId);
 
             if (checkWorkOrder == null)
