@@ -45,8 +45,8 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     /// <summary>
     /// 当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站
     /// </summary>
-    [Description("当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站,6-点检")]
-    public int StationStatus { get; set; }
+    [Description("当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站,6-点检,7-返工")]
+    public StationStatusEnum StationStatus { get; set; }
 
     /// <summary>
     /// 当前站点ID
@@ -204,4 +204,16 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
       builder.HasIndex(e => e.ResourceId);
     }
   }
+    // [Description("当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站,6-点检,7-返工")]
+    public enum StationStatusEnum
+    {
+        空,
+        合格,
+        不合格,
+        已包装,
+        已入库,
+        跳站,
+        点检,
+        返工
+    }
 }

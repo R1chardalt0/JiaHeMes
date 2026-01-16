@@ -1,3 +1,4 @@
+using ChargePadLine.Entitys.Trace.TraceInformation;
 using System;
 
 namespace ChargePadLine.Service.Trace.Dto.MesSnList
@@ -30,7 +31,7 @@ namespace ChargePadLine.Service.Trace.Dto.MesSnList
     /// <summary>
     /// 当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站
     /// </summary>
-    public int? StationStatus { get; set; }
+    public StationStatusEnum? StationStatus { get; set; }
 
     /// <summary>
     /// 当前站点ID

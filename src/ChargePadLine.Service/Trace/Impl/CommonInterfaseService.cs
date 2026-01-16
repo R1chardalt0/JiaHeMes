@@ -71,6 +71,203 @@ namespace ChargePadLine.Service.Trace.Impl
             throw new NotImplementedException();
         }
         /// <summary>
+        /// 跳站
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<FSharpResult<ValueTuple, (int, string)>> JumpStation(JumpStationParams request)
+        {
+            var SNcurrentList = await _dbContext.mesSnListCurrents.FirstOrDefaultAsync(x => x.SnNumber == request.SN);
+
+            if (SNcurrentList == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN}在Current表中不存在"));
+            }
+            var CurrentStationList = await _dbContext.StationList.FirstOrDefaultAsync(x => x.StationId == SNcurrentList.CurrentStationListId);
+
+            if (CurrentStationList == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN}站点不存在"));
+            }
+            var RequestStationList = await _dbContext.StationList.FirstOrDefaultAsync(x => x.StationCode == request.JumpStationCode);
+
+            if (RequestStationList == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"上传站点不存在"));
+            }
+
+            if (CurrentStationList.StationId == RequestStationList.StationId)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN}当前站点一致，请勿重复返工"));
+            }
+            var workOrder = await _dbContext.OrderList.FirstOrDefaultAsync(x => x.OrderListId == SNcurrentList.OrderListId);
+            if (workOrder == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在"));
+            }
+            var processRouteItems = await (from p in _dbContext.ProcessRoutes
+                                           join iitm in _dbContext.ProcessRouteItems on p.Id equals iitm.HeadId
+                                           join s in _dbContext.StationList on iitm.StationCode equals s.StationCode
+                                           where p.Id == workOrder.ProcessRouteId
+                                           orderby iitm.RouteSeq
+                                           select new
+                                           {
+                                               p.RouteCode,
+                                               p.RouteName,
+                                               iitm.FirstStation, // 是否为首站
+                                               iitm.MustPassStation, // 是否为必过站
+                                               iitm.RouteSeq, // 路线顺序
+                                               iitm.StationCode, // 站点编码
+                                               iitm.CheckAll, // 是否需要检查所有站点
+                                               iitm.CheckStationList, // 需要检查的站点列表
+                                               s.StationId // 站点ID
+                                           })
+                         .ToListAsync();
+
+            var CurrentprocessRouteItems = processRouteItems.Where(x => x.StationId == SNcurrentList.CurrentStationListId).First();
+            var RequestprocessRouteItems = processRouteItems.Where(x => x.StationCode == request.JumpStationCode).First();
+
+            if(CurrentprocessRouteItems == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.JumpStationCode},工艺路线站点{CurrentStationList.StationCode},不存在"));
+            }
+            if (RequestprocessRouteItems == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.JumpStationCode},工艺路线站点{request.JumpStationCode},不存在"));
+            }
+
+            if (CurrentprocessRouteItems.RouteSeq > RequestprocessRouteItems.RouteSeq)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号,当前站点{CurrentStationList.StationCode},不能小于{RequestStationList.StationCode}站点，顺序不一致"));
+            }
+            var CurrentSNList = SNcurrentList;
+
+            
+            CurrentSNList.UpdateTime = DateTime.Now;
+            CurrentSNList.CurrentStationListId = RequestStationList.StationId;
+            CurrentSNList.StationStatus = StationStatusEnum.跳站;
+            _dbContext.mesSnListCurrents.Update(CurrentSNList);
+
+            var snHistory = new MesSnListHistory
+            {
+                SNListHistoryId = Guid.NewGuid(),
+                SnNumber = SNcurrentList.SnNumber,
+                OrderListId = SNcurrentList.OrderListId,
+                CurrentStationListId = SNcurrentList.CurrentStationListId,
+                ProductionLineId = SNcurrentList.ProductionLineId,
+                ProductListId = SNcurrentList.ProductListId,
+                ResourceId = SNcurrentList.ResourceId,
+                StationStatus = StationStatusEnum.跳站,
+                IsAbnormal = false,
+                CreateTime = DateTime.Now,
+                UpdateTime = DateTime.Now,
+                Remark = $"跳站,{CurrentStationList.StationCode},{request.JumpStationCode}",
+
+            };
+            await _mesSNListHistory.InsertAsync(snHistory);
+
+            await _dbContext.SaveChangesAsync();
+
+
+            return FSharpResult<ValueTuple, (int, string)>.NewError((0, $"跳站成功"));
+        }
+        /// <summary>
+        /// 重工方法
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<FSharpResult<ValueTuple, (int, string)>> ReWork(ReWorkParams request)
+        {
+           var SNcurrentList = await _dbContext.mesSnListCurrents.FirstOrDefaultAsync(x=>x.SnNumber==request.SN);
+           
+            if (SNcurrentList == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN}在Current表中不存在"));
+            }
+            var CurrentStationList = await _dbContext.StationList.FirstOrDefaultAsync(x => x.StationId == SNcurrentList.CurrentStationListId);
+
+            if (CurrentStationList == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN}站点不存在"));
+            }
+            var RequestStationList = await _dbContext.StationList.FirstOrDefaultAsync(x => x.StationCode == request.ReWorkStationCode);
+
+            if (RequestStationList == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"上传站点不存在"));
+            }
+
+            if (CurrentStationList.StationId == RequestStationList.StationId)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN}当前站点一致，请勿重复返工"));
+            }
+            var workOrder=await _dbContext.OrderList.FirstOrDefaultAsync(x => x.OrderListId == SNcurrentList.OrderListId);
+            if (workOrder == null)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"工单不存在"));
+            }
+            var processRouteItems = await (from p in _dbContext.ProcessRoutes
+                                           join iitm in _dbContext.ProcessRouteItems on p.Id equals iitm.HeadId
+                                           join s in _dbContext.StationList on iitm.StationCode equals s.StationCode
+                                           where p.Id == workOrder.ProcessRouteId
+                                           orderby iitm.RouteSeq
+                                           select new
+                                           {
+                                               p.RouteCode,
+                                               p.RouteName,
+                                               iitm.FirstStation, // 是否为首站
+                                               iitm.MustPassStation, // 是否为必过站
+                                               iitm.RouteSeq, // 路线顺序
+                                               iitm.StationCode, // 站点编码
+                                               iitm.CheckAll, // 是否需要检查所有站点
+                                               iitm.CheckStationList, // 需要检查的站点列表
+                                               s.StationId // 站点ID
+                                           })
+                         .ToListAsync();
+
+            var CurrentprocessRouteItems = processRouteItems.Where(x => x.StationId == SNcurrentList.CurrentStationListId).First();
+            var RequestprocessRouteItems = processRouteItems.Where(x => x.StationCode == request.ReWorkStationCode).First();
+
+            if (CurrentprocessRouteItems.RouteSeq <= RequestprocessRouteItems.RouteSeq)
+            {
+                return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号,当前站点{CurrentStationList.StationCode},不能小于{RequestStationList.StationCode}站点，顺序不一致"));
+            }
+            var CurrentSNList = SNcurrentList;
+
+            CurrentSNList.ReworkStartStation=request.ReWorkStationCode;
+            CurrentSNList.ReworkEndStation= CurrentStationList.StationCode;
+            CurrentSNList.ReworkCount = SNcurrentList.ReworkCount ?? 0 + 1;
+            CurrentSNList.ReworkTime=DateTime.Now;
+            CurrentSNList.IsReworking=true;
+            CurrentSNList.UpdateTime=DateTime.Now;
+            CurrentSNList.CurrentStationListId = RequestStationList.StationId;
+            _dbContext.mesSnListCurrents.Update(CurrentSNList);
+
+            var snHistory = new MesSnListHistory
+            {
+                SNListHistoryId = Guid.NewGuid(),
+                SnNumber = SNcurrentList.SnNumber,
+                OrderListId = SNcurrentList.OrderListId,
+                CurrentStationListId = SNcurrentList.CurrentStationListId,
+                ProductionLineId = SNcurrentList.ProductionLineId,
+                ProductListId = SNcurrentList.ProductListId,
+                ResourceId = SNcurrentList.ResourceId,
+                StationStatus = StationStatusEnum.返工,
+                IsAbnormal = false,
+                CreateTime = DateTime.Now,
+                UpdateTime = DateTime.Now,
+                Remark= $"返工,{CurrentStationList.StationCode},{request.ReWorkStationCode}",
+
+            };
+            await _mesSNListHistory.InsertAsync(snHistory);
+
+            await _dbContext.SaveChangesAsync();
+
+           
+            return FSharpResult<ValueTuple, (int, string)>.NewError((0, $"返工成功"));
+        }
+
+        /// <summary>
         /// 物料上料方法
         /// 负责将物料批次上料至指定设备和站点，并进行相关校验
         /// </summary>
@@ -301,6 +498,7 @@ namespace ChargePadLine.Service.Trace.Impl
 
             var DeviceInfosList = new Deviceinfo(); // 设备信息
             var workOrder = new OrderList(); // 工单信息
+            
 
             // 2. 如果提供了设备资源号，根据资源号获取设备信息
             if (!request.Resource.IsNullOrEmpty())
@@ -333,8 +531,7 @@ namespace ChargePadLine.Service.Trace.Impl
                 request.WorkOrderCode = workOrder.OrderCode;
             }
 
-
-
+            
 
             // 4. 检查工单是否存在且状态正确（异步查询）
             workOrder = await _dbContext.OrderList.FirstOrDefaultAsync(x => x.OrderCode == request.WorkOrderCode);
@@ -386,6 +583,7 @@ namespace ChargePadLine.Service.Trace.Impl
             {
                 var snCurrent = await _dbContext.mesSnListCurrents
                .FirstOrDefaultAsync(x => x.SnNumber == request.SN);
+
                 if (snCurrent != null)
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"首站站点SN已存在{request.SN}"));
@@ -456,13 +654,19 @@ namespace ChargePadLine.Service.Trace.Impl
                     {
                         if (!SnListhistory.Any(x =>
                             x.SnHistory.CurrentStationListId == processRouteItem.StationId &&
-                            x.SnHistory.StationStatus == 1))
+                            x.SnHistory.StationStatus == StationStatusEnum.合格))
                         {
                             return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},站点{processRouteItem.StationCode}没有PASS记录"));
                         }
                     }
                 }
+                var snCurrent2 = await _dbContext.mesSnListCurrents
+               .FirstOrDefaultAsync(x => x.SnNumber == request.SN);
 
+                if (snCurrent2 == null)
+                {
+                    return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},不存在"));
+                }
                 // 10.7 如果当前站点配置了必须检查的站点列表
                 if (currentprocessRouteList.CheckStationList.IsNullOrEmpty() == false)
                 {
@@ -471,14 +675,14 @@ namespace ChargePadLine.Service.Trace.Impl
                     {
                         if (!SnListhistory.Any(x =>
                             x.Station.StationCode == stationCode &&
-                            x.SnHistory.StationStatus == 1))
+                            x.SnHistory.StationStatus == StationStatusEnum.合格))
                         {
                             return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},站点{stationCode}没有PASS记录"));
                         }
                     }
                 }
                 // 10.8 否则只检查上一必过站是否有PASS记录
-                else
+                else if(snCurrent2.StationStatus != StationStatusEnum.跳站)
                 {
                     var prevMustPassStation = processRouteItems
                         .Where(x =>
@@ -491,12 +695,12 @@ namespace ChargePadLine.Service.Trace.Impl
                     {
                         if (!SnListhistory.Any(x =>
                             x.SnHistory.CurrentStationListId == prevMustPassStation.StationId &&
-                            x.SnHistory.StationStatus == 1))
+                            x.SnHistory.StationStatus == StationStatusEnum.合格))
                         {
                             return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},上一必过站点{prevMustPassStation.StationCode}没有PASS记录"));
                         }
                     }
-                    if(SnListhistory.Where(x=>x.Station.StationCode==request.StationCode && x.SnHistory.StationStatus == 1).Any() == true)
+                    if(SnListhistory.Where(x=>x.Station.StationCode==request.StationCode && x.SnHistory.StationStatus == StationStatusEnum.合格).Any() == true)
                     {
                         return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"SN序列号{request.SN},站点{request.StationCode}已有PASS记录"));
                     }
@@ -642,7 +846,7 @@ namespace ChargePadLine.Service.Trace.Impl
             }
 
             // 6. 测试结果转换：将字符串结果转换为数字状态码（PASS=1，其它=2）
-            var uploadStationStatus = request.TestResult == "PASS" ? 1 : 2;
+            StationStatusEnum uploadStationStatus = request.TestResult == "PASS" ? StationStatusEnum.合格 : StationStatusEnum.不合格;
 
             // ---------- 7. 首站逻辑：处理首次进站的SN ----------
             if (checkResult.ErrorValue.Item2 == "首站")
@@ -771,7 +975,7 @@ namespace ChargePadLine.Service.Trace.Impl
                 }
 
                 // 8.5 测试结果处理：如果测试NG，直接返回，不再跳站
-                if (uploadStationStatus != 1)
+                if (uploadStationStatus != StationStatusEnum.合格)
                 {
                     return FSharpResult<ValueTuple, (int, string)>.NewError((0, $"测试结果为{request.TestResult}，数据上传成功{request.SN}"));
                 }
@@ -877,7 +1081,7 @@ namespace ChargePadLine.Service.Trace.Impl
                     if (nextStep == null)
                     {
                         // 8.10.2 如果是最后一站，将状态置为完工(4)
-                        snCurrent.StationStatus = 4;
+                        snCurrent.StationStatus = StationStatusEnum.合格;
                     }
                     else
                     {
@@ -937,7 +1141,7 @@ namespace ChargePadLine.Service.Trace.Impl
 
 
             // 6. 测试结果转换：将字符串结果转换为数字状态码 6=点检
-            var uploadStationStatus = 6;
+            var uploadStationStatus = StationStatusEnum.点检;
 
 
             // ---------- 8. 非首站逻辑：写历史记录 + 跳站处理 ----------
@@ -1089,7 +1293,8 @@ namespace ChargePadLine.Service.Trace.Impl
                     StationName = h.StationList.StationName,
                     StationStatus = h.StationStatus,
                     ResourceCode = h.Resource?.Resource,
-                    TestResult = h.StationStatus == 1 ? "PASS" : h.StationStatus == 6 ? "点检" : "NG",
+                    TestResult = h.StationStatus.ToString(),
+                    Remark = h.Remark,
                     TestTime = h.CreateTime.Value.DateTime,
                     TestData = testData
                         .Where(t => t.SNListHistoryId == h.SNListHistoryId)
@@ -1133,7 +1338,7 @@ namespace ChargePadLine.Service.Trace.Impl
             public string OrderCode { get; set; }
             public string ProductCode { get; set; }
             public string CurrentStation { get; set; }
-            public int StationStatus { get; set; }
+            public StationStatusEnum StationStatus { get; set; }
             public bool? IsAbnormal { get; set; }
             public DateTime CreateTime { get; set; }
             public DateTime UpdateTime { get; set; }
@@ -1145,11 +1350,12 @@ namespace ChargePadLine.Service.Trace.Impl
         {
             public string StationCode { get; set; }
             public string StationName { get; set; }
-            public int StationStatus { get; set; }
+            public StationStatusEnum StationStatus { get; set; }
             public string ResourceCode { get; set; }
             public string TestResult { get; set; }
             public DateTime TestTime { get; set; }
             public List<TestDataDto> TestData { get; set; } = new();
+            public string? Remark { get; internal set; }
         }
 
         public class TestDataDto

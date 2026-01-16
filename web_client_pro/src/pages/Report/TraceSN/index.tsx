@@ -76,10 +76,15 @@ const TraceSN: React.FC = () => {
       key: 'testResult',
       width: 100,
       render: (result: string) => (
-        <Text style={{ color: result === 'PASS' ? 'green' : 'red' }}>
+        <Text style={{ color: result === '合格' ? 'green' : 'red' }}>
           {result}
         </Text>
       ),
+    },{
+      title: '备注',
+      dataIndex: 'remark',
+      key: 'remark',
+      width: 160,
     },
     {
       title: '测试时间',
