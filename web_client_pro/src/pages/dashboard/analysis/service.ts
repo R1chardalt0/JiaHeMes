@@ -118,6 +118,16 @@ export interface TopDefectDto {
   cumulativePercentage: number;
 }
 
+// 定义完工产品数量统计类型
+export interface FinishedProductCountDto {
+  startTime: string;
+  endTime: string;
+  productName: string;
+  totalFinishedCount: number;
+  passFinishedCount: number;
+  failFinishedCount: number;
+}
+
 /**
  * 获取每小时产出统计
  * @param productionLineId 生产线ID
@@ -281,6 +291,31 @@ export async function getTopDefects(startTime: string, endTime: string, topN: nu
   }
 
   const response = await request('/api/Report/TopDefects', {
+    method: 'GET',
+    params,
+  });
+
+  return response;
+}
+
+/**
+ * 获取指定时间范围内的完工产品数量统计
+ * @param startTime 统计开始时间
+ * @param endTime 统计结束时间
+ * @param productionLineId 生产线ID（可选）
+ * @returns 完工产品数量统计数据
+ */
+export async function getFinishedProductCount(startTime: string, endTime: string, productionLineId?: string): Promise<ApiResponse<FinishedProductCountDto[]>> {
+  const params: Record<string, any> = {
+    startTime,
+    endTime,
+  };
+
+  if (productionLineId) {
+    params.productionLineId = productionLineId;
+  }
+
+  const response = await request('/api/Report/FinishedProductCount', {
     method: 'GET',
     params,
   });

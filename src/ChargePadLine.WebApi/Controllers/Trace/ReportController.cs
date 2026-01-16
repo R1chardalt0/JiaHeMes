@@ -207,5 +207,30 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         return StatusCode(500, new { code = 500, message = "服务器内部错误: " + ex.Message });
       }
     }
+
+    /// <summary>
+    /// 获取指定时间范围内的完工产品数量统计
+    /// 统计指定时间范围内的完工产品数据，包括总完工数量、合格完工数量和不合格完工数量，按产品名称分组
+    /// </summary>
+    /// <param name="startTime">统计开始时间，格式为yyyy-MM-dd HH:mm:ss</param>
+    /// <param name="endTime">统计结束时间，格式为yyyy-MM-dd HH:mm:ss</param>
+    /// <param name="productionLineId">生产线ID（可选），用于过滤特定生产线的数据</param>
+    /// <returns>返回完工产品数量统计数据列表，按产品名称分组，包含产品名称、总完工数量、合格完工数量、不合格完工数量等信息</returns>
+    /// <response code="200">获取成功，返回统计数据</response>
+    /// <response code="500">服务器内部错误</response>
+    [HttpGet("FinishedProductCount")]
+    public async Task<IActionResult> GetFinishedProductCount(DateTime startTime, DateTime endTime, Guid? productionLineId = null)
+    {
+      try
+      {
+        var result = await _reportService.GetFinishedProductCountAsync(startTime, endTime, productionLineId);
+        return Ok(new { code = 200, data = result, message = "获取成功" });
+      }
+      catch (Exception ex)
+      {
+        // 记录异常日志
+        return StatusCode(500, new { code = 500, message = "服务器内部错误: " + ex.Message });
+      }
+    }
   }
 }

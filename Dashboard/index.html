@@ -19,6 +19,29 @@
             flex: 1;
             margin: 0 5px;
         }
+
+        /* 产品完成生产数量排名表格样式 */
+        .finished-product-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .finished-product-table th,
+        .finished-product-table td {
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #ddd;
+            color: #5dc2fe;
+        }
+
+        .finished-product-table th {
+            background-color: rgba(24, 144, 255, 0.1);
+            font-weight: bold;
+        }
+
+        .finished-product-table tr:nth-child(even) {
+            background-color: rgba(24, 144, 255, 0.05);
+        }
     </style>
     <script type="text/javascript" src="js/echarts.min.js"></script>
     <script type="text/javascript" src="js/jdjh.js"></script>
@@ -117,7 +140,7 @@
                 </div>
                 <div class="xpanel-wrapper xpanel-wrapper-45">
                     <div class="xpanel xpanel-c-b">
-                        <div class="title title-long" style="padding-left:25px">项目进度甘特图</div>
+                        <div class="title title-long" style="padding-left:25px">各站不良率分析</div>
                         <div id="gCharts" class="bcontent" style="height:92%;">
 
                         </div>
@@ -136,9 +159,9 @@
                 </div>
                 <div class="xpanel-wrapper xpanel-wrapper-45">
                     <div class="xpanel xpanel-r-b">
-                        <div class="title">物料验收</div>
-                        <div id="wlCharts" class="bcontent">
-
+                        <div class="title">产品完成生产数量排名</div>
+                        <div id="finishedProductList" class="bcontent">
+                            <div class="loading">加载中...</div>
                         </div>
                     </div>
                 </div>
@@ -175,7 +198,7 @@
         return { start: start, end: end };
     }
 
-    // 处理小时产量数据 ✅ 带良率计算
+    // 处理小时产量数据 
     function processHourlyData(data) {
         if (!data || !Array.isArray(data)) return [];
         return data.map(function (item) {
@@ -319,8 +342,8 @@
             })
             .then(function (data) {
                 console.log('calculateQualityRate响应数据:', data);
-                // 确保返回的是数字类型
-                return parseFloat(data.data.passRate) * 100;
+                // 返回完整的qualityRate数据对象，不需要前端额外计算
+                return data.data;
             });
     }
 
@@ -369,6 +392,35 @@
             });
     }
 
+    // 获取产品完成生产数量数据
+    function getFinishedProductCount(startDate, endDate, selectedProductionLine) {
+        console.log('调用getFinishedProductCount接口，参数:', { startDate, endDate, selectedProductionLine });
+        var params = new URLSearchParams();
+        if (selectedProductionLine) params.append('productionLineId', selectedProductionLine);
+        if (startDate) params.append('startTime', startDate);
+        if (endDate) params.append('endTime', endDate);
+        // 添加时间戳参数，避免浏览器缓存
+        params.append('t', Date.now());
+        var apiUrl = 'http://localhost:8000/api/Report/FinishedProductCount?' + params.toString();
+        console.log('调用的API URL:', apiUrl);
+        return fetch(apiUrl, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(function (response) {
+                console.log('getFinishedProductCount响应状态:', response.status, response.statusText);
+                if (!response.ok) {
+                    console.error('网络响应错误，状态码:', response.status);
+                    throw new Error('网络响应错误，状态码:' + response.status);
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                console.log('getFinishedProductCount响应数据:', data);
+                return data.data || [];
+            });
+    }
+
     // 处理TOP缺陷数据
     function processTopDefectsData(data) {
         if (!data || !Array.isArray(data)) return [];
@@ -399,9 +451,11 @@
                 }
                 return {
                     station: item.stationName,
+                    stationCode: item.stationCode, // 保留原始的站点编码
+                    ngCount: item.ngCount || 0, // 保留原始的不良品数量
                     value: item.ngCount || 0,
-                    ngRate: Number(((item.ngRate || 0) * 100).toPrecision(3)), // 保留3位有效数字
-                    rate: Number(((item.ngRate || 0) * 100).toPrecision(3)) // 转换为百分比，保留3位有效数字
+                    ngRate: item.ngRate || 0, // 直接使用后端返回的不良率（小数形式）
+                    rate: item.ngRate || 0 // 直接使用后端返回的不良率（小数形式）
                 };
             })
             .filter(Boolean);
@@ -460,24 +514,49 @@
 
     function updateChart() {
         if (myChart) {
+            // 生成完整的24小时时间标签数组
+            var fullTimeLabels = [];
+            for (var i = 0; i < 24; i++) {
+                fullTimeLabels.push(String(i).padStart(2, '0') + ':00');
+            }
+
+            // 将后端返回的数据转换为以时间标签为键的对象
+            var dataMap = {};
+            hourlyChartData.forEach(function (item) {
+                dataMap[item.timeLabel] = item;
+            });
+
+            // 合并完整时间标签和实际数据，为没有数据的时间点使用默认值
+            var mergedData = fullTimeLabels.map(function (timeLabel) {
+                var item = dataMap[timeLabel] || {};
+                return {
+                    timeLabel: timeLabel,
+                    totalCount: item.totalCount || 0,
+                    yieldRate: item.yieldRate || 0
+                };
+            });
+
             myChart.setOption({
                 xAxis: {
-                    data: hourlyChartData.map(item => item.timeLabel)
+                    data: mergedData.map(item => item.timeLabel)
                 },
                 series: [
                     {
-                        data: hourlyChartData.map(item => item.totalCount)
+                        data: mergedData.map(item => item.totalCount)
                         // 柱状图颜色由初始 option 控制，可不写
                     },
                     {
-                        data: hourlyChartData.map(item => item.yieldRate),
+                        data: mergedData.map(item => item.yieldRate),
                         // 👇 必须带上这些，否则样式丢失！
                         lineStyle: { normal: { color: '#FFCC00' } },
                         itemStyle: { normal: { color: '#FFCC00' } },
-                        label: { normal: { show: false, color: '#FFCC00' } }
+                        label: { normal: { show: true, color: '#FFCC00', fontSize: 10, formatter: function (params) { return Number(params.value).toPrecision(3) + '%'; } } }
                     }
                 ]
             });
+
+            // 数据更新后调用resize方法，确保图表占满容器宽度
+            myChart.resize();
         }
     }
 
@@ -538,7 +617,7 @@
                 axisLabel: { color: '#FFCC00', fontSize: 12, formatter: '{value} %' },
                 axisLine: { lineStyle: { color: '#FFCC00' } },
                 splitLine: { show: false },
-                min: 0,
+                min: 80,
                 max: 100,
                 position: 'right'
             }
@@ -589,10 +668,14 @@
                 },
                 label: {
                     normal: {
-                        show: false,
+                        show: true,
                         position: 'top',
                         color: '#FFCC00',
-                        fontSize: 10
+                        fontSize: 10,
+                        formatter: function (params) {
+                            // 保留3位有效数字
+                            return Number(params.value).toPrecision(3) + '%';
+                        }
                     }
                 },
                 animation: true,
@@ -636,6 +719,59 @@
                 }]
             });
         }
+        // 同时更新各站不良率分析柱状图
+        updateStationNGBarChart(stationNGChartData);
+    }
+
+    // 更新各站不良率分析柱状图
+    function updateStationNGBarChart(stationNGData) {
+        if (!gCharts) return;
+
+        // 生成OP10-OP170站点编号数组
+        var stationNumbers = generateStationNumbers();
+
+        // 创建站点编码到数据的映射
+        var stationDataMap = {};
+        stationNGData.forEach(function (station) {
+            // 直接使用后端返回的stationCode字段
+            var stationCode = station.stationCode || '';
+            // 确保站点编码是OP格式（OP10, OP20, ..., OP170）
+            if (stationCode && stationCode.startsWith('OP')) {
+                // 检查是否在10到170之间且是10的倍数
+                var opNum = parseInt(stationCode.replace('OP', ''), 10);
+                if (opNum % 10 === 0 && opNum >= 10 && opNum <= 170) {
+                    stationDataMap[stationCode] = {
+                        ngCount: station.ngCount || 0,
+                        ngRate: station.ngRate || 0
+                    };
+                }
+            }
+        });
+
+        // 根据站点编号数组生成数据数组
+        var ngCountData = [];
+        var ngRateData = [];
+        stationNumbers.forEach(function (stationNumber) {
+            var stationData = stationDataMap[stationNumber] || {};
+            ngCountData.push(stationData.ngCount || 0);
+            // 直接使用后端返回的ngRate值，在图表配置中进行百分比转换
+            ngRateData.push(stationData.ngRate || 0);
+        });
+
+        // 更新图表
+        gCharts.setOption({
+            xAxis: {
+                data: stationNumbers
+            },
+            series: [
+                {
+                    data: ngCountData
+                },
+                {
+                    data: ngRateData
+                }
+            ]
+        });
     }
 
     // 加载项目统计数据
@@ -655,15 +791,16 @@
                 console.log('获取到项目统计数据:', results);
 
                 var firstPassData = results[0];
-                var qualityRate = results[1];
-                var defectRate = 100 - qualityRate;
+                var qualityData = results[1];
+
+                // 从qualityData中获取质量统计数据
+                var qualityRate = (qualityData.passRate || 0) * 100; // 转换为百分比
+                var defectRate = (qualityData.failRate || 0) * 100; // 转换为百分比
 
                 // 使用接口返回的数据
                 var totalInput = firstPassData.totalInput || 0;
                 var firstPassCount = firstPassData.firstPassCount || 0;
                 var firstPassYield = (firstPassData.firstPassYield || 0) * 100; // 转换为百分比
-
-                console.log('一次通过率数据:', { totalInput, firstPassCount, firstPassYield });
 
                 // 更新对比柱状图
                 outputCompareChart.setOption({
@@ -686,9 +823,9 @@
                     }
                 });
 
-                // 计算合格产品和不良产品的实际数量
-                var qualifiedCount = Math.round(totalInput * (qualityRate / 100));
-                var defectiveCount = Math.round(totalInput * (defectRate / 100));
+                // 使用后端直接提供的合格和不良产品数量
+                var qualifiedCount = qualityData.passCount || 0;
+                var defectiveCount = qualityData.failCount || 0;
 
                 wzCharts.setOption({
                     series: [{
@@ -705,15 +842,335 @@
             });
     }
 
-    // 加载数据
-    loadChartData();
-    loadStationNGData();
-    loadProjectStatistics();
+    // 加载各站不良率分析表格数据
+    function loadStationNGRateTable() {
+        var dateRange = isTestMode ? getTestRange() : getTodayRange();
+        var startDate = formatDateTime(dateRange.start);
+        var endDate = formatDateTime(dateRange.end);
 
-    //甘特图 ✅ 修复未定义报错
+        console.log('加载各站不良率分析表格数据，时间范围:', startDate, '-', endDate);
+
+        getStationNGStatistics(startDate, endDate, '')
+            .then(function (data) {
+                console.log('获取到各站不良率分析表格数据:', data);
+
+                // 更新各站不良率分析表格
+                var container = document.getElementById('stationNGRateTable');
+                if (container) {
+                    // 清空容器
+                    container.innerHTML = '';
+
+                    // 检查数据是否为数组
+                    if (!Array.isArray(data)) {
+                        container.innerHTML = '<div class="error">数据格式错误，不是预期的数组格式</div>';
+                        return;
+                    }
+
+                    // 如果没有数据，显示提示信息
+                    if (data.length === 0) {
+                        container.innerHTML = '<div class="no-data">没有找到各站不良率分析数据</div>';
+                        return;
+                    }
+
+                    // 创建表格来展示数据
+                    var table = document.createElement('table');
+                    table.className = 'finished-product-table';
+
+                    // 创建表头
+                    var thead = document.createElement('thead');
+                    var headerRow = document.createElement('tr');
+                    headerRow.innerHTML = '<th>站点编码</th><th>站点名称</th><th>不良品数量</th><th>总测试数量</th><th>不良率</th>';
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+
+                    // 创建表格内容
+                    var tbody = document.createElement('tbody');
+
+                    // 按站点编码排序
+                    data.sort(function (a, b) {
+                        return a.stationCode.localeCompare(b.stationCode);
+                    });
+
+                    data.forEach(function (item) {
+                        var row = document.createElement('tr');
+                        // 计算不良率百分比
+                        var ngRatePercent = (item.ngRate * 100).toFixed(2);
+
+                        // 创建表格单元格
+                        row.innerHTML = '<td>' + (item.stationCode || '未知编码') + '</td>' +
+                            '<td>' + (item.stationName || '未知站点') + '</td>' +
+                            '<td>' + (item.ngCount || 0) + '</td>' +
+                            '<td>' + (item.totalTestCount || 0) + '</td>' +
+                            '<td>' + ngRatePercent + '%</td>';
+                        tbody.appendChild(row);
+                    });
+                    table.appendChild(tbody);
+
+                    // 添加表格到容器
+                    container.appendChild(table);
+                }
+            })
+            .catch(function (error) {
+                console.error('获取各站不良率分析表格数据失败:', error);
+                console.error('错误详情:', error.message, error.stack);
+                // 显示错误信息
+                var container = document.getElementById('stationNGRateTable');
+                if (container) {
+                    container.innerHTML = '<div class="error">获取数据失败，请稍后重试</div>';
+                }
+            });
+    }
+
+    // 加载产品完成生产数量排名数据
+    function loadFinishedProductCount() {
+        var dateRange = isTestMode ? getTestRange() : getTodayRange();
+        var startDate = formatDateTime(dateRange.start);
+        var endDate = formatDateTime(dateRange.end);
+
+        console.log('加载产品完成生产数量排名数据，时间范围:', startDate, '-', endDate);
+
+        getFinishedProductCount(startDate, endDate, '')
+            .then(function (data) {
+                console.log('获取到产品完成生产数量排名数据:', data);
+
+                // 更新产品完成生产数量排名列表
+                var container = document.getElementById('finishedProductList');
+                if (container) {
+                    // 清空容器
+                    container.innerHTML = '';
+
+                    // 检查数据是否为数组
+                    if (!Array.isArray(data)) {
+                        container.innerHTML = '<div class="error">数据格式错误，不是预期的数组格式</div>';
+                        return;
+                    }
+
+                    // 如果没有数据，显示提示信息
+                    if (data.length === 0) {
+                        container.innerHTML = '<div class="no-data">没有找到产品完成生产数量数据</div>';
+                        return;
+                    }
+
+                    // 创建表格或列表来展示数据
+                    var table = document.createElement('table');
+                    table.className = 'finished-product-table';
+
+                    // 创建表头
+                    var thead = document.createElement('thead');
+                    var headerRow = document.createElement('tr');
+                    headerRow.innerHTML = '<th>排名</th><th>产品名称</th><th>总完工数量</th><th>合格率</th>';
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+
+                    // 创建表格内容
+                    var tbody = document.createElement('tbody');
+                    // 只显示前5名
+                    data = data.slice(0, 5);
+                    data.forEach(function (item, index) {
+                        var row = document.createElement('tr');
+                        // 计算合格率
+                        var passRate = item.totalFinishedCount > 0 ? (item.passFinishedCount / item.totalFinishedCount * 100).toFixed(1) : '0.0';
+                        // 创建表格单元格
+                        row.innerHTML = '<td>' + (index + 1) + '</td>' +
+                            '<td>' + (item.productName || '未知产品') + '</td>' +
+                            '<td>' + (item.totalFinishedCount || 0) + '</td>' +
+                            '<td>' + passRate + '%</td>';
+                        tbody.appendChild(row);
+                    });
+                    table.appendChild(tbody);
+
+                    // 添加表格到容器
+                    container.appendChild(table);
+                }
+            })
+            .catch(function (error) {
+                console.error('获取产品完成生产数量排名数据失败:', error);
+                console.error('错误详情:', error.message, error.stack);
+                // 显示错误信息
+                var container = document.getElementById('finishedProductList');
+                if (container) {
+                    container.innerHTML = '<div class="error">获取数据失败，请稍后重试</div>';
+                }
+            });
+    }
+
+    // 加载数据将在所有图表初始化后执行
+
+    // 生成OP10-OP170站点编号数组
+    function generateStationNumbers() {
+        var stations = [];
+        for (var i = 1; i <= 17; i++) {
+            var number = i * 10;
+            stations.push('OP' + number);
+        }
+        return stations;
+    }
+
+    // 各站不良率分析柱状图
     var gdom = document.getElementById("gCharts");
     var gCharts = echarts.init(gdom);
-    var ptoption = {};
+    var ptoption = {
+        title: {
+            show: false
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            },
+            formatter: function (params) {
+                if (!params || !params.length) return '';
+                var result = ['站点: ' + params[0].name];
+
+                params.forEach(function (param) {
+                    if (param.seriesName === '不良品数量') {
+                        result.push('不良品数量: ' + param.value + '件');
+                    } else if (param.seriesName === '不良率') {
+                        // 将小数转换为百分比显示，保留两位小数
+                        result.push('不良率: ' + (param.value * 100).toFixed(2) + '%');
+                    }
+                });
+
+                return result.join('<br/>');
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '10%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: generateStationNumbers(),
+            axisLine: {
+                lineStyle: {
+                    color: '#5dc2fe'
+                }
+            },
+            axisLabel: {
+                textStyle: {
+                    color: '#5dc2fe',
+                    fontSize: 10,
+                    rotate: 45
+                }
+            },
+            splitLine: {
+                show: false
+            }
+        },
+        yAxis: [
+            {
+                type: 'value',
+                name: '不良品数量(件)',
+                nameTextStyle: {
+                    color: '#5dc2fe',
+                    fontSize: 12
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: '#5dc2fe'
+                    }
+                },
+                axisLabel: {
+                    textStyle: {
+                        color: '#5dc2fe'
+                    },
+                    formatter: '{value}'
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: 'rgba(93, 194, 254, 0.2)'
+                    }
+                },
+                minInterval: 1, // 确保最小间隔为1
+                splitNumber: 5 // 设置合适的分割数量
+            },
+            {
+                type: 'value',
+                name: '不良率(%)',
+                nameTextStyle: {
+                    color: '#FFCC00',
+                    fontSize: 12
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: '#FFCC00'
+                    }
+                },
+                axisLabel: {
+                    textStyle: {
+                        color: '#FFCC00'
+                    },
+                    formatter: function (value) {
+                        // 将小数转换为百分比显示
+                        return (value * 100).toFixed(1) + '%';
+                    }
+                },
+                splitLine: {
+                    show: false
+                },
+                min: 0,
+                max: 0.2, // 使用小数形式的最大值（0.2代表20%）
+                interval: 0.05 // 使用小数形式的间隔（0.05代表5%）
+            }
+        ],
+        series: [
+            {
+                name: '不良品数量',
+                type: 'bar',
+                yAxisIndex: 0,
+                data: [],
+                barWidth: 24,
+                itemStyle: {
+                    normal: {
+                        color: '#1890ff',
+                        borderRadius: [10, 10, 0, 0]
+                    }
+                },
+                label: {
+                    normal: {
+                        show: true,
+                        position: 'top',
+                        color: '#5dc2fe',
+                        fontSize: 10,
+                        formatter: '{c}'
+                    }
+                }
+            },
+            {
+                name: '不良率',
+                type: 'line',
+                yAxisIndex: 1,
+                data: [],
+                itemStyle: {
+                    normal: {
+                        color: '#FFCC00'
+                    }
+                },
+                lineStyle: {
+                    normal: {
+                        color: '#FFCC00',
+                        width: 2
+                    }
+                },
+                symbol: 'circle',
+                symbolSize: 6,
+                label: {
+                    normal: {
+                        show: true,
+                        position: 'top',
+                        color: '#FFCC00',
+                        fontSize: 10,
+                        formatter: function (params) {
+                            // 将小数转换为百分比显示，保留两位小数
+                            return (params.value * 100).toFixed(2) + '%';
+                        }
+                    }
+                }
+            }
+        ]
+    };
     if (ptoption && typeof ptoption === "object") {
         gCharts.setOption(ptoption, true);
     }
@@ -731,7 +1188,7 @@
                 return [
                     '站点: ' + params.name,
                     'NG数量: ' + params.value,
-                    'NG率: ' + params.data.ngRate + '%',
+                    'NG率: ' + (params.data.ngRate * 100).toFixed(2) + '%',
                     '占比: ' + params.percent + '%'
                 ].join('<br/>');
             }
@@ -812,42 +1269,7 @@
         wzCharts.setOption(wzoption, true);
     }
 
-    //物料验收
-    var wldom = document.getElementById("wlCharts");
-    var wlCharts = echarts.init(wldom);
-    wloption = {
-        title: { text: '物料到货情况分析', subtext: '纯属虚构', show: false },
-        color: ['#00CCFF', '#CC6600', '#8B0000'],
-        tooltip: {
-            trigger: 'axis',
-            formatter: function (params) {
-                var totalOutput = params[0].value;
-                var firstPass = params[1].value;
-                var firstPassRate = totalOutput > 0 ? (firstPass / totalOutput * 100).toFixed(1) : '0.0';
-                return params[0].name + '<br/>' +
-                    params[0].marker + params[0].seriesName + ': ' + totalOutput + '<br/>' +
-                    params[1].marker + params[1].seriesName + ': ' + firstPass + '<br/>' +
-                    '一次性通过率: ' + firstPassRate + '%';
-            }
-        },
-        legend: { orient: 'horizontal', data: ['计划采购量', '实际到货量'], x: 'center', y: 'top', textStyle: { color: '#5dc2fe' } },
-        calculable: true,
-        xAxis: [{
-            type: 'category',
-            data: ['采购计划壹', '采购计划贰', '采购计划叁'],
-            axisLine: { lineStyle: { color: "#5dc2fe" } },
-            splitLine: { show: false }
-        }],
-        yAxis: [{
-            type: 'value',
-            axisLine: { lineStyle: { color: "#5dc2fe" } },
-            splitLine: { show: false }
-        }],
-        series: [{ name: '计划采购量', type: 'bar', data: [10, 15, 20] }, { name: '实际到货量', type: 'bar', data: [5, 8, 12] }]
-    };
-    if (wloption && typeof wloption === "object") {
-        wlCharts.setOption(wloption, true);
-    }
+    //产品完成生产数量排名使用表格展示，无需图表初始化
 
     // 一次性通过率对比柱状图
     var outputCompareDom = document.getElementById("outputCompareChart");
@@ -998,6 +1420,12 @@
         topDefectsChart.setOption(topDefectsOption, true);
     }
 
+    // 现在所有图表都已初始化，开始加载数据
+    loadChartData();
+    loadStationNGData();
+    loadProjectStatistics();
+    loadFinishedProductCount();
+
     //窗口自适应
     window.onresize = function () {
         myChart.resize();
@@ -1005,7 +1433,6 @@
         ryCharts.resize();
 
         wzCharts.resize();
-        wlCharts.resize();
         outputCompareChart.resize();
         topDefectsChart.resize();
     }
