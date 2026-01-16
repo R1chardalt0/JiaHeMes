@@ -40,7 +40,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.热铆
                 var resp = s7Net.ReadBool("DB4020.12.0").Content;
                 var exitok = s7Net.ReadBool("DB4020.2.4").Content;//出站OK
                 var exitng = s7Net.ReadBool("DB4020.2.5").Content;//出站NG
-                var sn = s7Net.ReadString("DB4020.66", 100);
+                var sn = s7Net.ReadString("DB4023.66", 100);
 
                 // 更新数据服务
                 _exitModel.UpdateData(req, resp, sn, exitok, exitng);

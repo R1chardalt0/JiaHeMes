@@ -41,7 +41,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试
                 var resp = s7Net.ReadBool("DB4010.14.0").Content;
                 var enterok = s7Net.ReadBool("DB4010.3.0").Content;//出站OK
                 var enterng = s7Net.ReadBool("DB4010.3.1").Content;//出站NG
-                var sn = s7Net.ReadString("DB4010.300.0", 100);
+                var sn = s7Net.ReadString("DB4013.66", 100);
 
                 // 更新数据服务
                 _masterModel.UpdateData(req, resp, sn, enterok, enterng);

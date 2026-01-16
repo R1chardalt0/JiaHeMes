@@ -43,7 +43,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.定子检测
                 var resp = s7Net.ReadBool("DB4010.12.0").Content;
                 var enterok = s7Net.ReadBool("DB4010.2.4").Content;//出站OK
                 var enterng = s7Net.ReadBool("DB4010.2.5").Content;//出站NG
-                var sn = s7Net.ReadString("DB4010.66", 100);
+                var sn = s7Net.ReadString("DB4013.66", 100);
 
                 // 更新数据服务
                 _statorExitModel.UpdateData(req, resp, sn, enterok, enterng);
