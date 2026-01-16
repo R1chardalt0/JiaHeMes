@@ -107,8 +107,8 @@ namespace ChargePadLine.Service.Trace.Impl
           {
             Hour = g.Key,
             TotalCount = g.Count(),
-            PassCount = g.Count(h => h.StationStatus == 1), // 状态1表示合格
-            FailCount = g.Count(h => h.StationStatus != 1) // 其他状态表示不合格
+            PassCount = g.Count(h => h.StationStatus == StationStatusEnum.合格), // 状态1表示合格
+            FailCount = g.Count(h => h.StationStatus != StationStatusEnum.合格) // 其他状态表示不合格
           })
           .ToList();
 
@@ -172,7 +172,7 @@ namespace ChargePadLine.Service.Trace.Impl
                      h.CreateTime <= request.EndTime);
 
       var actualOutput = await actualOutputQuery.CountAsync();
-      var goodOutput = await actualOutputQuery.CountAsync(h => h.StationStatus == 1);
+      var goodOutput = await actualOutputQuery.CountAsync(h => h.StationStatus == StationStatusEnum.合格);
 
       // 如果请求中提供了实际产出数据，则使用请求中的数据
       if (request.ActualOutput.HasValue)
@@ -233,7 +233,7 @@ namespace ChargePadLine.Service.Trace.Impl
       // 查询指定时间段内的所有不合格记录
       var query = _dbContext.mesSnListHistories
           .Include(h => h.StationList)
-          .Where(h => h.CreateTime >= startTime && h.CreateTime <= endTime && h.StationStatus != 1);
+          .Where(h => h.CreateTime >= startTime && h.CreateTime <= endTime && h.StationStatus != StationStatusEnum.合格);
 
       // 添加生产线过滤
       if (productionLineId.HasValue)
@@ -330,7 +330,7 @@ namespace ChargePadLine.Service.Trace.Impl
             .ToListAsync();
 
         // 如果该SN没有失败记录，则视为一次通过
-        if (snHistories.All(h => h.StationStatus == 1))
+        if (snHistories.All(h => h.StationStatus == StationStatusEnum.合格))
         {
           firstPassCount++;
         }
@@ -376,7 +376,7 @@ namespace ChargePadLine.Service.Trace.Impl
           .ToListAsync();
 
       int totalTestCount = stats.Count;
-      int passCount = stats.Count(s => s.StationStatus == 1);
+      int passCount = stats.Count(s => s.StationStatus == StationStatusEnum.合格);
       int failCount = totalTestCount - passCount;
 
       // 计算合格率和不良率

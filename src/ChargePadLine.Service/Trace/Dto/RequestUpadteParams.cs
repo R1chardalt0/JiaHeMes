@@ -133,6 +133,28 @@ namespace ChargePadLine.Service.Trace.Dto
         
 
     }
+    public class ReWorkParams
+    {
+        /// <summary>
+        /// SN
+        /// </summary>
+        public string? SN { get; set; }
+        /// <summary>
+        /// 返工站点
+        /// </summary>
+        public string? ReWorkStationCode { get; set; }
+    }
+    public class JumpStationParams
+    {
+        /// <summary>
+        /// SN
+        /// </summary>
+        public string? SN { get; set; }
+        /// <summary>
+        /// 返工站点
+        /// </summary>
+        public string? JumpStationCode { get; set; }
+    }
     public class RequestMaterialLoadedParams
     {
         /// <summary>

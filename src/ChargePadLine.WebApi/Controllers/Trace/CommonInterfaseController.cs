@@ -26,6 +26,50 @@ namespace ChargePadLine.WebApi.Controllers.Trace
             _iCommonInterfaseService = iCommonInterfaseService;
         }
         /// <summary>
+        /// 跳站
+        /// </summary>
+        /// <param name="sn"></param>
+        /// <returns></returns>
+        [HttpPost("JumpStation")]
+        public async Task<IActionResult> JumpStation(JumpStationParams request)
+        {
+
+            var result = await _iCommonInterfaseService.JumpStation(request);
+
+            if (result.ErrorValue.Item1.ToString() == "0")
+            {
+                return Ok(new { code = 200, message = result.ErrorValue.Item2.ToString() });
+            }
+            else
+            {
+                var errorResult = result.ErrorValue;
+                return Ok(new { code = errorResult.Item1, message = errorResult.Item2 });
+            }
+
+        }
+        /// <summary>
+        /// 获取NS信息
+        /// </summary>
+        /// <param name="sn"></param>
+        /// <returns></returns>
+        [HttpPost("ReWork")]
+        public async Task<IActionResult> ReWork(ReWorkParams request)
+        {
+
+            var result = await _iCommonInterfaseService.ReWork(request);
+
+            if (result.ErrorValue.Item1.ToString() == "0")
+            {
+                return Ok(new { code = 200, message = result.ErrorValue.Item2.ToString() });
+            }
+            else
+            {
+                var errorResult = result.ErrorValue;
+                return Ok(new { code = errorResult.Item1, message = errorResult.Item2 });
+            }
+
+        }
+        /// <summary>
         /// 获取NS信息
         /// </summary>
         /// <param name="sn"></param>
@@ -40,7 +84,6 @@ namespace ChargePadLine.WebApi.Controllers.Trace
             return result;
 
         }
-
         /// <summary>
         /// 物料上传接口
         /// </summary>
