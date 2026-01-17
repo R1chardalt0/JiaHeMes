@@ -97,17 +97,18 @@ namespace ChargePadLine.Service.Trace.Impl
     /// </summary>
     /// <param name="snNumber">SN编码</param>
     /// <returns>工单BOM批次明细数据传输对象</returns>
-    public async Task<MesOrderBomBatchItemDto> GetBySnNumberAsync(string snNumber)
+    public async Task<List<MesOrderBomBatchItemDto>> GetBySnNumberAsync(string snNumber)
     {
-      var entity = await _context.Set<MesOrderBomBatchItem>()
+      var entities = await _context.Set<MesOrderBomBatchItem>()
           .Include(e => e.OrderBomBatch)
-          .FirstOrDefaultAsync(e => e.SnNumber == snNumber);
-      if (entity == null)
+          .Where(e => e.SnNumber == snNumber)
+          .ToListAsync();
+      if (entities == null || entities.Count == 0)
       {
-        return null;
+        return new List<MesOrderBomBatchItemDto>();
       }
 
-      return MapToDto(entity);
+      return entities.Select(MapToDto).ToList();
     }
 
     /// <summary>

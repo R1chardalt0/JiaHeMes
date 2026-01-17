@@ -12,12 +12,13 @@ const ReWorkPage: React.FC = () => {
   const formModalRef = useRef<ReWorkFormModalRef>(null);
 
   // 处理返工
-  const handleReWork = async (values: ReWorkFormData, callback: (success: boolean) => void) => {
+  const handleReWork = async (values: ReWorkFormData & { UnbindMaterialIds?: string[] }, callback: (success: boolean) => void) => {
     try {
       // 转换为后端接口需要的参数格式
       const requestParams: ReWorkParams = {
         SN: values.sn,
-        TargetStationCode: values.targetStationId
+        ReWorkStationCode: values.targetStationId,
+        UnbindMaterialIds: values.UnbindMaterialIds
       };
 
       // 调用返工接口

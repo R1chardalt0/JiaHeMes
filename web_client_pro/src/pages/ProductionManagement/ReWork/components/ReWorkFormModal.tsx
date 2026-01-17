@@ -4,6 +4,9 @@ import type { FormInstance } from 'antd';
 import { ReWorkFormData } from '@/services/Model/Production/reWork';
 import { getMesSnListCurrentBySnNumber } from '@/services/Api/Trace/MesSnListCurrent';
 import { getStationListById } from '@/services/Api/Infrastructure/StationList';
+import { getMESOrderBomBatchItemBySnNumber } from '@/services/Api/Infrastructure/MESOrderBomBatch/MESOrderBomBatchItem';
+import { getMESOrderBomBatchById } from '@/services/Api/Infrastructure/MESOrderBomBatch/MESOrderBomBatch';
+import { getProductListById } from '@/services/Api/Infrastructure/ProductList';
 
 // 返工表单模态框属性接口
 export interface ReWorkFormModalProps {
@@ -49,6 +52,17 @@ const ReWorkFormModal = forwardRef<ReWorkFormModalRef, ReWorkFormModalProps>(({
   const [stations, setStations] = useState<Array<{ value: string; label: string }>>([]);
   // 是否显示目标站点下拉框
   const [showTargetStation, setShowTargetStation] = useState<boolean>(false);
+  // 物料信息列表（包含解绑状态）
+  const [materialList, setMaterialList] = useState<Array<{
+    productListId: string;
+    productName: string;
+    orderBomBatchItemId: string;
+    isUnbind: boolean;
+  }>>([]);
+  // 物料查询加载状态
+  const [materialLoading, setMaterialLoading] = useState<boolean>(false);
+  // 是否显示物料信息区域
+  const [showMaterialInfo, setShowMaterialInfo] = useState<boolean>(false);
 
   // 暴露form实例给父组件
   useImperativeHandle(ref, () => ({
@@ -75,6 +89,10 @@ const ReWorkFormModal = forwardRef<ReWorkFormModalRef, ReWorkFormModalProps>(({
       setCurrentStation('');
       setShowCurrentStation(false);
       form.setFieldsValue({ targetStationId: '' });
+      // 重置物料相关状态
+      setMaterialList([]);
+      setMaterialLoading(false);
+      setShowMaterialInfo(false);
       return;
     }
 
@@ -187,17 +205,136 @@ const ReWorkFormModal = forwardRef<ReWorkFormModalRef, ReWorkFormModalProps>(({
     setShowCurrentStation(false);
     setShowTargetStation(false);
     setStations([]);
+    // 重置物料相关状态
+    setMaterialList([]);
+    setMaterialLoading(false);
+    setShowMaterialInfo(false);
     onCancel();
+  };
+
+  // 处理目标站点选择变化
+  const handleTargetStationChange = async (value: string) => {
+    // 如果没有选择站点或没有SN码，不执行操作
+    if (!value || !currentSN) {
+      return;
+    }
+
+    try {
+      setMaterialLoading(true);
+      setMaterialList([]);
+
+      // 1. 通过SN号获取所有MESOrderBomBatchItem
+      const bomBatchItemResult = await getMESOrderBomBatchItemBySnNumber(currentSN);
+
+      // 处理可能返回单个对象或数组的情况
+      const bomBatchItems = Array.isArray(bomBatchItemResult) ? bomBatchItemResult : [bomBatchItemResult];
+
+      // 过滤掉已解绑的物料
+      const boundBomBatchItems = bomBatchItems.filter(item => item.isUnbind !== true);
+
+      if (!boundBomBatchItems || boundBomBatchItems.length === 0) {
+        message.error('未找到绑定的物料信息');
+        return;
+      }
+
+      // 2. 获取所有唯一的orderBomBatchId，包括重复的，确保每个batchItem都能找到对应的batch信息
+      const allOrderBomBatchIds = boundBomBatchItems.map(item => item.orderBomBatchId).filter(id => id);
+
+      if (allOrderBomBatchIds.length === 0) {
+        message.error('未找到物料批次信息');
+        return;
+      }
+
+      // 3. 并行获取所有MESOrderBomBatch信息（去重，避免重复查询）
+      const uniqueOrderBomBatchIds = Array.from(new Set(allOrderBomBatchIds));
+      const bomBatchPromises = uniqueOrderBomBatchIds.map(id => getMESOrderBomBatchById(id));
+      const bomBatches = await Promise.all(bomBatchPromises);
+
+      // 过滤有效的批次信息并构建映射表
+      const batchMap = new Map<string, any>();
+      bomBatches
+        .filter(batch => batch && batch.productListId)
+        .forEach(batch => batchMap.set(batch.orderBomBatchId, batch));
+
+      if (batchMap.size === 0) {
+        message.error('未找到有效物料批次信息');
+        return;
+      }
+
+      // 4. 获取所有需要的产品ID并去重
+      const allProductIds = Array.from(batchMap.values()).map(batch => batch.productListId!);
+      const uniqueProductIds = Array.from(new Set(allProductIds));
+
+      // 并行获取所有productName
+      const productPromises = uniqueProductIds.map(id => getProductListById(id));
+      const products = await Promise.all(productPromises);
+
+      // 构建产品映射表
+      const productMap = new Map<string, any>();
+      products.forEach(product => productMap.set(product.productListId, product));
+
+      // 5. 构建物料列表（包含orderBomBatchItemId和初始解绑状态）
+      const materialData = boundBomBatchItems.map((batchItem) => {
+        // 找到对应的batch信息
+        const batch = batchMap.get(batchItem.orderBomBatchId);
+        if (!batch) return null;
+
+        // 找到对应的产品信息
+        const product = productMap.get(batch.productListId);
+
+        return {
+          productListId: batch.productListId!,
+          productName: product?.productName || '未知物料',
+          orderBomBatchItemId: batchItem.orderBomBatchItemId || '',
+          isUnbind: false // 默认不解绑
+        };
+      }).filter(material => material !== null);
+
+      if (materialData.length === 0) {
+        message.error('未找到有效物料信息');
+        return;
+      }
+
+      setMaterialList(materialData);
+      setShowMaterialInfo(true);
+
+    } catch (error) {
+      message.error('获取物料信息失败，请稍后重试');
+      console.error('获取物料信息失败:', error);
+    } finally {
+      setMaterialLoading(false);
+    }
+  };
+
+  // 切换物料解绑状态
+  const handleToggleUnbind = (orderBomBatchItemId: string) => {
+    setMaterialList(prevList =>
+      prevList.map(item =>
+        item.orderBomBatchItemId === orderBomBatchItemId
+          ? { ...item, isUnbind: !item.isUnbind }
+          : item
+      )
+    );
   };
 
   // 处理保存
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
+
+      // 扩展表单值，添加物料解绑信息
+      const submitValues = {
+        ...values,
+        // 传递需要解绑的物料批次明细ID列表
+        UnbindMaterialIds: materialList
+          .filter(item => item.isUnbind && item.orderBomBatchItemId)
+          .map(item => item.orderBomBatchItemId)
+      };
+
       // 调用保存回调，等待其完成
       const saveResult = await new Promise((resolve) => {
         // 传递一个回调函数给onSave，让它通知我们结果
-        onSave(values, (success: boolean) => {
+        onSave(submitValues, (success: boolean) => {
           resolve(success);
         });
       });
@@ -210,6 +347,10 @@ const ReWorkFormModal = forwardRef<ReWorkFormModalRef, ReWorkFormModalProps>(({
         setShowCurrentStation(false);
         setShowTargetStation(false);
         setStations([]);
+        // 重置物料相关状态
+        setMaterialList([]);
+        setMaterialLoading(false);
+        setShowMaterialInfo(false);
       }
     } catch (error) {
       // 表单验证失败或其他错误，不重置表单
@@ -252,21 +393,65 @@ const ReWorkFormModal = forwardRef<ReWorkFormModalRef, ReWorkFormModalProps>(({
             />
           </Form.Item>
 
-          {showTargetStation && (
-            <Form.Item
-              label="目标站点编码"
-              name="targetStationId"
-              rules={[
-                { required: true, message: '请选择目标站点编码' },
-              ]}
-            >
-              <Select
-                placeholder="请选择目标站点编码"
-                options={stations}
-                loading={loading}
-                style={{ width: '100%' }}
-              />
-            </Form.Item>
+          <Form.Item
+            label="目标站点编码"
+            name="targetStationId"
+            rules={[
+              { required: true, message: '请选择目标站点编码' },
+            ]}
+          >
+            <Select
+              placeholder="请选择目标站点编码"
+              options={stations}
+              loading={loading}
+              style={{ width: '100%' }}
+              onChange={handleTargetStationChange}
+            />
+          </Form.Item>
+
+          {/* 已绑定物料信息列表 */}
+          {showMaterialInfo && (
+            <>
+              <Form.Item label="已绑定物料信息">
+                <div style={{ border: '1px solid #e8e8e8', borderRadius: '4px', padding: '8px' }}>
+                  {materialLoading ? (
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>加载中...</div>
+                  ) : materialList.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>未找到绑定的物料信息</div>
+                  ) : (
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid #e8e8e8' }}>
+                          <th style={{ padding: '8px 16px', textAlign: 'left' }}>物料名称</th>
+                          <th style={{ padding: '8px 16px', textAlign: 'center' }}>操作</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {materialList.map((material) => (
+                          <tr key={material.orderBomBatchItemId} style={{ borderBottom: '1px solid #e8e8e8' }}>
+                            <td style={{ padding: '8px 16px' }}>{material.productName}</td>
+                            <td style={{ padding: '8px 16px', textAlign: 'center' }}>
+                              <Button
+                                type={material.isUnbind ? 'primary' : 'default'}
+                                size="small"
+                                onClick={() => handleToggleUnbind(material.orderBomBatchItemId)}
+                              >
+                                {material.isUnbind ? '已解绑' : '解绑'}
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </Form.Item>
+
+              {/* 解绑提示信息 */}
+              <div style={{ marginBottom: '16px', color: '#666' }}>
+                提示：点击每条物料后的"解绑"按钮可单独解绑对应物料
+              </div>
+            </>
           )}
 
           <Form.Item>
@@ -277,6 +462,8 @@ const ReWorkFormModal = forwardRef<ReWorkFormModalRef, ReWorkFormModalProps>(({
           </Form.Item>
         </Form>
       </div>
+
+
     </>
   );
 });

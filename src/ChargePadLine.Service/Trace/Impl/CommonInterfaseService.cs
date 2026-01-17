@@ -164,6 +164,7 @@ namespace ChargePadLine.Service.Trace.Impl
         Remark = $"跳站,{CurrentStationList.StationCode},{request.JumpStationCode}",
 
       };
+
       await _mesSNListHistory.InsertAsync(snHistory);
 
       await _dbContext.SaveChangesAsync();
@@ -259,6 +260,23 @@ namespace ChargePadLine.Service.Trace.Impl
         Remark = $"返工,{CurrentStationList.StationCode},{request.ReWorkStationCode}",
 
       };
+
+      // 处理物料解绑
+      if (request.UnbindMaterialIds != null && request.UnbindMaterialIds.Count > 0)
+      {
+        // 根据ID获取需要解绑的物料批次明细
+        var bomBatchItems = await _dbContext.MesOrderBomBatchItem
+            .Where(item => request.UnbindMaterialIds.Contains(item.OrderBomBatchItemId))
+            .ToListAsync();
+
+        // 设置为已解绑
+        foreach (var item in bomBatchItems)
+        {
+          item.IsUnbind = true;
+          _dbContext.MesOrderBomBatchItem.Update(item);
+        }
+      }
+
       await _mesSNListHistory.InsertAsync(snHistory);
 
       await _dbContext.SaveChangesAsync();

@@ -116,14 +116,14 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 根据SN编码查询工单BOM批次明细
         /// </summary>
         /// <param name="snNumber">SN编码</param>
-        /// <returns>工单BOM批次明细数据传输对象</returns>
+        /// <returns>工单BOM批次明细数据传输对象列表</returns>
         [HttpGet("GetMESOrderBomBatchItemBySnNumber")]
-        public async Task<ActionResult<MesOrderBomBatchItemDto>> GetMESOrderBomBatchItemBySnNumber(string snNumber)
+        public async Task<ActionResult<List<MesOrderBomBatchItemDto>>> GetMESOrderBomBatchItemBySnNumber(string snNumber)
         {
             try
             {
                 var result = await _service.GetBySnNumberAsync(snNumber);
-                if (result == null)
+                if (result == null || result.Count == 0)
                 {
                     return NotFound($"未找到SN编码为 {snNumber} 的工单BOM批次明细");
                 }

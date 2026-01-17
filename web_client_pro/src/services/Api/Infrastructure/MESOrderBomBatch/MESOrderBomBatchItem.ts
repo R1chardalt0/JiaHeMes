@@ -91,7 +91,7 @@ export async function getMESOrderBomBatchItemByOrderBomBatchId(orderBomBatchId: 
  * @param snNumber SN编码
  * @returns 工单BOM批次明细详情
  */
-export async function getMESOrderBomBatchItemBySnNumber(snNumber: string): Promise<MesOrderBomBatchItem> {
+export async function getMESOrderBomBatchItemBySnNumber(snNumber: string): Promise<MesOrderBomBatchItem[]> {
   const result = await request('/api/trace/MESOrderBomBatchItem/GetMESOrderBomBatchItemBySnNumber', {
     method: 'GET',
     params: { snNumber },

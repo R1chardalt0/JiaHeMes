@@ -9,7 +9,11 @@ export interface ReWorkParams {
   /**
    * 目标站点编码
    */
-  TargetStationCode: string;
+  ReWorkStationCode: string;
+  /**
+   * 需要解绑的物料批次明细ID列表
+   */
+  UnbindMaterialIds?: string[];
 }
 
 /**
