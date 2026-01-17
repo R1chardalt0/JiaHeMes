@@ -147,6 +147,12 @@ namespace ChargePadLine.Service.Trace.Impl
         );
       }
 
+      // 根据是否解绑查询
+      if (queryDto.IsUnbind.HasValue)
+      {
+        query = query.Where(e => e.IsUnbind == queryDto.IsUnbind);
+      }
+
       // 排序
       if (!string.IsNullOrEmpty(queryDto.SortField))
       {
@@ -199,7 +205,8 @@ namespace ChargePadLine.Service.Trace.Impl
         CreateTime = entity.CreateTime,
         UpdateBy = entity.UpdateBy,
         UpdateTime = entity.UpdateTime,
-        Remark = entity.Remark
+        Remark = entity.Remark,
+        IsUnbind = entity.IsUnbind
       };
 
       // 映射关联的工单BOM批次信息

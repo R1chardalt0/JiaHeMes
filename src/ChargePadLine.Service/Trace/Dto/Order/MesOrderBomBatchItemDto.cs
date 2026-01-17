@@ -53,6 +53,11 @@ namespace ChargePadLine.Service.Trace.Dto.Order
     public string? Remark { get; set; }
 
     /// <summary>
+    /// 是否解绑
+    /// </summary>
+    public bool? IsUnbind { get; set; }
+
+    /// <summary>
     /// 关联的工单BOM批次信息
     /// </summary>
     public MESOrderBomBatchDto? MesOrderBomBatch { get; set; }

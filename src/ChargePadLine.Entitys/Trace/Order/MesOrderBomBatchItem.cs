@@ -41,6 +41,13 @@ namespace ChargePadLine.Entitys.Trace.Order
     [Description("SN编码")]
     [Column("SnNumber")]
     public string? SnNumber { get; set; } = "";
+
+    /// <summary>
+    /// 是否解绑
+    /// </summary>
+    [Description("是否解绑")]
+    [Column("IsUnbind")]
+    public bool? IsUnbind { get; set; }
   }
 
   public class MesOrderBomBatchItemEntityTypeConfiguration : IEntityTypeConfiguration<MesOrderBomBatchItem>

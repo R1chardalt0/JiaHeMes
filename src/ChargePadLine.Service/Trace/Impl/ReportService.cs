@@ -541,7 +541,7 @@ namespace ChargePadLine.Service.Trace.Impl
     public async Task<List<FinishedProductCountDto>> GetFinishedProductCountAsync(DateTime startTime, DateTime endTime, Guid? productionLineId = null)
     {
       // 定义完工状态：3-已包装，4-已入库
-      var finishedStatuses = new[] { 3, 4 };
+      var finishedStatuses = new List<StationStatusEnum> { StationStatusEnum.已包装, StationStatusEnum.已入库 };
 
       // 查询指定时间段内的所有完工产品记录，包含产品信息
       var query = _dbContext.mesSnListCurrents
@@ -581,13 +581,13 @@ namespace ChargePadLine.Service.Trace.Impl
 
           if (latestHistory != null)
           {
-            // 如果最新历史记录的状态为1，则视为合格完工
-            if (latestHistory.StationStatus == 1)
+            // 如果最新历史记录的状态为合格，则视为合格完工
+            if (latestHistory.StationStatus == StationStatusEnum.合格)
             {
               passFinishedCount++;
             }
-            // 如果最新历史记录的状态为2，则视为不合格完工
-            else if (latestHistory.StationStatus == 2)
+            // 如果最新历史记录的状态为不合格，则视为不合格完工
+            else if (latestHistory.StationStatus == StationStatusEnum.不合格)
             {
               failFinishedCount++;
             }
