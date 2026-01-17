@@ -1,16 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ChargePadLine.Entitys.Trace;
-using ChargePadLine.Service.Trace;
-using ChargePadLine.WebApi.Controllers.Systems;
-using ChargePadLine.WebApi.util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ChargePadLine.Service.Trace.Impl;
+﻿using ChargePadLine.Service.Trace;
 using ChargePadLine.Service.Trace.Dto;
-using ChargePadLine.Service;
-using ChargePadLine.Entitys.Trace.Product;
+using ChargePadLine.WebApi.Controllers.Systems;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.FSharp.Core;
 using static ChargePadLine.Service.Trace.Impl.CommonInterfaseService;
 
@@ -21,10 +12,12 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     public class CommonInterfaseController : BaseController
     {
         private readonly ICommonInterfaseService _iCommonInterfaseService;
+
         public CommonInterfaseController(ICommonInterfaseService iCommonInterfaseService)
         {
             _iCommonInterfaseService = iCommonInterfaseService;
         }
+        
         /// <summary>
         /// 跳站
         /// </summary>
