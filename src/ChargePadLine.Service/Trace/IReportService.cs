@@ -73,6 +73,14 @@ namespace ChargePadLine.Service.Trace
     /// <returns>TOP缺陷分析结果</returns>
     Task<List<TopDefectDto>> GetTopDefectsAsync(DateTime startTime, DateTime endTime, int topN = 10, Guid? productionLineId = null);
 
-    
+    /// <summary>
+    /// 获取指定时间范围内的完工产品数量统计
+    /// </summary>
+    /// <param name="startTime">开始时间</param>
+    /// <param name="endTime">结束时间</param>
+    /// <param name="productionLineId">生产线ID（可选）</param>
+    /// <returns>完工产品数量统计结果列表（按产品分组）</returns>
+    Task<List<FinishedProductCountDto>> GetFinishedProductCountAsync(DateTime startTime, DateTime endTime, Guid? productionLineId = null);
+
   }
 }
