@@ -89,7 +89,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc8
                     {
                         await task.ExecuteOnceAsync(_modbus, stoppingToken);
                     }
-                    await Task.Delay(10, stoppingToken);
+                    await Task.Delay(_plcConfig.Plc8.ScanInterval, stoppingToken);
                 }
                 catch (OperationCanceledException)
                 {

@@ -47,8 +47,6 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
 
                 if (req && !resp)
                 {
-                    var isok = modbus.ReadBool("3001.0").Content;
-
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}点检请求收到");
 
                     var param1 = modbus.ReadFloat("DB4015.66").Content;
@@ -77,13 +75,37 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                     var param5Result = (param5 <= upper5 && param5 >= lower5) ? "PASS" : "FAIL";
 
                     var param6 = modbus.ReadFloat("DB4015.86").Content;
-                    var upper6 = modbus.ReadFloat("DB4012.124").Content;
-                    var lower6 = modbus.ReadFloat("DB4012.128").Content;
+                    var upper6 = modbus.ReadFloat("DB4012.132").Content;
+                    var lower6 = modbus.ReadFloat("DB4012.136").Content;
                     var param6Result = (param6 <= upper6 && param6 >= lower6) ? "PASS" : "FAIL";
 
                     //总结果
                     var paramResultTotal = (param1Result == "PASS" && param2Result == "PASS" && param3Result == "PASS"
                         && param4Result == "PASS" && param5Result == "PASS" && param6Result == "PASS") ? "PASS" : "FAIL";
+
+                    string IsOK = "";
+                    var OKRes = modbus.ReadInt32("DB4015.66").Content;
+                    var NGRes = modbus.ReadInt32("DB4015.70").Content;
+                    if (OKRes != 0 && NGRes == 0)
+                    {
+                        IsOK = "PASS";
+                    }
+                    else if (OKRes == 0 && NGRes != 0)
+                    {
+                        IsOK = "FAIL";
+                    }
+                    else
+                    {
+                        IsOK = "未知";
+                    }
+
+                    if (IsOK != paramResultTotal)
+                    {
+                        modbus.Write("DB4010.14.0", true);
+                        modbus.Write("DB4010.3.1", true);
+                        await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
+                        return;
+                    }
 
                     testDatas = new List<TestDataItem>()
                     {

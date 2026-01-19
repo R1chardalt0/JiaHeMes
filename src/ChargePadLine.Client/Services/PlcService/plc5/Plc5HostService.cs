@@ -90,7 +90,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc5
                     {
                         await task.ExecuteOnceAsync(_s7Net, stoppingToken);
                     }
-                    await Task.Delay(10, stoppingToken);
+                    await Task.Delay(_plcConfig.Plc5.ScanInterval, stoppingToken);
                 }
                 catch (OperationCanceledException)
                 {
