@@ -50,8 +50,6 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
 
                 if (req && !resp)
                 {
-                    var isok = s7Net.ReadBool("DB4020.16.0").Content;
-
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}请求收到");
 
                     var param1 = s7Net.ReadFloat("DB4024.70").Content;
@@ -109,7 +107,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
                     {
                         s7Net.Write("DB4020.12.0", true);
                         s7Net.Write("DB4020.2.5", true);
-                        await _logService.RecordLogAsync(LogLevel.Warning, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
+                        await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
                         return;
                     }
 
