@@ -37,6 +37,11 @@ const MESOrderBomBatchPage: React.FC = () => {
   const [detailLoading, setDetailLoading] = useState(false);
   // 是否显示明细列表
   const [showDetail, setShowDetail] = useState(false);
+  // 当前搜索参数
+  const [currentSearchParams, setCurrentSearchParams] = useState<MESOrderBomBatchQueryDto>({
+    pageIndex: 1,
+    pageSize: 10
+  });
 
   /**
    * 显示明细列表
@@ -214,12 +219,24 @@ const MESOrderBomBatchPage: React.FC = () => {
           request={async (
             params
           ): Promise<RequestData<MESOrderBomBatch>> => {
-            const queryParams: MESOrderBomBatchQueryDto = {
+            // 设置当前搜索参数，包括分页参数验证
+            setCurrentSearchParams({
+              pageIndex: Math.max(1, params.current || 1),
+              pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
               orderBomBatchId: params.orderBomBatchId,
               batchCode: params.batchCode,
               orderBomBatchStatus: params.orderBomBatchStatus,
-              pageIndex: params.current || 1,
-              pageSize: params.pageSize || 10,
+              sortField: params.sortField,
+              sortOrder: params.sortOrder,
+            });
+
+            // 构建查询参数
+            const queryParams: MESOrderBomBatchQueryDto = {
+              pageIndex: Math.max(1, params.current || 1),
+              pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
+              orderBomBatchId: params.orderBomBatchId,
+              batchCode: params.batchCode,
+              orderBomBatchStatus: params.orderBomBatchStatus,
               sortField: params.sortField,
               sortOrder: params.sortOrder,
             };
@@ -309,9 +326,9 @@ const MESOrderBomBatchPage: React.FC = () => {
             onDoubleClick: () => handleRowDoubleClick(record),
           })}
           pagination={{
+            defaultPageSize: 10,
             showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50', '100'],
-            showQuickJumper: true,
+            pageSizeOptions: ['10', '20', '50'],
             showTotal: (total) => `共 ${total} 条记录`,
           }}
         />
@@ -328,14 +345,18 @@ const MESOrderBomBatchPage: React.FC = () => {
               loading={detailLoading}
               dataSource={detailData}
               pagination={{
+                defaultPageSize: 10,
                 showSizeChanger: true,
-                pageSizeOptions: ['10', '20', '50', '100'],
+                pageSizeOptions: ['10', '20', '50'],
                 showQuickJumper: true,
                 showTotal: (total) => `共 ${total} 条记录`,
               }}
               search={{
                 labelWidth: 120,
                 layout: 'vertical',
+              }}
+              scroll={{
+                y: 600,
               }}
             />
           </div>

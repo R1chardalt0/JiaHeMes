@@ -28,7 +28,7 @@ namespace ChargePadLine.Service.Trace
     /// </summary>
     /// <param name="queryDto">查询参数</param>
     /// <returns>分页结果，包含工单BOM批次数据传输对象列表和总记录数</returns>
-    Task<(List<MESOrderBomBatchDto> Data, int Total)> GetPagedListAsync(MESOrderBomBatchQueryDto queryDto);
+    Task<PaginatedList<MESOrderBomBatchDto>> GetPagedListAsync(MESOrderBomBatchQueryDto queryDto);
 
     /// <summary>
     /// 根据工单ID查询工单BOM批次列表

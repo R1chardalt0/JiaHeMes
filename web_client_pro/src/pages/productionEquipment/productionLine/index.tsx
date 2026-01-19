@@ -29,7 +29,7 @@ const ProductionLineManagement: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentSearchParams, setCurrentSearchParams] = useState<ProductionLineQueryParams>({
     current: 1,
-    pageSize: 15
+    pageSize: 10
   });
 
   // 路由切换时清理状态，避免卡顿
@@ -89,8 +89,8 @@ const ProductionLineManagement: React.FC = () => {
       // 根据后端返回结构调整数据格式
       return {
         data: res.data || [],
-        success: res ? true : false,
-        total: res?.data?.length || 0,
+        success: res?.success ?? true,
+        total: res?.total || 0,
       };
     } catch (error) {
       console.error('❌ 产线管理 - 获取列表失败:', error);
@@ -392,8 +392,9 @@ const ProductionLineManagement: React.FC = () => {
             },
           }}
           pagination={{
+            defaultPageSize: 10,
             pageSize: currentSearchParams.pageSize,
-            pageSizeOptions: ['10', '20', '50', '100'],
+            pageSizeOptions: ['10', '20', '50'],
             showSizeChanger: true,
             showTotal: (total) => `共 ${total} 条数据`,
             onChange: (current, pageSize) => {
@@ -402,10 +403,8 @@ const ProductionLineManagement: React.FC = () => {
                 current,
                 pageSize
               }));
-              // 确保立即重新加载数据
-              setTimeout(() => {
-                actionRef.current?.reload();
-              }, 0);
+              // 立即重新加载数据
+              actionRef.current?.reload();
             },
             onShowSizeChange: (current, pageSize) => {
               setCurrentSearchParams(prev => ({
@@ -413,10 +412,8 @@ const ProductionLineManagement: React.FC = () => {
                 current: 1,
                 pageSize
               }));
-              // 确保立即重新加载数据
-              setTimeout(() => {
-                actionRef.current?.reload();
-              }, 0);
+              // 立即重新加载数据
+              actionRef.current?.reload();
             },
           }}
           // 添加 options 配置
