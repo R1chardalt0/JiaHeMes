@@ -24,6 +24,7 @@ namespace ChargePadLine.Client.Controls
     public class PlcItem
     {
         public bool IsEnabled { get; set; } = true;
+        public int ScanInterval { get; set; } = 50;
         public string IpAddress { get; set; } = "127.0.0.1";
         public int Port { get; set; } = 102;
     }

@@ -99,7 +99,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1
                     }
 
                     // 统一控制轮询周期
-                    await Task.Delay(10, stoppingToken);
+                    await Task.Delay(_plcConfig.Plc1.ScanInterval, stoppingToken);
                 }
                 catch (OperationCanceledException)
                 {
