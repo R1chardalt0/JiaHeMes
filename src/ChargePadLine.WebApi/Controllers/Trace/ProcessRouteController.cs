@@ -6,10 +6,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using ChargePadLine.WebApi.util;
+using ChargePadLine.WebApi.Controllers.util;
 
 namespace ChargePadLine.WebApi.Controllers.Trace
 {
@@ -40,17 +38,17 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <param name="queryDto">查询参数</param>
     /// <returns>分页工艺路线列表</returns>
     [HttpGet("GetProcessRouteList")]
-    public async Task<ActionResult<PaginatedList<ProcessRouteDto>>> GetProcessRoutes([FromQuery] ProcessRouteQueryDto queryDto)
+    public async Task<ActionResult<PagedResp<ProcessRouteDto>>> GetProcessRoutes([FromQuery] ProcessRouteQueryDto queryDto)
     {
       try
       {
         var result = await _processRouteService.GetProcessRoutesAsync(queryDto);
-        return Ok(result);
+        return Ok(RespExtensions.MakePagedSuccess(result));
       }
       catch (Exception ex)
       {
         _logger.LogError(ex, "获取工艺路线列表时发生错误");
-        return StatusCode(500, "获取工艺路线列表失败");
+        return StatusCode(500, RespExtensions.MakeFail("500", "获取工艺路线列表失败"));
       }
     }
 

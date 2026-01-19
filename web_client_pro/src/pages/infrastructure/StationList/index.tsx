@@ -19,8 +19,8 @@ const StationList: React.FC = () => {
   const [editForm] = Form.useForm<StationListDto>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [currentSearchParams, setCurrentSearchParams] = useState<StationListQueryDto>({
-    current: 1,
-    pageSize: 50
+    pageIndex: 1,
+    pageSize: 10
   });
 
   // 站点测试项相关状态
@@ -438,50 +438,48 @@ const StationList: React.FC = () => {
         ): Promise<RequestData<StationListDto>> => {
           console.log('ProTable params:', params);
 
-          // 使用前端分页：一次性获取所有数据，然后在前端进行分页
+          // 使用后端分页：将分页参数和搜索条件传递给后端
           const queryParams: StationListQueryDto = {
-            current: 1,
-            pageSize: 1000, // 设置一个很大的值，确保获取所有数据
+            pageIndex: params.current || 1,
+            pageSize: params.pageSize || 10,
             sortField: 'CreateTime',
             sortOrder: 'descend',
             stationName: params.stationName,
             stationCode: params.stationCode,
           };
 
+          // 保存当前搜索参数
+          setCurrentSearchParams(queryParams);
+
           console.log('API queryParams:', queryParams);
 
           try {
-            // 调用 API 获取所有数据
+            // 调用 API 获取当前页数据
             const response = await getStationListList(queryParams);
 
             console.log('API response:', response);
 
-            let allData: StationListDto[] = [];
+            let data: StationListDto[] = [];
             let total: number = 0;
+            let success: boolean = false;
 
             // 处理 API 返回的数据
             if (Array.isArray(response)) {
-              allData = response;
+              // 兼容旧格式：如果返回的是数组，转换为分页格式
+              data = response;
               total = response.length;
+              success = true;
             } else if (response.data) {
-              allData = response.data;
-              total = response.total || allData.length;
+              // 如果已经是分页格式，直接使用
+              data = response.data;
+              total = response.total || 0;
+              success = response.success || true;
             }
 
-            console.log('All data:', allData);
-            console.log('Total:', total);
-
-            // 在前端进行分页
-            const currentPage = Math.max(1, params.current || 1);
-            const pageSize = Math.min(100, Math.max(1, params.pageSize || 10));
-            const startIndex = (currentPage - 1) * pageSize;
-            const endIndex = startIndex + pageSize;
-            const pagedData = allData.slice(startIndex, endIndex);
-
             const result = {
-              data: pagedData,
+              data: data,
               total: total,
-              success: true,
+              success: success,
             };
 
             console.log('ProTable result:', result);
@@ -499,7 +497,7 @@ const StationList: React.FC = () => {
         columns={columns}
         pagination={{
           defaultPageSize: 10,
-          pageSizeOptions: ['10', '20', '50', '100'],
+          pageSizeOptions: ['10', '20', '50'],
           showSizeChanger: true,
           showTotal: (total) => `共 ${total} 条数据`,
         }}

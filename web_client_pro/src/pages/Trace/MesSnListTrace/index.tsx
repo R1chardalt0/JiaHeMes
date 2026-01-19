@@ -67,7 +67,7 @@ const MesSnListTracePage: React.FC = () => {
       const response = await getMesSnListHistoryList({
         snNumber: record.snNumber,
         pageIndex: 1,
-        pageSize: 1000,
+        pageSize: 10000,
       });
 
       // 为每个历史记录获取产品编码、工单编码、站点编码和产线编码
@@ -702,7 +702,7 @@ const MesSnListTracePage: React.FC = () => {
 
       // 创建信息行
       const exportTime = new Date().toLocaleString();
-      const infoRows = createInfoRows(exportTime, {} as Record<string, string>, enhancedData.length);
+      const infoRows = createInfoRows(exportTime, currentSearchParams, enhancedData.length);
 
       // 导出配置
       const config = {
@@ -843,7 +843,7 @@ const MesSnListTracePage: React.FC = () => {
 
       // 创建信息行
       const exportTime = new Date().toLocaleString();
-      const infoRows = createInfoRows(exportTime, {} as Record<string, string>, enhancedHistoryData.length);
+      const infoRows = createInfoRows(exportTime, historyQueryParams, enhancedHistoryData.length);
 
       // 导出配置
       const config = {
@@ -901,9 +901,10 @@ const MesSnListTracePage: React.FC = () => {
             params
           ): Promise<RequestData<MesSnListCurrentDto>> => {
             // 使用后端分页：将分页参数和搜索条件传递给后端
+            // ✅ 直接使用 ProTable 传入的分页参数
             const queryParams: MesSnListCurrentQueryDto = {
-              pageIndex: Math.max(1, params.current || 1), // 当前页码，ProTable使用current参数
-              pageSize: Math.min(100, Math.max(1, params.pageSize || 10)), // 每页大小
+              pageIndex: params.current || 1,
+              pageSize: params.pageSize || 10,
               snNumber: params.snNumber,
               stationStatus: params.stationStatus,
               isAbnormal: params.isAbnormal,
@@ -1047,9 +1048,9 @@ const MesSnListTracePage: React.FC = () => {
             }
           }}
           pagination={{
-            pageSize: 10,
             showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50', '100'],
+            pageSizeOptions: ['10', '20', '50'],
+            defaultPageSize: 10, // 关键：用 defaultPageSize 而不是 pageSize
           }}
           onRow={(record) => ({
             onDoubleClick: () => handleRowDoubleClick(record),

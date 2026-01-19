@@ -14,16 +14,6 @@ export async function getOrderList(
     params,
   });
 
-  // 处理后端返回的数据格式
-  // 如果返回的是数组，转换为分页格式
-  if (Array.isArray(result)) {
-    return {
-      data: result,
-      total: result.length,
-      success: true
-    };
-  }
-
   return result;
 }
 

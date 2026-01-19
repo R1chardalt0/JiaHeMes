@@ -26,7 +26,7 @@ const ProductSelectModal: React.FC<ProductSelectModalProps> = ({
   const [productCurrent, setProductCurrent] = useState<number>(1);
   const [productPageSize, setProductPageSize] = useState<number>(10);
   const [productSearchParams, setProductSearchParams] = useState<ProductListQueryDto>({
-    current: 1,
+    pageIndex: 1,
     pageSize: 10
   });
   const [productSearchValues, setProductSearchValues] = useState({
@@ -42,7 +42,7 @@ const ProductSelectModal: React.FC<ProductSelectModalProps> = ({
       const response = await getProductListList(params);
       setProducts(response.data || []);
       setProductTotal(response.total || 0);
-      setProductCurrent(params.current);
+      setProductCurrent(params.pageIndex);
       setProductPageSize(params.pageSize);
     } catch (error) {
       console.error('Fetch products error:', error);
@@ -65,7 +65,7 @@ const ProductSelectModal: React.FC<ProductSelectModalProps> = ({
    */
   const handleProductSearch = useCallback(() => {
     const params: ProductListQueryDto = {
-      current: 1,
+      pageIndex: 1,
       pageSize: productPageSize,
       productCode: productSearchValues.productCode,
       productName: productSearchValues.productName
@@ -80,7 +80,7 @@ const ProductSelectModal: React.FC<ProductSelectModalProps> = ({
   const handleProductPaginationChange = useCallback((current: number, pageSize: number) => {
     const params: ProductListQueryDto = {
       ...productSearchParams,
-      current,
+      pageIndex: current,
       pageSize
     };
     setProductSearchParams(params);
@@ -100,7 +100,7 @@ const ProductSelectModal: React.FC<ProductSelectModalProps> = ({
   const handleReset = useCallback(() => {
     setProductSearchValues({ productCode: '', productName: '' });
     const params: ProductListQueryDto = {
-      current: 1,
+      pageIndex: 1,
       pageSize: productPageSize
     };
     setProductSearchParams(params);
@@ -111,7 +111,7 @@ const ProductSelectModal: React.FC<ProductSelectModalProps> = ({
   useEffect(() => {
     if (open) {
       const params: ProductListQueryDto = {
-        current: 1,
+        pageIndex: 1,
         pageSize: 10
       };
       setProductSearchParams(params);
