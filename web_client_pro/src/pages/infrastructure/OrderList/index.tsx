@@ -44,8 +44,8 @@ const OrderPage: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<OrderListDto | null>(null);
   const [messageApi] = message.useMessage();
   const [currentSearchParams, setCurrentSearchParams] = useState<OrderListQueryDto>({
-    current: 1,
-    pageSize: 50
+    pageIndex: 1,
+    pageSize: 10
   });
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -375,25 +375,11 @@ const OrderPage: React.FC = () => {
         request={async (
           params
         ): Promise<RequestData<OrderListDto>> => {
-          setCurrentSearchParams({
-            current: Math.max(1, params.current || 1),
-            pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
-            orderCode: params.orderCode,
-            orderName: params.orderName,
-            orderStatus: params.orderStatus,
-            orderType: params.orderType,
-            priorityLevel: params.priorityLevel,
-            productCode: params.productCode,
-            productName: params.productName,
-            bomCode: params.bomCode,
-            bomName: params.bomName,
-            processRouteCode: params.processRouteCode,
-            processRouteName: params.processRouteName,
-          });
-
+          // 使用后端分页：将分页参数和搜索条件传递给后端
+          // ✅ 直接使用 ProTable 传入的分页参数
           const queryParams: OrderListQueryDto = {
-            current: Math.max(1, params.current || 1),
-            pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
+            pageIndex: params.current || 1,
+            pageSize: params.pageSize || 10,
             orderCode: params.orderCode,
             orderName: params.orderName,
             orderStatus: params.orderStatus,
@@ -407,117 +393,89 @@ const OrderPage: React.FC = () => {
             processRouteName: params.processRouteName,
           };
 
+          // 保存当前搜索参数
+          setCurrentSearchParams(queryParams);
+
           try {
-            // 当搜索联合查询字段时，获取更多数据以进行本地过滤
-            const searchParams = [
-              'productCode', 'productName', 'bomCode', 'bomName', 'processRouteCode', 'processRouteName'
-            ];
-            const has联合查询 = searchParams.some(key => params[key]);
+            // 调用 API 获取当前页数据
+            const response = await getOrderList(queryParams);
 
-            const apiQueryParams = {
-              ...queryParams,
-              // 当搜索联合查询字段时，获取更多数据
-              pageSize: has联合查询 ? 1000 : queryParams.pageSize
-            };
+            // 如果请求成功且有数据
+            if (response.success && response.data) {
+              // 为每个工单补充产品、BOM和工艺路线信息
+              const enhancedData = await Promise.all(
+                response.data.map(async (order: OrderListDto) => {
+                  let updatedOrder = { ...order };
 
-            const response = await getOrderList(apiQueryParams);
-
-            // 为每个工单补充产品、BOM和工艺路线信息
-            const enhancedData = await Promise.all(
-              (response.data || []).map(async (order: OrderListDto) => {
-                let updatedOrder = { ...order };
-
-                // 补充产品信息
-                if (order.productListId) {
-                  try {
-                    const product = await getProductListById(order.productListId);
-                    if (product) {
-                      updatedOrder = {
-                        ...updatedOrder,
-                        productCode: product.productCode || '',
-                        productName: product.productName || ''
-                      };
+                  // 补充产品信息
+                  if (order.productListId) {
+                    try {
+                      const product = await getProductListById(order.productListId);
+                      if (product) {
+                        updatedOrder = {
+                          ...updatedOrder,
+                          productCode: product.productCode || '',
+                          productName: product.productName || ''
+                        };
+                      }
+                    } catch (error) {
+                      console.error('获取产品信息失败:', error);
                     }
-                  } catch (error) {
-                    console.error('获取产品信息失败:', error);
                   }
-                }
 
-                // 补充BOM信息
-                if (order.bomId) {
-                  try {
-                    const bom = await getBomById(order.bomId);
-                    if (bom) {
-                      updatedOrder = {
-                        ...updatedOrder,
-                        bomCode: bom.bomCode || '',
-                        bomName: bom.bomName || ''
-                      };
+                  // 补充BOM信息
+                  if (order.bomId) {
+                    try {
+                      const bom = await getBomById(order.bomId);
+                      if (bom) {
+                        updatedOrder = {
+                          ...updatedOrder,
+                          bomCode: bom.bomCode || '',
+                          bomName: bom.bomName || ''
+                        };
+                      }
+                    } catch (error) {
+                      console.error('获取BOM信息失败:', error);
                     }
-                  } catch (error) {
-                    console.error('获取BOM信息失败:', error);
                   }
-                }
 
-                // 补充工艺路线信息
-                if (order.processRouteId) {
-                  try {
-                    const processRoute = await getProcessRouteById(order.processRouteId);
-                    if (processRoute) {
-                      updatedOrder = {
-                        ...updatedOrder,
-                        processRouteCode: processRoute.routeCode || '',
-                        processRouteName: processRoute.routeName || ''
-                      };
+                  // 补充工艺路线信息
+                  if (order.processRouteId) {
+                    try {
+                      const processRoute = await getProcessRouteById(order.processRouteId);
+                      if (processRoute) {
+                        updatedOrder = {
+                          ...updatedOrder,
+                          processRouteCode: processRoute.routeCode || '',
+                          processRouteName: processRoute.routeName || ''
+                        };
+                      }
+                    } catch (error) {
+                      console.error('获取工艺路线信息失败:', error);
                     }
-                  } catch (error) {
-                    console.error('获取工艺路线信息失败:', error);
                   }
-                }
 
-                return updatedOrder;
-              })
-            );
+                  return updatedOrder;
+                })
+              );
 
-            // 本地过滤联合查询字段
-            let filteredData = enhancedData;
-            if (has联合查询) {
-              filteredData = enhancedData.filter(order => {
-                // 检查产品编码
-                if (params.productCode && !order.productCode?.includes(params.productCode)) {
-                  return false;
-                }
-                // 检查产品名称
-                if (params.productName && !order.productName?.includes(params.productName)) {
-                  return false;
-                }
-                // 检查BOM编码
-                if (params.bomCode && !order.bomCode?.includes(params.bomCode)) {
-                  return false;
-                }
-                // 检查BOM名称
-                if (params.bomName && !order.bomName?.includes(params.bomName)) {
-                  return false;
-                }
-                // 检查工艺路线编码
-                if (params.processRouteCode && !order.processRouteCode?.includes(params.processRouteCode)) {
-                  return false;
-                }
-                // 检查工艺路线名称
-                if (params.processRouteName && !order.processRouteName?.includes(params.processRouteName)) {
-                  return false;
-                }
-                return true;
-              });
+              // 返回后端分页数据
+              return {
+                data: enhancedData,
+                total: response.total || 0,
+                success: true,
+              };
             }
 
+            // 如果请求失败
             return {
-              data: filteredData,
-              total: filteredData.length,
-              success: response.success !== false,
+              data: [],
+              total: 0,
+              success: false,
             };
           } catch (error) {
-            console.error('Order - API调用失败:', error);
+            console.error('获取工单列表失败:', error);
+            messageApi.error('获取工单列表失败');
             return {
               data: [],
               total: 0,
@@ -547,9 +505,9 @@ const OrderPage: React.FC = () => {
           </Button>,
         ]}
         pagination={{
-          pageSize: 10,
           showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '50', '100'],
+          pageSizeOptions: ['10', '20', '50'],
+          defaultPageSize: 10, // 关键：用 defaultPageSize 而不是 pageSize
         }}
         onRow={(record) => ({
           onDoubleClick: () => handleRowDoubleClick(record),

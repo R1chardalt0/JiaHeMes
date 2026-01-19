@@ -29,8 +29,8 @@ const ProductList: React.FC = () => {
   const editFormRef = useRef<ProductFormModalRef>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [currentSearchParams, setCurrentSearchParams] = useState<ProductListQueryDto>({
-    current: 1,
-    pageSize: 50
+    pageIndex: 1,
+    pageSize: 10
   });
 
   // BOM选择弹窗相关状态
@@ -40,7 +40,7 @@ const ProductList: React.FC = () => {
   const [bomCurrent, setBomCurrent] = useState<number>(1);
   const [bomPageSize, setBomPageSize] = useState<number>(10);
   const [bomSearchParams, setBomSearchParams] = useState<BomListQueryDto>({
-    current: 1,
+    pageIndex: 1,
     pageSize: 10
   });
   const [bomSearchValues, setBomSearchValues] = useState({
@@ -55,7 +55,7 @@ const ProductList: React.FC = () => {
   const [processRouteCurrent, setProcessRouteCurrent] = useState<number>(1);
   const [processRoutePageSize, setProcessRoutePageSize] = useState<number>(10);
   const [processRouteSearchParams, setProcessRouteSearchParams] = useState<ProcessRouteQueryDto>({
-    current: 1,
+    pageIndex: 1,
     pageSize: 10
   });
   const [processRouteSearchValues, setProcessRouteSearchValues] = useState({
@@ -138,7 +138,7 @@ const ProductList: React.FC = () => {
       const response = await getBomList(params);
       setBoms(response.data || []);
       setBomTotal(response.total || 0);
-      setBomCurrent(params.current);
+      setBomCurrent(params.pageIndex);
       setBomPageSize(params.pageSize);
     } catch (error) {
       message.error('获取BOM列表失败');
@@ -150,7 +150,7 @@ const ProductList: React.FC = () => {
   const handleOpenBomModal = useCallback(() => {
     // 重置搜索参数并获取BOM列表
     const params: BomListQueryDto = {
-      current: 1,
+      pageIndex: 1,
       pageSize: 10
     };
     setBomSearchParams(params);
@@ -208,7 +208,7 @@ const ProductList: React.FC = () => {
   const handleBomPaginationChange = useCallback((current: number, pageSize: number) => {
     const params: BomListQueryDto = {
       ...bomSearchParams,
-      current,
+      pageIndex: current,
       pageSize
     };
     setBomSearchParams(params);
@@ -218,7 +218,7 @@ const ProductList: React.FC = () => {
   // 处理BOM搜索
   const handleBomSearch = useCallback(() => {
     const params: BomListQueryDto = {
-      current: 1,
+      pageIndex: 1,
       pageSize: bomPageSize,
       bomCode: bomSearchValues.bomCode,
       bomName: bomSearchValues.bomName
@@ -242,7 +242,7 @@ const ProductList: React.FC = () => {
       const response = await getProcessRouteList(params);
       setProcessRoutes(response.data || []);
       setProcessRouteTotal(response.total || 0);
-      setProcessRouteCurrent(params.current);
+      setProcessRouteCurrent(params.pageIndex);
       setProcessRoutePageSize(params.pageSize);
     } catch (error) {
       message.error('获取工艺路线列表失败');
@@ -254,7 +254,7 @@ const ProductList: React.FC = () => {
   const handleOpenProcessRouteModal = useCallback(() => {
     // 重置搜索参数并获取工艺路线列表
     const params: ProcessRouteQueryDto = {
-      current: 1,
+      pageIndex: 1,
       pageSize: 10
     };
     setProcessRouteSearchParams(params);
@@ -311,7 +311,7 @@ const ProductList: React.FC = () => {
   const handleProcessRoutePaginationChange = useCallback((current: number, pageSize: number) => {
     const params: ProcessRouteQueryDto = {
       ...processRouteSearchParams,
-      current,
+      pageIndex: current,
       pageSize
     };
     setProcessRouteSearchParams(params);
@@ -321,7 +321,7 @@ const ProductList: React.FC = () => {
   // 处理工艺路线搜索
   const handleProcessRouteSearch = useCallback(() => {
     const params: ProcessRouteQueryDto = {
-      current: 1,
+      pageIndex: 1,
       pageSize: processRoutePageSize,
       routeCode: processRouteSearchValues.routeCode,
       routeName: processRouteSearchValues.routeName
@@ -391,7 +391,7 @@ const ProductList: React.FC = () => {
           params
         ): Promise<RequestData<ProductListDto>> => {
           setCurrentSearchParams({
-            current: Math.max(1, params.current || 1),
+            pageIndex: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
             productName: params.productName,
             productCode: params.productCode,
@@ -399,7 +399,7 @@ const ProductList: React.FC = () => {
           });
 
           const queryParams: ProductListQueryDto = {
-            current: Math.max(1, params.current || 1),
+            pageIndex: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
             sortField: 'CreateTime',
             sortOrder: 'descend',
@@ -419,7 +419,7 @@ const ProductList: React.FC = () => {
                 // 补充BOM信息
                 if (product.bomId) {
                   try {
-                    const bomList = await getBomList({ current: 1, pageSize: 1000 });
+                    const bomList = await getBomList({ pageIndex: 1, pageSize: 1000 });
                     const bom = bomList.data.find((b: any) => b.bomId === product.bomId);
 
                     if (bom) {
@@ -437,7 +437,7 @@ const ProductList: React.FC = () => {
                 // 补充工艺路线信息
                 if (product.processRouteId) {
                   try {
-                    const processRouteList = await getProcessRouteList({ current: 1, pageSize: 1000 });
+                    const processRouteList = await getProcessRouteList({ pageIndex: 1, pageSize: 1000 });
 
                     let processRoute = processRouteList.data.find((pr: any) => {
                       return pr.processRouteId === product.processRouteId ||
@@ -479,8 +479,8 @@ const ProductList: React.FC = () => {
         }}
         columns={columns}
         pagination={{
-          pageSize: currentSearchParams.pageSize,
-          pageSizeOptions: ['10', '20', '50', '100'],
+          defaultPageSize: 10,
+          pageSizeOptions: ['10', '20', '50'],
           showSizeChanger: true,
           showTotal: (total) => `共 ${total} 条数据`,
         }}

@@ -42,6 +42,6 @@ namespace ChargePadLine.Service.Trace
         /// </summary>
         /// <param name="snNumber">SN编码</param>
         /// <returns>工单BOM批次明细数据传输对象</returns>
-        Task<MesOrderBomBatchItemDto> GetBySnNumberAsync(string snNumber);
+        Task<List<MesOrderBomBatchItemDto>> GetBySnNumberAsync(string snNumber);
     }
 }

@@ -1,4 +1,4 @@
-﻿using ChargePadLine.Entitys.Trace;
+using ChargePadLine.Entitys.Trace;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Service.Trace.Dto
 {
-    public class   RequestUpadteParams
+    public class RequestUpadteParams
     {
         public string deviceEnCode { get; set; }
         public DateTimeOffset sendTime { get; set; }
@@ -34,7 +34,7 @@ namespace ChargePadLine.Service.Trace.Dto
 
     public class RequestParametricData
     {
-      
+
 
         /// <summary>
         /// 站点(工厂或生产站点的标识)
@@ -86,7 +86,7 @@ namespace ChargePadLine.Service.Trace.Dto
         /// <summary>
         /// 设备资源标识
         /// </summary>
-        public string Resource { get; set;}
+        public string Resource { get; set; }
         /// <summary>
         /// 站点
         /// </summary>
@@ -98,11 +98,15 @@ namespace ChargePadLine.Service.Trace.Dto
         /// <summary>
         /// 测试结果
         /// </summary>
-         public string TestResult { get; set; }
+        public string TestResult { get; set; }
         /// <summary>
         /// 测试数据JSON
         /// </summary>
-         public string TestData { get; set; }
+        public string TestData { get; set; }
+        /// <summary>
+        /// 批次号
+        /// </summary>
+        public string? BatchNo { get; set; }
     }
     public class RequestFeedMaterialParams
     {
@@ -130,8 +134,58 @@ namespace ChargePadLine.Service.Trace.Dto
         /// 产品编码
         /// </summary>
         public string? ProductCode { get; set; }
-        
 
+
+    }
+    public class ReWorkParams
+    {
+        /// <summary>
+        /// SN
+        /// </summary>
+        public string? SN { get; set; }
+        /// <summary>
+        /// 返工站点
+        /// </summary>
+        public string? ReWorkStationCode { get; set; }
+
+        /// <summary>
+        /// 需要解绑的物料批次明细ID列表
+        /// </summary>
+        public List<Guid>? UnbindMaterialIds { get; set; }
+    }
+    public class JumpStationParams
+    {
+        /// <summary>
+        /// SN
+        /// </summary>
+        public string? SN { get; set; }
+        /// <summary>
+        /// 返工站点
+        /// </summary>
+        public string? JumpStationCode { get; set; }
+    }
+    public class PackingParams
+    {
+        /// <summary>
+        /// SN
+        /// </summary>
+        public string SNList { get; set; }
+        /// <summary>
+        /// 内箱
+        /// </summary>
+        public string InnerBox { get; set; }
+        /// <summary>
+        /// 设备资源标识
+        /// </summary>
+        public string? Resource { get; set; }
+        /// <summary>
+        /// 站点
+        /// </summary>
+        public string? StationCode { get; set; }
+        /// <summary>
+        /// 工单编号
+        /// </summary>
+        public string? WorkOrderCode { get; set; }
     }
     public class RequestMaterialLoadedParams
     {
@@ -150,7 +204,7 @@ namespace ChargePadLine.Service.Trace.Dto
         /// <summary>
         /// 批次号
         /// </summary>
-         public string BatchNo { get; set; }
-        
+        public string BatchNo { get; set; }
+
     }
 }

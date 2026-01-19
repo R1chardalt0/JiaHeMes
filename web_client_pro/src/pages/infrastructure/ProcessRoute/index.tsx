@@ -30,8 +30,8 @@ const ProcessRoutePage: React.FC = () => {
   const [activeTabKey, setActiveTabKey] = useState('items');
   const [messageApi] = message.useMessage();
   const [currentSearchParams, setCurrentSearchParams] = useState<ProcessRouteQueryDto>({
-    current: 1,
-    pageSize: 50
+    pageIndex: 1,
+    pageSize: 10
   });
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -61,7 +61,7 @@ const ProcessRoutePage: React.FC = () => {
       if (isAddModalVisible || isEditModalVisible) {
         try {
           setStationLoading(true);
-          const res = await getStationListList({ current: 1, pageSize: 1000 });
+          const res = await getStationListList({ pageIndex: 1, pageSize: 1000 });
           if (res.data) {
             setStations(res.data);
           }
@@ -440,7 +440,7 @@ const ProcessRoutePage: React.FC = () => {
           params
         ): Promise<RequestData<ProcessRouteDto>> => {
           setCurrentSearchParams({
-            current: Math.max(1, params.current || 1),
+            pageIndex: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
             routeName: params.routeName,
             routeCode: params.routeCode,
@@ -448,7 +448,7 @@ const ProcessRoutePage: React.FC = () => {
           });
 
           const queryParams: ProcessRouteQueryDto = {
-            current: Math.max(1, params.current || 1),
+            pageIndex: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
             routeName: params.routeName,
             routeCode: params.routeCode,
@@ -494,9 +494,9 @@ const ProcessRoutePage: React.FC = () => {
           </Button>,
         ]}
         pagination={{
-          pageSize: 10,
+          defaultPageSize: 10,
           showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '50', '100'],
+          pageSizeOptions: ['10', '20', '50'],
         }}
         onRow={(record) => ({
           onDoubleClick: () => handleRowDoubleClick(record),
@@ -654,7 +654,9 @@ const ProcessRoutePage: React.FC = () => {
           ]}
           dataSource={testItems}
           pagination={{
-            pageSize: 10,
+            defaultPageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
           }}
           search={false}
           toolBarRender={() => [

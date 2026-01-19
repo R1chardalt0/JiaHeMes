@@ -28,6 +28,11 @@ namespace ChargePadLine.Service.Trace.Dto.Order
     public string? SearchValue { get; set; }
 
     /// <summary>
+    /// 是否解绑
+    /// </summary>
+    public bool? IsUnbind { get; set; }
+
+    /// <summary>
     /// 页码
     /// </summary>
     public int PageIndex { get; set; } = 1;

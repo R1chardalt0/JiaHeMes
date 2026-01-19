@@ -1,16 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ChargePadLine.Entitys.Trace;
-using ChargePadLine.Service.Trace;
-using ChargePadLine.WebApi.Controllers.Systems;
-using ChargePadLine.WebApi.util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ChargePadLine.Service.Trace.Impl;
+﻿using ChargePadLine.Service.Trace;
 using ChargePadLine.Service.Trace.Dto;
-using ChargePadLine.Service;
-using ChargePadLine.Entitys.Trace.Product;
+using ChargePadLine.WebApi.Controllers.Systems;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.FSharp.Core;
 using static ChargePadLine.Service.Trace.Impl.CommonInterfaseService;
 
@@ -21,9 +12,77 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     public class CommonInterfaseController : BaseController
     {
         private readonly ICommonInterfaseService _iCommonInterfaseService;
+
         public CommonInterfaseController(ICommonInterfaseService iCommonInterfaseService)
         {
             _iCommonInterfaseService = iCommonInterfaseService;
+        }
+
+        /// <summary>
+        /// 上传包装数据接口
+        /// </summary>
+        /// <param name="sn"></param>
+        /// <returns></returns>
+        [HttpPost("UploadPacking")]
+        public async Task<IActionResult> UploadPacking(PackingParams request)
+        {
+
+            var result = await _iCommonInterfaseService.UploadPacking(request);
+
+            if (result.ErrorValue.Item1.ToString() == "0")
+            {
+                return Ok(new { code = 200, message = result.ErrorValue.Item2.ToString() });
+            }
+            else
+            {
+                var errorResult = result.ErrorValue;
+                return Ok(new { code = errorResult.Item1, message = errorResult.Item2 });
+            }
+
+        }
+        /// <summary>
+        /// 跳站
+        /// </summary>
+        /// <param name="sn"></param>
+        /// <returns></returns>
+        [HttpPost("JumpStation")]
+        public async Task<IActionResult> JumpStation(JumpStationParams request)
+        {
+
+            var result = await _iCommonInterfaseService.JumpStation(request);
+
+            if (result.ErrorValue.Item1.ToString() == "0")
+            {
+                return Ok(new { code = 200, message = result.ErrorValue.Item2.ToString() });
+            }
+            else
+            {
+                var errorResult = result.ErrorValue;
+                return Ok(new { code = errorResult.Item1, message = errorResult.Item2 });
+            }
+
+        }
+        /// <summary>
+        /// 获取NS信息
+        /// </summary>
+        /// <param name="sn"></param>
+        /// <returns></returns>
+        [HttpPost("ReWork")]
+        public async Task<IActionResult> ReWork(ReWorkParams request)
+        {
+
+            var result = await _iCommonInterfaseService.ReWork(request);
+
+            if (result.ErrorValue.Item1.ToString() == "0")
+            {
+                return Ok(new { code = 200, message = result.ErrorValue.Item2.ToString() });
+            }
+            else
+            {
+                var errorResult = result.ErrorValue;
+                return Ok(new { code = errorResult.Item1, message = errorResult.Item2 });
+            }
+
         }
         /// <summary>
         /// 获取NS信息
@@ -40,7 +99,6 @@ namespace ChargePadLine.WebApi.Controllers.Trace
             return result;
 
         }
-
         /// <summary>
         /// 物料上传接口
         /// </summary>

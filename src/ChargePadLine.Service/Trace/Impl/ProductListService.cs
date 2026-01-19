@@ -46,7 +46,7 @@ namespace ChargePadLine.Service.Trace.Impl
       try
       {
         // 验证分页参数
-        if (queryDto.Current < 1) queryDto.Current = 1;
+        if (queryDto.PageIndex < 1) queryDto.PageIndex = 1;
         if (queryDto.PageSize < 1) queryDto.PageSize = 10;
 
         // 构建查询条件
@@ -81,7 +81,7 @@ namespace ChargePadLine.Service.Trace.Impl
 
         // 分页
         var productLists = await query
-          .Skip((queryDto.Current - 1) * queryDto.PageSize)
+          .Skip((queryDto.PageIndex - 1) * queryDto.PageSize)
           .Take(queryDto.PageSize)
           .ToListAsync();
 
@@ -89,7 +89,7 @@ namespace ChargePadLine.Service.Trace.Impl
         var productListDtos = productLists.Select(p => p.ToDto()).ToList();
 
         // 返回分页结果
-        return new PaginatedList<ProductListDto>(productListDtos, totalCount, queryDto.Current, queryDto.PageSize);
+        return new PaginatedList<ProductListDto>(productListDtos, totalCount, queryDto.PageIndex, queryDto.PageSize);
       }
       catch (Exception ex)
       {
@@ -138,7 +138,8 @@ namespace ChargePadLine.Service.Trace.Impl
           ProductType = dto.ProductType,
           Remark = dto.Remark,
           CreateTime = DateTimeOffset.Now
-          ,MaxReworkCount = dto.MaxReworkCount
+          ,
+          MaxReworkCount = dto.MaxReworkCount
         };
 
         // 保存产品

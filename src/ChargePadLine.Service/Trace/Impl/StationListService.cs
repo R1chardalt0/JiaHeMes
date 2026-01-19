@@ -161,7 +161,7 @@ namespace ChargePadLine.Service.Trace.Impl
       // 应用分页并排序
       var items = await query
           .OrderByDescending(s => s.CreateTime)
-          .Skip((queryDto.Current - 1) * queryDto.PageSize)
+          .Skip((queryDto.PageIndex - 1) * queryDto.PageSize)
           .Take(queryDto.PageSize)
           .ToListAsync();
 
@@ -227,13 +227,13 @@ namespace ChargePadLine.Service.Trace.Impl
       // 应用分页并排序
       var stationItems = await query
           .OrderByDescending(s => s.CreateTime)
-          .Skip((queryDto.Current - 1) * queryDto.PageSize)
+          .Skip((queryDto.PageIndex - 1) * queryDto.PageSize)
           .Take(queryDto.PageSize)
           .ToListAsync();
 
       var items = stationItems.Select(MapToDto).ToList();
 
-      return new PaginatedList<StationListDto>(items, total, queryDto.Current, queryDto.PageSize);
+      return new PaginatedList<StationListDto>(items, total, queryDto.PageIndex, queryDto.PageSize);
     }
 
     /// <summary>

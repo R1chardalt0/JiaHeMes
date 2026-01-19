@@ -107,8 +107,8 @@ namespace ChargePadLine.Service.Trace.Impl
           {
             Hour = g.Key,
             TotalCount = g.Count(),
-            PassCount = g.Count(h => h.StationStatus == 1), // 状态1表示合格
-            FailCount = g.Count(h => h.StationStatus != 1) // 其他状态表示不合格
+            PassCount = g.Count(h => h.StationStatus == StationStatusEnum.合格), // 状态1表示合格
+            FailCount = g.Count(h => h.StationStatus != StationStatusEnum.合格) // 其他状态表示不合格
           })
           .ToList();
 
@@ -172,7 +172,7 @@ namespace ChargePadLine.Service.Trace.Impl
                      h.CreateTime <= request.EndTime);
 
       var actualOutput = await actualOutputQuery.CountAsync();
-      var goodOutput = await actualOutputQuery.CountAsync(h => h.StationStatus == 1);
+      var goodOutput = await actualOutputQuery.CountAsync(h => h.StationStatus == StationStatusEnum.合格);
 
       // 如果请求中提供了实际产出数据，则使用请求中的数据
       if (request.ActualOutput.HasValue)
@@ -233,7 +233,7 @@ namespace ChargePadLine.Service.Trace.Impl
       // 查询指定时间段内的所有不合格记录
       var query = _dbContext.mesSnListHistories
           .Include(h => h.StationList)
-          .Where(h => h.CreateTime >= startTime && h.CreateTime <= endTime && h.StationStatus != 1);
+          .Where(h => h.CreateTime >= startTime && h.CreateTime <= endTime && h.StationStatus != StationStatusEnum.合格);
 
       // 添加生产线过滤
       if (productionLineId.HasValue)
@@ -330,7 +330,7 @@ namespace ChargePadLine.Service.Trace.Impl
             .ToListAsync();
 
         // 如果该SN没有失败记录，则视为一次通过
-        if (snHistories.All(h => h.StationStatus == 1))
+        if (snHistories.All(h => h.StationStatus == StationStatusEnum.合格))
         {
           firstPassCount++;
         }
@@ -376,7 +376,7 @@ namespace ChargePadLine.Service.Trace.Impl
           .ToListAsync();
 
       int totalTestCount = stats.Count;
-      int passCount = stats.Count(s => s.StationStatus == 1);
+      int passCount = stats.Count(s => s.StationStatus == StationStatusEnum.合格);
       int failCount = totalTestCount - passCount;
 
       // 计算合格率和不良率
@@ -495,9 +495,6 @@ namespace ChargePadLine.Service.Trace.Impl
       var defectQuery = _dbContext.DefectRecords
           .Where(d => d.FoundTime >= startTime && d.FoundTime <= endTime);
 
-      // 注意：DefectRecord实体中没有ProductionLineId字段，因此移除生产线过滤
-      // 如需按生产线过滤，需要在DefectRecord实体中添加ProductionLineId字段
-
       // 按缺陷类型分组统计数量
       var defectStats = await defectQuery
           .GroupBy(d => d.DefectType)
@@ -530,6 +527,86 @@ namespace ChargePadLine.Service.Trace.Impl
           CumulativePercentage = cumulativePercentage
         });
       }
+
+      return result;
+    }
+
+    /// <summary>
+    /// 获取指定时间范围内的完工产品数量统计
+    /// </summary>
+    /// <param name="startTime">开始时间</param>
+    /// <param name="endTime">结束时间</param>
+    /// <param name="productionLineId">生产线ID（可选）</param>
+    /// <returns>完工产品数量统计结果列表（按产品分组）</returns>
+    public async Task<List<FinishedProductCountDto>> GetFinishedProductCountAsync(DateTime startTime, DateTime endTime, Guid? productionLineId = null)
+    {
+      // 定义完工状态：3-已包装，4-已入库
+      var finishedStatuses = new[] { StationStatusEnum.已入库, StationStatusEnum.已包装 };
+
+      // 查询指定时间段内的所有完工产品记录，包含产品信息
+      var query = _dbContext.mesSnListCurrents
+          .Include(c => c.ProductList)
+          .Where(c => finishedStatuses.Contains(c.StationStatus));
+
+      // 添加生产线过滤
+      if (productionLineId.HasValue)
+      {
+        query = query.Where(c => c.ProductionLineId == productionLineId.Value);
+      }
+
+      // 统计完工产品数量并按产品分组
+      var finishedProducts = await query.ToListAsync();
+
+      // 按产品名称分组
+      var productGroups = finishedProducts.GroupBy(p => p.ProductList?.ProductName ?? "未知产品");
+
+      // 构建结果DTO列表
+      var result = new List<FinishedProductCountDto>();
+
+      foreach (var group in productGroups)
+      {
+        var productName = group.Key;
+        int totalFinishedCount = group.Count();
+        int passFinishedCount = 0;
+        int failFinishedCount = 0;
+
+        // 计算每个产品的合格和不合格数量
+        foreach (var product in group)
+        {
+          // 获取该产品的最新历史记录，以确定其最终状态
+          var latestHistory = await _dbContext.mesSnListHistories
+              .Where(h => h.SnNumber == product.SnNumber)
+              .OrderByDescending(h => h.CreateTime)
+              .FirstOrDefaultAsync();
+
+          if (latestHistory != null)
+          {
+            // 如果最新历史记录的状态为1，则视为合格完工
+            if (latestHistory.StationStatus == StationStatusEnum.合格)
+            {
+              passFinishedCount++;
+            }
+            // 如果最新历史记录的状态为2，则视为不合格完工
+            else if (latestHistory.StationStatus == StationStatusEnum.不合格)
+            {
+              failFinishedCount++;
+            }
+          }
+        }
+
+        result.Add(new FinishedProductCountDto
+        {
+          StartTime = startTime,
+          EndTime = endTime,
+          ProductName = productName,
+          TotalFinishedCount = totalFinishedCount,
+          PassFinishedCount = passFinishedCount,
+          FailFinishedCount = failFinishedCount
+        });
+      }
+
+      // 按总完工数量降序排序
+      result = result.OrderByDescending(d => d.TotalFinishedCount).ToList();
 
       return result;
     }

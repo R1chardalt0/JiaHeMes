@@ -3,6 +3,8 @@ using ChargePadLine.Service.Trace.Dto.Station;
 using Microsoft.AspNetCore.Mvc;
 using ChargePadLine.Service;
 using Microsoft.Extensions.Logging;
+using ChargePadLine.WebApi.util;
+using ChargePadLine.WebApi.Controllers.util;
 
 namespace ChargePadLine.WebApi.Controllers.Trace
 {
@@ -28,17 +30,17 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <param name="queryDto">查询参数</param>
     /// <returns>分页站点列表</returns>
     [HttpGet("GetStationListList")]
-    public async Task<ActionResult<PaginatedList<StationListDto>>> GetStationLists([FromQuery] StationListQueryDto queryDto)
+    public async Task<ActionResult<PagedResp<StationListDto>>> GetStationLists([FromQuery] StationListQueryDto queryDto)
     {
       try
       {
         var result = await _stationListService.PaginationAsync(queryDto);
-        return Ok(result);
+        return Ok(RespExtensions.MakePagedSuccess(result));
       }
       catch (Exception ex)
       {
         _logger.LogError(ex, "获取站点列表时发生错误");
-        return StatusCode(500, "获取站点列表失败");
+        return StatusCode(500, RespExtensions.MakeFail("500", "获取站点列表失败"));
       }
     }
 

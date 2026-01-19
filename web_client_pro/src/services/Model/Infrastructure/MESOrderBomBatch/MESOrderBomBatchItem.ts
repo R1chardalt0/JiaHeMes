@@ -20,6 +20,11 @@ export interface MesOrderBomBatchItem {
   snNumber?: string;
 
   /**
+   * 是否已解绑
+   */
+  isUnbind?: boolean;
+
+  /**
    * 搜索值
    */
   searchValue?: string;

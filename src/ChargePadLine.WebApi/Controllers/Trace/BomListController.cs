@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ChargePadLine.WebApi.util;
+using ChargePadLine.WebApi.Controllers.util;
 
 namespace ChargePadLine.WebApi.Controllers.Trace
 {
@@ -36,17 +38,17 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <param name="queryDto">查询参数</param>
     /// <returns>分页BOM列表</returns>
     [HttpGet("GetBomListList")]
-    public async Task<ActionResult<PaginatedList<BomListDto>>> GetBomLists([FromQuery] BomListQueryDto queryDto)
+    public async Task<ActionResult<PagedResp<BomListDto>>> GetBomLists([FromQuery] BomListQueryDto queryDto)
     {
       try
       {
         var result = await _bomListService.GetBomListsAsync(queryDto);
-        return Ok(result);
+        return Ok(RespExtensions.MakePagedSuccess(result));
       }
       catch (Exception ex)
       {
         _logger.LogError(ex, "获取BOM列表时发生错误");
-        return StatusCode(500, "获取BOM列表失败");
+        return StatusCode(500, RespExtensions.MakeFail("500", "获取BOM列表失败"));
       }
     }
 
