@@ -1,4 +1,4 @@
-﻿namespace ChargePadLine.WebApi.util
+namespace ChargePadLine.WebApi.util
 {
     /// <summary>
     /// 分页的响应
@@ -8,5 +8,6 @@
     {
         public int Total { get; set; }
         public int Page { get; set; }
+        public int PageSize { get; set; }
     }
 }

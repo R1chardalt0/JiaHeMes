@@ -44,11 +44,23 @@ namespace ChargePadLine.Service.Trace.Impl
     /// </summary>
     public async Task<PaginatedList<MesSnListCurrentDto>> GetMesSnListCurrentsAsync(MesSnListCurrentQueryDto queryDto)
     {
+      var stopwatch = System.Diagnostics.Stopwatch.StartNew();
       try
       {
         // 验证分页参数
         if (queryDto.PageIndex < 1) queryDto.PageIndex = 1;
         if (queryDto.PageSize < 1) queryDto.PageSize = 10;
+        if (queryDto.PageSize > 100) queryDto.PageSize = 100; // 防止过大查询
+
+        // 验证时间范围合理性
+        if (queryDto.StartTime.HasValue && queryDto.EndTime.HasValue && queryDto.StartTime.Value > queryDto.EndTime.Value)
+        {
+          queryDto.EndTime = queryDto.StartTime;
+        }
+        if (queryDto.ReworkStartTime.HasValue && queryDto.ReworkEndTime.HasValue && queryDto.ReworkStartTime.Value > queryDto.ReworkEndTime.Value)
+        {
+          queryDto.ReworkEndTime = queryDto.ReworkStartTime;
+        }
 
         // 构建查询条件
         var query = _mesSnListCurrentRepo.GetQueryable();
@@ -186,7 +198,18 @@ namespace ChargePadLine.Service.Trace.Impl
         var dtos = mesSnListCurrents.Select(p => ToDto(p)).ToList();
 
         // 返回分页结果
-        return new PaginatedList<MesSnListCurrentDto>(dtos, totalCount, queryDto.PageIndex, queryDto.PageSize);
+        var result = new PaginatedList<MesSnListCurrentDto>(dtos, totalCount, queryDto.PageIndex, queryDto.PageSize);
+
+        stopwatch.Stop();
+
+        // 记录慢查询日志（如 pageSize > 50 且响应时间 >1s）
+        if (queryDto.PageSize > 50 && stopwatch.ElapsedMilliseconds > 1000)
+        {
+          _logger.LogWarning("SN实时状态列表查询耗时过长: {ElapsedMilliseconds}ms, PageSize: {PageSize}, PageIndex: {PageIndex}",
+              stopwatch.ElapsedMilliseconds, queryDto.PageSize, queryDto.PageIndex);
+        }
+
+        return result;
       }
       catch (Exception ex)
       {

@@ -1,6 +1,7 @@
 using ChargePadLine.Service;
 using ChargePadLine.Service.Trace;
 using ChargePadLine.Service.Trace.Dto.MesSnList;
+using ChargePadLine.WebApi.util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -36,17 +37,17 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <param name="queryDto">查询参数</param>
     /// <returns>分页SN实时状态列表</returns>
     [HttpGet("GetMesSnListCurrentList")]
-    public async Task<ActionResult<PaginatedList<MesSnListCurrentDto>>> GetMesSnListCurrents([FromQuery] MesSnListCurrentQueryDto queryDto)
+    public async Task<ActionResult<PagedResp<MesSnListCurrentDto>>> GetMesSnListCurrents([FromQuery] MesSnListCurrentQueryDto queryDto)
     {
       try
       {
         var result = await _mesSnListCurrentService.GetMesSnListCurrentsAsync(queryDto);
-        return Ok(result);
+        return Ok(RespExtensions.MakePagedSuccess(result));
       }
       catch (Exception ex)
       {
         _logger.LogError(ex, "获取SN实时状态列表时发生错误");
-        return StatusCode(500, "获取SN实时状态列表失败");
+        return StatusCode(500, RespExtensions.MakeFail("500", "获取SN实时状态列表失败"));
       }
     }
 
