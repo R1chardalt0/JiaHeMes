@@ -1,7 +1,8 @@
 import type { ActionType, ProColumns, RequestData } from '@ant-design/pro-components';
 import { PageContainer, ProTable } from '@ant-design/pro-components';
 import React, { useRef, useState, useCallback, useMemo } from 'react';
-import { message } from 'antd';
+import { Button, message } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import { getMesSnListCurrentList } from '@/services/Api/Trace/MesSnListCurrent';
 import { getMesSnListHistoryList } from '@/services/Api/Trace/MesSnListHistory';
 import { getProductListById } from '@/services/Api/Infrastructure/ProductList';
@@ -10,12 +11,14 @@ import { getStationListById } from '@/services/Api/Infrastructure/StationList';
 import { getProductionLineById } from '@/services/Api/Trace/ProductionEquipment‌/productionLineInfo';
 import { getDeviceInfoById } from '@/services/Api/Trace/ProductionEquipment‌/equipmentInfo';
 import type { MesSnListCurrentDto, MesSnListCurrentQueryDto } from '@/services/Model/Trace/MesSnListCurrent';
-import type { MesSnListHistoryDto } from '@/services/Model/Trace/MesSnListHistory';
+import type { MesSnListHistoryDto, MesSnListHistoryQueryDto } from '@/services/Model/Trace/MesSnListHistory';
 import type { ProductListDto } from '@/services/Model/Infrastructure/ProductList';
 import type { OrderList } from '@/services/Model/Infrastructure/OrderList';
 import type { StationListDto } from '@/services/Model/Infrastructure/StationList';
 import type { productionLine } from '@/services/Model/Trace/ProductionEquipment‌/productionLineInfo';
 import type { DeviceInfo } from '@/services/Model/Trace/ProductionEquipment‌/equipmentInfo';
+import ExcelExportButton from './components/excel';
+import { exportToExcel, convertObjectsToRows, createInfoRows } from './components/excel';
 
 /**
  * SN表追溯页面
@@ -34,6 +37,14 @@ const MesSnListTracePage: React.FC = () => {
   const [historyLoading, setHistoryLoading] = useState(false);
   // 是否显示历史记录详情
   const [showDetail, setShowDetail] = useState(false);
+
+  // 保存所有数据用于导出
+  const [allData, setAllData] = useState<MesSnListCurrentDto[]>([]);
+  // 保存筛选后的数据用于导出
+  const [filteredData, setFilteredData] = useState<MesSnListCurrentDto[]>([]);
+
+  // 保存当前页面的搜索参数
+  const [currentSearchParams, setCurrentSearchParams] = useState<MesSnListCurrentQueryDto>({});
 
   // 缓存编码信息，避免重复调用API
   const [codeCache, setCodeCache] = useState<{
@@ -323,6 +334,37 @@ const MesSnListTracePage: React.FC = () => {
       width: 200,
       search: false,
     },
+    {
+      title: '创建时间',
+      key: 'createTimeRange',
+      dataIndex: 'createTime',
+      valueType: 'dateTimeRange',
+      fieldProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        placeholder: ['开始时间', '结束时间'],
+        showTime: true,
+      },
+      hideInTable: true, // 不显示在表格中
+      search: {
+        transform: (value: [string, string]) => ({
+          // 将选择的创建时间范围转换为 startTime 和 endTime
+          startTime: value[0],
+          endTime: value[1],
+        }),
+      },
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      key: 'createTimeActual',
+      width: 180,
+      search: false,
+      valueType: 'dateTime',
+      fieldProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+      },
+      render: (createTime) => createTime ? createTime : '-',
+    },
   ];
 
   /**
@@ -491,12 +533,190 @@ const MesSnListTracePage: React.FC = () => {
       width: 200,
       search: false,
     },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      key: 'createTime',
+      width: 180,
+      search: false,
+      valueType: 'dateTime',
+      fieldProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+      },
+      render: (createTime) => createTime ? createTime : '-',
+    },
   ];
+
+  /**
+   * 导出历史SN数据为Excel
+   */
+  const handleExportHistory = useCallback(async () => {
+    try {
+      messageApi.loading('正在导出历史数据...');
+
+      // 创建历史数据查询参数
+      const historyQueryParams: MesSnListHistoryQueryDto = {
+        pageIndex: 1,
+        pageSize: 1000, // 设置一个很大的值，确保获取所有数据
+      };
+
+      // 应用当前页面的创建时间范围筛选
+      if (currentSearchParams.startTime) {
+        historyQueryParams.createTimeStart = currentSearchParams.startTime;
+      }
+      if (currentSearchParams.endTime) {
+        historyQueryParams.createTimeEnd = currentSearchParams.endTime;
+      }
+
+      // 调用API获取历史数据
+      const response = await getMesSnListHistoryList(historyQueryParams);
+      const historyData = response.data || [];
+
+      // 为每个历史记录获取产品编码、工单编码、站点编码和产线编码
+      const enhancedHistoryData = await Promise.all(
+        historyData.map(async (historyRecord: MesSnListHistoryDto) => {
+          let updatedRecord = { ...historyRecord };
+
+          // 获取产品编码
+          if (historyRecord.productListId) {
+            try {
+              const product = await getProductListById(historyRecord.productListId);
+              updatedRecord = {
+                ...updatedRecord,
+                productCode: product.productCode || ''
+              };
+            } catch (error) {
+              console.error('获取产品编码失败:', error);
+            }
+          }
+
+          // 获取工单编码
+          if (historyRecord.orderListId) {
+            try {
+              const order = await getOrderById(historyRecord.orderListId);
+              updatedRecord = {
+                ...updatedRecord,
+                orderCode: order.orderCode || ''
+              };
+            } catch (error) {
+              console.error('获取工单编码失败:', error);
+            }
+          }
+
+          // 获取站点编码
+          if (historyRecord.currentStationListId) {
+            try {
+              const station = await getStationListById(historyRecord.currentStationListId);
+              updatedRecord = {
+                ...updatedRecord,
+                stationCode: station.stationCode || ''
+              };
+            } catch (error) {
+              console.error('获取站点编码失败:', error);
+            }
+          }
+
+          // 获取产线编码
+          if (historyRecord.productionLineId) {
+            try {
+              const response = await getProductionLineById(historyRecord.productionLineId);
+              const line = response.data;
+              updatedRecord = {
+                ...updatedRecord,
+                productionLineCode: line.productionLineCode || ''
+              };
+            } catch (error) {
+              console.error('获取产线编码失败:', error);
+            }
+          }
+
+          // 获取设备编码
+          if (historyRecord.resourceId) {
+            try {
+              const response = await getDeviceInfoById(historyRecord.resourceId);
+              const device = response.data;
+              updatedRecord = {
+                ...updatedRecord,
+                deviceEnCode: device.resource || ''
+              };
+            } catch (error) {
+              console.error('获取设备编码失败:', error);
+            }
+          }
+
+          return updatedRecord;
+        })
+      );
+
+      // 使用直接导入的导出函数来实现导出
+      const exportButtonProps = {
+        data: enhancedHistoryData,
+        columns: historyColumns,
+        filename: 'SN历史记录',
+        searchParams: {},
+        buttonText: '导出历史SN数据为Excel'
+      };
+
+      // 过滤掉需要导出的列（排除隐藏列、没有dataIndex的列和操作列）
+      const exportColumns = historyColumns
+        .filter(col => col.dataIndex && col.title && col.key !== 'operation' && col.hideInTable !== true)
+        .map(col => ({
+          key: col.dataIndex as string, // 明确转换为string类型
+          title: col.title as string, // 明确转换为string类型
+          formatter: col.render as ((value: any) => string) | undefined // 明确转换类型
+        }));
+
+      // 转换数据
+      const dataRows = convertObjectsToRows(enhancedHistoryData, exportColumns);
+
+      // 创建信息行
+      const exportTime = new Date().toLocaleString();
+      const infoRows = createInfoRows(exportTime, {} as Record<string, string>, enhancedHistoryData.length);
+
+      // 导出配置
+      const config = {
+        infoRows,
+        headers: exportColumns.map(col => col.title),
+        dataRows,
+        filename: `${exportButtonProps.filename}_${exportTime.replace(/[\s:]/g, '-')}`
+      };
+
+      // 执行导出
+      exportToExcel(config);
+
+      messageApi.success('历史数据导出成功');
+    } catch (error) {
+      messageApi.error('历史数据导出失败');
+      console.error('导出历史数据失败:', error);
+    }
+  }, [currentSearchParams, historyColumns, messageApi]);
 
   return (
     <>
       {contextHolder}
-      <PageContainer title="SN表追溯">
+      <PageContainer
+        title="SN表追溯"
+        extra={
+          <>
+            <ExcelExportButton
+              data={filteredData}
+              columns={currentColumns}
+              filename="SN表追溯"
+              searchParams={{}}
+              buttonText="导出当前SN数据为Excel"
+              style={{ marginRight: 10 }}
+            />
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={handleExportHistory}
+              style={{ marginBottom: 16 }}
+            >
+              导出历史SN数据为Excel
+            </Button>
+          </>
+        }
+      >
         <ProTable<MesSnListCurrentDto>
           actionRef={actionRef}
           rowKey="snListCurrentId"
@@ -522,6 +742,17 @@ const MesSnListTracePage: React.FC = () => {
               queryParams.reworkEndTime = params.reworkTime[1];
             }
 
+            // 处理创建时间范围参数
+            if (params.startTime) {
+              queryParams.startTime = params.startTime;
+            }
+            if (params.endTime) {
+              queryParams.endTime = params.endTime;
+            }
+
+            // 保存当前搜索参数
+            setCurrentSearchParams(queryParams);
+
             try {
               // 调用 API 获取所有数据
               const response = await getMesSnListCurrentList(queryParams);
@@ -534,11 +765,20 @@ const MesSnListTracePage: React.FC = () => {
                   // 获取产品编码
                   if (record.productListId) {
                     try {
-                      const product = await getProductListById(record.productListId);
-                      updatedRecord = {
-                        ...updatedRecord,
-                        productCode: product.productCode || ''
-                      };
+                      // 使用缓存
+                      if (codeCache.product[record.productListId]) {
+                        updatedRecord.productCode = codeCache.product[record.productListId];
+                      } else {
+                        const product = await getProductListById(record.productListId);
+                        updatedRecord.productCode = product.productCode || '';
+                        setCodeCache(prev => ({
+                          ...prev,
+                          product: {
+                            ...prev.product,
+                            [record.productListId]: product.productCode || ''
+                          }
+                        }));
+                      }
                     } catch (error) {
                       console.error('获取产品编码失败:', error);
                     }
@@ -548,10 +788,7 @@ const MesSnListTracePage: React.FC = () => {
                   if (record.orderListId) {
                     try {
                       const order = await getOrderById(record.orderListId);
-                      updatedRecord = {
-                        ...updatedRecord,
-                        orderCode: order.orderCode || ''
-                      };
+                      updatedRecord.orderCode = order.orderCode || '';
                     } catch (error) {
                       console.error('获取工单编码失败:', error);
                     }
@@ -561,10 +798,7 @@ const MesSnListTracePage: React.FC = () => {
                   if (record.currentStationListId) {
                     try {
                       const station = await getStationListById(record.currentStationListId);
-                      updatedRecord = {
-                        ...updatedRecord,
-                        stationCode: station.stationCode || ''
-                      };
+                      updatedRecord.stationCode = station.stationCode || '';
                     } catch (error) {
                       console.error('获取站点编码失败:', error);
                     }
@@ -575,10 +809,7 @@ const MesSnListTracePage: React.FC = () => {
                     try {
                       const response = await getProductionLineById(record.productionLineId);
                       const line = response.data;
-                      updatedRecord = {
-                        ...updatedRecord,
-                        productionLineCode: line.productionLineCode || ''
-                      };
+                      updatedRecord.productionLineCode = line.productionLineCode || '';
                     } catch (error) {
                       console.error('获取产线编码失败:', error);
                     }
@@ -587,12 +818,21 @@ const MesSnListTracePage: React.FC = () => {
                   // 获取设备编码
                   if (record.resourceId) {
                     try {
-                      const response = await getDeviceInfoById(record.resourceId);
-                      const device = response.data;
-                      updatedRecord = {
-                        ...updatedRecord,
-                        deviceEnCode: device.resource || ''
-                      };
+                      // 使用缓存
+                      if (codeCache.device[record.resourceId]) {
+                        updatedRecord.deviceEnCode = codeCache.device[record.resourceId];
+                      } else {
+                        const response = await getDeviceInfoById(record.resourceId);
+                        const device = response.data;
+                        updatedRecord.deviceEnCode = device.resource || '';
+                        setCodeCache(prev => ({
+                          ...prev,
+                          device: {
+                            ...prev.device,
+                            [record.resourceId]: device.resource || ''
+                          }
+                        }));
+                      }
                     } catch (error) {
                       console.error('获取设备编码失败:', error);
                     }
@@ -601,6 +841,9 @@ const MesSnListTracePage: React.FC = () => {
                   return updatedRecord;
                 })
               );
+
+              // 保存所有数据用于导出
+              setAllData(allData);
 
               // 在前端进行搜索过滤
               let filteredData = allData;
@@ -660,6 +903,9 @@ const MesSnListTracePage: React.FC = () => {
                   item.isReworking === params.isReworking
                 );
               }
+
+              // 保存过滤后的数据用于导出
+              setFilteredData(filteredData);
 
               // 在前端进行分页
               const currentPage = Math.max(1, params.current || 1);
