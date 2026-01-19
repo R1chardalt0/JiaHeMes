@@ -77,13 +77,37 @@ namespace ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配
                     var param5Result = (param5 <= upper5 && param5 >= lower5) ? "PASS" : "FAIL";
 
                     var param6 = s7Net.ReadFloat("DB4014.90").Content;
-                    var upper6 = s7Net.ReadFloat("DB4012.124").Content;
-                    var lower6 = s7Net.ReadFloat("DB4012.128").Content;
+                    var upper6 = s7Net.ReadFloat("DB4012.132").Content;
+                    var lower6 = s7Net.ReadFloat("DB4012.136").Content;
                     var param6Result = (param6 <= upper6 && param6 >= lower6) ? "PASS" : "FAIL";
 
                     //总结果
                     var paramResultTotal = (param1Result == "PASS" && param2Result == "PASS" && param3Result == "PASS"
                         && param4Result == "PASS" && param5Result == "PASS" && param6Result == "PASS") ? "PASS" : "FAIL";
+
+                    string IsOK = "";
+                    var OKRes = s7Net.ReadInt32("DB4014.62").Content;
+                    var NGRes = s7Net.ReadInt32("DB4014.66").Content;
+                    if (OKRes != 0 && NGRes == 0)
+                    {
+                        IsOK = "PASS";
+                    }
+                    else if (OKRes == 0 && NGRes != 0)
+                    {
+                        IsOK = "FAIL";
+                    }
+                    else
+                    {
+                        IsOK = "未知";
+                    }
+
+                    if (IsOK != paramResultTotal)
+                    {
+                        s7Net.Write("DB4010.12.0", true);
+                        s7Net.Write("DB4010.2.5", true);
+                        await _logService.RecordLogAsync(LogLevel.Warning, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
+                        return;
+                    }
 
                     testDatas = new List<TestDataItem>()
                     {
@@ -145,7 +169,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配
                         resource = _stationconfig.Station11.Resource,
                         stationCode = _stationconfig.Station11.StationCode,
                         workOrderCode = _stationconfig.Station11.WorkOrderCode,
-                        testResult = isok ? "Pass" : "Fail",
+                        testResult = paramResultTotal,
                         testData = testDatas
                     };
                     var res = await _mesApi.UploadData(reqParam);

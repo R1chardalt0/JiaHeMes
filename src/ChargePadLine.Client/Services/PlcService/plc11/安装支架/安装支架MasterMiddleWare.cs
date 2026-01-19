@@ -77,8 +77,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
                     var param5Result = (param5 <= upper5 && param5 >= lower5) ? "PASS" : "FAIL";
 
                     var param6 = s7Net.ReadFloat("DB4025.86").Content;
-                    var upper6 = s7Net.ReadFloat("DB4022.124").Content;
-                    var lower6 = s7Net.ReadFloat("DB4022.128").Content;
+                    var upper6 = s7Net.ReadFloat("DB4022.132").Content;
+                    var lower6 = s7Net.ReadFloat("DB4022.136").Content;
                     var param6Result = (param6 <= upper6 && param6 >= lower6) ? "PASS" : "FAIL";
 
                     //总结果

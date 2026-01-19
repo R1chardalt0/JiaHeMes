@@ -77,8 +77,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                     var param5Result = (param5 <= upper5 && param5 >= lower5) ? "PASS" : "FAIL";
 
                     var param6 = modbus.ReadFloat("DB4015.86").Content;
-                    var upper6 = modbus.ReadFloat("DB4012.124").Content;
-                    var lower6 = modbus.ReadFloat("DB4012.128").Content;
+                    var upper6 = modbus.ReadFloat("DB4012.132").Content;
+                    var lower6 = modbus.ReadFloat("DB4012.136").Content;
                     var param6Result = (param6 <= upper6 && param6 >= lower6) ? "PASS" : "FAIL";
 
                     //总结果
