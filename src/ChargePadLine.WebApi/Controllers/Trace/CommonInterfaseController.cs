@@ -17,7 +17,29 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         {
             _iCommonInterfaseService = iCommonInterfaseService;
         }
-        
+
+        /// <summary>
+        /// 上传包装数据接口
+        /// </summary>
+        /// <param name="sn"></param>
+        /// <returns></returns>
+        [HttpPost("UploadPacking")]
+        public async Task<IActionResult> UploadPacking(PackingParams request)
+        {
+
+            var result = await _iCommonInterfaseService.UploadPacking(request);
+
+            if (result.ErrorValue.Item1.ToString() == "0")
+            {
+                return Ok(new { code = 200, message = result.ErrorValue.Item2.ToString() });
+            }
+            else
+            {
+                var errorResult = result.ErrorValue;
+                return Ok(new { code = errorResult.Item1, message = errorResult.Item2 });
+            }
+
+        }
         /// <summary>
         /// 跳站
         /// </summary>

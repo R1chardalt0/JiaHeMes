@@ -10,6 +10,7 @@ using ChargePadLine.Entitys.Trace.Recipes.Entities;
 using ChargePadLine.Entitys.Trace.TraceInformation;
 using ChargePadLine.Entitys.Trace.WorkOrders;
 using ChargePadLine.Entitys.Trace.BOM;
+using ChargePadLine.Entitys.Trace.Packing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -42,16 +43,17 @@ namespace ChargePadLine.DbContexts
       #endregion
 
       #region 业务模块
-      modelBuilder.ApplyConfiguration(new MaterialEntityTypeConfiguration());
-      modelBuilder.ApplyConfiguration(new BomRecipeEntityTypeConfiguration());
-      modelBuilder.ApplyConfiguration(new WorkOrderEntityTypeConfiguration());
-      modelBuilder.ApplyConfiguration(new TraceInfoEntityTypeConfiguration());
-      modelBuilder.ApplyConfiguration(new TraceProcItemEntityTypeConfiguration());
-      modelBuilder.ApplyConfiguration(new MaterialBatchQueueItemEntityTypeConfiguration());
-      modelBuilder.ApplyConfiguration(new ProductTraceInfoClaimEntityConfiguration());
-      modelBuilder.ApplyConfiguration(new MesOrderBomBatchEntityTypeConfiguration());
-      modelBuilder.ApplyConfiguration(new MesOrderBomBatchItemEntityTypeConfiguration());
-      #endregion
+    modelBuilder.ApplyConfiguration(new MaterialEntityTypeConfiguration());
+    modelBuilder.ApplyConfiguration(new BomRecipeEntityTypeConfiguration());
+    modelBuilder.ApplyConfiguration(new WorkOrderEntityTypeConfiguration());
+    modelBuilder.ApplyConfiguration(new TraceInfoEntityTypeConfiguration());
+    modelBuilder.ApplyConfiguration(new TraceProcItemEntityTypeConfiguration());
+    modelBuilder.ApplyConfiguration(new MaterialBatchQueueItemEntityTypeConfiguration());
+    modelBuilder.ApplyConfiguration(new ProductTraceInfoClaimEntityConfiguration());
+    modelBuilder.ApplyConfiguration(new MesOrderBomBatchEntityTypeConfiguration());
+    modelBuilder.ApplyConfiguration(new MesOrderBomBatchItemEntityTypeConfiguration());
+    modelBuilder.ApplyConfiguration(new MesPackingEntityTypeConfiguration());
+    #endregion
 
 
     }
@@ -124,6 +126,9 @@ namespace ChargePadLine.DbContexts
     //BOM管理
     public DbSet<BomList> BomList { get; set; }
     public DbSet<BomItem> BomItem { get; set; }
+    
+    //包装管理
+    public DbSet<MesPacking> MesPacking { get; set; }
     #endregion
 
     #region 库存管理
