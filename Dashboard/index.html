@@ -44,6 +44,7 @@
         }
     </style>
     <script type="text/javascript" src="js/echarts.min.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
     <script type="text/javascript" src="js/jdjh.js"></script>
     <script type="text/javascript">
         function getCurDate() {
@@ -232,7 +233,7 @@
         if (endDate) params.append('endTime', endDate);
         // 添加时间戳参数，避免浏览器缓存
         params.append('t', Date.now());
-        var apiUrl = 'http://localhost:8000/api/Report/HourlyOutput?' + params.toString();
+        var apiUrl = Config.API_BASE_URL + '/api/Report/HourlyOutput?' + params.toString();
         console.log('调用的API URL:', apiUrl);
         return fetch(apiUrl, {
             method: 'GET',
@@ -262,7 +263,7 @@
         if (endDate) params.append('endTime', endDate);
         // 添加时间戳参数，避免浏览器缓存
         params.append('t', Date.now());
-        var apiUrl = 'http://localhost:8000/api/Report/StationNGStatistics?' + params.toString();
+        var apiUrl = Config.API_BASE_URL + '/api/Report/StationNGStatistics?' + params.toString();
         console.log('调用的API URL:', apiUrl);
         return fetch(apiUrl, {
             method: 'GET',
@@ -293,7 +294,7 @@
         // 使用与其他接口一致的URL格式
         // 添加时间戳参数，避免浏览器缓存
         params.append('t', Date.now());
-        var apiUrl = 'http://localhost:8000/api/Report/FirstPassYield?' + params.toString();
+        var apiUrl = Config.API_BASE_URL + '/api/Report/FirstPassYield?' + params.toString();
         console.log('调用的API URL:', apiUrl);
         return fetch(apiUrl, {
             method: 'GET',
@@ -325,7 +326,7 @@
         // 使用与其他接口一致的URL格式
         // 添加时间戳参数，避免浏览器缓存
         params.append('t', Date.now());
-        var apiUrl = 'http://localhost:8000/api/Report/QualityRate?' + params.toString();
+        var apiUrl = Config.API_BASE_URL + '/api/Report/QualityRate?' + params.toString();
         console.log('调用的API URL:', apiUrl);
         return fetch(apiUrl, {
             method: 'GET',
@@ -372,7 +373,7 @@
         params.append('topN', topN);
         // 添加时间戳参数，避免浏览器缓存
         params.append('t', Date.now());
-        var apiUrl = 'http://localhost:8000/api/Report/TopDefects?' + params.toString();
+        var apiUrl = Config.API_BASE_URL + '/api/Report/TopDefects?' + params.toString();
         console.log('调用的API URL:', apiUrl);
         return fetch(apiUrl, {
             method: 'GET',
@@ -401,7 +402,7 @@
         if (endDate) params.append('endTime', endDate);
         // 添加时间戳参数，避免浏览器缓存
         params.append('t', Date.now());
-        var apiUrl = 'http://localhost:8000/api/Report/FinishedProductCount?' + params.toString();
+        var apiUrl = Config.API_BASE_URL + '/api/Report/FinishedProductCount?' + params.toString();
         console.log('调用的API URL:', apiUrl);
         return fetch(apiUrl, {
             method: 'GET',
