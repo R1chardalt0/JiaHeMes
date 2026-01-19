@@ -86,6 +86,30 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
                     var paramResultTotal = (param1Result == "PASS" && param2Result == "PASS" && param3Result == "PASS"
                         && param4Result == "PASS" && param5Result == "PASS" && param6Result == "PASS") ? "PASS" : "FAIL";
 
+                    string IsOK = "";
+                    var OKRes = s7Net.ReadInt32("DB4015.66").Content;
+                    var NGRes = s7Net.ReadInt32("DB4015.70").Content;
+                    if (OKRes != 0 && NGRes == 0)
+                    {
+                        IsOK = "PASS";
+                    }
+                    else if (OKRes == 0 && NGRes != 0)
+                    {
+                        IsOK = "FAIL";
+                    }
+                    else
+                    {
+                        IsOK = "未知";
+                    }
+
+                    if (IsOK != paramResultTotal)
+                    {
+                        s7Net.Write("DB4010.14.0", true);
+                        s7Net.Write("DB4010.3.1", true);
+                        await _logService.RecordLogAsync(LogLevel.Warning, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
+                        return;
+                    }
+
                     testDatas = new List<TestDataItem>()
                     {
                         new TestDataItem
@@ -146,7 +170,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc10.EOL测试
                         resource = _stationconfig.Station14.Resource,
                         stationCode = _stationconfig.Station14.StationCode,
                         workOrderCode = _stationconfig.Station14.WorkOrderCode,
-                        testResult = isok ? "Pass" : "Fail",
+                        testResult = paramResultTotal,
                         testData = testDatas
                     };
                     var res = await _mesApi.UploadMaster(reqParam);
