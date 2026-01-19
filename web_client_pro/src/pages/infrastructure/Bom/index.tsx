@@ -30,7 +30,7 @@ const BomPage: React.FC = () => {
   const [activeTabKey, setActiveTabKey] = useState('items');
   const [messageApi] = message.useMessage();
   const [currentSearchParams, setCurrentSearchParams] = useState<BomListQueryDto>({
-    current: 1,
+    pageIndex: 1,
     pageSize: 50
   });
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -54,7 +54,7 @@ const BomPage: React.FC = () => {
   const fetchStations = useCallback(async () => {
     try {
       setStationLoading(true);
-      const response = await getStationListList({ current: 1, pageSize: 1000 });
+      const response = await getStationListList({ pageIndex: 1, pageSize: 1000 });
       setStations(response.data || []);
     } catch (error) {
       message.error('获取站点列表失败');
@@ -362,7 +362,7 @@ const BomPage: React.FC = () => {
           productId: values.productId,
           productName: values.productName,
           productCode: values.productCode,
-          productIndex: values.productIndex, 
+          productIndex: values.productIndex,
           numberIndex: values.numberIndex,
           shelfLife: values.shelfLife,
           dateIndex: values.dateIndex,
@@ -418,7 +418,7 @@ const BomPage: React.FC = () => {
           params
         ): Promise<RequestData<BomListDto>> => {
           setCurrentSearchParams({
-            current: Math.max(1, params.current || 1),
+            pageIndex: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
             bomName: params.bomName,
             bomCode: params.bomCode,
@@ -426,7 +426,7 @@ const BomPage: React.FC = () => {
           });
 
           const queryParams: BomListQueryDto = {
-            current: Math.max(1, params.current || 1),
+            pageIndex: Math.max(1, params.current || 1),
             pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
             bomName: params.bomName,
             bomCode: params.bomCode,
@@ -472,9 +472,9 @@ const BomPage: React.FC = () => {
           </Button>,
         ]}
         pagination={{
-          pageSize: 10,
+          defaultPageSize: 10,
           showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '50', '100'],
+          pageSizeOptions: ['10', '20', '50'],
         }}
         onRow={(record) => ({
           onDoubleClick: () => handleRowDoubleClick(record),

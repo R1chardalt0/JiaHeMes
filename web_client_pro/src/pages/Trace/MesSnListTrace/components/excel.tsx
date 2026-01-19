@@ -104,7 +104,7 @@ export const convertObjectsToRows = <T extends Record<string, any>>(
  */
 export const createInfoRows = (
   exportTime: string,
-  searchParams: Record<string, string>,
+  searchParams: Record<string, any>,
   totalRecords: number
 ): string[][] => {
   const infoRows = [
@@ -114,7 +114,31 @@ export const createInfoRows = (
 
   // 添加搜索条件信息
   Object.entries(searchParams).forEach(([key, value]) => {
-    infoRows.push([`${key}: ${value}`]);
+    // 跳过分页参数
+    if (key === 'pageIndex' || key === 'pageSize' || key === 'current') return;
+
+    // 跳过空值
+    if (value === undefined || value === null) return;
+
+    let displayValue: string;
+
+    // 处理不同类型的值
+    if (Array.isArray(value)) {
+      // 处理日期范围等数组类型
+      displayValue = value.join(' 至 ');
+    } else if (typeof value === 'boolean') {
+      // 处理布尔值
+      displayValue = value ? '是' : '否';
+    } else if (typeof value === 'object') {
+      // 处理对象类型
+      displayValue = JSON.stringify(value);
+    } else {
+      // 其他类型直接转换为字符串
+      displayValue = String(value);
+    }
+
+    // 添加到信息行
+    infoRows.push([`${key}: ${displayValue}`]);
   });
 
   infoRows.push(['']); // 空行

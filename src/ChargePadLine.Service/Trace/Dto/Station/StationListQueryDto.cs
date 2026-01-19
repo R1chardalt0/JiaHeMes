@@ -37,7 +37,7 @@ namespace ChargePadLine.Service.Trace.Dto.Station
     /// <summary>
     /// 当前页码（最小值为1）
     /// </summary>
-    public int Current { get; set; } = 1;
+    public int PageIndex { get; set; } = 1;
 
     /// <summary>
     /// 每页记录数（最小值为1）

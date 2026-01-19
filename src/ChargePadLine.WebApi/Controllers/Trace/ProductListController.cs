@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using ChargePadLine.WebApi.util;
+using ChargePadLine.WebApi.Controllers.util;
 
 namespace ChargePadLine.WebApi.Controllers.Trace
 {
@@ -35,17 +37,17 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <param name="queryDto">查询参数</param>
     /// <returns>分页产品列表</returns>
     [HttpGet("GetProductListList")]
-    public async Task<ActionResult<PaginatedList<ProductListDto>>> GetProductLists([FromQuery] ProductListQueryDto queryDto)
+    public async Task<ActionResult<PagedResp<ProductListDto>>> GetProductLists([FromQuery] ProductListQueryDto queryDto)
     {
       try
       {
         var result = await _productListService.GetProductListsAsync(queryDto);
-        return Ok(result);
+        return Ok(RespExtensions.MakePagedSuccess(result));
       }
       catch (Exception ex)
       {
         _logger.LogError(ex, "获取产品列表时发生错误");
-        return StatusCode(500, "获取产品列表失败");
+        return StatusCode(500, RespExtensions.MakeFail("500", "获取产品列表失败"));
       }
     }
 

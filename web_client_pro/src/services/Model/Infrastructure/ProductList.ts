@@ -22,7 +22,7 @@ export interface ProductListQueryDto {
   /**
    * 当前页码
    */
-  current: number;
+  pageIndex: number;
   /**
    * 每页大小
    */

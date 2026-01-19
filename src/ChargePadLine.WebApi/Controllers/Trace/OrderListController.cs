@@ -1,6 +1,7 @@
 using ChargePadLine.Service;
 using ChargePadLine.Service.Trace;
 using ChargePadLine.Service.Trace.Dto.Order;
+using ChargePadLine.WebApi.util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -36,17 +37,17 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <param name="queryDto">查询参数</param>
     /// <returns>分页工单列表</returns>
     [HttpGet("GetOrderListList")]
-    public async Task<ActionResult<PaginatedList<OrderListDto>>> GetOrderLists([FromQuery] OrderListQueryDto queryDto)
+    public async Task<ActionResult<PagedResp<OrderListDto>>> GetOrderLists([FromQuery] OrderListQueryDto queryDto)
     {
       try
       {
         var result = await _orderListService.GetOrderListsAsync(queryDto);
-        return Ok(result);
+        return Ok(RespExtensions.MakePagedSuccess(result));
       }
       catch (Exception ex)
       {
         _logger.LogError(ex, "获取工单列表时发生错误");
-        return StatusCode(500, "获取工单列表失败");
+        return StatusCode(500, RespExtensions.MakeFail("500", "获取工单列表失败"));
       }
     }
 
