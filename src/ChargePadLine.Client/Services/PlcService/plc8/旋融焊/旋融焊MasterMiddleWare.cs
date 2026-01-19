@@ -167,7 +167,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                         resource = _stationconfig.Station12.Resource,
                         stationCode = _stationconfig.Station12.StationCode,
                         workOrderCode = _stationconfig.Station12.WorkOrderCode,
-                        testResult = isok ? "Pass" : "Fail",
+                        testResult = paramResultTotal,
                         testData = testDatas
                     };
                     var res = await _mesApi.UploadMaster(reqParam);
