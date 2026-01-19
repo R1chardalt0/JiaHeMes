@@ -79,6 +79,13 @@ const ReWorkFormModal = forwardRef<ReWorkFormModalRef, ReWorkFormModalProps>(({
     return stationList;
   };
 
+  // 从站点编码中提取数字部分（如 "OP30" -> 30）
+  const getStationNumber = (stationCode: string): number => {
+    if (!stationCode) return 0;
+    const match = stationCode.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 0;
+  };
+
   // 监听SN码变化
   const handleSNChange = async (value: string) => {
     setCurrentSN(value);
@@ -250,18 +257,44 @@ const ReWorkFormModal = forwardRef<ReWorkFormModalRef, ReWorkFormModalProps>(({
       const bomBatchPromises = uniqueOrderBomBatchIds.map(id => getMESOrderBomBatchById(id));
       const bomBatches = await Promise.all(bomBatchPromises);
 
-      // 过滤有效的批次信息并构建映射表
+      // 4. 获取所有需要的站点ID并去重（用于后续获取站点编码）
+      const stationListIds = bomBatches
+        .filter(batch => batch && batch.stationListId)
+        .map(batch => batch.stationListId!);
+      const uniqueStationListIds = Array.from(new Set(stationListIds));
+
+      // 并行获取所有站点信息
+      const stationPromises = uniqueStationListIds.map(id => getStationListById(id));
+      const stationsInfo = await Promise.all(stationPromises);
+
+      // 构建站点映射表（stationId -> stationCode）
+      const stationMap = new Map<string, string>();
+      stationsInfo
+        .filter(station => station && station.stationCode)
+        .forEach(station => stationMap.set(station.stationId, station.stationCode));
+
+      // 过滤有效的批次信息并构建映射表，同时补充stationCode字段
       const batchMap = new Map<string, any>();
       bomBatches
         .filter(batch => batch && batch.productListId)
-        .forEach(batch => batchMap.set(batch.orderBomBatchId, batch));
+        .forEach(batch => {
+          // 如果batch中有stationListId但没有stationCode，则从stationMap中获取
+          if (batch.stationListId && !batch.stationCode) {
+            batch.stationCode = stationMap.get(batch.stationListId) || '未知站点';
+          }
+          // 如果batch既没有stationCode也没有stationListId，设置默认值
+          if (!batch.stationCode) {
+            batch.stationCode = '未知站点';
+          }
+          batchMap.set(batch.orderBomBatchId, batch);
+        });
 
       if (batchMap.size === 0) {
         message.error('未找到有效物料批次信息');
         return;
       }
 
-      // 4. 获取所有需要的产品ID并去重
+      // 5. 获取所有需要的产品ID并去重
       const allProductIds = Array.from(batchMap.values()).map(batch => batch.productListId!);
       const uniqueProductIds = Array.from(new Set(allProductIds));
 
@@ -273,11 +306,28 @@ const ReWorkFormModal = forwardRef<ReWorkFormModalRef, ReWorkFormModalProps>(({
       const productMap = new Map<string, any>();
       products.forEach(product => productMap.set(product.productListId, product));
 
-      // 5. 构建物料列表（包含orderBomBatchItemId和初始解绑状态）
+      // 6. 获取当前站点和目标站点的数字值，用于筛选物料
+      const currentStationNum = getStationNumber(currentStation);
+      const targetStationNum = getStationNumber(value);
+
+      // 确定站点范围的起始和结束值
+      const startStation = Math.min(currentStationNum, targetStationNum);
+      const endStation = Math.max(currentStationNum, targetStationNum);
+
+      // 7. 构建物料列表（包含orderBomBatchItemId和初始解绑状态），并只保留当前站点和目标站点之间的物料
       const materialData = boundBomBatchItems.map((batchItem) => {
         // 找到对应的batch信息
         const batch = batchMap.get(batchItem.orderBomBatchId);
         if (!batch) return null;
+
+        // 获取该物料批次的站点编码，并提取数字部分
+        const batchStationCode = batch.stationCode;
+        const batchStationNum = getStationNumber(batchStationCode);
+
+        // 只保留在当前站点和目标站点之间的物料
+        if (batchStationNum < startStation || batchStationNum > endStation) {
+          return null;
+        }
 
         // 找到对应的产品信息
         const product = productMap.get(batch.productListId);
@@ -291,7 +341,7 @@ const ReWorkFormModal = forwardRef<ReWorkFormModalRef, ReWorkFormModalProps>(({
       }).filter(material => material !== null);
 
       if (materialData.length === 0) {
-        message.error('未找到有效物料信息');
+        message.error('当前站点和目标站点之间未找到有效物料信息');
         return;
       }
 
