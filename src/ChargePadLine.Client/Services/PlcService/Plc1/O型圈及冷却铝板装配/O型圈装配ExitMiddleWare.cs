@@ -42,7 +42,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                 var enterok = s7Net.ReadBool("DB4020.2.4").Content;//进站OK
                 var enterng = s7Net.ReadBool("DB4020.2.5").Content;//进站NG
                 var sn = s7Net.ReadString("DB4023.66", 100);
-                
+
                 // 更新数据服务
                 _routingExitModel.UpdateData(req, resp, sn, enterok, enterng);
 
@@ -85,6 +85,31 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                     //总结果
                     var paramResultTotal = (param1Result == "PASS" && param2Result == "PASS" && param3Result == "PASS"
                         && param4Result == "PASS" && param5Result == "PASS" && param6Result == "PASS") ? "PASS" : "FAIL";
+
+                    string IsOK = "";
+                    var OKRes = s7Net.ReadInt32("DB4024.62").Content;
+                    var NGRes = s7Net.ReadInt32("DB4024.66").Content;
+
+                    if (OKRes != 0 && NGRes == 0)
+                    {
+                        IsOK= "PASS";
+                    }
+                    else if (OKRes == 0 && NGRes != 0)
+                    {
+                        IsOK= "FAIL";
+                    }
+                    else
+                    {
+                        IsOK= "未知";
+                    }
+
+                    if (IsOK != paramResultTotal)
+                    {
+                        s7Net.Write("DB4020.12.0", true);
+                        s7Net.Write("DB4020.2.5", true);
+                        await _logService.RecordLogAsync(LogLevel.Warning, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
+                        return;
+                    }
 
                     testDatas = new List<TestDataItem>()
                     {
