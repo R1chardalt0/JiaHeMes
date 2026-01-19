@@ -46,8 +46,6 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
 
                 if (req && !resp)
                 {
-                    var isok = s7Net.ReadBool("DB4010.16.0").Content;
-
                     await _logService.RecordLogAsync(LogLevel.Information, "激光刻印出站请求收到");
 
                     var param1 = s7Net.ReadFloat("DB4014.70").Content;
@@ -83,6 +81,30 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
                     //总结果
                     var paramResultTotal = (param1Result == "PASS" && param2Result == "PASS" && param3Result == "PASS"
                         && param4Result == "PASS" && param5Result == "PASS" && param6Result == "PASS") ? "PASS" : "FAIL";
+
+                    string IsOK = "";
+                    var OKRes = s7Net.ReadInt32("DB4014.62").Content;
+                    var NGRes = s7Net.ReadInt32("DB4014.66").Content;
+                    if (OKRes != 0 && NGRes == 0)
+                    {
+                        IsOK = "PASS";
+                    }
+                    else if (OKRes == 0 && NGRes != 0)
+                    {
+                        IsOK = "FAIL";
+                    }
+                    else
+                    {
+                        IsOK = "未知";
+                    }
+
+                    if (IsOK != paramResultTotal)
+                    {
+                        s7Net.Write("DB4010.12.0", true);
+                        s7Net.Write("DB4010.2.5", true);
+                        await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
+                        return;
+                    }
 
                     testDatas = new List<TestDataItem>()
                     {
@@ -144,7 +166,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
                         resource = _stationconfig.Station15.Resource,
                         stationCode = _stationconfig.Station15.StationCode,
                         workOrderCode = _stationconfig.Station15.WorkOrderCode,
-                        testResult = isok ? "Pass" : "Fail",
+                        testResult = paramResultTotal,
                         testData = testDatas
                     };
                     var res = await _mesApi.UploadData(reqParam);
