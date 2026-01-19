@@ -198,6 +198,12 @@ const JumpStationFormModal = forwardRef<JumpStationFormModalRef, JumpStationForm
           layout="vertical"
           autoComplete="off"
           initialValues={initialValues}
+          onKeyDown={(e) => {
+            // 阻止Enter键的默认提交行为
+            if (e.key === 'Enter') {
+              e.preventDefault();
+            }
+          }}
         >
           <Form.Item
             label="SN码"
@@ -208,8 +214,8 @@ const JumpStationFormModal = forwardRef<JumpStationFormModalRef, JumpStationForm
           >
             <Input
               placeholder="请输入SN码"
-              onChange={(e) => {
-                handleSNChange(e.target.value);
+              onPressEnter={(e) => {
+                handleSNChange((e.target as HTMLInputElement).value);
               }}
             />
           </Form.Item>
