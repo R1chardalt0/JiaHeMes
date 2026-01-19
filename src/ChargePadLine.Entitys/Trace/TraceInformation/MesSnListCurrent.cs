@@ -50,9 +50,9 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
         [ForeignKey("OrderListId")]
         public OrderList? OrderList { get; set; }
         /// <summary>
-        /// 当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站
+        /// 当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站,6-点检,7-返工
         /// </summary>
-        [Description("当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站")]
+        [Description("当前状态：1-合格，2-不合格，3-已包装，4-已入库，5-跳站,6-点检,7-返工")]
         public StationStatusEnum StationStatus { get; set; }
         /// <summary>
         /// 站点导航属性

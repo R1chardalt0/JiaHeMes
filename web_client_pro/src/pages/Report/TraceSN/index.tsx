@@ -103,11 +103,12 @@ const TraceSN: React.FC = () => {
         }
         
         // 将testData并行转列显示，只显示parametricKey和testValue
+      
         return (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
             {testData.map((test, index) => (
               <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
-                <Text strong style={{ marginRight: '5px' }}>{test.parametricKey}:</Text>
+                <Text strong style={{ marginRight: '5px' ,color: test.testResult === 'PASS' ? 'green' : 'red' }}>{test.parametricKey}:</Text>
                 <Text>{test.testValue}</Text>
               </div>
             ))}
