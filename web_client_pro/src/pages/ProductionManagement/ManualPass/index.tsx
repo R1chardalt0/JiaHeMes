@@ -19,8 +19,16 @@ type ApiResponse<T = any> = {
 
 // 表单值接口
 interface FormValues {
-  sn: string;
+  items: Array<{
+    batchNo: string;
+    sn: string;
+  }>;
+}
+
+// 输入项接口
+interface InputItem {
   batchNo: string;
+  sn: string;
 }
 
 const ManualPass: React.FC = () => {
@@ -40,6 +48,15 @@ const ManualPass: React.FC = () => {
   // 站点和设备信息
   const [stationInfo, setStationInfo] = useState<{ name: string; code: string } | null>(null);
   const [deviceInfo, setDeviceInfo] = useState<{ name: string; code: string } | null>(null);
+
+  // 表单实例
+  const [form] = Form.useForm();
+
+  // 输入项状态
+  const [inputItems, setInputItems] = useState<InputItem[]>([{
+    batchNo: '',
+    sn: ''
+  }]);
 
   // 递归查找菜单中的OP20节点
   const findOP20Menu = (menus: MenuItem[]): MenuItem | null => {
@@ -159,7 +176,7 @@ const ManualPass: React.FC = () => {
   }, []);
 
   // 提交表单
-  const handleSubmit = async (values: FormValues) => {
+  const handleSubmit = async (values: any) => {
     setSubmitting(true);
     try {
       console.log('提交表单数据:', values);
@@ -169,33 +186,115 @@ const ManualPass: React.FC = () => {
         return;
       }
 
-      // 构造上传参数
-      const uploadParams = {
-        SN: values.sn,
-        Resource: deviceInfo.code, // 使用设备编码而不是设备ID
-        StationCode: stationInfo.code,
-        TestResult: 'PASS', // 测试结果设置为PASS
-        WorkOrderCode: '', // 工单编号设置为空
-        TestData: '', // 测试数据设置为空字符串
-        BatchNo: values.batchNo // 批次号
-      };
+      // 处理表单数据，将扁平结构转换为数组结构
+      let items: { batchNo: string; sn: string }[] = [];
 
-      console.log('上传参数:', uploadParams);
+      // 检查是否是扁平结构（如items[0].batchNo）
+      const isFlatStructure = Object.keys(values).some(key => key.includes('items['));
 
-      // 调用上传接口
-      const result = await uploadData(uploadParams as any);
-      console.log('上传结果:', result);
+      if (isFlatStructure) {
+        // 提取所有索引
+        const indices = new Set<number>();
+        Object.keys(values).forEach(key => {
+          const match = key.match(/items\[(\d+)\]/);
+          if (match) {
+            indices.add(Number(match[1]));
+          }
+        });
 
-      if (result.code === 200) {
-        message.success('提交成功');
+        // 转换为数组结构
+        indices.forEach(index => {
+          const batchNo = values[`items[${index}].batchNo`];
+          const sn = values[`items[${index}].sn`];
+          if (batchNo && sn) {
+            items.push({ batchNo, sn });
+          }
+        });
+      } else if (values.items && Array.isArray(values.items)) {
+        // 处理嵌套数组结构
+        items = values.items.filter((item: any) => item.batchNo && item.sn);
+      }
+
+      if (items.length === 0) {
+        message.error('请输入至少一组SN和批次号');
+        return;
+      }
+
+      // 按顺序循环调用后端接口
+      let successCount = 0;
+      let errorMessages: string[] = [];
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+
+        try {
+          // 构造上传参数
+          const uploadParams = {
+            SN: item.sn,
+            Resource: deviceInfo.code, // 使用设备编码而不是设备ID
+            StationCode: stationInfo.code,
+            TestResult: 'PASS', // 测试结果设置为PASS
+            WorkOrderCode: '', // 工单编号设置为空
+            TestData: '', // 测试数据设置为空字符串
+            BatchNo: item.batchNo // 批次号
+          };
+
+          console.log(`上传第${i + 1}组参数:`, uploadParams);
+
+          // 调用上传接口
+          const result = await uploadData(uploadParams as any);
+          console.log(`上传第${i + 1}组结果:`, result);
+
+          if (result.code === 200) {
+            successCount++;
+          } else {
+            errorMessages.push(`第${i + 1}组：${result.message || '未知错误'}`);
+          }
+        } catch (error: any) {
+          console.error(`提交第${i + 1}组失败:`, error);
+          errorMessages.push(`第${i + 1}组：${error.message || '提交失败'}`);
+        }
+      }
+
+      // 显示结果
+      if (successCount === items.length) {
+        message.success(`全部${successCount}组数据提交成功`);
+        // 清空表单
+        setInputItems([{
+          batchNo: '',
+          sn: ''
+        }]);
+        form.resetFields();
+      } else if (successCount > 0) {
+        message.warning(`${successCount}组提交成功，${errorMessages.length}组失败`);
+        if (errorMessages.length > 0) {
+          console.error('失败详情:', errorMessages);
+        }
       } else {
-        message.error(`提交失败: ${result.message || '未知错误'}`);
+        message.error(`全部${errorMessages.length}组提交失败`);
+        if (errorMessages.length > 0) {
+          console.error('失败详情:', errorMessages);
+        }
       }
     } catch (error) {
       console.error('提交失败:', error);
       message.error('提交失败，请重试');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // 处理输入框回车事件
+  const handleInputKeyPress = async (e: React.KeyboardEvent, index: number) => {
+    if (e.key === 'Enter') {
+      // 先验证当前表单字段
+      await form.validateFields([`items[${index}].batchNo`, `items[${index}].sn`]);
+
+      // 检查是否已经是最后一组
+      if (index === inputItems.length - 1) {
+        // 添加新的一组输入框
+        setInputItems([...inputItems, { batchNo: '', sn: '' }]);
+      }
     }
   };
 
@@ -213,24 +312,49 @@ const ManualPass: React.FC = () => {
         </Descriptions>
 
         <Form
+          form={form}
           layout="vertical"
           style={{ marginTop: 20 }}
           onFinish={handleSubmit}
         >
-          <Form.Item
-            name="batchNo"
-            label="批次号（PDCASN)"
-            rules={[{ required: true, message: '请输入批次号' }]}
-          >
-            <Input placeholder="请输入批次号" />
-          </Form.Item>
-          <Form.Item
-            name="sn"
-            label="SN号"
-            rules={[{ required: true, message: '请输入SN号' }]}
-          >
-            <Input placeholder="请输入SN号" />
-          </Form.Item>
+          {inputItems.map((item, index) => (
+            <div key={index} style={{ marginBottom: 20, padding: 16, border: '1px solid #f0f0f0', borderRadius: 4 }}>
+              <h4 style={{ marginBottom: 12 }}>第{index + 1}组</h4>
+              <Form.Item
+                name={`items[${index}].batchNo`}
+                label="批次号（PDCASN)"
+                rules={[{ required: false, message: '请输入批次号' }]}
+              >
+                <Input
+                  placeholder="请输入批次号"
+                  onKeyPress={(e) => handleInputKeyPress(e, index)}
+                />
+              </Form.Item>
+              <Form.Item
+                name={`items[${index}].sn`}
+                label="SN号"
+                rules={[{ required: false, message: '请输入SN号' }]}
+              >
+                <Input
+                  placeholder="请输入SN号"
+                  onKeyPress={(e) => handleInputKeyPress(e, index)}
+                />
+              </Form.Item>
+              {index > 0 && (
+                <Button
+                  danger
+                  onClick={() => {
+                    const newItems = [...inputItems];
+                    newItems.splice(index, 1);
+                    setInputItems(newItems);
+                  }}
+                  style={{ marginTop: 8 }}
+                >
+                  删除
+                </Button>
+              )}
+            </div>
+          ))}
 
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={submitting}>
