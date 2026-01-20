@@ -800,7 +800,7 @@ namespace ChargePadLine.Service.Trace.Impl
                     x.OrderListId == workOrder.OrderListId &&
                     x.StationListId == orderBomItem.Station.StationId &&
                     x.ProductListId == orderBomItem.BomItem.ProductId &&
-                    x.ResourceId == DeviceInfosList.ResourceId && x.OrderBomBatchStatus == 1 && (request.BatchNo.IsNullOrEmpty() || x.BatchCode == request.BatchNo) &&
+                    x.ResourceId == DeviceInfosList.ResourceId && x.OrderBomBatchStatus == 1 && (request.BatchNo.IsNullOrEmpty() ||  request.BatchNo.Contains(x.BatchCode)) &&
                     x.BatchQty > x.CompletedQty);
 
                 if (orderBomBatch == null)
@@ -1076,7 +1076,7 @@ namespace ChargePadLine.Service.Trace.Impl
                         x.StationListId == orderBomItem.Station.StationId &&
                         x.ProductListId == orderBomItem.BomItem.ProductId &&
                         x.ResourceId == deviceInfo.ResourceId &&
-                        x.OrderBomBatchStatus == 1 && (request.BatchNo.IsNullOrEmpty() || x.BatchCode == request.BatchNo) &&
+                        x.OrderBomBatchStatus == 1 && (request.BatchNo.IsNullOrEmpty() || request.BatchNo.Contains(x.BatchCode)) &&
                         x.BatchQty > x.CompletedQty);
                     if (orderBomBatch == null)
                     {
