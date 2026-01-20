@@ -790,16 +790,16 @@ namespace ChargePadLine.Service.Trace.Impl
                                                     //  DeviceInfo = dev      // 设备信息
                             }).ToListAsync();
 
-      // 12. 检查每个BOM项的上料情况
-      foreach (var orderBomItem in orderBom)
-      {
-        // 12.1 检查MesOrderBomBatch上料情况
-        var orderBomBatch = await _dbContext.MesOrderBomBatch.FirstOrDefaultAsync(x =>
-            x.OrderListId == workOrder.OrderListId &&
-            x.StationListId == orderBomItem.Station.StationId &&
-            x.ProductListId == orderBomItem.BomItem.ProductId &&
-            x.ResourceId == DeviceInfosList.ResourceId && x.OrderBomBatchStatus == 1 && (request.BatchNo.IsNullOrEmpty() || x.BatchCode == request.BatchNo) &&
-            x.BatchQty > x.CompletedQty);
+            // 12. 检查每个BOM项的上料情况
+            foreach (var orderBomItem in orderBom)
+            {
+                // 12.1 检查MesOrderBomBatch上料情况
+                var orderBomBatch = await _dbContext.MesOrderBomBatch.FirstOrDefaultAsync(x =>
+                    x.OrderListId == workOrder.OrderListId &&
+                    x.StationListId == orderBomItem.Station.StationId &&
+                    x.ProductListId == orderBomItem.BomItem.ProductId &&
+                    x.ResourceId == DeviceInfosList.ResourceId && x.OrderBomBatchStatus == 1 && (request.BatchNo.IsNullOrEmpty() ||  request.BatchNo.Contains(x.BatchCode)) &&
+                    x.BatchQty > x.CompletedQty);
 
         if (orderBomBatch == null)
         {
@@ -1065,21 +1065,21 @@ namespace ChargePadLine.Service.Trace.Impl
                                                       //   DeviceInfo = dev      // 设备信息
                               }).ToListAsync();
 
-        // 8.7 处理每个BOM项的上料批次信息
-        foreach (var orderBomItem in orderBom)
-        {
-          // 8.7.1 检查MesOrderBomBatch上料情况（异步查询）
-          var orderBomBatch = await _dbContext.MesOrderBomBatch
-              .FirstOrDefaultAsync(x => x.OrderListId == workOrder.OrderListId &&
-              x.StationListId == orderBomItem.Station.StationId &&
-              x.ProductListId == orderBomItem.BomItem.ProductId &&
-              x.ResourceId == deviceInfo.ResourceId &&
-              x.OrderBomBatchStatus == 1 && (request.BatchNo.IsNullOrEmpty() || x.BatchCode == request.BatchNo) &&
-              x.BatchQty > x.CompletedQty);
-          if (orderBomBatch == null)
-          {
-            return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"站点{request.StationCode}未进行上料操作"));
-          }
+                // 8.7 处理每个BOM项的上料批次信息
+                foreach (var orderBomItem in orderBom)
+                {
+                    // 8.7.1 检查MesOrderBomBatch上料情况（异步查询）
+                    var orderBomBatch = await _dbContext.MesOrderBomBatch
+                        .FirstOrDefaultAsync(x => x.OrderListId == workOrder.OrderListId &&
+                        x.StationListId == orderBomItem.Station.StationId &&
+                        x.ProductListId == orderBomItem.BomItem.ProductId &&
+                        x.ResourceId == deviceInfo.ResourceId &&
+                        x.OrderBomBatchStatus == 1 && (request.BatchNo.IsNullOrEmpty() || request.BatchNo.Contains(x.BatchCode)) &&
+                        x.BatchQty > x.CompletedQty);
+                    if (orderBomBatch == null)
+                    {
+                        return FSharpResult<ValueTuple, (int, string)>.NewError((-1, $"站点{request.StationCode}未进行上料操作"));
+                    }
 
           // 8.7.2 检查上料状态是否正常
           if (orderBomBatch.OrderBomBatchStatus != 1)

@@ -491,13 +491,23 @@ namespace ChargePadLine.Service.Trace.Impl
     /// <returns>TOP缺陷分析结果</returns>
     public async Task<List<TopDefectDto>> GetTopDefectsAsync(DateTime startTime, DateTime endTime, int topN = 10, Guid? productionLineId = null)
     {
-      // 查询指定时间段内的所有缺陷记录
-      var defectQuery = _dbContext.DefectRecords
-          .Where(d => d.FoundTime >= startTime && d.FoundTime <= endTime);
+      // 查询指定时间段内的所有测试数据记录，关联历史记录获取时间和生产线信息
+      var defectQuery = from testData in _dbContext.mesSnTestDatas
+                       join history in _dbContext.mesSnListHistories
+                       on testData.SNListHistoryId equals history.SNListHistoryId
+                       where history.CreateTime >= startTime && history.CreateTime <= endTime
+                       && testData.TestResult != "PASS" && !string.IsNullOrEmpty(testData.ParametricKey)
+                       select new { testData.ParametricKey, history.ProductionLineId };
 
-      // 按缺陷类型分组统计数量
+      // 添加生产线过滤
+      if (productionLineId.HasValue)
+      {
+        defectQuery = defectQuery.Where(d => d.ProductionLineId == productionLineId.Value);
+      }
+
+      // 按测试项目(缺陷类型)分组统计数量
       var defectStats = await defectQuery
-          .GroupBy(d => d.DefectType)
+          .GroupBy(d => d.ParametricKey)
           .Select(g => new
           {
             DefectType = g.Key,
