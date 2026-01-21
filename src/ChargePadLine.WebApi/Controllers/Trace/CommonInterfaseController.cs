@@ -21,7 +21,6 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// <summary>
         /// 上传包装数据接口
         /// </summary>
-        /// <param name="sn"></param>
         /// <returns></returns>
         [HttpPost("UploadPacking")]
         public async Task<IActionResult> UploadPacking(PackingParams request)
@@ -43,7 +42,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// <summary>
         /// 跳站
         /// </summary>
-        /// <param name="sn"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("JumpStation")]
         public async Task<IActionResult> JumpStation(JumpStationParams request)
@@ -62,10 +61,11 @@ namespace ChargePadLine.WebApi.Controllers.Trace
             }
 
         }
+
         /// <summary>
         /// 获取NS信息
         /// </summary>
-        /// <param name="sn"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("ReWork")]
         public async Task<IActionResult> ReWork(ReWorkParams request)

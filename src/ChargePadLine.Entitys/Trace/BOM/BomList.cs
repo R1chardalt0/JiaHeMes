@@ -13,49 +13,49 @@ using ChargePadLine.Entitys.Systems;
 
 namespace ChargePadLine.Entitys.Trace.BOM
 {
-  /// <summary>
-  /// Bom表
-  /// </summary>|
-  [Table("mes_bom")]
-  public class BomList : BaseEntity
-  {
     /// <summary>
-    /// BOM ID
-    /// </summary>
-    [Key]
-    [Column("BomId")]
-    public Guid BomId { get; set; }
+    /// Bom表
+    /// </summary>|
+    [Table("mes_bom")]
+    public class BomList : BaseEntity
+    {
+        /// <summary>
+        /// BOM ID
+        /// </summary>
+        [Key]
+        [Column("BomId")]
+        public Guid BomId { get; set; }
 
-    /// <summary>
-    /// BOM名称
-    /// </summary>
-    [Required]
-    [Column("BomName")]
-    public string BomName { get; set; } = "";
+        /// <summary>
+        /// BOM名称
+        /// </summary>
+        [Required]
+        [Column("BomName")]
+        public string BomName { get; set; } = "";
 
-    /// <summary>
-    /// BOM编码
-    /// </summary>
-    [Required]
-    [Column("BomCode")]
-    public string BomCode { get; set; } = "";
+        /// <summary>
+        /// BOM编码
+        /// </summary>
+        [Required]
+        [Column("BomCode")]
+        public string BomCode { get; set; } = "";
 
-    /// <summary>
-    /// 状态 0-启用 1-关闭
-    /// </summary>
-    [Required]
-    [Column("Status")]
-    public int Status { get; set; }
+        /// <summary>
+        /// 状态 0-启用 1-关闭
+        /// </summary>
+        [Required]
+        [Column("Status")]
+        public int Status { get; set; }
 
-    /// <summary>
-    /// 备注信息
-    /// </summary>
-    public string? Remark { get; set; }
+        /// <summary>
+        /// 备注信息
+        /// </summary>
+        //public string? Remark { get; set; }
 
-    /// <summary>
-    /// BOM明细项集合（一对多关联）
-    /// </summary>
-    public virtual ICollection<BomItem> BomItems { get; set; } = new List<BomItem>();
-  }
+        /// <summary>
+        /// BOM明细项集合（一对多关联）
+        /// </summary>
+        public virtual ICollection<BomItem> BomItems { get; set; } = new List<BomItem>();
+    }
 
 }

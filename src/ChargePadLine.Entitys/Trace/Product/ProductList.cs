@@ -57,12 +57,7 @@ namespace ChargePadLine.Entitys.Trace.Product
     [MaxLength(255)]
     public string ProductType { get; set; }
 
-    /// <summary>
-    /// 备注信息
-    /// </summary>
-    [Column("Remark")]
-    [MaxLength(500)]
-    public string? Remark { get; set; }
+
     /// <summary>
     /// 最大返工次数
     /// </summary>

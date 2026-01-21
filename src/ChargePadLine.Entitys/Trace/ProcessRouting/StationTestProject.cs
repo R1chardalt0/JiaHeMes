@@ -45,36 +45,6 @@ namespace ChargePadLine.Entitys.Trace.ProcessRouting
     public string? ParametricKey { get; set; }
 
     /// <summary>
-    /// 搜索值
-    /// </summary>
-    public string? SearchValue { get; set; }
-
-    /// <summary>
-    /// 创建者
-    /// </summary>
-    public string? CreateBy { get; set; }
-
-    /// <summary>
-    /// 创建时间
-    /// </summary>
-    public DateTimeOffset? CreateTime { get; set; }
-
-    /// <summary>
-    /// 更新者
-    /// </summary>
-    public string? UpdateBy { get; set; }
-
-    /// <summary>
-    /// 更新时间
-    /// </summary>
-    public DateTimeOffset? UpdateTime { get; set; }
-
-    /// <summary>
-    /// 备注信息
-    /// </summary>
-    public string? Remark { get; set; }
-
-    /// <summary>
     /// 是否检查
     /// </summary>
     public bool? IsCheck { get; set; }
