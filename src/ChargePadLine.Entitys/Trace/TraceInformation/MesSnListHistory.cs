@@ -78,7 +78,6 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     [ForeignKey("ResourceId")]
     public Deviceinfo? Resource { get; set; }
 
-
     /// <summary>
     /// 测试数据
     /// </summary>
@@ -136,44 +135,7 @@ namespace ChargePadLine.Entitys.Trace.TraceInformation
     /// 返工时间
     /// </summary>
     [Description("返工时间")]
-    public DateTimeOffset? ReworkTime { get; set; }
-
-    /// <summary>
-    /// 搜索值
-    /// </summary>
-    [Description("搜索值")]
-    public string? SearchValue { get; set; }
-
-    /// <summary>
-    /// 创建人
-    /// </summary>
-    [Description("创建人")]
-    public string? CreateBy { get; set; }
-
-    /// <summary>
-    /// 创建时间
-    /// </summary>
-    [Description("创建时间")]
-    public DateTimeOffset? CreateTime { get; set; }
-
-    /// <summary>
-    /// 更新人
-    /// </summary>
-    [Description("更新人")]
-    public string? UpdateBy { get; set; }
-
-    /// <summary>
-    /// 更新时间
-    /// </summary>
-    [Description("更新时间")]
-    public DateTimeOffset? UpdateTime { get; set; }
-
-    /// <summary>
-    /// 备注
-    /// </summary>
-    [Description("备注")]
-    public string? Remark { get; set; }
-
+    public DateTimeOffset? ReworkTime { get; set; }  
   }
 
   public class MesSnListHistoryEntityTypeConfiguration : IEntityTypeConfiguration<MesSnListHistory>

@@ -60,47 +60,6 @@ namespace ChargePadLine.Entitys.Trace.Packing
         [Column("CustomerCode", TypeName = "text")]
         public string? CustomerCode { get; set; }
 
-        /// <summary>
-        /// 搜索值
-        /// </summary>
-        [Description("搜索值")]
-        [Column("SearchValue", TypeName = "text")]
-        public string? SearchValue { get; set; }
-
-        /// <summary>
-        /// 创建人
-        /// </summary>
-        [Description("创建人")]
-        [Column("CreateBy", TypeName = "text")]
-        public string? CreateBy { get; set; }
-
-        /// <summary>
-        /// 创建时间
-        /// </summary>
-        [Description("创建时间")]
-        [Column("CreateTime", TypeName = "timestamptz(6)")]
-        public DateTime? CreateTime { get; set; }
-
-        /// <summary>
-        /// 更新人
-        /// </summary>
-        [Description("更新人")]
-        [Column("UpdateBy", TypeName = "text")]
-        public string? UpdateBy { get; set; }
-
-        /// <summary>
-        /// 更新时间
-        /// </summary>
-        [Description("更新时间")]
-        [Column("UpdateTime", TypeName = "timestamptz(6)")]
-        public DateTime? UpdateTime { get; set; }
-
-        /// <summary>
-        /// 备注
-        /// </summary>
-        [Description("备注")]
-        [Column("Remark", TypeName = "text")]
-        public string? Remark { get; set; }
     }
 
     public class MesPackingEntityTypeConfiguration : IEntityTypeConfiguration<MesPacking>
