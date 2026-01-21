@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ChargePadLine.Service.Trace;
 using ChargePadLine.Service.Trace.Dto.Order;
+using ChargePadLine.WebApi.Controllers.util;
+using ChargePadLine.WebApi.util;    
 
 namespace ChargePadLine.WebApi.Controllers.Trace
 {
@@ -79,17 +81,17 @@ namespace ChargePadLine.WebApi.Controllers.Trace
     /// <param name="queryDto">查询参数</param>
     /// <returns>分页结果，包含工单BOM批次数据传输对象列表和总记录数</returns>
     [HttpGet("GetMESOrderBomBatchPagedList")]
-    public async Task<ActionResult<object>> GetMESOrderBomBatchPagedList([FromQuery] MESOrderBomBatchQueryDto queryDto)
+    public async Task<ActionResult<PagedResp<MESOrderBomBatchDto>>> GetMESOrderBomBatchPagedList([FromQuery] MESOrderBomBatchQueryDto queryDto)
     {
       try
       {
-        var (data, total) = await _service.GetPagedListAsync(queryDto);
-        return Ok(new { data, total });
+        var result = await _service.GetPagedListAsync(queryDto);
+        return Ok(RespExtensions.MakePagedSuccess(result));
       }
       catch (Exception ex)
       {
         _logger.LogError(ex, "分页获取工单BOM批次列表时发生错误");
-        return StatusCode(500, "分页获取工单BOM批次列表失败");
+        return StatusCode(500, RespExtensions.MakeFail("500", "分页获取工单BOM批次列表失败"));
       }
     }
 

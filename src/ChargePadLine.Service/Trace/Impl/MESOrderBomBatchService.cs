@@ -62,7 +62,7 @@ namespace ChargePadLine.Service.Trace.Impl
     /// </summary>
     /// <param name="queryDto">查询参数</param>
     /// <returns>分页结果，包含工单BOM批次数据传输对象列表和总记录数</returns>
-    public async Task<(List<MESOrderBomBatchDto> Data, int Total)> GetPagedListAsync(MESOrderBomBatchQueryDto queryDto)
+    public async Task<PaginatedList<MESOrderBomBatchDto>> GetPagedListAsync(MESOrderBomBatchQueryDto queryDto)
     {
       var query = BuildQuery(queryDto);
       var total = await query.CountAsync();
@@ -73,7 +73,7 @@ namespace ChargePadLine.Service.Trace.Impl
           .ToListAsync();
 
       var data = entities.Select(MapToDto).ToList();
-      return (data, total);
+      return new PaginatedList<MESOrderBomBatchDto>(data, total, queryDto.PageIndex, queryDto.PageSize);
     }
 
     /// <summary>
