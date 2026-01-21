@@ -325,6 +325,9 @@ const ManualPass: React.FC<ManualPassProps> = ({ query }) => {
   // 处理输入框回车事件
   const handleInputKeyPress = async (e: React.KeyboardEvent, index: number) => {
     if (e.key === 'Enter') {
+      // 阻止默认行为，防止回车键触发表单提交
+      e.preventDefault();
+
       // 先验证当前表单字段
       await form.validateFields([`items[${index}].batchNo`, `items[${index}].sn`]);
 
