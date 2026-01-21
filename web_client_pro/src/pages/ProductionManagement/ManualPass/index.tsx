@@ -31,9 +31,21 @@ interface InputItem {
   sn: string;
 }
 
-const ManualPass: React.FC = () => {
-  // 通过location对象获取查询参数
+// 组件属性接口
+interface ManualPassProps {
+  query?: string; // 自定义查询参数，可选
+}
+
+const ManualPass: React.FC<ManualPassProps> = ({ query }) => {
+  // 从URL路径中提取routeName
   const location = useLocation();
+  const pathname = location.pathname;
+  const pathParts = pathname.split('/');
+  const lastPart = pathParts[pathParts.length - 1];
+  const routeName = lastPart.split('-').pop() || '';
+
+  console.log('从URL提取的routeName:', routeName);
+  // 通过location对象获取查询参数
   const searchParams = new URLSearchParams(location.search);
   const initialStationId = searchParams.get('stationId');
   const initialResourceId = searchParams.get('resourceId');
@@ -58,14 +70,14 @@ const ManualPass: React.FC = () => {
     sn: ''
   }]);
 
-  // 递归查找菜单中的OP20节点
-  const findOP20Menu = (menus: MenuItem[]): MenuItem | null => {
+  // 递归查找菜单中的指定路由名称节点
+  const findMenuByRouteName = (menus: MenuItem[]): MenuItem | null => {
     for (const menu of menus) {
-      if (menu.routeName === 'OP20' && menu.query) {
+      if (menu.routeName === routeName && menu.query) {
         return menu;
       }
       if (menu.children && menu.children.length > 0) {
-        const found = findOP20Menu(menu.children);
+        const found = findMenuByRouteName(menu.children);
         if (found) {
           return found;
         }
@@ -124,22 +136,48 @@ const ManualPass: React.FC = () => {
     setMenuLoading(true);
     try {
       console.log('开始从菜单获取参数');
+
+      // 如果提供了自定义query参数，直接使用
+      if (query) {
+        console.log('使用自定义query参数:', query);
+        const queryParams = new URLSearchParams(query);
+        const parsedStationId = queryParams.get('stationId');
+        const parsedResourceId = queryParams.get('resourceId');
+
+        console.log('解析自定义参数结果:', {
+          parsedStationId,
+          parsedResourceId
+        });
+
+        // 更新状态
+        if (parsedStationId && parsedResourceId) {
+          setStationId(parsedStationId);
+          setResourceId(parsedResourceId);
+          setHasValidParams(true);
+
+          // 获取站点和设备信息
+          getStationAndDeviceInfo(parsedStationId, parsedResourceId);
+        }
+        return;
+      }
+
+      // 否则从菜单中获取
       const menuRes = await getMenuTree();
       console.log('菜单数据获取结果:', { hasMenuData: !!menuRes });
 
       if (menuRes) {
         // 正确处理MenuTreeResult类型，提取其中的MenuItem数组
         const menuItems = Array.isArray(menuRes) ? menuRes : (menuRes as any).data || [];
-        const op20Menu = findOP20Menu(menuItems as MenuItem[]);
-        console.log('查找OP20菜单结果:', {
-          hasOP20Menu: !!op20Menu,
-          op20MenuRouteName: op20Menu?.routeName,
-          op20MenuQuery: op20Menu?.query
+        const targetMenu = findMenuByRouteName(menuItems as MenuItem[]);
+        console.log(`查找${routeName}菜单结果:`, {
+          hasTargetMenu: !!targetMenu,
+          targetMenuRouteName: targetMenu?.routeName,
+          targetMenuQuery: targetMenu?.query
         });
 
-        // 解析OP20菜单中的query参数
-        if (op20Menu?.query) {
-          const queryParams = new URLSearchParams(op20Menu.query);
+        // 解析菜单中的query参数
+        if (targetMenu?.query) {
+          const queryParams = new URLSearchParams(targetMenu.query);
           const parsedStationId = queryParams.get('stationId');
           const parsedResourceId = queryParams.get('resourceId');
 
