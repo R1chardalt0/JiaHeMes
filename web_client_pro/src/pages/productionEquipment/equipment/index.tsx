@@ -109,12 +109,12 @@ const EquipmentPage: React.FC = () => {
 
   // 跳转到设备监控页面
   const handleNavigateToMonitor = (device: DeviceInfo) => {
-    if (!device.deviceType) {
+    if (!device.resourceType) {
       message.warning('该设备没有设备类型，无法跳转到监控页面');
       return;
     }
     // 跳转到监控页面，传递设备类型参数
-    navigate(`/devicechart/monitor/${encodeURIComponent(device.deviceType)}`);
+    navigate(`/devicechart/monitor/${encodeURIComponent(device.resourceType)}`);
   };
 
   // 路由切换时清理状态，避免卡顿
@@ -142,8 +142,8 @@ const EquipmentPage: React.FC = () => {
       const requestParams: DeviceInfoQueryParams = {
         current: params.current,
         pageSize: params.pageSize,
-        deviceName: params.deviceName,
-        deviceEnCode: params.deviceEnCode,
+        resourceName: params.resourceName,
+        resource: params.resource,
         productionLineId: params.productionLineId,
         startTime: params.startTime,
         endTime: params.endTime,
@@ -230,7 +230,7 @@ const EquipmentPage: React.FC = () => {
   const showDetailDrawer = async (row: DeviceInfo) => {
     try {
       // 获取设备ID，支持多种字段名（deviceId 或 resourceId）
-      const deviceId = row.deviceId || (row as any).resourceId || '';
+      const deviceId = row.resourceId || (row as any).resourceId || '';
 
       if (!deviceId) {
         message.error('设备ID不存在，无法获取详情');
@@ -251,15 +251,15 @@ const EquipmentPage: React.FC = () => {
         const detailData: DeviceInfo = {
           ...response.data,
           // 映射字段名：后端可能返回 resourceId，前端期望 deviceId
-          deviceId: (response.data as any).deviceId || (response.data as any).resourceId || deviceId,
+          resourceId: (response.data as any).deviceId || (response.data as any).resourceId || deviceId,
           // 映射设备名称
-          deviceName: (response.data as any).deviceName || (response.data as any).resourceName || '',
+          resourceName: (response.data as any).deviceName || (response.data as any).resourceName || '',
           // 映射设备编码
-          deviceEnCode: (response.data as any).deviceEnCode || (response.data as any).resource || '',
+          resource: (response.data as any).deviceEnCode || (response.data as any).resource || '',
           // 映射设备类型
-          deviceType: (response.data as any).deviceType || (response.data as any).resourceType || '',
+          resourceType: (response.data as any).deviceType || (response.data as any).resourceType || '',
           // 映射设备制造商
-          deviceManufacturer: (response.data as any).deviceManufacturer || (response.data as any).resourceManufacturer || '',
+          resourceManufacturer: (response.data as any).deviceManufacturer || (response.data as any).resourceManufacturer || '',
           // 映射设备图片
           //devicePicture: (response.data as any).devicePicture || (response.data as any).resourcePicture || '',
           // 确保生产线名称被正确设置
@@ -329,7 +329,7 @@ const EquipmentPage: React.FC = () => {
     // 加载工单列表
     try {
       setWorkOrderLoading(true);
-      const res = await getOrderList({ current: 1, pageSize: 1000 });
+      const res = await getOrderList({ pageIndex: 1, pageSize: 1000 });
       if (res.data) {
         setWorkOrders(res.data);
       }
@@ -383,7 +383,7 @@ const EquipmentPage: React.FC = () => {
           });
           return true;
         } catch (error) {
-          console.error(`修改设备 ${device.deviceId} 失败:`, error);
+          console.error(`修改设备 ${device.resourceId} 失败:`, error);
           return false;
         }
       });
@@ -439,7 +439,7 @@ const EquipmentPage: React.FC = () => {
       },
       onOk: async () => {
         try {
-          const ids = selectedRows.map((row) => row.deviceId || '');
+          const ids = selectedRows.map((row) => row.resourceId || '');
           const response = await deleteDeviceInfoByIds(ids);
           if (response.success) {
             message.success('批量删除成功');
@@ -498,7 +498,7 @@ const EquipmentPage: React.FC = () => {
           onClick={() => handleNavigateToMonitor(record)}
           style={{ cursor: 'pointer' }}
         >
-          {record.deviceName}
+          {record.resourceName}
         </a>
       ),
     },
@@ -610,7 +610,7 @@ const EquipmentPage: React.FC = () => {
           type="link"
           danger
           icon={<DeleteOutlined />}
-          onClick={() => delRun(entity.deviceId || '')}
+          onClick={() => delRun(entity.resourceId || '')}
         >
           删除
         </Button>,
@@ -701,7 +701,7 @@ const EquipmentPage: React.FC = () => {
           pagination={{
             current: pager.current,
             pageSize: pager.pageSize,
-            pageSizeOptions: ['10', '20', '50', '100'],
+            pageSizeOptions: ['10', '20', '50', '1'],
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total) => `共 ${total} 条数据`,

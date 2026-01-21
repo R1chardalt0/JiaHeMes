@@ -480,7 +480,7 @@
     var hourlyChartData = [];
     var stationNGChartData = [];
     var topDefectsChartData = [];
-    var isTestMode = true;
+    var isTestMode = false;
 
     // 加载数据并初始化图表
     function loadChartData() {
@@ -1437,6 +1437,18 @@
         outputCompareChart.resize();
         topDefectsChart.resize();
     }
+
+    // 统一的静默刷新函数
+    function refreshAllData() {
+        // 静默刷新所有数据，不显示加载提示
+        loadChartData();
+        loadStationNGData();
+        loadProjectStatistics();
+        loadFinishedProductCount();
+    }
+
+    // 设置5秒定时静默刷新
+    setInterval(refreshAllData, 5000);
 
 </script>
 
