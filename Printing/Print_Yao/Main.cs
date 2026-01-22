@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using NJCH_Station;
 using Seagull.BarTender.Print;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -27,13 +28,12 @@ namespace FJY_Print
             InitializeAsync();
         }
 
+        #region PLC连接与监控
         private async void InitializeAsync()
         {
             try
             {
-                // 初始化PLC配置（首次运行时创建配置文件）
                 Config.InitializePLCConfig();
-
                 await InitializePLCConnectionAsync();
                 StartMonitoring();
             }
@@ -56,9 +56,7 @@ namespace FJY_Print
 
                     string plcIP = Config.GetPLCIP();
                     int plcPort = Config.GetPLCPort();
-                    //await _plcConn.ConnectAsync(plcIP, plcPort);
                     bool res = _s7net.Connect(plcIP, plcPort).IsSuccess;
-                    //bool res = await _plcConn.ConnectAsync("127.0.0.1", 502);
                     if (res)
                     {
                         AppendLog("PLC连接成功");
@@ -72,8 +70,28 @@ namespace FJY_Print
                 retryCount++;
                 await Task.Delay(2000); // 等待2秒后重试
             }
+        }
 
-          
+        private void ShowPLCDisconnectedAlert()
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action)ShowPLCDisconnectedAlert);
+                return;
+            }
+
+            MessageBox.Show(this, "PLC连接已断开，请检查网络或设备！", "PLC断开", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        private void ShowPLCReconnectedAlert()
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action)ShowPLCReconnectedAlert);
+                return;
+            }
+
+            MessageBox.Show(this, "PLC已重新连接。", "PLC恢复", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void StartMonitoring()
@@ -81,6 +99,8 @@ namespace FJY_Print
             _monitoringTokenSource = new CancellationTokenSource();
             Task.Run(() => MonitorPLCAsync(_monitoringTokenSource.Token), _monitoringTokenSource.Token);
         }
+
+        #endregion
 
         private async Task MonitorPLCAsync(CancellationToken token)
         {
@@ -95,7 +115,6 @@ namespace FJY_Print
                     {
                         AppendLog("PLC未连接，尝试重连...");
 
-                        // 如果之前是连接状态，现在断开了，提示用户
                         if (wasConnected)
                         {
                             ShowPLCDisconnectedAlert();
@@ -122,26 +141,63 @@ namespace FJY_Print
                     {
                         var req = _s7net.ReadBool("DB4010.7.5").Content;
                         var respon = _s7net.ReadBool("DB4010.14.0").Content;
-
+                        var responOK = _s7net.ReadBool("DB4010.0.6").Content;
+                        var responNG = _s7net.ReadBool("DB4010.0.7").Content;
                         if (req && !respon)
                         {
-                            //通过id获取缓存码数据
-                            var res = GetBoxCacheCodeById(1);
-                            if (res.Success)
+                            //todo 拿到plc发送条码数据
+                            var sn1 = _s7net.ReadString("DB4018.160", 100);
+                            var sn2 = _s7net.ReadString("DB4018.262", 100);
+                            var sn3 = _s7net.ReadString("DB4018.364", 100);
+                            var sn4 = _s7net.ReadString("DB4018.466", 100);
+                            var sn5 = _s7net.ReadString("DB4018.568", 100);
+                            var sn6 = _s7net.ReadString("DB4018.670", 100);
+                            var sn7 = _s7net.ReadString("DB4018.772", 100);
+                            var sn8 = _s7net.ReadString("DB4018.874", 100);
+                            var sn9 = _s7net.ReadString("DB4018.976", 100);
+                            var sn10 = _s7net.ReadString("DB4018.1078", 100);
+                            var sn11 = _s7net.ReadString("DB4018.1180", 100);
+                            var sn12 = _s7net.ReadString("DB4018.1282", 100);
+
+                            //生成箱标签
+                            var boxCode = await GenerateBoxLabelsAsync();
+
+                            //打印条码
+                            await PrintLabelAsync(boxCode);
+
+                            //上传数据
+                            var snList = BuildSnList(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12);
+                            
+                            var requestData = new ReqDto
                             {
-                                //打印标签
-                                await PrintLabelAsync(res.Data);
+                                snList = snList,
+                                innerBox =boxCode,
+                                resource = "Resource1",
+                                stationCode = "ST001",
+                                workOrderCode = "WO123456"
+                            };
+
+                            RespDto response = await UploadPackingAsync(requestData);
+
+                            if (response.code == 0)
+                            {
+                                AppendLog("上传包装数据成功");
+                                _s7net.Write("DB4010.14.0", true);
                                 _s7net.Write("DB4010.0.6", true);
+
                             }
                             else
                             {
-                                AppendLog($"获取缓存码失败: {res.Messages}");
+                                AppendLog($"上传包装数据失败: {response.message}");
+                                _s7net.Write("DB4010.14.0", true);
                                 _s7net.Write("DB4010.0.7", true);
                             }
                         }
-                        else
+                        else if (!req && respon)
                         {
                             _s7net.Write("DB4010.14.0", false);
+                            _s7net.Write("DB4010.0.6", false);
+                            _s7net.Write("DB4010.0.7", false);
                             AppendLog("请求打印结束！");
                         }
                     }
@@ -156,30 +212,15 @@ namespace FJY_Print
             }
         }
 
-        private void ShowPLCDisconnectedAlert()
-        {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action)ShowPLCDisconnectedAlert);
-                return;
-            }
 
-            MessageBox.Show(this, "PLC连接已断开，请检查网络或设备！", "PLC断开", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
-
-        private void ShowPLCReconnectedAlert()
+        /// <summary>
+        /// 打印标签
+        /// </summary>
+        /// <param name="codeCache"></param>
+        /// <returns></returns>
+        private async Task PrintLabelAsync(string boxCode)
         {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action)ShowPLCReconnectedAlert);
-                return;
-            }
-
-            MessageBox.Show(this, "PLC已重新连接。", "PLC恢复", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-        private async Task PrintLabelAsync(BoxCodeCache codeCache)
-        {
-            if (codeCache == null)
+            if (boxCode == null)
             {
                 AppendLog("错误: 型号名称为空");
                 return;
@@ -188,8 +229,8 @@ namespace FJY_Print
             _isPrinting = true;
             try
             {
-                UpdateLabelText(codeCache.CacheBoxCode);
-                AppendLog($"开始打印 {codeCache.CacheBoxCode}");
+                UpdateLabelText(boxCode);
+                AppendLog($"开始打印 {boxCode}");
 
                 var result = await Task.Run(() =>
                 {
@@ -199,12 +240,12 @@ namespace FJY_Print
                         var format = engine.Documents.Open(_selectedLabelPath); // 使用用户选择的路径
                         try
                         {
-                            format.SubStrings["SN"].Value = codeCache.CacheBoxCode;
-                            format.SubStrings["CN"].Value = codeCache.CustomerPartNumber;
-                            format.SubStrings["QU"].Value = codeCache.Quantity;
-                            format.SubStrings["DF"].Value = codeCache.CreateTime.ToString("yyyy/MM/dd HH:mm:ss");
-                            format.SubStrings["SH"].Value = codeCache.Shift;
-                            format.SubStrings["DS"].Value = codeCache.CreateTime.ToString("yyyyMMdd") + codeCache.SerialNumber;
+                            format.SubStrings["Boxcode"].Value = boxCode;
+                            //format.SubStrings["CN"].Value = codeCache.CustomerPartNumber;
+                            //format.SubStrings["QU"].Value = codeCache.Quantity;
+                            //format.SubStrings["DF"].Value = codeCache.CreateTime.ToString("yyyy/MM/dd HH:mm:ss");
+                            //format.SubStrings["SH"].Value = codeCache.Shift;
+                            //format.SubStrings["DS"].Value = codeCache.CreateTime.ToString("yyyyMMdd") + codeCache.SerialNumber;
                             format.PrintSetup.PrinterName = PrinterName;
                             format.PrintSetup.IdenticalCopiesOfLabel = 1;
                             return format.Print();
@@ -216,7 +257,7 @@ namespace FJY_Print
                     }
                 });
 
-                AppendLog($"打印结果:{codeCache.CacheBoxCode}， {result}");
+                AppendLog($"打印结果:{boxCode}， {result}");
             }
             catch (Exception ex)
             {
@@ -228,7 +269,12 @@ namespace FJY_Print
             }
         }
 
-        private async void button1_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 手动触发打印
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void Manual_rigger_Click(object sender, EventArgs e)
         {
             try
             {
@@ -281,6 +327,7 @@ namespace FJY_Print
             }
         }
 
+        #region UI更新方法
         private void UpdateLabelText(string text)
         {
             if (InvokeRequired)
@@ -292,9 +339,6 @@ namespace FJY_Print
                 label1.Text = text;
             }
         }
-
-        private string CleanString(string input) =>
-            input?.Replace("\0", "").Replace("\r", "").Replace("\n", "").Replace(" ", "");
 
         private void AppendLog(string message)
         {
@@ -317,6 +361,22 @@ namespace FJY_Print
             _s7net?.Dispose();
             base.OnFormClosing(e);
         }
+
+        private void UpdateLabelFileDisplay(string path)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action)(() => lblSelectedFile.Text = $"当前标签文件: {path}"));
+            }
+            else
+            {
+                lblSelectedFile.Text = $"当前标签文件: {path}";
+            }
+        }
+
+        #endregion
+
+        #region 标签选择与PLC配置
         private string _selectedLabelPath = @"D:\\Users\\Desktop\\宁波拓普\\printModel.btw";
 
         // 新增文件选择事件
@@ -334,17 +394,6 @@ namespace FJY_Print
             }
         }
 
-        private void UpdateLabelFileDisplay(string path)
-        {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action)(() => lblSelectedFile.Text = $"当前标签文件: {path}"));
-            }
-            else
-            {
-                lblSelectedFile.Text = $"当前标签文件: {path}";
-            }
-        }
 
         // 新增PLC配置入口事件
         private void btnPLCConfig_Click(object sender, EventArgs e)
@@ -360,40 +409,114 @@ namespace FJY_Print
             }
         }
 
+        #endregion
+
 
         /// <summary> 
-        /// 通过get请求获取缓存cacheCode码的内容 
+        /// 上传包装数据 
         /// </summary> 
-        /// <param name="url"></param> 
-        /// <returns></returns> 
-        private RespDto GetCacheCode(string url)
+        /// <param name="requestData">请求数据</param> 
+        /// <returns>响应结果</returns> 
+        private RespDto UploadPacking(ReqDto requestData)
         {
             try
             {
+                string baseUrl = "http://localhost:5000/api/CommonInterfase/UploadPacking";
+                string jsonData = JsonConvert.SerializeObject(requestData);
+
                 using (var client = new System.Net.WebClient())
                 {
                     client.Encoding = System.Text.Encoding.UTF8;
-                    string response = client.DownloadString(url);
+                    client.Headers[System.Net.HttpRequestHeader.ContentType] = "application/json";
+                    string response = client.UploadString(baseUrl, "POST", jsonData);
                     return JsonConvert.DeserializeObject<RespDto>(response);
                 }
             }
             catch (Exception ex)
             {
-                AppendLog($": {ex.Message}");
-                return null;
+                AppendLog($"UploadPacking接口调用失败: {ex.Message}");
+                return new RespDto { code = -1, message = ex.Message };
             }
         }
 
         /// <summary> 
-        /// 获取指定ID的箱体缓存码数据 
+        /// 上传包装数据 
         /// </summary> 
-        /// <param name="id">箱体ID</param> 
-        /// <returns>箱体缓存码数据</returns> 
-        private RespDto GetBoxCacheCodeById(int id)
+        /// <param name="requestData">请求数据</param> 
+        /// <returns>响应结果</returns> 
+        private async Task<RespDto> UploadPackingAsync(ReqDto requestData)
         {
-            string baseUrl = "http://localhost:8809/saomaget/GetBoxCacheCode";
-            string url = $"{baseUrl}?id={id}";
-            return GetCacheCode(url);
+            try
+            {
+                string baseUrl = "http://localhost:5000/api/CommonInterfase/UploadPacking";
+                string jsonData = JsonConvert.SerializeObject(requestData);
+
+                using (var client = new System.Net.WebClient())
+                {
+                    client.Encoding = System.Text.Encoding.UTF8;
+                    client.Headers[System.Net.HttpRequestHeader.ContentType] = "application/json";
+
+                    string response = await Task.Run(() => client.UploadString(baseUrl, "POST", jsonData));
+                    return JsonConvert.DeserializeObject<RespDto>(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"UploadPacking接口调用失败: {ex.Message}");
+                return new RespDto { code = -1, message = ex.Message };
+            }
+        }
+
+        /// <summary>
+        /// 生成箱标签
+        /// </summary>
+        /// <returns></returns>
+        private async Task<string> GenerateBoxLabelsAsync()
+        {
+            return await Task.Run(() =>
+            {
+                // 模拟生成箱标签的过程
+                Thread.Sleep(1000); // 模拟耗时操作
+                return "BOX1234567890"; // 返回生成的箱标签
+            });
+        }
+
+        /// <summary>
+        /// 从sn1-sn12中构建SN列表，过滤空值并用逗号连接
+        /// </summary>
+        /// <param name="sn1">SN1</param>
+        /// <param name="sn2">SN2</param>
+        /// <param name="sn3">SN3</param>
+        /// <param name="sn4">SN4</param>
+        /// <param name="sn5">SN5</param>
+        /// <param name="sn6">SN6</param>
+        /// <param name="sn7">SN7</param>
+        /// <param name="sn8">SN8</param>
+        /// <param name="sn9">SN9</param>
+        /// <param name="sn10">SN10</param>
+        /// <param name="sn11">SN11</param>
+        /// <param name="sn12">SN12</param>
+        /// <returns>非空SN值用逗号连接的字符串</returns>
+        private string BuildSnList(string sn1, string sn2, string sn3, string sn4, string sn5, string sn6,
+            string sn7, string sn8, string sn9, string sn10, string sn11, string sn12)
+        {
+            var snList = new List<string>();
+            
+            // 添加非空的SN值
+            if (!string.IsNullOrEmpty(sn1?.Trim())) snList.Add(sn1.Trim());
+            if (!string.IsNullOrEmpty(sn2?.Trim())) snList.Add(sn2.Trim());
+            if (!string.IsNullOrEmpty(sn3?.Trim())) snList.Add(sn3.Trim());
+            if (!string.IsNullOrEmpty(sn4?.Trim())) snList.Add(sn4.Trim());
+            if (!string.IsNullOrEmpty(sn5?.Trim())) snList.Add(sn5.Trim());
+            if (!string.IsNullOrEmpty(sn6?.Trim())) snList.Add(sn6.Trim());
+            if (!string.IsNullOrEmpty(sn7?.Trim())) snList.Add(sn7.Trim());
+            if (!string.IsNullOrEmpty(sn8?.Trim())) snList.Add(sn8.Trim());
+            if (!string.IsNullOrEmpty(sn9?.Trim())) snList.Add(sn9.Trim());
+            if (!string.IsNullOrEmpty(sn10?.Trim())) snList.Add(sn10.Trim());
+            if (!string.IsNullOrEmpty(sn11?.Trim())) snList.Add(sn11.Trim());
+            if (!string.IsNullOrEmpty(sn12?.Trim())) snList.Add(sn12.Trim());
+            
+            return string.Join(",", snList);
         }
     }
 }
