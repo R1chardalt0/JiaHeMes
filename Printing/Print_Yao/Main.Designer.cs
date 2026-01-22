@@ -71,16 +71,16 @@
             this.txtManualSN.Name = "txtManualSN";
             this.txtManualSN.Size = new System.Drawing.Size(238, 21);
             this.txtManualSN.TabIndex = 3;
-            this.txtManualSN.Text = "SN123456789";
+            this.txtManualSN.Text = "Box123456789";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(814, 44);
+            this.label2.Location = new System.Drawing.Point(802, 46);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 12);
+            this.label2.Size = new System.Drawing.Size(47, 12);
             this.label2.TabIndex = 4;
-            this.label2.Text = "SN码:";
+            this.label2.Text = "箱体码:";
             // 
             // btnSelectLabelFile
             // 
