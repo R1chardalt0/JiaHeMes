@@ -15,7 +15,7 @@ namespace FJY_Print
 {
     public partial class Main : Form
     {
-        private const string PrinterName = "ZT411 300DPI";
+        private const string PrinterName = "ZT411 300 (dpi)";
         private const int MonitoringInterval = 500;
         private readonly S7NetConnect _s7net = new S7NetConnect();
         private CancellationTokenSource _monitoringTokenSource;
@@ -278,14 +278,14 @@ namespace FJY_Print
         {
             try
             {
-                string sn = txtManualSN.Text.Trim();
-                if (string.IsNullOrWhiteSpace(sn))
+                string boxcode = txtManualSN.Text.Trim();
+                if (string.IsNullOrWhiteSpace(boxcode))
                 {
-                    AppendLog("错误: 请输入SN码");
+                    AppendLog("错误: 请输入barcode码");
                     return;
                 }
 
-                AppendLog($"开始手动打印，SN码: {sn}");
+                AppendLog($"开始手动打印，barcode码: {boxcode}");
 
                 var result = await Task.Run(() =>
                 {
@@ -296,7 +296,7 @@ namespace FJY_Print
                         engine = new Engine();
                         engine.Start();
                         format = engine.Documents.Open(_selectedLabelPath);
-                        format.SubStrings["SN"].Value = sn;  // 使用手动输入的SN码
+                        format.SubStrings["Boxcode"].Value = boxcode;  // 使用手动输入的SN码
                         format.PrintSetup.PrinterName = PrinterName;
                         format.PrintSetup.IdenticalCopiesOfLabel = 1;
                         var printResult = format.Print();
