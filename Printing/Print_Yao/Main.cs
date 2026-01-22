@@ -25,7 +25,16 @@ namespace FJY_Print
         public Main()
         {
             InitializeComponent();
+            InitializeLabelPathDisplay();
             InitializeAsync();
+        }
+
+        /// <summary>
+        /// 初始化标签路径显示
+        /// </summary>
+        private void InitializeLabelPathDisplay()
+        {
+            UpdateLabelFileDisplay(_selectedLabelPath);
         }
 
         #region PLC连接与监控
@@ -377,7 +386,7 @@ namespace FJY_Print
         #endregion
 
         #region 标签选择与PLC配置
-        private string _selectedLabelPath = @"D:\\Users\\Desktop\\宁波拓普\\printModel.btw";
+        private string _selectedLabelPath = @"E:\\home\\a.btw";
 
         // 新增文件选择事件
         private void btnSelectLabelFile_Click(object sender, EventArgs e)
