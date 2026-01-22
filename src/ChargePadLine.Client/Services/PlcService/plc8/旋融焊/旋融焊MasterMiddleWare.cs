@@ -3,6 +3,7 @@ using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.Mes;
 using ChargePadLine.Client.Services.Mes.Dto;
 using ChargePadLine.Client.Services.PlcService.Plc8;
+using HslCommunication.Profinet.LSIS;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -40,37 +41,123 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                 var resp = modbus.ReadBool("3001.0").Content;
                 var exitok = modbus.ReadBool("3002.0").Content;//进站OK
                 var exitng = modbus.ReadBool("3003.0").Content;//进站NG
-                var sn = modbus.ReadString("3004", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                var sn = modbus.ReadString("3004", 100);
                 // 更新数据服务
                 _masterModel.UpdateData(req, resp, sn, exitok, exitng);
 
                 if (req && !resp)
                 {
-                    var isok = modbus.ReadBool("3001.0").Content;
-
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}点检请求收到");
+
+                    var param1 = modbus.ReadFloat("DB4015.66").Content;
+                    var upper1 = modbus.ReadFloat("DB4012.92").Content;
+                    var lower1 = modbus.ReadFloat("DB4012.96").Content;
+                    var param1Result = (param1 <= upper1 && param1 >= lower1) ? "PASS" : "FAIL";
+
+                    var param2 = modbus.ReadFloat("DB4015.70").Content;
+                    var upper2 = modbus.ReadFloat("DB4012.100").Content;
+                    var lower2 = modbus.ReadFloat("DB4012.104").Content;
+                    var param2Result = (param2 <= upper2 && param2 >= lower2) ? "PASS" : "FAIL";
+
+                    var param3 = modbus.ReadFloat("DB4015.74").Content;
+                    var upper3 = modbus.ReadFloat("DB4012.108").Content;
+                    var lower3 = modbus.ReadFloat("DB4012.112").Content;
+                    var param3Result = (param3 <= upper3 && param3 >= lower3) ? "PASS" : "FAIL";
+
+                    var param4 = modbus.ReadFloat("DB4015.78").Content;
+                    var upper4 = modbus.ReadFloat("DB4012.116").Content;
+                    var lower4 = modbus.ReadFloat("DB4012.120").Content;
+                    var param4Result = (param4 <= upper4 && param4 >= lower4) ? "PASS" : "FAIL";
+
+                    var param5 = modbus.ReadFloat("DB4015.82").Content;
+                    var upper5 = modbus.ReadFloat("DB4012.124").Content;
+                    var lower5 = modbus.ReadFloat("DB4012.128").Content;
+                    var param5Result = (param5 <= upper5 && param5 >= lower5) ? "PASS" : "FAIL";
+
+                    var param6 = modbus.ReadFloat("DB4015.86").Content;
+                    var upper6 = modbus.ReadFloat("DB4012.132").Content;
+                    var lower6 = modbus.ReadFloat("DB4012.136").Content;
+                    var param6Result = (param6 <= upper6 && param6 >= lower6) ? "PASS" : "FAIL";
+
+                    //总结果
+                    var paramResultTotal = (param1Result == "PASS" && param2Result == "PASS" && param3Result == "PASS"
+                        && param4Result == "PASS" && param5Result == "PASS" && param6Result == "PASS") ? "PASS" : "FAIL";
+
+                    string IsOK = "";
+                    var OKRes = modbus.ReadInt32("DB4015.66").Content;
+                    var NGRes = modbus.ReadInt32("DB4015.70").Content;
+                    if (OKRes != 0 && NGRes == 0)
+                    {
+                        IsOK = "PASS";
+                    }
+                    else if (OKRes == 0 && NGRes != 0)
+                    {
+                        IsOK = "FAIL";
+                    }
+                    else
+                    {
+                        IsOK = "未知";
+                    }
+
+                    if (IsOK != paramResultTotal)
+                    {
+                        modbus.Write("DB4010.14.0", true);
+                        modbus.Write("DB4010.3.1", true);
+                        await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
+                        return;
+                    }
 
                     testDatas = new List<TestDataItem>()
                     {
                         new TestDataItem
                         {
                             ParametricKey = "绝缘电阻",
-                            TestValue = "",
+                            TestValue = param1.ToString(),
                             Units = "MΩ",
-                            Upperlimit = 1000,
-                            Lowerlimit = 50,
-                            TestResult = "Pass",
-                            Remark = ""
+                            Upperlimit = upper1,
+                            Lowerlimit = lower1,
+                            TestResult = param1Result,
+                            Remark = "电阻测试结果"
                         },
                         new TestDataItem
                         {
                             ParametricKey = "耐压测试",
-                            TestValue = "",
+                            TestValue = param2.ToString(),
                             Units = "V",
-                            Upperlimit = 3000,
-                            Lowerlimit = 1500,
-                            TestResult ="",
-                            Remark = ""
+                            Upperlimit =upper2,
+                            Lowerlimit = lower2,
+                            TestResult =param2Result,
+                            Remark = "耐压测试结果"
+                        },
+                        new TestDataItem
+                        {
+                            ParametricKey = "耐压测试",
+                            TestValue = param3.ToString(),
+                            Units = "V",
+                            Upperlimit =upper3,
+                            Lowerlimit = lower3,
+                            TestResult =param3Result,
+                            Remark = "耐压测试结果"
+                        },
+                        new TestDataItem
+                        {
+                            ParametricKey = "耐压测试",
+                            TestValue = param4.ToString(),
+                            Units = "V",
+                            Upperlimit =upper4,
+                            Lowerlimit = lower4,
+                            TestResult =param4Result,
+                            Remark = "耐压测试结果"
+                        },
+                        new TestDataItem
+                        {
+                            ParametricKey = "耐压测试",
+                            TestValue = param5.ToString(),
+                            Units = "V",
+                            Upperlimit =upper5,
+                            Lowerlimit = lower5,
+                            TestResult =param5Result,
+                            Remark = "耐压测试结果"
                         }
                     };
 
@@ -80,10 +167,10 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                         resource = _stationconfig.Station12.Resource,
                         stationCode = _stationconfig.Station12.StationCode,
                         workOrderCode = _stationconfig.Station12.WorkOrderCode,
-                        testResult = isok ? "Pass" : "Fail",
+                        testResult = paramResultTotal,
                         testData = testDatas
                     };
-                    var res = await _mesApi.UploadData(reqParam);
+                    var res = await _mesApi.UploadMaster(reqParam);
                     if (res.code == 0)
                     {
                         modbus.Write("3001.0", true);
@@ -92,8 +179,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                     }
                     else
                     {
-                        modbus.Write("3001.0", false);
-                        modbus.Write("3003.0", false);
+                        modbus.Write("3001.0", true);
+                        modbus.Write("3003.0", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}点检收集失败，mes返回:{res.message}");
                     }
 

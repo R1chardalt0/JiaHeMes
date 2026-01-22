@@ -68,5 +68,28 @@ namespace ChargePadLine.Client.Services.Mes
                 return new RespDto { code = -1, message = ex.Message };
             }
         }
+
+        public async Task<RespDto> UploadMaster(ReqDto req)
+        {
+            try
+            {
+                var request = new UploadCheckRequestDto
+                {
+                    SN = req.sn,
+                    Resource = req.resource,
+                    StationCode = req.stationCode,
+                    WorkOrderCode = req.workOrderCode ?? string.Empty,
+                    TestResult = req.testResult ?? string.Empty,
+                    TestData = JsonSerializer.Serialize(req.testData ?? new List<TestDataItem>())
+                };
+                var result = await _apiClient.PostAsync<UploadCheckRequestDto, RespDto>("api/CommonInterfase/UploadMaster", request);
+                return result ?? new RespDto { code = -1, message = "No response received" };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while uploading data");
+                return new RespDto { code = -1, message = ex.Message };
+            }
+        }
     }
 }

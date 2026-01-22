@@ -41,38 +41,125 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                 var resp = s7Net.ReadBool("DB4020.12.0").Content;
                 var enterok = s7Net.ReadBool("DB4020.2.4").Content;//进站OK
                 var enterng = s7Net.ReadBool("DB4020.2.5").Content;//进站NG
-                var sn = s7Net.ReadString("DB4020.200", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
-                _routingExitModel.UpdateData(req, resp, sn, enterok, enterng);
+                var sn = s7Net.ReadString("DB4023.66", 100);
+
                 // 更新数据服务
-                //_statorTestDataService.UpdateData(req, resp, sn, enterok, enterng);
+                _routingExitModel.UpdateData(req, resp, sn, enterok, enterng);
 
                 if (req && !resp)
                 {
-                    var isok = s7Net.ReadBool("DB4020.16.0").Content;
-
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站请求收到");
+
+                    var param1 = s7Net.ReadFloat("DB4024.70").Content;
+                    var upper1 = s7Net.ReadFloat("DB4022.92").Content;
+                    var lower1 = s7Net.ReadFloat("DB4022.96").Content;
+                    var param1Result = (param1 <= upper1 && param1 >= lower1) ? "PASS" : "FAIL";
+
+                    var param2 = s7Net.ReadFloat("DB4024.74").Content;
+                    var upper2 = s7Net.ReadFloat("DB4022.100").Content;
+                    var lower2 = s7Net.ReadFloat("DB4022.104").Content;
+                    var param2Result = (param2 <= upper2 && param2 >= lower2) ? "PASS" : "FAIL";
+
+                    var param3 = s7Net.ReadFloat("DB4024.78").Content;
+                    var upper3 = s7Net.ReadFloat("DB4022.108").Content;
+                    var lower3 = s7Net.ReadFloat("DB4022.112").Content;
+                    var param3Result = (param3 <= upper3 && param3 >= lower3) ? "PASS" : "FAIL";
+
+                    var param4 = s7Net.ReadFloat("DB4024.82").Content;
+                    var upper4 = s7Net.ReadFloat("DB4022.116").Content;
+                    var lower4 = s7Net.ReadFloat("DB4022.120").Content;
+                    var param4Result = (param4 <= upper4 && param4 >= lower4) ? "PASS" : "FAIL";
+
+                    var param5 = s7Net.ReadFloat("DB4024.86").Content;
+                    var upper5 = s7Net.ReadFloat("DB4022.124").Content;
+                    var lower5 = s7Net.ReadFloat("DB4022.128").Content;
+                    var param5Result = (param5 <= upper5 && param5 >= lower5) ? "PASS" : "FAIL";
+
+                    var param6 = s7Net.ReadFloat("DB4024.90").Content;
+                    var upper6 = s7Net.ReadFloat("DB4022.132").Content;
+                    var lower6 = s7Net.ReadFloat("DB4022.136").Content;
+                    var param6Result = (param6 <= upper6 && param6 >= lower6) ? "PASS" : "FAIL";
+
+                    //总结果
+                    var paramResultTotal = (param1Result == "PASS" && param2Result == "PASS" && param3Result == "PASS"
+                        && param4Result == "PASS" && param5Result == "PASS" && param6Result == "PASS") ? "PASS" : "FAIL";
+
+                    string IsOK = "";
+                    var OKRes = s7Net.ReadInt32("DB4024.62").Content;
+                    var NGRes = s7Net.ReadInt32("DB4024.66").Content;
+
+                    if (OKRes != 0 && NGRes == 0)
+                    {
+                        IsOK= "PASS";
+                    }
+                    else if (OKRes == 0 && NGRes != 0)
+                    {
+                        IsOK= "FAIL";
+                    }
+                    else
+                    {
+                        IsOK= "未知";
+                    }
+
+                    if (IsOK != paramResultTotal)
+                    {
+                        s7Net.Write("DB4020.12.0", true);
+                        s7Net.Write("DB4020.2.5", true);
+                        await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
+                        return;
+                    }
 
                     testDatas = new List<TestDataItem>()
                     {
-                       new TestDataItem
+                        new TestDataItem
                         {
                             ParametricKey = "绝缘电阻",
-                            TestValue = "",
+                            TestValue = param1.ToString(),
                             Units = "MΩ",
-                            Upperlimit = 1000,
-                            Lowerlimit = 50,
-                            TestResult = "Pass",
-                            Remark = ""
+                            Upperlimit = upper1,
+                            Lowerlimit = lower1,
+                            TestResult = param1Result,
+                            Remark = "电阻测试结果"
                         },
                         new TestDataItem
                         {
                             ParametricKey = "耐压测试",
-                            TestValue = "",
+                            TestValue = param2.ToString(),
                             Units = "V",
-                            Upperlimit = 2000,
-                            Lowerlimit = 1500,
-                            TestResult ="",
-                            Remark = ""
+                            Upperlimit =upper2,
+                            Lowerlimit = lower2,
+                            TestResult =param2Result,
+                            Remark = "耐压测试结果"
+                        },
+                        new TestDataItem
+                        {
+                            ParametricKey = "耐压测试",
+                            TestValue = param3.ToString(),
+                            Units = "V",
+                            Upperlimit =upper3,
+                            Lowerlimit = lower3,
+                            TestResult =param3Result,
+                            Remark = "耐压测试结果"
+                        },
+                        new TestDataItem
+                        {
+                            ParametricKey = "耐压测试",
+                            TestValue = param4.ToString(),
+                            Units = "V",
+                            Upperlimit =upper4,
+                            Lowerlimit = lower4,
+                            TestResult =param4Result,
+                            Remark = "耐压测试结果"
+                        },
+                        new TestDataItem
+                        {
+                            ParametricKey = "耐压测试",
+                            TestValue = param5.ToString(),
+                            Units = "V",
+                            Upperlimit =upper5,
+                            Lowerlimit = lower5,
+                            TestResult =param5Result,
+                            Remark = "耐压测试结果"
                         }
                     };
 
@@ -82,7 +169,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                         resource = _stationconfig.Station2.Resource,
                         stationCode = _stationconfig.Station2.StationCode,
                         workOrderCode = _stationconfig.Station2.WorkOrderCode,
-                        testResult = isok ? "Pass" : "Fail",
+                        testResult = paramResultTotal,
                         testData = testDatas
                     };
 
@@ -99,7 +186,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                         s7Net.Write("DB4020.2.5", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站收集失败，mes返回:{res.message}");
                     }
-                    
+
                 }
                 else if (!req && resp)
                 {

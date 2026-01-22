@@ -28,34 +28,6 @@ namespace ChargePadLine.WebApi.Controllers.Systems
             this._serviceProvider = serviceProvider;
         }
 
-
-        /// <summary>
-        /// 登录
-        /// </summary>
-        /// <param name="loginDto"></param>
-        /// <returns></returns>
-        //[HttpPost]
-        //public async Task<string> CheckLogin(UserLoginDto loginDto)
-        //{
-        //    if (string.IsNullOrWhiteSpace(loginDto.UserName) || string.IsNullOrWhiteSpace(loginDto.PassWord))
-        //    {
-        //        HttpContext.Response.StatusCode = 400;
-        //        return "NonUserInfo";
-        //    }
-        //    var isSuccess = await _userService.CheckPassword(loginDto);
-        //    if (isSuccess)
-        //    {
-        //        //TODO 获取真实的用户数据  
-        //        var user = await _userService.GetCustomerAsync(loginDto.UserName);
-        //        return GetToken(user.UserId, user.UserName);
-        //    }
-        //    else
-        //    {
-        //        HttpContext.Response.StatusCode = 400;
-        //        return "NonUser";
-        //    }
-        //}
-
         /// <summary>
         /// 校验用户登录信息
         /// </summary>
@@ -232,12 +204,6 @@ namespace ChargePadLine.WebApi.Controllers.Systems
         /// <param name="id"></param>
         /// <param name="userName"></param>
         /// <returns></returns>
-        /// <summary>
-        /// 根据用户信息生成访问令牌
-        /// </summary>
-        /// <param name="id">用户标识</param>
-        /// <param name="userName">用户名</param>
-        /// <returns>生成的 JWT 令牌</returns>
         private string GetToken(long id, string userName)
         {
             var token = _configuration.GetSection("Jwt").Get<JwtTokenModel>();

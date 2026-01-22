@@ -8,8 +8,8 @@ namespace ChargePadLine.Client.ViewModels
     /// </summary>
     public class StatorTestViewModel : ViewModelBase
     {
-        private readonly StatorEnterModel _statorTestDataEnterService;
-        private readonly StatorExitModel _statorTestDataExitService;
+        private readonly StatorEnterModel _statorEnterModel;
+        private readonly StatorExitModel _statorExitModel;
         private readonly StatorMasterModel _statorMasterModel;
 
         private readonly RingEnterModel _ringEnter;
@@ -17,20 +17,20 @@ namespace ChargePadLine.Client.ViewModels
         private readonly RingMasterModel _ringMaster;
 
 
-        public StatorTestViewModel(StatorEnterModel statorTestDataEnterService, StatorExitModel statorTestDataExitService, RingEnterModel ringEnter, RingExitModel ringExit, StatorMasterModel statorMasterModel, RingMasterModel ringMaster)
+        public StatorTestViewModel(StatorEnterModel statorEnterModel, StatorExitModel statorExitModel, RingEnterModel ringEnter, RingExitModel ringExit, StatorMasterModel statorMasterModel, RingMasterModel ringMaster)
         {
-            _statorTestDataEnterService = statorTestDataEnterService;
-            _statorTestDataExitService = statorTestDataExitService;
+            _statorEnterModel = statorEnterModel;
+            _statorExitModel = statorExitModel;
             _statorMasterModel = statorMasterModel;
 
             _ringEnter = ringEnter;
             _ringExit = ringExit;
             _ringMaster = ringMaster;
-            _statorTestDataEnterService.PropertyChanged += (sender, e) =>
+            _statorEnterModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
-            _statorTestDataExitService.PropertyChanged += (sender, e) =>
+            _statorExitModel.PropertyChanged += (sender, e) =>
             {
                 OnPropertyChanged(e.PropertyName);
             };
@@ -52,58 +52,58 @@ namespace ChargePadLine.Client.ViewModels
             };
         }
 
-        public string 定子检测Status => _statorTestDataEnterService.定子检测Status;
+        public string 定子检测Status => _statorEnterModel.定子检测Status;
 
         /// <summary>
         /// 请求状态
         /// </summary>
-        public bool Req => _statorTestDataEnterService.Req;
+        public bool Req => _statorEnterModel.Req;
 
         /// <summary>
         /// 响应状态
         /// </summary>
-        public bool Resp => _statorTestDataEnterService.Resp;
+        public bool Resp => _statorEnterModel.Resp;
 
         /// <summary>
         /// 序列号
         /// </summary>
-        public string Sn => _statorTestDataEnterService.Sn;
+        public string Sn => _statorEnterModel.Sn;
 
         /// <summary>
         /// 进站ok状态
         /// </summary>
-        public bool EnterOk => _statorTestDataEnterService.EnterOk;
+        public bool EnterOk => _statorEnterModel.EnterOk;
 
         /// <summary>
         /// 进站ng状态
         /// </summary>
-        public bool EnterNg => _statorTestDataEnterService.EnterNg;
+        public bool EnterNg => _statorEnterModel.EnterNg;
 
 
         /// <summary>
         /// 请求状态
         /// </summary>
-        public bool ExitReq => _statorTestDataExitService.ExitReq;
+        public bool ExitReq => _statorExitModel.ExitReq;
 
         /// <summary>
         /// 响应状态
         /// </summary>
-        public bool ExitResp => _statorTestDataExitService.ExitResp;
+        public bool ExitResp => _statorExitModel.ExitResp;
 
         /// <summary>
         /// 序列号
         /// </summary>
-        public string ExitSn => _statorTestDataExitService.Sn;
+        public string ExitSn => _statorExitModel.ExitSn;
 
         /// <summary>
         /// 进站ok状态
         /// </summary>
-        public bool ExitOk => _statorTestDataExitService.ExitOk;
+        public bool ExitOk => _statorExitModel.ExitOk;
 
         /// <summary>
         /// 进站ng状态
         /// </summary>
-        public bool ExitNg => _statorTestDataExitService.ExitNg;
+        public bool ExitNg => _statorExitModel.ExitNg;
 
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace ChargePadLine.Client.ViewModels
         /// <summary>
         /// 序列号
         /// </summary>
-        public string MasterSn => _statorMasterModel.Sn;
+        public string MasterSn => _statorMasterModel.MasterSn;
 
         /// <summary>
         /// 进站ok状态

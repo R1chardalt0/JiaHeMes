@@ -3,6 +3,8 @@ using HslCommunication.Core;
 using HslCommunication.Core.Pipe;
 using HslCommunication.ModBus;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 namespace ChargePadLine.Client.Helpers
 {
@@ -415,17 +417,20 @@ namespace ChargePadLine.Client.Helpers
         /// <param name="address">寄存器地址</param>
         /// <param name="length">字符串长度</param>
         /// <returns>读取结果</returns>
-        public OperateResult<string> ReadString(string address, ushort length)
+        public string ReadString(string address, ushort length)
         {
             try
             {
-                var result = _modbusClient.ReadString(address, length);
-                return result;
+                var value = _modbusClient.ReadString(address, length).Content.Replace("\0", "").Replace("\r", "").Replace("\n", "").Replace(" ", "").Replace("\u001d", ""); ;
+                string cleanedValue = Regex.Replace(value, @"[\u0000-\u001F]", "");
+                cleanedValue = Regex.Unescape(cleanedValue);
+                cleanedValue = cleanedValue.Trim();
+                return cleanedValue;
             }
             catch (Exception ex)
             {
                 _logger?.LogError(string.Format($"Modbus读取字符串异常 - 地址: {0}, 长度: {1}", address, length), ex);
-                return new OperateResult<string>(ex.Message);
+                return new string(ex.Message);
             }
         }
 

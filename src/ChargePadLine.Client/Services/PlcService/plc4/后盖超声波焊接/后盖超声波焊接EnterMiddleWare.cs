@@ -56,7 +56,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.后盖超声波焊接
                 var resp = s7Net.ReadBool("DB4010.10.0").Content;
                 var enterok = s7Net.ReadBool("DB4010.2.0").Content;//进站OK
                 var enterng = s7Net.ReadBool("DB4010.2.1").Content;//进站NG
-                var sn = s7Net.ReadString("DB4010.200", 100).Content.Trim().Replace("\0", "").Replace("\b", "");
+                var sn = s7Net.ReadString("DB4013.66", 100);
 
                 // 更新数据服务
                 _enterModel.UpdateData(req, resp, sn, enterok, enterng, statusMessage);

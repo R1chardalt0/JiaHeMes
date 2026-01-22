@@ -23,5 +23,11 @@ namespace ChargePadLine.Client.Services.Mes
         /// <returns></returns>
         Task<RespDto> UploadData(ReqDto req);
 
+        /// <summary>
+        /// 点检上传接口
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        Task<RespDto> UploadMaster(ReqDto req);
     }
 }
