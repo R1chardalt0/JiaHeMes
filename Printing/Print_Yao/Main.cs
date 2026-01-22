@@ -15,7 +15,7 @@ namespace FJY_Print
 {
     public partial class Main : Form
     {
-        private const string PrinterName = "ZDesigner ZE511 LH-300dpi ZPL";
+        private const string PrinterName = "ZT411 300DPI";
         private const int MonitoringInterval = 500;
         private readonly S7NetConnect _s7net = new S7NetConnect();
         private CancellationTokenSource _monitoringTokenSource;
