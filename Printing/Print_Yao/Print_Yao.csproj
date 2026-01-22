@@ -114,6 +114,7 @@
     <Compile Include="Main.Designer.cs">
       <DependentUpon>Main.cs</DependentUpon>
     </Compile>
+    <Compile Include="model\ReqDto.cs" />
     <Compile Include="model\RespDto.cs" />
     <Compile Include="PLCConfigForm.cs">
       <SubType>Form</SubType>
