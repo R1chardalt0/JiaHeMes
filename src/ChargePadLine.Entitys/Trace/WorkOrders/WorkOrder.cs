@@ -1,5 +1,6 @@
-﻿using ChargePadLine.Entitys.Trace.Production;
+using ChargePadLine.Entitys.Trace.Production;
 using ChargePadLine.Entitys.Trace.Recipes.Entities;
+using ChargePadLine.Entitys.Trace.BOM;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -23,8 +24,8 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
         public ProductCode ProductCode { get; set; } = "";
 
         #region 工单所使用的BOM
-        public int BomRecipeId { get; set; }
-        public BomRecipe? BomRecipe { get; set; } = null!;
+        public Guid BomRecipeId { get; set; }
+        public BomList? BomList { get; set; } = null!;
         #endregion
 
         /// <summary>
@@ -48,14 +49,13 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
         public WorkOrderDocStatus DocStatus { get; set; }
 
         #region 创建工单
-        public static WorkOrder MakeInfiniteWorkOrder(WorkOrderCode workOrderCode, BomRecipe bomRecipe)
+        public static WorkOrder MakeInfiniteWorkOrder(WorkOrderCode workOrderCode, BomList bomList)
         {
             var x = new WorkOrder
             {
-                ProductCode = bomRecipe.ProductCode.Value,
-                BomRecipe = bomRecipe,
                 Code = workOrderCode,
-                BomRecipeId = bomRecipe.Id,
+                BomList = bomList,
+                BomRecipeId = bomList.BomId,
                 PerTraceInfo = 0,
                 DocStatus = WorkOrderDocStatus.Drafting,
             };
@@ -63,14 +63,13 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
             return x;
         }
 
-        public static WorkOrder MakeWorkOrder(WorkOrderCode workOrderCode, BomRecipe bomRecipe, decimal quota, decimal perTraceInfo)
+        public static WorkOrder MakeWorkOrder(WorkOrderCode workOrderCode, BomList bomList, decimal quota, decimal perTraceInfo)
         {
             var x = new WorkOrder
             {
-                ProductCode = bomRecipe.ProductCode.Value,
-                BomRecipe = bomRecipe,
                 Code = workOrderCode,
-                BomRecipeId = bomRecipe.Id,
+                BomList = bomList,
+                BomRecipeId = bomList.BomId,
                 DocStatus = WorkOrderDocStatus.Drafting,
                 PerTraceInfo = perTraceInfo,
             };
@@ -80,14 +79,24 @@ namespace ChargePadLine.Entitys.Trace.WorkOrders
         #endregion
     }
 
-    public class WorkOrderEntityTypeConfiguration : IEntityTypeConfiguration<WorkOrder>
+  public class WorkOrderEntityTypeConfiguration : IEntityTypeConfiguration<WorkOrder>
+  {
+    public void Configure(EntityTypeBuilder<WorkOrder> builder)
     {
-        public void Configure(EntityTypeBuilder<WorkOrder> builder)
-        {
-            builder.OwnsOne(e => e.Code, e =>
-            {
-                e.HasIndex(e => e.Value);
-            });
-        }
+      // 配置Id为主键并设置为自增
+      builder.HasKey(e => e.Id);
+      builder.Property(e => e.Id).ValueGeneratedOnAdd();
+
+      builder.OwnsOne(e => e.Code, e =>
+      {
+        e.HasIndex(e => e.Value);
+      });
+
+      // 配置外键关联到BomList
+      builder.HasOne(e => e.BomList)
+             .WithMany()
+             .HasForeignKey(e => e.BomRecipeId)
+             .OnDelete(DeleteBehavior.Cascade);
     }
+  }
 }

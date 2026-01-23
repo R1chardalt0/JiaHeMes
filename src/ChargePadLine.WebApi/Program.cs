@@ -58,21 +58,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-// 定义一个简单的 GET 接口
-app.MapGet("/hello", () =>
-{
-    var data = new
-    {
-        name = "Alice",
-        age = 30,
-        city = "New York",
-        is_student = false,
-        courses = new[] { "Math", "Science" }
-    };
-    return Results.Json(data);
-});
 
-app.UseCors("AllowClient"); // 新增：启用 CORS
+app.UseCors("AllowClient");
 
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
@@ -89,12 +76,13 @@ app.Run();
 void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
 
-    // 添加控制器
+    // 添加控制器，并配置使用Newtonsoft.Json作为JSON序列化器
     services.AddControllers(options =>
     {
         // 注册操作日志 ActionFilter（全局生效）
         options.Filters.Add<ChargePadLine.WebApi.Filters.OperationLogActionFilter>();
-    });
+    })
+    .AddNewtonsoftJson();
     services.AddEndpointsApiExplorer();
     // 豆包AI代理调用需要 HttpClient 工厂
     services.AddHttpClient();

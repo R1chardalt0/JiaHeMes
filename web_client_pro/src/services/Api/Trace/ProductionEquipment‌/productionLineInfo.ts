@@ -6,7 +6,7 @@ import type { productionLine, ProductionLineQueryParams } from '@/services/Model
  * @param params 查询参数
  * @returns 生产线列表
  */
-export async function getProductionLineList(params: ProductionLineQueryParams): Promise<{ data: productionLine[] }> {
+export async function getProductionLineList(params: ProductionLineQueryParams): Promise<{ data: productionLine[]; success?: boolean; total?: number }> {
   return request('/api/ProductionLine/GetProductionLineList', {
     method: 'GET',
     params,

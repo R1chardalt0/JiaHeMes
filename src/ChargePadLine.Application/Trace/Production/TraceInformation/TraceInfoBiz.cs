@@ -153,14 +153,8 @@ namespace ChargePadLine.Application.Trace.Production.TraceInformation
         #region 增加BOM生产子项
         public Task<FSharpResult<CmdArg_TraceInfo_AddBomItem, IErr_追溯信息_增加BOM子项>> MapInputToCmdArgAsync(Input_TraceInfo_AddBomItem input)
         {
-            var query =
-                from pi in this._repo.FindAsync(input.TraceInfoId)
-                    .MapNullableToResult<TraceInfo, IErr_追溯信息_增加BOM子项>(() => new IErr_追溯信息_增加BOM子项.TraceInfoNotFound($"id={input.TraceInfoId}") as IErr_追溯信息_增加BOM子项)
-                from bomRecipeItem in Task.FromResult<BomRecipeItem?>(pi.GetBomRecipeItem(input.BomItemCode))
-                    .MapNullableToResult<BomRecipeItem, IErr_追溯信息_增加BOM子项>(() => new IErr_追溯信息_增加BOM子项.BomItemNotFound(input.BomItemCode) as IErr_追溯信息_增加BOM子项)
-                let consuption = input.Consumption == default ? bomRecipeItem.Quota : input.Consumption
-                select new CmdArg_TraceInfo_AddBomItem(pi, bomRecipeItem, input.SKU, consuption);
-            return query;
+            
+          throw new NotImplementedException();
 
 
 
@@ -263,7 +257,7 @@ namespace ChargePadLine.Application.Trace.Production.TraceInformation
 
                 var traceInfo = cmdSucc.ResultValue.TraceInfo;
                 await this._repo.SaveChangesAsync();
-                
+
                 return traceInfo!.ToOkResult<TraceInfo, IErr_追溯信息_增加PROC子项>();
             });
         }
@@ -289,105 +283,105 @@ namespace ChargePadLine.Application.Trace.Production.TraceInformation
         #region 删除PROC生产子项
         public Task<FSharpResult<CmdArg_TraceInfo_RemoveProcItem, IErr_追溯信息_删除Proc子项>> MapInputToCmdArgAsync(Input_TraceInfo_RemoveProcItem input)
         {
-           var query =
-               from pi in this._repo.FindAsync(input.TraceInfoId)
-                   .MapNullableToResult(() => new IErr_追溯信息_删除Proc子项.TraceInfoNotFound(input.TraceInfoId) as IErr_追溯信息_删除Proc子项)
-               from procItem in GetProcItem(pi, input.ProcItemId)
-               select new CmdArg_TraceInfo_RemoveProcItem(pi, procItem);
-           return query;
+            var query =
+                from pi in this._repo.FindAsync(input.TraceInfoId)
+                    .MapNullableToResult(() => new IErr_追溯信息_删除Proc子项.TraceInfoNotFound(input.TraceInfoId) as IErr_追溯信息_删除Proc子项)
+                from procItem in GetProcItem(pi, input.ProcItemId)
+                select new CmdArg_TraceInfo_RemoveProcItem(pi, procItem);
+            return query;
 
 
-           Task<FSharpResult<TraceProcItem, IErr_追溯信息_删除Proc子项>> GetProcItem(TraceInfo pi, Guid procItemId)
-           {
-               var r = pi.ProcItems?.FirstOrDefault(i => i.Id == procItemId);
-               return Task.FromResult(r).MapNullableToResult<TraceProcItem, IErr_追溯信息_删除Proc子项>(
-                   () => new IErr_追溯信息_删除Proc子项.ProcItemNotFound(procItemId)
-               );
-           }
+            Task<FSharpResult<TraceProcItem, IErr_追溯信息_删除Proc子项>> GetProcItem(TraceInfo pi, Guid procItemId)
+            {
+                var r = pi.ProcItems?.FirstOrDefault(i => i.Id == procItemId);
+                return Task.FromResult(r).MapNullableToResult<TraceProcItem, IErr_追溯信息_删除Proc子项>(
+                    () => new IErr_追溯信息_删除Proc子项.ProcItemNotFound(procItemId)
+                );
+            }
         }
 
         public Task<FSharpResult<TraceInfo, IErr_追溯信息_删除Proc子项>> RemoveProcItemAsync(CmdArg_TraceInfo_RemoveProcItem cmdArg)
         {
-           return Task.Run(async () =>
-           {
-               var cmdSucc = TraceInfoCommands.RemoveProcItem(cmdArg);
-               if (cmdSucc.IsError)
-               {
-                   return FSharpResult<TraceInfo, IErr_追溯信息_删除Proc子项>.NewError(cmdSucc.ErrorValue);
-               }
+            return Task.Run(async () =>
+            {
+                var cmdSucc = TraceInfoCommands.RemoveProcItem(cmdArg);
+                if (cmdSucc.IsError)
+                {
+                    return FSharpResult<TraceInfo, IErr_追溯信息_删除Proc子项>.NewError(cmdSucc.ErrorValue);
+                }
 
-               var traceInfo = cmdSucc.ResultValue.TraceInfo;
-               await this._repo.SaveChangesAsync();
-               
-               return traceInfo!.ToOkResult<TraceInfo, IErr_追溯信息_删除Proc子项>();
-           });
+                var traceInfo = cmdSucc.ResultValue.TraceInfo;
+                await this._repo.SaveChangesAsync();
+
+                return traceInfo!.ToOkResult<TraceInfo, IErr_追溯信息_删除Proc子项>();
+            });
         }
 
         public Task<FSharpResult<TraceInfo, IErr_追溯信息_删除Proc子项>> RemoveProcItemAsync(Input_TraceInfo_RemoveProcItem input)
         {
-           var q =
-               from cmd in this.MapInputToCmdArgAsync(input)
-               from handled in this.RemoveProcItemAsync(cmd)
-               select handled;
-           return q;
+            var q =
+                from cmd in this.MapInputToCmdArgAsync(input)
+                from handled in this.RemoveProcItemAsync(cmd)
+                select handled;
+            return q;
         }
         #endregion
 
         #region 强制OK/NG
         public async Task<FSharpResult<TraceInfo, IErr_追溯信息_强制状态>> 强制OkNgAsync(CmdArg_TraceInfo_ForceOkNg cmdArg, bool save)
         {
-           var pi = TraceInfoCommands.强制OkNg(cmdArg);
-           if (pi.IsOk && save)
-           {
-               await this._repo.SaveChangesAsync();
-           }
-           return pi;
+            var pi = TraceInfoCommands.强制OkNg(cmdArg);
+            if (pi.IsOk && save)
+            {
+                await this._repo.SaveChangesAsync();
+            }
+            return pi;
         }
         public Task<FSharpResult<CmdArg_TraceInfo_ForceOkNg, IErr_追溯信息_强制状态>> MapInputToCmdArgAsyc(Input_TraceInfo_ForceOkNg input)
         {
-           var query =
-               from pi in this._repo.FindAsync(input.TraceInfoId)
-                   .MapNullableToResult<TraceInfo, IErr_追溯信息_强制状态>(() => new IErr_追溯信息_强制状态.TraceInfoNotFound($"id={input.TraceInfoId}") as IErr_追溯信息_强制状态)
-               select new CmdArg_TraceInfo_ForceOkNg(pi, IsNg: input.IsNg, NgReason: input.NgReason);
-           return query;
+            var query =
+                from pi in this._repo.FindAsync(input.TraceInfoId)
+                    .MapNullableToResult<TraceInfo, IErr_追溯信息_强制状态>(() => new IErr_追溯信息_强制状态.TraceInfoNotFound($"id={input.TraceInfoId}") as IErr_追溯信息_强制状态)
+                select new CmdArg_TraceInfo_ForceOkNg(pi, IsNg: input.IsNg, NgReason: input.NgReason);
+            return query;
         }
 
         public Task<FSharpResult<TraceInfo, IErr_追溯信息_强制状态>> 强制OkNgAsync(Input_TraceInfo_ForceOkNg input, bool save)
         {
-           var qry =
-               from cmdArg in this.MapInputToCmdArgAsyc(input)
-               from x in this.强制OkNgAsync(cmdArg, save)
-               select x;
-           return qry;
+            var qry =
+                from cmdArg in this.MapInputToCmdArgAsyc(input)
+                from x in this.强制OkNgAsync(cmdArg, save)
+                select x;
+            return qry;
         }
         #endregion
 
         #region 强制标记是否已经被破坏
         public async Task<FSharpResult<TraceInfo, IErr_追溯信息_强制状态>> 强制破坏Async(CmdArg_TraceInfo_ForceDestroyed cmdArg, bool save)
         {
-           var pi = TraceInfoCommands.强制破坏(cmdArg);
-           if (pi.IsOk && save)
-           {
-               await this._repo.SaveChangesAsync();
-           }
-           return pi;
+            var pi = TraceInfoCommands.强制破坏(cmdArg);
+            if (pi.IsOk && save)
+            {
+                await this._repo.SaveChangesAsync();
+            }
+            return pi;
         }
         public Task<FSharpResult<CmdArg_TraceInfo_ForceDestroyed, IErr_追溯信息_强制状态>> MapInputToCmdArgAsyc(Input_TraceInfo_ForceDestroyed input)
         {
-           var query =
-               from pi in this._repo.FindAsync(input.TraceInfoId)
-                   .MapNullableToResult<TraceInfo, IErr_追溯信息_强制状态>(() => new IErr_追溯信息_强制状态.TraceInfoNotFound($"id={input.TraceInfoId}") as IErr_追溯信息_强制状态)
-               select new CmdArg_TraceInfo_ForceDestroyed(pi, input.Destroyed);
-           return query;
+            var query =
+                from pi in this._repo.FindAsync(input.TraceInfoId)
+                    .MapNullableToResult<TraceInfo, IErr_追溯信息_强制状态>(() => new IErr_追溯信息_强制状态.TraceInfoNotFound($"id={input.TraceInfoId}") as IErr_追溯信息_强制状态)
+                select new CmdArg_TraceInfo_ForceDestroyed(pi, input.Destroyed);
+            return query;
         }
 
         public Task<FSharpResult<TraceInfo, IErr_追溯信息_强制状态>> 强制破坏kNgAsync(Input_TraceInfo_ForceDestroyed input, bool save)
         {
-           var qry =
-               from cmdArg in this.MapInputToCmdArgAsyc(input)
-               from x in this.强制破坏Async(cmdArg, save)
-               select x;
-           return qry;
+            var qry =
+                from cmdArg in this.MapInputToCmdArgAsyc(input)
+                from x in this.强制破坏Async(cmdArg, save)
+                select x;
+            return qry;
         }
         #endregion
     }

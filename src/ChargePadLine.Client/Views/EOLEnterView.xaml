@@ -1,0 +1,169 @@
+﻿<UserControl x:Class="ChargePadLine.Client.Views.EOLEnterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ChargePadLine.Client.Views"
+             xmlns:bar="clr-namespace:ChargePadLine.Client.CustomerControl"
+             xmlns:viewModels="clr-namespace:ChargePadLine.Client.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewModels:EOLEnterViewModel}" d:DesignWidth="800" Height="598">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
+            <bar:TitleBar IconText="&#xe703;" TitleText="{Binding EolStatus, StringFormat='OEOL测试({0})'}" Margin="0,0,0,0" VerticalAlignment="Top"/>
+
+            <!-- EOL测试 - PLC进站 -->
+            <GroupBox Header="　PLC进站" Margin="10,10,10,10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding EolEnterReq}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="进站请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding EolEnterResp}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="进站响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号 (SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding EolEnterSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding EolEnterOk}"
+                        ActiveColor="Green"/>
+                        <TextBlock Text="进站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                          IsActive="{Binding EolEnterNg}"
+                         ActiveColor="Red"/>
+                        <TextBlock Text="进站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- EOL测试 - PLC出站 -->
+            <GroupBox Header="PLC出站" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding EolExitReq}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="出站请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding EolExitResp}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="出站响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding EolExitSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                         IsActive="{Binding EolExitOk}" 
+                         ActiveColor="Green"/>
+                        <TextBlock Text="出站响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+                        IsActive="{Binding EolExitNg}"  
+                        ActiveColor="Red"/>
+                        <TextBlock Text="出站响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- EOL测试 - PLC点检 -->
+            <GroupBox Header="PLC点检" Margin="10" Padding="10" FontWeight="Bold" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+               IsActive="{Binding EolMasterReq}" 
+               ActiveColor="Green"/>
+                        <TextBlock Text="点检请求" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+               IsActive="{Binding EolMasterResp}" 
+               ActiveColor="Green"/>
+                        <TextBlock Text="点检响应" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+
+
+                    <!-- 右列 -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <TextBlock Text="序列号(SN):" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding EolMasterSn}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+               IsActive="{Binding EolMasterOk}" 
+               ActiveColor="Green"/>
+                        <TextBlock Text="点检响应OK" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="20,5,0,5">
+                        <bar:LightSignal Width="20" Height="20" Margin="0,0,8,0" 
+              IsActive="{Binding EolMasterNg}"  
+              ActiveColor="Red"/>
+                        <TextBlock Text="点检响应NG" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

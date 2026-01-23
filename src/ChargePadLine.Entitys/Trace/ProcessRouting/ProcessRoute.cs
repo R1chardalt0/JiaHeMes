@@ -9,41 +9,34 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Entitys.Trace.ProcessRouting
 {
+  /// <summary>
+  /// 工艺路线表
+  /// </summary>
+  [Table("mes_processRoute")]
+  public class ProcessRoute : BaseEntity
+  {
     /// <summary>
-    /// 工艺路线表
+    /// 工艺路线ID
     /// </summary>
-    [Table("mes_processRoute")]
-    public class ProcessRoute : BaseEntity
-    {
-        /// <summary>
-        /// 工艺路线ID
-        /// </summary>
-        [Key]
-        public Guid Id { get; set; }
+    [Key]
+    public Guid Id { get; set; }
 
-        /// <summary>
-        /// 工路线名称
-        /// </summary>
-        public string RouteName { get; set; } = "";
+    /// <summary>
+    /// 工艺路线名称
+    /// </summary>
+    public string RouteName { get; set; } = "";
 
-        /// <summary>
-        /// 工艺版本
-        /// </summary>
-        public string ProcessVersion { get; set; } = "";
+    /// <summary>
+    /// 工艺路线编码
+    /// </summary>
+    public string RouteCode { get; set; } = "";
 
-        /// <summary>
-        /// 产品名称
-        /// </summary>
-        public string ProductName { get; set; } = "";
 
-        /// <summary>
-        /// 状态 0-禁用 1-启用
-        /// </summary>
-        public int Status { get; set; } = 0;
-        [NotMapped]
-        public Dictionary<Guid, RoutingOperation> Nodes { get; set; } = new(); // Key: OperationId
-        [NotMapped]
-        public List<Guid> StartNodes => Nodes.Values.Where(n => !n.Predecessors.Any()).Select(n => n.OperationId).ToList();
+    /// <summary>
+    /// 状态 0-启用 1-关闭
+    /// </summary>
+    public int Status { get; set; } = 0;
 
-    }
+
+  }
 }

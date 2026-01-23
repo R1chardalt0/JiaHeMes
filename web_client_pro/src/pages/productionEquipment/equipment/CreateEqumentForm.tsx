@@ -3,6 +3,8 @@ import { Form, Input, Select, Modal, message, Button } from 'antd';
 import type { DeviceInfo, DeviceInfoFormData } from '@/services/Model/Trace/ProductionEquipment‌/equipmentInfo';
 import { createDeviceInfo, updateDeviceInfo } from '@/services/Api/Trace/ProductionEquipment‌/equipmentInfo';
 import { getProductionLineList } from '@/services/Api/Trace/ProductionEquipment‌/productionLineInfo';
+import { getOrderList } from '@/services/Api/Infrastructure/OrderList';
+import type { OrderList } from '@/services/Model/Infrastructure/OrderList';
 
 const { Option } = Select;
 
@@ -22,14 +24,16 @@ const tailLayout = {
   wrapperCol: { offset: 6, span: 16 },
 };
 
-export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({ 
-  visible, 
-  onCancel, 
-  onSuccess, 
+export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
+  visible,
+  onCancel,
+  onSuccess,
   currentRow,
 }) => {
   const [form] = Form.useForm<DeviceInfoFormData>();
   const [productionLines, setProductionLines] = React.useState<Array<{ productionLineId: string; productionLineName: string }>>([]);
+  const [workOrders, setWorkOrders] = React.useState<OrderList[]>([]);
+  const [workOrderLoading, setWorkOrderLoading] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
   // 加载生产线列表
@@ -57,6 +61,27 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
     }
   }, [visible]);
 
+  // 加载工单列表
+  useEffect(() => {
+    const fetchWorkOrders = async () => {
+      try {
+        setWorkOrderLoading(true);
+        const res = await getOrderList({ current: 1, pageSize: 1000 });
+        if (res.data) {
+          setWorkOrders(res.data);
+        }
+      } catch (error) {
+        message.error('获取工单列表失败');
+      } finally {
+        setWorkOrderLoading(false);
+      }
+    };
+
+    if (visible) {
+      fetchWorkOrders();
+    }
+  }, [visible]);
+
   // 重置表单并根据currentRow设置初始值
   useEffect(() => {
     if (visible) {
@@ -68,10 +93,11 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
           productionLineId: currentRow.productionLineId,
           status: currentRow.status?.toString(),
           description: currentRow.description,
-          avatar: currentRow.avatar,
+          //avatar: currentRow.avatar,
           deviceType: currentRow.deviceType,
-          devicePicture: currentRow.devicePicture,
+          //devicePicture: currentRow.devicePicture,
           deviceManufacturer: currentRow.deviceManufacturer,
+          workOrderCode: currentRow.workOrderCode,
         });
       } else {
         // 新增模式：重置表单
@@ -92,10 +118,11 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
         resourceName: values.deviceName, // 设备名称 -> ResourceName
         resourceType: values.deviceType || '', // 设备类型 -> ResourceType
         resourceManufacturer: values.deviceManufacturer || '', // 设备制造商 -> ResourceManufacturer
-        resourcePicture: values.devicePicture || '', // 设备图片 -> ResourcePicture
-        avatar: values.avatar || '', // 设备头像 -> Avatar
+        resourcePicture: 1, // 设备图片 -> ResourcePicture (设置为null)
+        avatar: 1, // 设备头像 -> Avatar (设置为null)
         status: values.status || '1', // 状态 -> Status
         description: values.description || '', // 描述 -> Description
+        workOrderCode: values.workOrderCode || '', // 工单编码 -> WorkOrderCode
         updateTime: new Date().toISOString(), // 更新时间
       };
 
@@ -253,6 +280,33 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
         </Form.Item>
 
         <Form.Item
+          name="workOrderCode"
+          label="工单编码"
+          rules={[{ required: true, message: '请选择工单编码' }]}
+        >
+          <Select
+            placeholder="请选择工单编码"
+            showSearch
+            filterOption={(input, option) =>
+              (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+            }
+            loading={workOrderLoading}
+            popupClassName="device-edit-modal-dropdown"
+            dropdownStyle={{
+              background: '#ffffff',
+              border: '1px solid #f0f0f0',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+            }}
+          >
+            {workOrders.map((workOrder) => (
+              <Option key={workOrder.orderCode} value={workOrder.orderCode}>
+                {workOrder.orderCode}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        {/* <Form.Item
           name="avatar"
           label="设备头像"
           rules={[{ required: true, message: '请输入设备头像URL' }]}
@@ -266,7 +320,7 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({
           rules={[{ required: true, message: '请输入设备图片URL' }]}
         >
           <Input placeholder="请输入设备图片URL" />
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item
           name="description"

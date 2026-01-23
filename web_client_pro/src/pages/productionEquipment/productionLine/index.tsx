@@ -1,6 +1,7 @@
 import { useRequest } from '@umijs/max';
 import React, { useRef, useState, useEffect } from 'react';
 import { Button, message, Modal, Space, Drawer } from 'antd';
+import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ProTable, ProDescriptions, RequestData, PageContainer } from '@ant-design/pro-components';
 import { PlusOutlined } from '@ant-design/icons';
 import CreateProductionLineForm from './CreateProductionLineForm';
@@ -28,7 +29,7 @@ const ProductionLineManagement: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentSearchParams, setCurrentSearchParams] = useState<ProductionLineQueryParams>({
     current: 1,
-    pageSize: 15
+    pageSize: 10
   });
 
   // 路由切换时清理状态，避免卡顿
@@ -38,14 +39,14 @@ const ProductionLineManagement: React.FC = () => {
     setCurrentRow(undefined);
     setSelectedRows([]);
     setModalVisible(false);
-    
+
     // 延迟重新加载表格数据，避免立即触发导致卡顿
     const timer = setTimeout(() => {
       if (actionRef.current) {
         actionRef.current.reload();
       }
     }, 100);
-    
+
     return () => {
       clearTimeout(timer);
     };
@@ -64,7 +65,7 @@ const ProductionLineManagement: React.FC = () => {
         startTime: params.startTime,
         endTime: params.endTime,
       });
-      
+
       // 转换查询参数，与后端保持一致
       const requestParams = {
         current: Math.max(1, params.current || 1),
@@ -79,17 +80,17 @@ const ProductionLineManagement: React.FC = () => {
       console.log('📤 产线管理 - 发送给后端的参数:', requestParams);
 
       const res = await getProductionLineList(requestParams);
-      
+
       // 调试日志：检查后端返回的数据
       console.log('📥 产线管理 - 后端返回数据:', {
         dataCount: res.data?.length || 0,
       });
-      
+
       // 根据后端返回结构调整数据格式
       return {
         data: res.data || [],
-        success: res ? true : false,
-        total: res?.data?.length || 0,
+        success: res?.success ?? true,
+        total: res?.total || 0,
       };
     } catch (error) {
       console.error('❌ 产线管理 - 获取列表失败:', error);
@@ -180,11 +181,11 @@ const ProductionLineManagement: React.FC = () => {
   // 表单提交处理函数（优化：明确传递编辑状态和ID，避免闭包问题）
   const handleSubmit = async (values: any) => {
     // 不再从路由 companyId 维度做限制：是否需要 companyId 由表单本身/后端数据模型决定
-    
+
     // 判断是编辑还是新增
     const isEdit = !!currentRow?.productionLineId;
     const productionLineId = currentRow?.productionLineId;
-    
+
     // 直接使用CreateProductionLineForm传递的原始数据格式
     // 明确传递编辑状态和ID，避免闭包问题
     await submitRun(
@@ -232,6 +233,8 @@ const ProductionLineManagement: React.FC = () => {
         <Button
           key="edit"
           type="link"
+          size="small"
+          icon={<EditOutlined />}
           onClick={() => {
             setCurrentRow(record);
             setModalVisible(true);
@@ -242,6 +245,8 @@ const ProductionLineManagement: React.FC = () => {
         <Button
           key="delete"
           type="link"
+          size="small"
+          icon={<DeleteOutlined />}
           danger
           onClick={() => {
             Modal.confirm({
@@ -301,219 +306,216 @@ const ProductionLineManagement: React.FC = () => {
     >
       <div className="system-settings-page">
         <ProTable<productionLine>
-        rowKey="productionLineId"
-        actionRef={actionRef}
-        key={'default'}
-        // 合并列配置，添加时间区间搜索字段
-        columns={[
-          ...columns,
-          // 添加时间区间搜索字段
-          {
-            title: '时间区间',
-            key: 'timeRange',
-            dataIndex: 'createdAt',
-            valueType: 'dateTimeRange',
-            hideInTable: true,
-          }
-        ] as any}
-        cardProps={{
-          style: (window as any).__panelStyles?.panelStyle,
-          headStyle: (window as any).__panelStyles?.headStyle,
-          bodyStyle: (window as any).__panelStyles?.bodyStyle,
-          bordered: false,
-          ['data-panel-exempt']: 'true'
-        } as any}
-        request={async (params: ProductionLineQueryParams, sort: Record<string, any>, filter: Record<string, any>) => {
-          try {
-            // 处理时间范围参数
-            const queryParams: ProductionLineQueryParams = {
-              current: Math.max(1, params.current || 1),
-              pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
-              productionLineName: params.productionLineName,
-              productionLineCode: params.productionLineCode, // 添加产线编号搜索参数
-              startTime: params.startTime || (params as any).createdAt?.[0],
-              endTime: params.endTime || (params as any).createdAt?.[1],
-            };
-            
-            // 调试日志：检查查询参数
-            console.log('📊 产线管理 - 查询参数:', {
-              queryParams,
-              pathname: window.location.pathname,
-            });
-            
-            const result = await fetchProductionLineList(queryParams);
-            
-            // 调试日志：检查返回结果
-            console.log('📋 产线管理 - 返回结果:', {
-              dataCount: result.data?.length || 0,
-              total: result.total,
-            });
-            
-            // 确保返回类型符合RequestData格式
-            return result as RequestData<productionLine>;
-          } catch (error) {
-            // 捕获错误，避免路由切换时卡顿
-            console.error('获取产线列表失败:', error);
-            return {
-              data: [],
-              success: false,
-              total: 0,
-            } as RequestData<productionLine>;
-          }
-        }}
-        rowSelection={{ onChange: (_, rows) => setSelectedRows(rows) }}
-        toolBarRender={() => [
-          <Button
-            key="add"
-            type="primary"
-            onClick={() => {
-              setCurrentRow(undefined);
-              setModalVisible(true);
-            }}
-          >
-            <PlusOutlined /> 新增产线
-          </Button>,
-        ]}
-        // 修复搜索配置：使用 search 属性而不是 options.search
-        search={{
-          labelWidth: 'auto',
-          span: {
-            xs: 24,
-            sm: 24,
-            md: 12,
-            lg: 12,
-            xl: 8,
-            xxl: 6,
-          },
-        }}
-        pagination={{
-          pageSize: currentSearchParams.pageSize,
-          pageSizeOptions: ['10', '20', '50', '100'],
-          showSizeChanger: true,
-          showTotal: (total) => `共 ${total} 条数据`,
-          onChange: (current, pageSize) => {
-            setCurrentSearchParams(prev => ({
-              ...prev,
-              current,
-              pageSize
-            }));
-            // 确保立即重新加载数据
-            setTimeout(() => {
-              actionRef.current?.reload();
-            }, 0);
-          },
-          onShowSizeChange: (current, pageSize) => {
-            setCurrentSearchParams(prev => ({
-              ...prev,
-              current: 1,
-              pageSize
-            }));
-            // 确保立即重新加载数据
-            setTimeout(() => {
-              actionRef.current?.reload();
-            }, 0);
-          },
-        }}
-        // 添加 options 配置
-        options={{
-          density: true,
-          fullScreen: true,
-          reload: () => actionRef.current?.reload(),
-          setting: true,
-        }}
-        tableAlertOptionRender={false}
-        tableAlertRender={false}
-      />
+          rowKey="productionLineId"
+          actionRef={actionRef}
+          key={'default'}
+          // 合并列配置，添加时间区间搜索字段
+          columns={[
+            ...columns,
+            // 添加时间区间搜索字段
+            {
+              title: '时间区间',
+              key: 'timeRange',
+              dataIndex: 'createdAt',
+              valueType: 'dateTimeRange',
+              hideInTable: true,
+            }
+          ] as any}
+          cardProps={{
+            style: (window as any).__panelStyles?.panelStyle,
+            headStyle: (window as any).__panelStyles?.headStyle,
+            bodyStyle: (window as any).__panelStyles?.bodyStyle,
+            bordered: false,
+            ['data-panel-exempt']: 'true'
+          } as any}
+          request={async (params: ProductionLineQueryParams, sort: Record<string, any>, filter: Record<string, any>) => {
+            try {
+              // 处理时间范围参数
+              const queryParams: ProductionLineQueryParams = {
+                current: Math.max(1, params.current || 1),
+                pageSize: Math.min(100, Math.max(1, params.pageSize || 10)),
+                productionLineName: params.productionLineName,
+                productionLineCode: params.productionLineCode, // 添加产线编号搜索参数
+                startTime: params.startTime || (params as any).createdAt?.[0],
+                endTime: params.endTime || (params as any).createdAt?.[1],
+              };
 
-      {/* 自定义单一批量操作工具栏（避免ProTable内置Alert双层包裹） */}
-      {selectedRows.length > 0 && (
-        <div
-          style={{
-            ...(window as any).__panelStyles?.panelStyle,
-            padding: '8px 12px',
-            marginTop: 8,
-            borderRadius: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
+              // 调试日志：检查查询参数
+              console.log('📊 产线管理 - 查询参数:', {
+                queryParams,
+                pathname: window.location.pathname,
+              });
+
+              const result = await fetchProductionLineList(queryParams);
+
+              // 调试日志：检查返回结果
+              console.log('📋 产线管理 - 返回结果:', {
+                dataCount: result.data?.length || 0,
+                total: result.total,
+              });
+
+              // 确保返回类型符合RequestData格式
+              return result as RequestData<productionLine>;
+            } catch (error) {
+              // 捕获错误，避免路由切换时卡顿
+              console.error('获取产线列表失败:', error);
+              return {
+                data: [],
+                success: false,
+                total: 0,
+              } as RequestData<productionLine>;
+            }
           }}
-        >
-          <Space size={10} style={{ color: '#E6F7FF', fontWeight: 600 }}>
-            <span>已选择 {selectedRows.length} 项</span>
-          </Space>
-          <Space size={10}>
+          rowSelection={{ onChange: (_, rows) => setSelectedRows(rows) }}
+          toolBarRender={() => [
             <Button
-              type="link"
-              style={{ color: '#91d5ff' }}
+              key="add"
+              type="primary"
               onClick={() => {
-                setSelectedRows([]);
-                if (actionRef.current?.clearSelected) actionRef.current.clearSelected();
+                setCurrentRow(undefined);
+                setModalVisible(true);
               }}
             >
-              取消选择
-            </Button>
-            <Button
-              danger
-              type="primary"
-              loading={deleteLoading}
-              onClick={handleRemove}
-            >
-              批量删除
-            </Button>
-          </Space>
-        </div>
-      )}
+              <PlusOutlined /> 新增产线
+            </Button>,
+          ]}
+          // 修复搜索配置：使用 search 属性而不是 options.search
+          search={{
+            labelWidth: 'auto',
+            span: {
+              xs: 24,
+              sm: 24,
+              md: 12,
+              lg: 12,
+              xl: 8,
+              xxl: 6,
+            },
+          }}
+          pagination={{
+            defaultPageSize: 10,
+            pageSize: currentSearchParams.pageSize,
+            pageSizeOptions: ['10', '20', '50'],
+            showSizeChanger: true,
+            showTotal: (total) => `共 ${total} 条数据`,
+            onChange: (current, pageSize) => {
+              setCurrentSearchParams(prev => ({
+                ...prev,
+                current,
+                pageSize
+              }));
+              // 立即重新加载数据
+              actionRef.current?.reload();
+            },
+            onShowSizeChange: (current, pageSize) => {
+              setCurrentSearchParams(prev => ({
+                ...prev,
+                current: 1,
+                pageSize
+              }));
+              // 立即重新加载数据
+              actionRef.current?.reload();
+            },
+          }}
+          // 添加 options 配置
+          options={{
+            density: true,
+            fullScreen: true,
+            reload: () => actionRef.current?.reload(),
+            setting: true,
+          }}
+          tableAlertOptionRender={false}
+          tableAlertRender={false}
+        />
 
-      {/* 详情抽屉 - 从右侧滑出 */}
-      <Drawer
-        title="产线详情"
-        placement="right"
-        onClose={() => setShowDetail(false)}
-        open={showDetail}
-        width={600}
-        className="production-line-info-drawer"
-        rootClassName="production-line-info-drawer"
-        styles={{
-          content: {
-            background: '#ffffff',
-            borderLeft: '1px solid #f0f0f0',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
-          },
-          header: {
-            background: '#ffffff',
-            borderBottom: '1px solid #f0f0f0'
-          },
-          body: {
-            background: '#ffffff'
-          },
-          mask: {
-            background: 'rgba(0,0,0,0.1)'
-          }
-        }}
-        footer={[
-          <Button key="close" onClick={() => setShowDetail(false)}>
-            关闭
-          </Button>,
-        ]}
-      >
-        {currentRow && (
-          <ProDescriptions<productionLine>
-            column={2}
-            title=""
-            dataSource={currentRow}
-            columns={columns as any}
-          />
+        {/* 自定义单一批量操作工具栏（避免ProTable内置Alert双层包裹） */}
+        {selectedRows.length > 0 && (
+          <div
+            style={{
+              ...(window as any).__panelStyles?.panelStyle,
+              padding: '8px 12px',
+              marginTop: 8,
+              borderRadius: 10,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}
+          >
+            <Space size={10} style={{ color: '#E6F7FF', fontWeight: 600 }}>
+              <span>已选择 {selectedRows.length} 项</span>
+            </Space>
+            <Space size={10}>
+              <Button
+                type="link"
+                style={{ color: '#91d5ff' }}
+                onClick={() => {
+                  setSelectedRows([]);
+                  if (actionRef.current?.clearSelected) actionRef.current.clearSelected();
+                }}
+              >
+                取消选择
+              </Button>
+              <Button
+                danger
+                type="primary"
+                loading={deleteLoading}
+                onClick={handleRemove}
+              >
+                批量删除
+              </Button>
+            </Space>
+          </div>
         )}
-      </Drawer>
 
-      {/* 新增/编辑表单 */}
-      <CreateProductionLineForm
-        open={modalVisible}
-        onOpenChange={setModalVisible}
-        currentRow={currentRow}
-        onFinish={handleSubmit}
-      />
+        {/* 详情抽屉 - 从右侧滑出 */}
+        <Drawer
+          title="产线详情"
+          placement="right"
+          onClose={() => setShowDetail(false)}
+          open={showDetail}
+          width={600}
+          className="production-line-info-drawer"
+          rootClassName="production-line-info-drawer"
+          styles={{
+            content: {
+              background: '#ffffff',
+              borderLeft: '1px solid #f0f0f0',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+            },
+            header: {
+              background: '#ffffff',
+              borderBottom: '1px solid #f0f0f0'
+            },
+            body: {
+              background: '#ffffff'
+            },
+            mask: {
+              background: 'rgba(0,0,0,0.1)'
+            }
+          }}
+          footer={[
+            <Button key="close" onClick={() => setShowDetail(false)}>
+              关闭
+            </Button>,
+          ]}
+        >
+          {currentRow && (
+            <ProDescriptions<productionLine>
+              column={2}
+              title=""
+              dataSource={currentRow}
+              columns={columns as any}
+            />
+          )}
+        </Drawer>
+
+        {/* 新增/编辑表单 */}
+        <CreateProductionLineForm
+          open={modalVisible}
+          onOpenChange={setModalVisible}
+          currentRow={currentRow}
+          onFinish={handleSubmit}
+        />
       </div>
     </PageContainer>
   );

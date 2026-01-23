@@ -7,11 +7,16 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:converters="clr-namespace:DeviceManage.Converters"
              xmlns:customerControl="clr-namespace:DeviceManage.CustomerControl"
+             xmlns:models="clr-namespace:DeviceManage.Models"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="1000">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+        <converters:DataTypeToBoolConverter x:Key="DataTypeToBoolConverter"/>
+        <converters:DataTypeToBoolVisibilityConverter x:Key="DataTypeToBoolVisibilityConverter"/>
+        <converters:DataTypeToInverseBoolVisibilityConverter x:Key="DataTypeToInverseBoolVisibilityConverter"/>
         <converters:TagDetailsConverter x:Key="TagDetailsConverter"/>
     </UserControl.Resources>
 
@@ -113,6 +118,7 @@
                     <Button Content="上一页" 
                             Command="{Binding PageChangedCommand}"
                             CommandParameter="{x:Static sys:Int32.MinValue}"
+                            IsEnabled="{Binding CanGoToPreviousPage}"
                             Style="{StaticResource ButtonDashedInfo}"
                             Margin="0,0,10,0"/>
 
@@ -126,6 +132,7 @@
                     <Button Content="下一页" 
                             Command="{Binding PageChangedCommand}"
                             CommandParameter="{x:Static sys:Int32.MaxValue}"
+                            IsEnabled="{Binding CanGoToNextPage}"
                             Style="{StaticResource ButtonDashedInfo}"/>
                 </StackPanel>
             </Grid>
@@ -316,13 +323,31 @@
                                     <DataGridTemplateColumn.CellEditingTemplate>
                                         <DataTemplate>
                                             <ComboBox ItemsSource="{Binding DataContext.DataTypes.Value, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                      SelectedItem="{Binding DataType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                      SelectedItem="{Binding DataType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                      SelectionChanged="DataTypeComboBox_SelectionChanged"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellEditingTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn Header="值" 
-                                                    Binding="{Binding Value.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                    Width="*"/>
+                                <DataGridTemplateColumn Header="值" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Value.Value}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <!-- 当数据类型为 Bool 时显示 ComboBox -->
+                                                <ComboBox ItemsSource="{Binding DataContext.BoolValueOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                         SelectedItem="{Binding Value.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Visibility="{Binding DataType.Value, Converter={StaticResource DataTypeToBoolVisibilityConverter}}"/>
+                                                <!-- 当数据类型非 Bool 时显示 TextBox -->
+                                                <TextBox Text="{Binding Value.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        Visibility="{Binding DataType.Value, Converter={StaticResource DataTypeToInverseBoolVisibilityConverter}}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="单位" 
                                                     Binding="{Binding Unit.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                                     Width="100"/>

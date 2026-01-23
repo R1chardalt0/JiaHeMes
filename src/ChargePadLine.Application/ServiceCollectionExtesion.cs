@@ -21,32 +21,35 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.Application
 {
-    public static class ServiceCollectionExtesion
+  public static class ServiceCollectionExtesion
+  {
+    public static IServiceCollection AddAppCoreServices(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddAppCoreServices(this IServiceCollection services, IConfiguration configuration)
-        {
-            // 物料批队列服务
-            services.AddScoped<IMaterialBatchQueueItemRepo, MaterialBatchQueueItemRepo>();
-            services.AddScoped<MaterialBatchQueueBiz>();
-         
-            // BOM配方服务
-            services.AddScoped<IBomRecipeRepository, BomRecipeRepository>();
-            services.AddScoped<IMaterialRepository, MaterialRepository>();
-            services.AddScoped<BomRecipeBiz>();
+      // 物料批队列服务
+      services.AddScoped<IMaterialBatchQueueItemRepo, MaterialBatchQueueItemRepo>();
+      services.AddScoped<MaterialBatchQueueBiz>();
 
-            // WorkOrder服务
-            services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
-            services.AddScoped<IWorkOrderExecutionRepository, WorkOrderExecutionRepository>();
-            services.AddScoped<WorkOrderBiz>();
+      // BOM配方服务
+      services.AddScoped<IBomRecipeRepository, BomRecipeRepository>();
+      services.AddScoped<IMaterialRepository, MaterialRepository>();
+      services.AddScoped<BomRecipeBiz>();
 
-            // TraceInfo服务
-            services.AddScoped<ITraceInfoRepository, TraceInfoRepository>();
-            services.AddScoped<TraceInfoBiz>();
+      // WorkOrder服务
+      //services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
+      services.AddScoped<IWorkOrderExecutionRepository, WorkOrderExecutionRepository>();
+      //services.AddScoped<WorkOrderBiz>();
 
-            // VSN控制服务
-            services.AddScoped<ICtrlVsnsService, CtrlVsnsService>();
+      // TraceInfo服务
+      services.AddScoped<ITraceInfoRepository, TraceInfoRepository>();
+      //services.AddScoped<TraceInfoBiz>();
 
-            return services;
-        }
+      // VSN控制服务
+      services.AddScoped<ICtrlVsnsService, CtrlVsnsService>();
+
+
+      services.AddScoped<IStationListService, StationListService>();
+
+      return services;
     }
+  }
 }

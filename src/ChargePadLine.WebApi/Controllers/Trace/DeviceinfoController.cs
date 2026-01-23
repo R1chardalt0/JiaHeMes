@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 
 namespace ChargePadLine.WebApi.Controllers.Trace
 {
-    public class DeviceinfoController : BaseController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class DeviceinfoController : ControllerBase
     {
         private readonly IDeviceInfoService _deviceInfoService;
 
@@ -22,8 +24,8 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// <summary>
         /// 分页查询设备信息列表
         /// </summary>
-        [HttpGet]
-        public async Task<PagedResp<Deviceinfo>> GetDeviceInfoList(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, DateTime? startTime, DateTime? endTime)
+        [HttpGet("GetDeviceInfoList")]
+        public async Task<PagedResp<Deviceinfo>> GetDeviceInfoList(int current, int pageSize, string? deviceName, string? deviceEnCode, string? deviceType, string? productionLineId, string? status, string? workOrderCode, DateTime? startTime, DateTime? endTime)
         {
             try
             {
@@ -39,7 +41,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
                 {
                     pageSize = 100;
                 }
-                var list = await _deviceInfoService.PaginationAsync(current, pageSize, deviceName, deviceEnCode, deviceType, productionLineId, status, startTime, endTime);
+                var list = await _deviceInfoService.PaginationAsync(current, pageSize, deviceName, deviceEnCode, deviceType, productionLineId, status, workOrderCode, startTime, endTime);
                 return RespExtensions.MakePagedSuccess(list);
             }
             catch (Exception ex)
@@ -99,7 +101,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// <summary>
         /// 创建设备信息
         /// </summary>
-        [HttpPost]
+        [HttpPost("CreateDeviceInfo")]
         public async Task<Resp<bool>> CreateDeviceInfo([FromBody] Deviceinfo deviceInfo)
         {
             try
@@ -129,7 +131,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// <summary>
         /// 更新设备信息
         /// </summary>
-        [HttpPost]
+        [HttpPost("UpdateDeviceInfo")]
         public async Task<Resp<bool>> UpdateDeviceInfo([FromBody] Deviceinfo deviceInfo)
         {
             try
@@ -156,7 +158,7 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// <summary>
         /// 批量删除设备信息
         /// </summary>
-        [HttpPost]
+        [HttpPost("DeleteDeviceInfoByIds")]
         public async Task<Resp<bool>> DeleteDeviceInfoByIds([FromBody] List<Guid> deviceIds)
         {
             try
@@ -179,11 +181,11 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 获取所有设备列表
         /// </summary>
         [HttpGet("All")]
-        public async Task<Resp<List<Deviceinfo>>> GetAllDeviceInfos()
+        public async Task<Resp<List<Deviceinfo>>> GetAllDeviceInfos(string? workOrderCode = null)
         {
             try
             {
-                var list = await _deviceInfoService.GetAllDeviceInfos();
+                var list = await _deviceInfoService.GetAllDeviceInfos(workOrderCode);
                 return RespExtensions.MakeSuccess(list);
             }
             catch (Exception ex)
@@ -196,11 +198,11 @@ namespace ChargePadLine.WebApi.Controllers.Trace
         /// 根据生产线ID获取设备列表
         /// </summary>
         [HttpGet("ByProductionLineId/{productionLineId}")]
-        public async Task<Resp<List<Deviceinfo>>> GetDeviceInfosByProductionLineId(Guid productionLineId)
+        public async Task<Resp<List<Deviceinfo>>> GetDeviceInfosByProductionLineId(Guid productionLineId, string? workOrderCode = null)
         {
             try
             {
-                var list = await _deviceInfoService.GetDeviceInfosByProductionLineId(productionLineId);
+                var list = await _deviceInfoService.GetDeviceInfosByProductionLineId(productionLineId, workOrderCode);
                 return RespExtensions.MakeSuccess(list);
             }
             catch (Exception ex)
