@@ -100,17 +100,19 @@
             this.sncode1 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.serialNum = new System.Windows.Forms.TextBox();
-            this.label33 = new System.Windows.Forms.Label();
             this.productCode = new System.Windows.Forms.TextBox();
             this.label34 = new System.Windows.Forms.Label();
+            this.serialNum = new System.Windows.Forms.TextBox();
+            this.label33 = new System.Windows.Forms.Label();
+            this.label35 = new System.Windows.Forms.Label();
+            this.boxCount = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(660, 38);
+            this.button1.Location = new System.Drawing.Point(651, 39);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 0;
@@ -137,7 +139,7 @@
             // 
             // txtManualSN
             // 
-            this.txtManualSN.Location = new System.Drawing.Point(392, 38);
+            this.txtManualSN.Location = new System.Drawing.Point(407, 39);
             this.txtManualSN.Name = "txtManualSN";
             this.txtManualSN.Size = new System.Drawing.Size(238, 21);
             this.txtManualSN.TabIndex = 3;
@@ -766,23 +768,6 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "箱体码规则";
             // 
-            // serialNum
-            // 
-            this.serialNum.Location = new System.Drawing.Point(540, 32);
-            this.serialNum.Name = "serialNum";
-            this.serialNum.Size = new System.Drawing.Size(152, 21);
-            this.serialNum.TabIndex = 63;
-            this.serialNum.Text = "0";
-            // 
-            // label33
-            // 
-            this.label33.AutoSize = true;
-            this.label33.Location = new System.Drawing.Point(475, 38);
-            this.label33.Name = "label33";
-            this.label33.Size = new System.Drawing.Size(59, 12);
-            this.label33.TabIndex = 62;
-            this.label33.Text = "生产序号:";
-            // 
             // productCode
             // 
             this.productCode.Location = new System.Drawing.Point(110, 35);
@@ -800,9 +785,45 @@
             this.label34.TabIndex = 64;
             this.label34.Text = "产品号:";
             // 
+            // serialNum
+            // 
+            this.serialNum.Location = new System.Drawing.Point(540, 32);
+            this.serialNum.Name = "serialNum";
+            this.serialNum.Size = new System.Drawing.Size(152, 21);
+            this.serialNum.TabIndex = 63;
+            this.serialNum.Text = "1";
+            // 
+            // label33
+            // 
+            this.label33.AutoSize = true;
+            this.label33.Location = new System.Drawing.Point(475, 38);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(59, 12);
+            this.label33.TabIndex = 62;
+            this.label33.Text = "生产序号:";
+            // 
+            // label35
+            // 
+            this.label35.AutoSize = true;
+            this.label35.Location = new System.Drawing.Point(339, 70);
+            this.label35.Name = "label35";
+            this.label35.Size = new System.Drawing.Size(59, 12);
+            this.label35.TabIndex = 11;
+            this.label35.Text = "箱体数量:";
+            // 
+            // boxCount
+            // 
+            this.boxCount.Location = new System.Drawing.Point(407, 66);
+            this.boxCount.Name = "boxCount";
+            this.boxCount.Size = new System.Drawing.Size(37, 21);
+            this.boxCount.TabIndex = 10;
+            this.boxCount.Text = "30";
+            // 
             // Main
             // 
             this.ClientSize = new System.Drawing.Size(1590, 748);
+            this.Controls.Add(this.label35);
+            this.Controls.Add(this.boxCount);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnPLCConfig);
@@ -903,5 +924,7 @@
         internal System.Windows.Forms.Label label33;
         private System.Windows.Forms.TextBox productCode;
         internal System.Windows.Forms.Label label34;
+        private System.Windows.Forms.Label label35;
+        private System.Windows.Forms.TextBox boxCount;
     }
 }

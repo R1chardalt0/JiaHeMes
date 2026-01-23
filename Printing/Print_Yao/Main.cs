@@ -22,7 +22,7 @@ namespace FJY_Print
         private CancellationTokenSource _monitoringTokenSource;
         private bool _isPrinting = false;
         private DateTime _currentDate = DateTime.Today;
-        private int _serialNumber = 0;
+        private int _serialNumber = 1;
 
 
         public Main()
@@ -253,14 +253,14 @@ namespace FJY_Print
                             var sn28 = _s7net.ReadString("DB4018.2914", 100);
                             var sn29 = _s7net.ReadString("DB4018.3016", 100);
                             var sn30 = _s7net.ReadString("DB4018.3118", 100);
-                           
-                           
+
+
                             var snList = BuildSnList(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14, sn15, sn16, sn17, sn18, sn19, sn20, sn21, sn22, sn23, sn24, sn25, sn26, sn27, sn28, sn29, sn30);
                             //生成箱标签
                             var boxCode = await GenerateBoxLabelsAsync(snList.Item2);
 
                             //打印条码
-                            await PrintLabelAsync(boxCode);
+                            await PrintLabelAsync(boxCode, snList.Item2);
 
                             //上传数据
                             var requestData = new ReqDto
@@ -313,7 +313,7 @@ namespace FJY_Print
         /// </summary>
         /// <param name="codeCache"></param>
         /// <returns></returns>
-        private async Task PrintLabelAsync(string boxCode)
+        private async Task PrintLabelAsync(string boxCode, int count)
         {
             if (boxCode == null)
             {
@@ -336,11 +336,7 @@ namespace FJY_Print
                         try
                         {
                             format.SubStrings["Boxcode"].Value = boxCode;
-                            //format.SubStrings["CN"].Value = codeCache.CustomerPartNumber;
-                            //format.SubStrings["QU"].Value = codeCache.Quantity;
-                            //format.SubStrings["DF"].Value = codeCache.CreateTime.ToString("yyyy/MM/dd HH:mm:ss");
-                            //format.SubStrings["SH"].Value = codeCache.Shift;
-                            //format.SubStrings["DS"].Value = codeCache.CreateTime.ToString("yyyyMMdd") + codeCache.SerialNumber;
+                            format.SubStrings["Count"].Value = count.ToString();
                             format.PrintSetup.PrinterName = PrinterName;
                             format.PrintSetup.IdenticalCopiesOfLabel = 1;
                             return format.Print();
@@ -381,6 +377,7 @@ namespace FJY_Print
                 }
 
                 AppendLog($"开始手动打印，barcode码: {boxcode}");
+                var count = boxCount.Text.Trim();
 
                 var result = await Task.Run(() =>
                 {
@@ -392,6 +389,7 @@ namespace FJY_Print
                         engine.Start();
                         format = engine.Documents.Open(_selectedLabelPath);
                         format.SubStrings["Boxcode"].Value = boxcode;  // 使用手动输入的SN码
+                        format.SubStrings["Count"].Value = count;
                         format.PrintSetup.PrinterName = PrinterName;
                         format.PrintSetup.IdenticalCopiesOfLabel = 1;
                         var printResult = format.Print();
@@ -597,7 +595,7 @@ namespace FJY_Print
             if (DateTime.Today != _currentDate)
             {
                 _currentDate = DateTime.Today;
-                _serialNumber = 0;
+                _serialNumber = 1;
             }
 
             var serial = serialNum.Text.Trim();
@@ -610,7 +608,7 @@ namespace FJY_Print
             try
             {
                 // 如果是当天第一次使用，从输入值开始
-                if (_serialNumber == 0)
+                if (_serialNumber == 1)
                 {
                     // 尝试解析输入的流水号
                     if (int.TryParse(serial, out int startSerial))
@@ -769,10 +767,10 @@ namespace FJY_Print
                 //生成箱标签
                 var snList = BuildSnList(snValues);
                 var boxCode = await GenerateBoxLabelsAsync(snList.Item2);
-                AppendLog($"生成箱标签:{boxCode}");
+                AppendLog($"生成箱标签:{boxCode},件数：{snList.Item2}");
 
                 //打印条码
-                await PrintLabelAsync(boxCode);
+                await PrintLabelAsync(boxCode, snList.Item2);
                 AppendLog($"打印条码:{boxCode}");
 
                 //上传数据
