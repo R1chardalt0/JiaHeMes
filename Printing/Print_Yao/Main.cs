@@ -267,9 +267,9 @@ namespace FJY_Print
                             {
                                 snList = snList.Item1,
                                 innerBox = boxCode,
-                                resource = "Resource1",
-                                stationCode = "ST001",
-                                workOrderCode = "WO123456"
+                                resource = Config.GetResource(),
+                                stationCode = Config.GetStationCode(),
+                                workOrderCode = Config.GetWorkOrderCode()
                             };
 
                             RespDto response = await UploadPackingAsync(requestData);
@@ -770,7 +770,7 @@ namespace FJY_Print
                 AppendLog($"生成箱标签:{boxCode},件数：{snList.Item2}");
 
                 //打印条码
-                await PrintLabelAsync(boxCode, snList.Item2);
+               // await PrintLabelAsync(boxCode, snList.Item2);
                 AppendLog($"打印条码:{boxCode}");
 
                 //上传数据
@@ -793,9 +793,9 @@ namespace FJY_Print
                 {
                     snList = snList.Item1,
                     innerBox = boxCode,
-                    resource = "Resource1",
-                    stationCode = "ST001",
-                    workOrderCode = "WO123456"
+                    resource = Config.GetResource(),
+                    stationCode = Config.GetStationCode(),
+                    workOrderCode = Config.GetWorkOrderCode()
                 };
                 RespDto response = await UploadPackingAsync(requestData);
                 if (response.code == 0)

@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NJCH_Station 
+namespace NJCH_Station
 {
     class Config
     {
@@ -32,9 +32,35 @@ namespace NJCH_Station
                 // 写入默认IP和端口
                 WritePrivateProfileString("PLC", "IP", "127.0.0.1", Path_Setting);
                 WritePrivateProfileString("PLC", "Port", "502", Path_Setting);
+                //写入站点配置
+                WritePrivateProfileString("StationConfig", "Resource", "W#1112", Path_Setting);
+                WritePrivateProfileString("StationConfig", "StationCode", "OP180", Path_Setting);
+                WritePrivateProfileString("StationConfig", "WorkOrderCode", "work001", Path_Setting);
             }
         }
-        // 新增：读取PLC IP地址
+
+
+        public static string GetResource()
+        {
+            StringBuilder resource = new StringBuilder(255);
+            GetPrivateProfileString("StationConfig", "Resource", "", resource, 255, Path_Setting);
+            return resource.ToString().Trim();
+        }
+
+        public static string GetStationCode()
+        {
+            StringBuilder stationCode = new StringBuilder(255);
+            GetPrivateProfileString("StationConfig", "StationCode", "", stationCode, 255, Path_Setting);
+            return stationCode.ToString().Trim();
+        }
+
+        public static string GetWorkOrderCode()
+        {
+            StringBuilder workOrderCode = new StringBuilder(255);
+            GetPrivateProfileString("StationConfig", "WorkOrderCode", "", workOrderCode, 255, Path_Setting);
+            return workOrderCode.ToString().Trim();
+        }
+
         public static string GetPLCIP()
         {
             StringBuilder ip = new StringBuilder(255);
@@ -42,7 +68,6 @@ namespace NJCH_Station
             return ip.ToString().Trim();
         }
 
-        // 新增：读取PLC端口号（移除硬编码默认值）
         public static int GetPLCPort()
         {
             StringBuilder port = new StringBuilder(255);
@@ -50,13 +75,11 @@ namespace NJCH_Station
             return int.TryParse(port.ToString(), out int result) ? result : 0;
         }
 
-        // 新增：保存PLC IP地址
         public static void SavePLCIP(string ip)
         {
             WritePrivateProfileString("PLC", "IP", ip, Path_Setting);
         }
 
-        // 新增：保存PLC端口号
         public static void SavePLCPort(int port)
         {
             WritePrivateProfileString("PLC", "Port", port.ToString(), Path_Setting);
@@ -87,7 +110,7 @@ namespace NJCH_Station
         public static string ReadValue(string section, string key, string Path)
         {
             StringBuilder temp = new StringBuilder(255);
-          
+
             int i = GetPrivateProfileString(section, key, "", temp, 255, Path);
 
             return temp.ToString();
