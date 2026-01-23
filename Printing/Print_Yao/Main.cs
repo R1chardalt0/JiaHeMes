@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,7 +16,7 @@ namespace FJY_Print
 {
     public partial class Main : Form
     {
-        private const string PrinterName = "ZT411 300DPI";
+        private const string PrinterName = "ZT411 300 (dpi)";
         private const int MonitoringInterval = 500;
         private readonly S7NetConnect _s7net = new S7NetConnect();
         private CancellationTokenSource _monitoringTokenSource;
@@ -25,7 +26,86 @@ namespace FJY_Print
         public Main()
         {
             InitializeComponent();
+            InitializeLabelPathDisplay();
+            InitializeSNTextBoxEvents();
             InitializeAsync();
+        }
+
+        /// <summary>
+        /// 初始化标签路径显示
+        /// </summary>
+        private void InitializeLabelPathDisplay()
+        {
+            UpdateLabelFileDisplay(_selectedLabelPath);
+        }
+
+        /// <summary>
+        /// 初始化SN码文本框回车键事件
+        /// </summary>
+        private void InitializeSNTextBoxEvents()
+        {
+            // 为所有SN码文本框添加回车键事件处理
+            sncode1.KeyDown += SNTextBox_KeyDown;
+            sncode2.KeyDown += SNTextBox_KeyDown;
+            sncode3.KeyDown += SNTextBox_KeyDown;
+            sncode4.KeyDown += SNTextBox_KeyDown;
+            sncode5.KeyDown += SNTextBox_KeyDown;
+            sncode6.KeyDown += SNTextBox_KeyDown;
+            sncode7.KeyDown += SNTextBox_KeyDown;
+            sncode8.KeyDown += SNTextBox_KeyDown;
+            sncode9.KeyDown += SNTextBox_KeyDown;
+            sncode10.KeyDown += SNTextBox_KeyDown;
+            sncode11.KeyDown += SNTextBox_KeyDown;
+            sncode12.KeyDown += SNTextBox_KeyDown;
+        }
+
+        /// <summary>
+        /// SN码文本框回车键事件处理
+        /// </summary>
+        private void SNTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true; // 防止发出系统提示音
+                e.SuppressKeyPress = true;
+                
+                // 根据当前文本框决定下一个文本框
+                TextBox currentTextBox = (TextBox)sender;
+                TextBox nextTextBox = GetNextSNTextBox(currentTextBox);
+                
+                if (nextTextBox != null)
+                {
+                    nextTextBox.Focus();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取下一个SN码文本框
+        /// </summary>
+        private TextBox GetNextSNTextBox(TextBox currentTextBox)
+        {
+            // 根据TabIndex顺序获取下一个文本框
+            // TabIndex顺序: sncode1=1, sncode2=3, sncode3=5, sncode4=7, sncode5=9, sncode6=11, 
+            //                sncode7=13, sncode8=15, sncode9=17, sncode10=19, sncode11=21, sncode12=23
+            
+            switch (currentTextBox.Name)
+            {
+                case "sncode1": return sncode2;
+                case "sncode2": return sncode3;
+                case "sncode3": return sncode4;
+                case "sncode4": return sncode5;
+                case "sncode5": return sncode6;
+                case "sncode6": return sncode7;
+                case "sncode7": return sncode8;
+                case "sncode8": return sncode9;
+                case "sncode9": return sncode10;
+                case "sncode10": return sncode11;
+                case "sncode11": return sncode12;
+                case "sncode12": return null; // 最后一个文本框，没有下一个
+            }
+            
+            return null;
         }
 
         #region PLC连接与监控
@@ -278,14 +358,14 @@ namespace FJY_Print
         {
             try
             {
-                string sn = txtManualSN.Text.Trim();
-                if (string.IsNullOrWhiteSpace(sn))
+                string boxcode = txtManualSN.Text.Trim();
+                if (string.IsNullOrWhiteSpace(boxcode))
                 {
-                    AppendLog("错误: 请输入SN码");
+                    AppendLog("错误: 请输入barcode码");
                     return;
                 }
 
-                AppendLog($"开始手动打印，SN码: {sn}");
+                AppendLog($"开始手动打印，barcode码: {boxcode}");
 
                 var result = await Task.Run(() =>
                 {
@@ -296,7 +376,7 @@ namespace FJY_Print
                         engine = new Engine();
                         engine.Start();
                         format = engine.Documents.Open(_selectedLabelPath);
-                        format.SubStrings["SN"].Value = sn;  // 使用手动输入的SN码
+                        format.SubStrings["Boxcode"].Value = boxcode;  // 使用手动输入的SN码
                         format.PrintSetup.PrinterName = PrinterName;
                         format.PrintSetup.IdenticalCopiesOfLabel = 1;
                         var printResult = format.Print();
@@ -377,7 +457,7 @@ namespace FJY_Print
         #endregion
 
         #region 标签选择与PLC配置
-        private string _selectedLabelPath = @"D:\\Users\\Desktop\\宁波拓普\\printModel.btw";
+        private string _selectedLabelPath = @"E:\\home\\a.btw";
 
         // 新增文件选择事件
         private void btnSelectLabelFile_Click(object sender, EventArgs e)
@@ -482,6 +562,76 @@ namespace FJY_Print
         }
 
         /// <summary>
+        /// 检查SN码是否有重复
+        /// </summary>
+        /// <param name="sn1">SN1</param>
+        /// <param name="sn2">SN2</param>
+        /// <param name="sn3">SN3</param>
+        /// <param name="sn4">SN4</param>
+        /// <param name="sn5">SN5</param>
+        /// <param name="sn6">SN6</param>
+        /// <param name="sn7">SN7</param>
+        /// <param name="sn8">SN8</param>
+        /// <param name="sn9">SN9</param>
+        /// <param name="sn10">SN10</param>
+        /// <param name="sn11">SN11</param>
+        /// <param name="sn12">SN12</param>
+        /// <returns>去重检查结果</returns>
+        private DuplicateCheckResult CheckDuplicateSN(string sn1, string sn2, string sn3, string sn4, string sn5, string sn6,
+            string sn7, string sn8, string sn9, string sn10, string sn11, string sn12)
+        {
+            // 收集所有非空的SN码及其位置
+            var snWithIndex = new List<(string sn, int index)>();
+            var snArray = new[] { sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12 };
+            
+            for (int i = 0; i < snArray.Length; i++)
+            {
+                var sn = snArray[i]?.Trim();
+                if (!string.IsNullOrWhiteSpace(sn))
+                {
+                    snWithIndex.Add((sn, i + 1)); // 位置从1开始（SN1, SN2...）
+                }
+            }
+
+            // 检查重复
+            var duplicateGroups = snWithIndex
+                .GroupBy(x => x.sn)
+                .Where(g => g.Count() > 1)
+                .ToList();
+
+            if (duplicateGroups.Any())
+            {
+                var duplicateMessages = new List<string>();
+                foreach (var group in duplicateGroups)
+                {
+                    var positions = string.Join("、", group.Select(x => $"SN{x.index}"));
+                    duplicateMessages.Add($"SN码 \"{group.Key}\" 在 {positions} 中重复");
+                }
+                
+                return new DuplicateCheckResult
+                {
+                    HasDuplicates = true,
+                    DuplicateMessage = string.Join("\n", duplicateMessages)
+                };
+            }
+
+            return new DuplicateCheckResult
+            {
+                HasDuplicates = false,
+                DuplicateMessage = string.Empty
+            };
+        }
+
+        /// <summary>
+        /// 去重检查结果
+        /// </summary>
+        private class DuplicateCheckResult
+        {
+            public bool HasDuplicates { get; set; }
+            public string DuplicateMessage { get; set; }
+        }
+
+        /// <summary>
         /// 从sn1-sn12中构建SN列表，过滤空值并用逗号连接
         /// </summary>
         /// <param name="sn1">SN1</param>
@@ -517,6 +667,89 @@ namespace FJY_Print
             if (!string.IsNullOrEmpty(sn12?.Trim())) snList.Add(sn12.Trim());
             
             return string.Join(",", snList);
+        }
+
+        private void UploadAndPrint_Click(object sender, EventArgs e)
+        {
+            var sn1=sncode1.Text.Trim();
+            var sn2=sncode2.Text.Trim();
+            var sn3=sncode3.Text.Trim();
+            var sn4=sncode4.Text.Trim();
+            var sn5 = sncode5.Text.Trim();
+            var sn6 = sncode6.Text.Trim();
+            var sn7 = sncode7.Text.Trim();
+            var sn8 = sncode8.Text.Trim();
+            var sn9 = sncode9.Text.Trim();
+            var sn10 = sncode10.Text.Trim();
+            var sn11 = sncode11.Text.Trim();
+            var sn12 = sncode12.Text.Trim();
+            Task.Run(async () =>
+            {
+                //生成箱标签
+                var boxCode = await GenerateBoxLabelsAsync();
+                AppendLog($"生成箱标签:{boxCode}");
+                //打印条码
+                // await PrintLabelAsync(boxCode);
+                AppendLog($"打印条码:{boxCode}");
+                //上传数据
+                var snList = BuildSnList(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12);
+                //判断至少输入一个产品码
+                if (string.IsNullOrWhiteSpace(snList))
+                {
+                    AppendLog("错误: 请至少输入一个产品码");
+                    MessageBox.Show("请至少输入一个产品码！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // 检查是否有重复的SN码
+                var duplicateResult = CheckDuplicateSN(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12);
+                if (duplicateResult.HasDuplicates)
+                {
+                    AppendLog($"错误: 检测到重复的SN码 - {duplicateResult.DuplicateMessage}");
+                    MessageBox.Show($"检测到重复的SN码：\n{duplicateResult.DuplicateMessage}\n\n请修正后重试！", "重复SN码警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                var requestData = new ReqDto
+                {
+                    snList = snList,
+                    innerBox = boxCode,
+                    resource = "Resource1",
+                    stationCode = "ST001",
+                    workOrderCode = "WO123456"
+                };
+                RespDto response = await UploadPackingAsync(requestData);
+                if (response.code == 0)
+                {
+                    AppendLog("上传包装数据成功");
+
+                }
+                else
+                {
+                    AppendLog($"上传包装数据失败: {response.message}");
+                }
+            });
+        }
+        //清空输入框产品码
+        private void ClearingAll_Click(object sender, EventArgs e)
+        {
+            // 清空所有SN码文本框内容
+            sncode1.Clear();
+            sncode2.Clear();
+            sncode3.Clear();
+            sncode4.Clear();
+            sncode5.Clear();
+            sncode6.Clear();
+            sncode7.Clear();
+            sncode8.Clear();
+            sncode9.Clear();
+            sncode10.Clear();
+            sncode11.Clear();
+            sncode12.Clear();
+            
+            // 将焦点设置到第一个文本框
+            sncode1.Focus();
+            
+            AppendLog("已清空所有SN码输入框");
         }
     }
 }
