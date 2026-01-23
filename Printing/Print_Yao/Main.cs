@@ -1,4 +1,5 @@
-﻿using JY_Print;
+﻿using HslCommunication.Profinet.Siemens.S7PlusHelper;
+using JY_Print;
 using JY_Print.model;
 using Newtonsoft.Json;
 using NJCH_Station;
@@ -256,17 +257,37 @@ namespace FJY_Print
 
 
                             var snList = BuildSnList(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14, sn15, sn16, sn17, sn18, sn19, sn20, sn21, sn22, sn23, sn24, sn25, sn26, sn27, sn28, sn29, sn30);
+
+
+                            if (string.IsNullOrWhiteSpace(snList.Item1))
+                            {
+                                AppendLog("错误: 请至少输入一个产品码");
+                                _s7net.Write("DB4010.14.0", true);
+                                _s7net.Write("DB4010.0.7", true);
+                                return;
+                            }
+
+                            // 检查是否有重复的SN码
+                            var duplicateResult = CheckDuplicateSN(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14, sn15, sn16, sn17, sn18, sn19, sn20, sn21, sn22, sn23, sn24, sn25, sn26, sn27, sn28, sn29, sn30);
+                            if (duplicateResult.HasDuplicates)
+                            {
+                                AppendLog($"错误: 检测到重复的SN码 - {duplicateResult.DuplicateMessage}");
+                                _s7net.Write("DB4010.14.0", true);
+                                _s7net.Write("DB4010.0.7", true);
+                                return;
+                            }
+
                             //生成箱标签
                             var boxCode = await GenerateBoxLabelsAsync(snList.Item2);
 
                             //打印条码
-                            await PrintLabelAsync(boxCode, snList.Item2);
+                            await PrintLabelAsync(boxCode.Item1, snList.Item2, boxCode.Item2, boxCode.Item3,boxCode.Item4);
 
                             //上传数据
                             var requestData = new ReqDto
                             {
                                 snList = snList.Item1,
-                                innerBox = boxCode,
+                                innerBox = boxCode.Item1,
                                 resource = "Resource1",
                                 stationCode = "ST001",
                                 workOrderCode = "WO123456"
@@ -313,7 +334,7 @@ namespace FJY_Print
         /// </summary>
         /// <param name="codeCache"></param>
         /// <returns></returns>
-        private async Task PrintLabelAsync(string boxCode, int count)
+        private async Task PrintLabelAsync(string boxCode, int count, string productNum, string createTime, string serialNum)
         {
             if (boxCode == null)
             {
@@ -337,6 +358,9 @@ namespace FJY_Print
                         {
                             format.SubStrings["Boxcode"].Value = boxCode;
                             format.SubStrings["Count"].Value = count.ToString();
+                            format.SubStrings["SerialNum"].Value = serialNum;
+                            format.SubStrings["ProductNum"].Value = productNum;
+                            format.SubStrings["CreateTime"].Value = createTime;
                             format.PrintSetup.PrinterName = PrinterName;
                             format.PrintSetup.IdenticalCopiesOfLabel = 1;
                             return format.Print();
@@ -389,6 +413,9 @@ namespace FJY_Print
                         engine.Start();
                         format = engine.Documents.Open(_selectedLabelPath);
                         format.SubStrings["Boxcode"].Value = boxcode;  // 使用手动输入的SN码
+                        format.SubStrings["ProductNum"].Value = productCode.Text.Trim();
+                        format.SubStrings["CreateTime"].Value = DateTime.Now.ToString("yyyyMMdd");
+                        format.SubStrings["SerialNum"].Value = serialNum.Text.Trim();
                         format.SubStrings["Count"].Value = count;
                         format.PrintSetup.PrinterName = PrinterName;
                         format.PrintSetup.IdenticalCopiesOfLabel = 1;
@@ -571,17 +598,20 @@ namespace FJY_Print
 
         #region 标签生成方法
         /// <summary>
-        /// 生成箱标签
+        ///  生成箱标签
         /// </summary>
-        /// <returns></returns>
-        private async Task<string> GenerateBoxLabelsAsync(int count)
+        /// <param name="count"></param>
+        /// <returns>itme1(boxCode),itme3(productcode),itme3(creteTime),itme4(serialNum)</returns>
+        private async Task<(string, string, string, string)> GenerateBoxLabelsAsync(int count)
         {
             return await Task.Run(() =>
             {
 
                 var productcode = productCode.Text.Trim();
-                var boxCode = productcode + $"{DateTime.Now.ToString("yyyyMMdd")}" + GenerateSerialNumAsyc();
-                return boxCode;
+                var creteTime = DateTime.Now.ToString("yyyyMMdd");
+                var serialNum = GenerateSerialNumAsyc();
+                var boxCode = productcode + creteTime + serialNum;
+                return (boxCode, productcode, creteTime, serialNum);
             });
         }
 
@@ -764,16 +794,9 @@ namespace FJY_Print
 
             Task.Run(async () =>
             {
-                //生成箱标签
+                
                 var snList = BuildSnList(snValues);
-                var boxCode = await GenerateBoxLabelsAsync(snList.Item2);
-                AppendLog($"生成箱标签:{boxCode},件数：{snList.Item2}");
-
-                //打印条码
-                await PrintLabelAsync(boxCode, snList.Item2);
-                AppendLog($"打印条码:{boxCode}");
-
-                //上传数据
+               
                 if (string.IsNullOrWhiteSpace(snList.Item1))
                 {
                     AppendLog("错误: 请至少输入一个产品码");
@@ -789,10 +812,20 @@ namespace FJY_Print
                     MessageBox.Show($"检测到重复的SN码：\n{duplicateResult.DuplicateMessage}\n\n请修正后重试！", "重复SN码警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
+
+                //生成箱标签
+                var boxCode = await GenerateBoxLabelsAsync(snList.Item2);
+                AppendLog($"生成箱标签:{boxCode},件数：{snList.Item2}");
+
+                //打印条码
+                await PrintLabelAsync(boxCode.Item1, snList.Item2, boxCode.Item2, boxCode.Item3, boxCode.Item4);
+                AppendLog($"打印条码:{boxCode}");
+
+                //上传数据
                 var requestData = new ReqDto
                 {
                     snList = snList.Item1,
-                    innerBox = boxCode,
+                    innerBox = boxCode.Item1,
                     resource = "Resource1",
                     stationCode = "ST001",
                     workOrderCode = "WO123456"
