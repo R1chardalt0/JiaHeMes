@@ -26,6 +26,7 @@ namespace FJY_Print
         {
             InitializeComponent();
             InitializeLabelPathDisplay();
+            InitializeSNTextBoxEvents();
             InitializeAsync();
         }
 
@@ -35,6 +36,75 @@ namespace FJY_Print
         private void InitializeLabelPathDisplay()
         {
             UpdateLabelFileDisplay(_selectedLabelPath);
+        }
+
+        /// <summary>
+        /// 初始化SN码文本框回车键事件
+        /// </summary>
+        private void InitializeSNTextBoxEvents()
+        {
+            // 为所有SN码文本框添加回车键事件处理
+            sncode1.KeyDown += SNTextBox_KeyDown;
+            sncode2.KeyDown += SNTextBox_KeyDown;
+            sncode3.KeyDown += SNTextBox_KeyDown;
+            sncode4.KeyDown += SNTextBox_KeyDown;
+            sncode5.KeyDown += SNTextBox_KeyDown;
+            sncode6.KeyDown += SNTextBox_KeyDown;
+            sncode7.KeyDown += SNTextBox_KeyDown;
+            sncode8.KeyDown += SNTextBox_KeyDown;
+            sncode9.KeyDown += SNTextBox_KeyDown;
+            sncode10.KeyDown += SNTextBox_KeyDown;
+            sncode11.KeyDown += SNTextBox_KeyDown;
+            sncode12.KeyDown += SNTextBox_KeyDown;
+        }
+
+        /// <summary>
+        /// SN码文本框回车键事件处理
+        /// </summary>
+        private void SNTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true; // 防止发出系统提示音
+                e.SuppressKeyPress = true;
+                
+                // 根据当前文本框决定下一个文本框
+                TextBox currentTextBox = (TextBox)sender;
+                TextBox nextTextBox = GetNextSNTextBox(currentTextBox);
+                
+                if (nextTextBox != null)
+                {
+                    nextTextBox.Focus();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取下一个SN码文本框
+        /// </summary>
+        private TextBox GetNextSNTextBox(TextBox currentTextBox)
+        {
+            // 根据TabIndex顺序获取下一个文本框
+            // TabIndex顺序: sncode1=1, sncode2=3, sncode3=5, sncode4=7, sncode5=9, sncode6=11, 
+            //                sncode7=13, sncode8=15, sncode9=17, sncode10=19, sncode11=21, sncode12=23
+            
+            switch (currentTextBox.Name)
+            {
+                case "sncode1": return sncode2;
+                case "sncode2": return sncode3;
+                case "sncode3": return sncode4;
+                case "sncode4": return sncode5;
+                case "sncode5": return sncode6;
+                case "sncode6": return sncode7;
+                case "sncode7": return sncode8;
+                case "sncode8": return sncode9;
+                case "sncode9": return sncode10;
+                case "sncode10": return sncode11;
+                case "sncode11": return sncode12;
+                case "sncode12": return null; // 最后一个文本框，没有下一个
+            }
+            
+            return null;
         }
 
         #region PLC连接与监控
@@ -526,6 +596,71 @@ namespace FJY_Print
             if (!string.IsNullOrEmpty(sn12?.Trim())) snList.Add(sn12.Trim());
             
             return string.Join(",", snList);
+        }
+
+        private void UploadAndPrint_Click(object sender, EventArgs e)
+        {
+            var sn1=sncode1.Text.Trim();
+            var sn2=sncode2.Text.Trim();
+            var sn3=sncode3.Text.Trim();
+            var sn4=sncode4.Text.Trim();
+            var sn5 = sncode5.Text.Trim();
+            var sn6 = sncode6.Text.Trim();
+            var sn7 = sncode7.Text.Trim();
+            var sn8 = sncode8.Text.Trim();
+            var sn9 = sncode9.Text.Trim();
+            var sn10 = sncode10.Text.Trim();
+            var sn11 = sncode11.Text.Trim();
+            var sn12 = sncode12.Text.Trim();
+            Task.Run(async () =>
+            {
+                //生成箱标签
+                var boxCode = await GenerateBoxLabelsAsync();
+                //打印条码
+                await PrintLabelAsync(boxCode);
+                //上传数据
+                var snList = BuildSnList(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12);
+                var requestData = new ReqDto
+                {
+                    snList = snList,
+                    innerBox = boxCode,
+                    resource = "Resource1",
+                    stationCode = "ST001",
+                    workOrderCode = "WO123456"
+                };
+                RespDto response = await UploadPackingAsync(requestData);
+                if (response.code == 0)
+                {
+                    AppendLog("上传包装数据成功");
+
+                }
+                else
+                {
+                    AppendLog($"上传包装数据失败: {response.message}");
+                }
+            });
+        }
+
+        private void ClearingAll_Click(object sender, EventArgs e)
+        {
+            // 清空所有SN码文本框内容
+            sncode1.Clear();
+            sncode2.Clear();
+            sncode3.Clear();
+            sncode4.Clear();
+            sncode5.Clear();
+            sncode6.Clear();
+            sncode7.Clear();
+            sncode8.Clear();
+            sncode9.Clear();
+            sncode10.Clear();
+            sncode11.Clear();
+            sncode12.Clear();
+            
+            // 将焦点设置到第一个文本框
+            sncode1.Focus();
+            
+            AppendLog("已清空所有SN码输入框");
         }
     }
 }
