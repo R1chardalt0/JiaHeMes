@@ -21,7 +21,9 @@ namespace FJY_Print
         private readonly S7NetConnect _s7net = new S7NetConnect();
         private CancellationTokenSource _monitoringTokenSource;
         private bool _isPrinting = false;
-        private bool res = false;
+        private DateTime _currentDate = DateTime.Today;
+        private int _serialNumber = 1;
+
 
         public Main()
         {
@@ -44,19 +46,18 @@ namespace FJY_Print
         /// </summary>
         private void InitializeSNTextBoxEvents()
         {
-            // 为所有SN码文本框添加回车键事件处理
-            sncode1.KeyDown += SNTextBox_KeyDown;
-            sncode2.KeyDown += SNTextBox_KeyDown;
-            sncode3.KeyDown += SNTextBox_KeyDown;
-            sncode4.KeyDown += SNTextBox_KeyDown;
-            sncode5.KeyDown += SNTextBox_KeyDown;
-            sncode6.KeyDown += SNTextBox_KeyDown;
-            sncode7.KeyDown += SNTextBox_KeyDown;
-            sncode8.KeyDown += SNTextBox_KeyDown;
-            sncode9.KeyDown += SNTextBox_KeyDown;
-            sncode10.KeyDown += SNTextBox_KeyDown;
-            sncode11.KeyDown += SNTextBox_KeyDown;
-            sncode12.KeyDown += SNTextBox_KeyDown;
+            // 为所有30个SN码文本框添加回车键事件处理
+            for (int i = 1; i <= 30; i++)
+            {
+                string controlName = $"sncode{i}";
+                var textBox = this.GetType().GetField(controlName,
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(this) as TextBox;
+
+                if (textBox != null)
+                {
+                    textBox.KeyDown += SNTextBox_KeyDown;
+                }
+            }
         }
 
         /// <summary>
@@ -68,11 +69,11 @@ namespace FJY_Print
             {
                 e.Handled = true; // 防止发出系统提示音
                 e.SuppressKeyPress = true;
-                
+
                 // 根据当前文本框决定下一个文本框
                 TextBox currentTextBox = (TextBox)sender;
                 TextBox nextTextBox = GetNextSNTextBox(currentTextBox);
-                
+
                 if (nextTextBox != null)
                 {
                     nextTextBox.Focus();
@@ -85,27 +86,23 @@ namespace FJY_Print
         /// </summary>
         private TextBox GetNextSNTextBox(TextBox currentTextBox)
         {
-            // 根据TabIndex顺序获取下一个文本框
-            // TabIndex顺序: sncode1=1, sncode2=3, sncode3=5, sncode4=7, sncode5=9, sncode6=11, 
-            //                sncode7=13, sncode8=15, sncode9=17, sncode10=19, sncode11=21, sncode12=23
-            
-            switch (currentTextBox.Name)
+            // 根据文本框名称获取下一个文本框（支持30个条码）
+            string currentName = currentTextBox.Name;
+            int currentNumber = int.Parse(currentName.Replace("sncode", ""));
+
+            if (currentNumber < 30)
             {
-                case "sncode1": return sncode2;
-                case "sncode2": return sncode3;
-                case "sncode3": return sncode4;
-                case "sncode4": return sncode5;
-                case "sncode5": return sncode6;
-                case "sncode6": return sncode7;
-                case "sncode7": return sncode8;
-                case "sncode8": return sncode9;
-                case "sncode9": return sncode10;
-                case "sncode10": return sncode11;
-                case "sncode11": return sncode12;
-                case "sncode12": return null; // 最后一个文本框，没有下一个
+                int nextNumber = currentNumber + 1;
+                string nextControlName = $"sncode{nextNumber}";
+
+                // 使用反射获取控件
+                var nextControl = this.GetType().GetField(nextControlName,
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(this) as TextBox;
+
+                return nextControl;
             }
-            
-            return null;
+
+            return null; // 最后一个文本框，没有下一个
         }
 
         #region PLC连接与监控
@@ -238,20 +235,38 @@ namespace FJY_Print
                             var sn10 = _s7net.ReadString("DB4018.1078", 100);
                             var sn11 = _s7net.ReadString("DB4018.1180", 100);
                             var sn12 = _s7net.ReadString("DB4018.1282", 100);
+                            var sn13 = _s7net.ReadString("DB4018.1384", 100);
+                            var sn14 = _s7net.ReadString("DB4018.1486", 100);
+                            var sn15 = _s7net.ReadString("DB4018.1588", 100);
+                            var sn16 = _s7net.ReadString("DB4018.1690", 100);
+                            var sn17 = _s7net.ReadString("DB4018.1792", 100);
+                            var sn18 = _s7net.ReadString("DB4018.1894", 100);
+                            var sn19 = _s7net.ReadString("DB4018.1996", 100);
+                            var sn20 = _s7net.ReadString("DB4018.2098", 100);
+                            var sn21 = _s7net.ReadString("DB4018.2200", 100);
+                            var sn22 = _s7net.ReadString("DB4018.2302", 100);
+                            var sn23 = _s7net.ReadString("DB4018.2404", 100);
+                            var sn24 = _s7net.ReadString("DB4018.2506", 100);
+                            var sn25 = _s7net.ReadString("DB4018.2608", 100);
+                            var sn26 = _s7net.ReadString("DB4018.2710", 100);
+                            var sn27 = _s7net.ReadString("DB4018.2812", 100);
+                            var sn28 = _s7net.ReadString("DB4018.2914", 100);
+                            var sn29 = _s7net.ReadString("DB4018.3016", 100);
+                            var sn30 = _s7net.ReadString("DB4018.3118", 100);
 
+
+                            var snList = BuildSnList(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12, sn13, sn14, sn15, sn16, sn17, sn18, sn19, sn20, sn21, sn22, sn23, sn24, sn25, sn26, sn27, sn28, sn29, sn30);
                             //生成箱标签
-                            var boxCode = await GenerateBoxLabelsAsync();
+                            var boxCode = await GenerateBoxLabelsAsync(snList.Item2);
 
                             //打印条码
-                            await PrintLabelAsync(boxCode);
+                            await PrintLabelAsync(boxCode, snList.Item2);
 
                             //上传数据
-                            var snList = BuildSnList(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12);
-                            
                             var requestData = new ReqDto
                             {
-                                snList = snList,
-                                innerBox =boxCode,
+                                snList = snList.Item1,
+                                innerBox = boxCode,
                                 resource = "Resource1",
                                 stationCode = "ST001",
                                 workOrderCode = "WO123456"
@@ -298,7 +313,7 @@ namespace FJY_Print
         /// </summary>
         /// <param name="codeCache"></param>
         /// <returns></returns>
-        private async Task PrintLabelAsync(string boxCode)
+        private async Task PrintLabelAsync(string boxCode, int count)
         {
             if (boxCode == null)
             {
@@ -321,11 +336,7 @@ namespace FJY_Print
                         try
                         {
                             format.SubStrings["Boxcode"].Value = boxCode;
-                            //format.SubStrings["CN"].Value = codeCache.CustomerPartNumber;
-                            //format.SubStrings["QU"].Value = codeCache.Quantity;
-                            //format.SubStrings["DF"].Value = codeCache.CreateTime.ToString("yyyy/MM/dd HH:mm:ss");
-                            //format.SubStrings["SH"].Value = codeCache.Shift;
-                            //format.SubStrings["DS"].Value = codeCache.CreateTime.ToString("yyyyMMdd") + codeCache.SerialNumber;
+                            format.SubStrings["Count"].Value = count.ToString();
                             format.PrintSetup.PrinterName = PrinterName;
                             format.PrintSetup.IdenticalCopiesOfLabel = 1;
                             return format.Print();
@@ -366,6 +377,7 @@ namespace FJY_Print
                 }
 
                 AppendLog($"开始手动打印，barcode码: {boxcode}");
+                var count = boxCount.Text.Trim();
 
                 var result = await Task.Run(() =>
                 {
@@ -377,6 +389,7 @@ namespace FJY_Print
                         engine.Start();
                         format = engine.Documents.Open(_selectedLabelPath);
                         format.SubStrings["Boxcode"].Value = boxcode;  // 使用手动输入的SN码
+                        format.SubStrings["Count"].Value = count;
                         format.PrintSetup.PrinterName = PrinterName;
                         format.PrintSetup.IdenticalCopiesOfLabel = 1;
                         var printResult = format.Print();
@@ -435,7 +448,16 @@ namespace FJY_Print
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            // 显示确认关闭对话框
+            var result = MessageBox.Show(this, "确定要关闭程序吗?", "确认关闭", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.No)
+            {
+                // 如果用户点击"否"，则阻止窗口关闭
+                e.Cancel = true;
+                return;
+            }
 
+            // 用户确认关闭，执行清理操作
             AppendLog("正在关闭窗体，释放资源...");
             _monitoringTokenSource?.Cancel();
             _s7net?.Dispose();
@@ -547,19 +569,91 @@ namespace FJY_Print
             }
         }
 
+        #region 标签生成方法
         /// <summary>
         /// 生成箱标签
         /// </summary>
         /// <returns></returns>
-        private async Task<string> GenerateBoxLabelsAsync()
+        private async Task<string> GenerateBoxLabelsAsync(int count)
         {
             return await Task.Run(() =>
             {
-                // 模拟生成箱标签的过程
-                Thread.Sleep(1000); // 模拟耗时操作
-                return "BOX1234567890"; // 返回生成的箱标签
+
+                var productcode = productCode.Text.Trim();
+                var boxCode = productcode + $"{DateTime.Now.ToString("yyyyMMdd")}" + GenerateSerialNumAsyc();
+                return boxCode;
             });
         }
+
+        /// <summary>
+        /// 生成流水号
+        /// </summary>
+        /// <returns></returns>
+        private string GenerateSerialNumAsyc()
+        {
+            // 检查日期是否需要重置
+            if (DateTime.Today != _currentDate)
+            {
+                _currentDate = DateTime.Today;
+                _serialNumber = 1;
+            }
+
+            var serial = serialNum.Text.Trim();
+            if (string.IsNullOrWhiteSpace(serial))
+            {
+                AppendLog("错误: 流水号为空");
+                return string.Empty;
+            }
+
+            try
+            {
+                // 如果是当天第一次使用，从输入值开始
+                if (_serialNumber == 1)
+                {
+                    // 尝试解析输入的流水号
+                    if (int.TryParse(serial, out int startSerial))
+                    {
+                        _serialNumber = startSerial;
+                    }
+                    else
+                    {
+                        AppendLog("错误: 流水号格式不正确，应为数字");
+                        return string.Empty;
+                    }
+                }
+
+                // 生成当前流水号
+                string currentSerial = _serialNumber.ToString("D4");
+
+                // 递增流水号用于下次调用
+                _serialNumber++;
+
+                // 更新UI中的起始值为下一个流水号
+                UpdateLastsFourInUI(_serialNumber.ToString());
+
+                return currentSerial;
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"生成流水号错误: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        // 更新UI中的末四位起始值
+        private void UpdateLastsFourInUI(string serial)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action)(() => serialNum.Text = serial));
+            }
+            else
+            {
+                serialNum.Text = serial;
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// 检查SN码是否有重复
@@ -577,16 +671,19 @@ namespace FJY_Print
         /// <param name="sn11">SN11</param>
         /// <param name="sn12">SN12</param>
         /// <returns>去重检查结果</returns>
-        private DuplicateCheckResult CheckDuplicateSN(string sn1, string sn2, string sn3, string sn4, string sn5, string sn6,
-            string sn7, string sn8, string sn9, string sn10, string sn11, string sn12)
+        /// <summary>
+        /// 检查SN码是否重复（支持30个条码）
+        /// </summary>
+        /// <param name="snValues">SN码数组</param>
+        /// <returns>去重检查结果</returns>
+        private DuplicateCheckResult CheckDuplicateSN(params string[] snValues)
         {
             // 收集所有非空的SN码及其位置
             var snWithIndex = new List<(string sn, int index)>();
-            var snArray = new[] { sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12 };
-            
-            for (int i = 0; i < snArray.Length; i++)
+
+            for (int i = 0; i < snValues.Length; i++)
             {
-                var sn = snArray[i]?.Trim();
+                var sn = snValues[i]?.Trim();
                 if (!string.IsNullOrWhiteSpace(sn))
                 {
                     snWithIndex.Add((sn, i + 1)); // 位置从1开始（SN1, SN2...）
@@ -607,7 +704,7 @@ namespace FJY_Print
                     var positions = string.Join("、", group.Select(x => $"SN{x.index}"));
                     duplicateMessages.Add($"SN码 \"{group.Key}\" 在 {positions} 中重复");
                 }
-                
+
                 return new DuplicateCheckResult
                 {
                     HasDuplicates = true,
@@ -632,69 +729,52 @@ namespace FJY_Print
         }
 
         /// <summary>
-        /// 从sn1-sn12中构建SN列表，过滤空值并用逗号连接
+        /// 从sn1-sn30中构建SN列表，过滤空值并用逗号连接
         /// </summary>
-        /// <param name="sn1">SN1</param>
-        /// <param name="sn2">SN2</param>
-        /// <param name="sn3">SN3</param>
-        /// <param name="sn4">SN4</param>
-        /// <param name="sn5">SN5</param>
-        /// <param name="sn6">SN6</param>
-        /// <param name="sn7">SN7</param>
-        /// <param name="sn8">SN8</param>
-        /// <param name="sn9">SN9</param>
-        /// <param name="sn10">SN10</param>
-        /// <param name="sn11">SN11</param>
-        /// <param name="sn12">SN12</param>
+        /// <param name="snValues">SN值数组</param>
         /// <returns>非空SN值用逗号连接的字符串</returns>
-        private string BuildSnList(string sn1, string sn2, string sn3, string sn4, string sn5, string sn6,
-            string sn7, string sn8, string sn9, string sn10, string sn11, string sn12)
+        private (string, int) BuildSnList(params string[] snValues)
         {
             var snList = new List<string>();
-            
+
             // 添加非空的SN值
-            if (!string.IsNullOrEmpty(sn1?.Trim())) snList.Add(sn1.Trim());
-            if (!string.IsNullOrEmpty(sn2?.Trim())) snList.Add(sn2.Trim());
-            if (!string.IsNullOrEmpty(sn3?.Trim())) snList.Add(sn3.Trim());
-            if (!string.IsNullOrEmpty(sn4?.Trim())) snList.Add(sn4.Trim());
-            if (!string.IsNullOrEmpty(sn5?.Trim())) snList.Add(sn5.Trim());
-            if (!string.IsNullOrEmpty(sn6?.Trim())) snList.Add(sn6.Trim());
-            if (!string.IsNullOrEmpty(sn7?.Trim())) snList.Add(sn7.Trim());
-            if (!string.IsNullOrEmpty(sn8?.Trim())) snList.Add(sn8.Trim());
-            if (!string.IsNullOrEmpty(sn9?.Trim())) snList.Add(sn9.Trim());
-            if (!string.IsNullOrEmpty(sn10?.Trim())) snList.Add(sn10.Trim());
-            if (!string.IsNullOrEmpty(sn11?.Trim())) snList.Add(sn11.Trim());
-            if (!string.IsNullOrEmpty(sn12?.Trim())) snList.Add(sn12.Trim());
-            
-            return string.Join(",", snList);
+            foreach (var sn in snValues)
+            {
+                if (!string.IsNullOrEmpty(sn?.Trim()))
+                {
+                    snList.Add(sn.Trim());
+                }
+            }
+
+            return (string.Join(",", snList), snList.Count);
         }
 
         private void UploadAndPrint_Click(object sender, EventArgs e)
         {
-            var sn1=sncode1.Text.Trim();
-            var sn2=sncode2.Text.Trim();
-            var sn3=sncode3.Text.Trim();
-            var sn4=sncode4.Text.Trim();
-            var sn5 = sncode5.Text.Trim();
-            var sn6 = sncode6.Text.Trim();
-            var sn7 = sncode7.Text.Trim();
-            var sn8 = sncode8.Text.Trim();
-            var sn9 = sncode9.Text.Trim();
-            var sn10 = sncode10.Text.Trim();
-            var sn11 = sncode11.Text.Trim();
-            var sn12 = sncode12.Text.Trim();
+            // 获取所有30个SN码
+            var snValues = new string[30];
+            for (int i = 1; i <= 30; i++)
+            {
+                string controlName = $"sncode{i}";
+                var textBox = this.GetType().GetField(controlName,
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(this) as TextBox;
+
+                snValues[i - 1] = textBox?.Text?.Trim() ?? string.Empty;
+            }
+
             Task.Run(async () =>
             {
                 //生成箱标签
-                var boxCode = await GenerateBoxLabelsAsync();
-                AppendLog($"生成箱标签:{boxCode}");
+                var snList = BuildSnList(snValues);
+                var boxCode = await GenerateBoxLabelsAsync(snList.Item2);
+                AppendLog($"生成箱标签:{boxCode},件数：{snList.Item2}");
+
                 //打印条码
-                // await PrintLabelAsync(boxCode);
+                await PrintLabelAsync(boxCode, snList.Item2);
                 AppendLog($"打印条码:{boxCode}");
+
                 //上传数据
-                var snList = BuildSnList(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12);
-                //判断至少输入一个产品码
-                if (string.IsNullOrWhiteSpace(snList))
+                if (string.IsNullOrWhiteSpace(snList.Item1))
                 {
                     AppendLog("错误: 请至少输入一个产品码");
                     MessageBox.Show("请至少输入一个产品码！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -702,7 +782,7 @@ namespace FJY_Print
                 }
 
                 // 检查是否有重复的SN码
-                var duplicateResult = CheckDuplicateSN(sn1, sn2, sn3, sn4, sn5, sn6, sn7, sn8, sn9, sn10, sn11, sn12);
+                var duplicateResult = CheckDuplicateSN(snValues);
                 if (duplicateResult.HasDuplicates)
                 {
                     AppendLog($"错误: 检测到重复的SN码 - {duplicateResult.DuplicateMessage}");
@@ -711,7 +791,7 @@ namespace FJY_Print
                 }
                 var requestData = new ReqDto
                 {
-                    snList = snList,
+                    snList = snList.Item1,
                     innerBox = boxCode,
                     resource = "Resource1",
                     stationCode = "ST001",
@@ -729,26 +809,30 @@ namespace FJY_Print
                 }
             });
         }
-        //清空输入框产品码
+
+        /// <summary>
+        /// 清空输入框产品码
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ClearingAll_Click(object sender, EventArgs e)
         {
-            // 清空所有SN码文本框内容
-            sncode1.Clear();
-            sncode2.Clear();
-            sncode3.Clear();
-            sncode4.Clear();
-            sncode5.Clear();
-            sncode6.Clear();
-            sncode7.Clear();
-            sncode8.Clear();
-            sncode9.Clear();
-            sncode10.Clear();
-            sncode11.Clear();
-            sncode12.Clear();
-            
+            // 清空所有30个SN码文本框内容
+            for (int i = 1; i <= 30; i++)
+            {
+                string controlName = $"sncode{i}";
+                var textBox = this.GetType().GetField(controlName,
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(this) as TextBox;
+
+                if (textBox != null)
+                {
+                    textBox.Clear();
+                }
+            }
+
             // 将焦点设置到第一个文本框
             sncode1.Focus();
-            
+
             AppendLog("已清空所有SN码输入框");
         }
     }
