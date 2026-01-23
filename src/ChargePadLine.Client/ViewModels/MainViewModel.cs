@@ -1,4 +1,6 @@
+using HandyControl.Controls;
 using Reactive.Bindings;
+using System.Windows;
 
 namespace ChargePadLine.Client.ViewModels;
 
