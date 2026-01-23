@@ -435,7 +435,16 @@ namespace FJY_Print
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            // 显示确认关闭对话框
+            var result = MessageBox.Show(this, "确定要关闭程序吗?", "确认关闭", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.No)
+            {
+                // 如果用户点击"否"，则阻止窗口关闭
+                e.Cancel = true;
+                return;
+            }
 
+            // 用户确认关闭，执行清理操作
             AppendLog("正在关闭窗体，释放资源...");
             _monitoringTokenSource?.Cancel();
             _s7net?.Dispose();
