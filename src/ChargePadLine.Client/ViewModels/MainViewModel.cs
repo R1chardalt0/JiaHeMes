@@ -93,7 +93,7 @@ public class MainViewModel : ViewModelBase, IDisposable
             // B班: 20:25 ~ 8:25 (跨天)
             return "当班次：B";
         }
-    }
+    }   
 
     public void Dispose()
     {
