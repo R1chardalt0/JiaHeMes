@@ -46,20 +46,20 @@ namespace DeviceManage.ViewModels
         // 编辑对话框
         public ReactiveProperty<bool> IsEditing { get; }
         public ReactiveProperty<bool> IsDialogOpen { get; }
-        
+
         // 表格编辑区（TagDetail 行数据）
         public ReactiveProperty<ObservableCollection<TagDetailRow>> TagDetailRows { get; }
-        
+
         // 点位映射实体搜索条件
         public ReactiveProperty<string> SearchDetailTagName { get; }
         public ReactiveProperty<string> SearchDetailAddress { get; }
-        
+
         // 过滤后的点位映射实体数据（用于表格显示）
         public ReactiveProperty<ObservableCollection<TagDetailRow>> FilteredTagDetailRows { get; }
-        
+
         // DataType 下拉枚举数据源
         public ReactiveProperty<ObservableCollection<DataType>> DataTypes { get; }
-        
+
         // Bool 类型的值选项（true/false）
         public ObservableCollection<string> BoolValueOptions { get; }
 
@@ -76,25 +76,25 @@ namespace DeviceManage.ViewModels
             EditingTag = new ReactiveProperty<Tag>(new Tag());
             PlcDevices = new ReactiveProperty<ObservableCollection<PlcDevice>>(new ObservableCollection<PlcDevice>());
             Recipes = new ReactiveProperty<ObservableCollection<Recipe>>(new ObservableCollection<Recipe>());
-            
+
             SearchTagName = new ReactiveProperty<string>(string.Empty);
             SearchPLCName = new ReactiveProperty<string>(string.Empty);
             SearchRecipeName = new ReactiveProperty<string>(string.Empty);
-            
+
             IsEditing = new ReactiveProperty<bool>(false);
             IsDialogOpen = new ReactiveProperty<bool>(false);
             TagDetailRows = new ReactiveProperty<ObservableCollection<TagDetailRow>>(new ObservableCollection<TagDetailRow>());
             FilteredTagDetailRows = new ReactiveProperty<ObservableCollection<TagDetailRow>>(new ObservableCollection<TagDetailRow>());
             SearchDetailTagName = new ReactiveProperty<string>(string.Empty);
             SearchDetailAddress = new ReactiveProperty<string>(string.Empty);
-            
+
             // 初始化 DataType 枚举列表
             var dataTypes = new ObservableCollection<DataType>(Enum.GetValues(typeof(DataType)).Cast<DataType>());
             DataTypes = new ReactiveProperty<ObservableCollection<DataType>>(dataTypes);
-            
+
             // 初始化 Bool 值选项
             BoolValueOptions = new ObservableCollection<string> { "true", "false" };
-            
+
             // 订阅TagDetailRows变化，自动更新过滤结果（数据变化时自动重新过滤）
             TagDetailRows.Subscribe(_ => ApplyDetailFilter());
 
@@ -231,12 +231,12 @@ namespace DeviceManage.ViewModels
                 };
 
                 var paginatedList = await _tagSvc.GetAllTagsAsync(searchDto);
-                
+
                 // 在 UI 线程上更新 ObservableCollection 和分页信息
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     Tags.Value = new ObservableCollection<Tag>(paginatedList);
-                    
+
                     // 更新分页信息
                     PageListViewModel.Total = paginatedList.TotalCounts;
                     PageListViewModel.TotalPage = paginatedList.TotalPages;
@@ -246,7 +246,7 @@ namespace DeviceManage.ViewModels
             catch (Exception ex)
             {
                 _logger.LogError(ex, "加载点位失败");
-                
+
                 // 错误提示也需要在 UI 线程上显示
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
@@ -274,7 +274,7 @@ namespace DeviceManage.ViewModels
                 Remarks = string.Empty,
                 TagDetailDataArray = new List<TagDetail>()
             };
-            
+
             TagDetailRows.Value = new ObservableCollection<TagDetailRow>();
             SearchDetailTagName.Value = string.Empty;
             SearchDetailAddress.Value = string.Empty;
@@ -321,11 +321,11 @@ namespace DeviceManage.ViewModels
                     (EditingTag.Value.TagDetailDataArray ?? new List<TagDetail>())
                         .Select(d => new TagDetailRow(d))
                 );
-                
+
                 SearchDetailTagName.Value = string.Empty;
                 SearchDetailAddress.Value = string.Empty;
                 ApplyDetailFilter();
-                
+
                 IsEditing.Value = true;
                 IsDialogOpen.Value = true;
             }
@@ -377,11 +377,24 @@ namespace DeviceManage.ViewModels
                     }
                 }
 
+                // 检查 PlcDeviceId 和 RecipeId 组合是否已存在（仅对新增操作）
+                if (entity.Id == 0)
+                {
+                    var existingTag = await _tagSvc.GetAllTagsAsync();
+                    var duplicateCombination = existingTag.FirstOrDefault(t => t.PlcDeviceId == entity.PlcDeviceId && t.RecipeId == entity.RecipeId);
+
+                    if (duplicateCombination != null)
+                    {
+                        MessageBox.Show($"当前 PLC 设备和配方组合已存在（点位组 ID={duplicateCombination.Id}，名称: {duplicateCombination.PlcTagName}），无需重新添加", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+
                 // 从 TagDetailRows 转换为 TagDetailDataArray
                 var rows = TagDetailRows.Value ?? new ObservableCollection<TagDetailRow>();
-                var validRows = rows.Where(r => 
-                    r != null && 
-                    !string.IsNullOrWhiteSpace(r.TagName.Value) && 
+                var validRows = rows.Where(r =>
+                    r != null &&
+                    !string.IsNullOrWhiteSpace(r.TagName.Value) &&
                     !string.IsNullOrWhiteSpace(r.Address.Value)
                 ).ToList();
 
@@ -397,7 +410,7 @@ namespace DeviceManage.ViewModels
                     .Where(g => g.Count() > 1)
                     .Select(g => g.Key)
                     .ToList();
-                
+
                 if (duplicateAddresses.Any())
                 {
                     MessageBox.Show($"Address 不能重复：{string.Join(", ", duplicateAddresses)}", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -422,14 +435,14 @@ namespace DeviceManage.ViewModels
                 {
                     var updatedTag = await _tagSvc.UpdateTagAsync(entity);
                     MessageBox.Show("更新成功！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
-                    
+
                     // 编辑后，只更新列表中的对应项，保持数据在原位置
                     var existingTag = Tags.Value.FirstOrDefault(t => t.Id == updatedTag.Id);
                     if (existingTag != null)
                     {
                         // 保存原位置
                         var index = Tags.Value.IndexOf(existingTag);
-                        
+
                         // 创建新对象，复制所有更新后的属性
                         var updatedTagInList = new Tag
                         {
@@ -444,10 +457,10 @@ namespace DeviceManage.ViewModels
                             CreatedAt = updatedTag.CreatedAt,
                             UpdatedAt = updatedTag.UpdatedAt
                         };
-                        
+
                         // 替换列表中的对象，触发 ObservableCollection 的更新通知
                         Tags.Value[index] = updatedTagInList;
-                        
+
                         // 保持选中状态
                         SelectedTag.Value = updatedTagInList;
                     }
@@ -457,7 +470,7 @@ namespace DeviceManage.ViewModels
                         await LoadAsync();
                     }
                 }
-                
+
                 Close();
             }
             catch (Exception ex)
@@ -478,13 +491,13 @@ namespace DeviceManage.ViewModels
         private async Task DeleteAsync(Tag tag)
         {
             if (tag == null) return;
-            
+
             var result = MessageBox.Show(
                 $"确定删除点位组 ID={tag.Id} (名称: {tag.PlcTagName}) 吗？",
                 "确认删除",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
-            
+
             if (result != MessageBoxResult.Yes) return;
 
             try
@@ -505,7 +518,7 @@ namespace DeviceManage.ViewModels
         private void AddDetailRow()
         {
             var newRow = new TagDetailRow();
-            
+
             // 检查地址是否唯一（当用户输入地址时）
             // 由于新行地址为空，这里暂时不检查，在保存时已检查
             // 但如果用户输入地址后需要实时检查，可以在Address.Value的PropertyChanged中处理
