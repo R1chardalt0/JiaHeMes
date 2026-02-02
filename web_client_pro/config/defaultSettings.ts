@@ -15,9 +15,9 @@ const Settings: ProLayoutProps & {
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  // title: '',//精研科技 | 博研IOT管理系统 - 已通过CSS隐藏
+  title: '产线MES管理系统',//精研科技 | 博研IOT管理系统 - 已通过CSS隐藏
   pwa: true,
-  // logo: undefined, // 已通过CSS隐藏
+  logo: '/icons/128x128.ico',
   iconfontUrl: '',
   token: {
     // 参见ts声明，demo 见文档，通过token 修改样式
