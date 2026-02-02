@@ -59,6 +59,11 @@ namespace DeviceManage.Services.DeviceMagService.Impl
             return list;
         }
 
+        public async Task<List<Tag>> GetAllTagsAsync()
+        {
+            return await _repo.GetListAsync();
+        }
+
         public async Task<Tag?> GetTagByIdAsync(int id)
         {
             return await _db.Tags
