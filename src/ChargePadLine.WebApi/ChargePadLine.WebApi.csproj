@@ -41,7 +41,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\Response\" />
+    <Compile Remove="Controllers\Response\**" />
+    <Content Remove="Controllers\Response\**" />
+    <EmbeddedResource Remove="Controllers\Response\**" />
+    <None Remove="Controllers\Response\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
