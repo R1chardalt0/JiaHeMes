@@ -455,6 +455,13 @@ namespace ChargePadLine.Client.Helpers
                 string cleanedValue = Regex.Replace(value, @"[\u0000-\u001F]", "");
                 cleanedValue = Regex.Unescape(cleanedValue);
                 cleanedValue = cleanedValue.Trim();
+
+                // 如果第一个字符是多余的 'd'，去掉它
+                if (!string.IsNullOrEmpty(cleanedValue) && cleanedValue[0] == 'd')
+                {
+                    cleanedValue = cleanedValue.Substring(1);
+                }
+
                 return cleanedValue;
             }
             catch (Exception ex)

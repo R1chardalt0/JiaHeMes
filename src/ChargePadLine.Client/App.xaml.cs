@@ -261,8 +261,18 @@ public partial class App : Application
         var hostedServices = scope.ServiceProvider.GetServices<IHostedService>().ToList();
         foreach (var hostedService in hostedServices)
         {
-            // 同步等待启动完成，避免启动阶段异常被吞掉
-            hostedService.StartAsync(CancellationToken.None).GetAwaiter().GetResult();
+            // 在后台线程异步启动 HostedService，避免阻塞 UI 线程
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await hostedService.StartAsync(CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"启动 HostedService 时发生错误: {hostedService.GetType().Name}, {ex.Message}");
+                }
+            });
         }
     }
 
