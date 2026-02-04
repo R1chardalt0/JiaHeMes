@@ -37,11 +37,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
             {
                 string statusMessage = "";
                 //plc状态读取
-                var malfunction = s7Net.ReadBool("DB4020.4.0").Content;//设备故障
-                var auto = s7Net.ReadBool("DB4020.4.1").Content;//自动模式
-                var idle = s7Net.ReadBool("DB4020.4.2").Content;//设备空闲
-                var manual = s7Net.ReadBool("DB4020.4.3").Content;//手动模式
-                var check = s7Net.ReadBool("DB4020.4.4").Content;//审核模式
+                var malfunction = s7Net.ReadBool("DB5010.4.0").Content;//设备故障
+                var auto = s7Net.ReadBool("DB5010.4.1").Content;//自动模式
+                var idle = s7Net.ReadBool("DB5010.4.2").Content;//设备空闲
+                var manual = s7Net.ReadBool("DB5010.4.3").Content;//手动模式
+                var check = s7Net.ReadBool("DB5010.4.4").Content;//审核模式
 
                 if (malfunction) statusMessage = "设备故障";
                 else if (auto) statusMessage = "自动模式";
@@ -50,11 +50,11 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                 else if (check) statusMessage = "审核模式";
                 else statusMessage = "无状态";
 
-                var req = s7Net.ReadBool("DB4020.6.0").Content;
-                var resp = s7Net.ReadBool("DB4020.10.0").Content;
-                var enterok = s7Net.ReadBool("DB4020.2.0").Content;//进站OK
-                var enterng = s7Net.ReadBool("DB4020.2.1").Content;//进站NG
-                var sn = s7Net.ReadString("DB4023.66", 100);
+                var req = s7Net.ReadBool("DB5010.6.0").Content;
+                var resp = s7Net.ReadBool("DB5010.10.0").Content;
+                var enterok = s7Net.ReadBool("DB5010.2.0").Content;//进站OK
+                var enterng = s7Net.ReadBool("DB5010.2.1").Content;//进站NG
+                var sn = s7Net.ReadString("DB5013.66", 100);
 
                 // 更新数据服务
                 _routingEnterModel.UpdateData(req, resp, sn, enterok, enterng, statusMessage);
@@ -73,23 +73,23 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                     var res = await _mesApi.UploadCheck(reqParam);
                     if (res.code == 0)
                     {
-                        s7Net.Write("DB4020.10.0", true);
-                        s7Net.Write("DB4020.2.0", true);
+                        s7Net.Write("DB5010.10.0", true);
+                        s7Net.Write("DB5010.2.0", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验成功");
                     }
                     else
                     {
-                        s7Net.Write("DB4020.10.0", true);
-                        s7Net.Write("DB4020.2.1", true);
+                        s7Net.Write("DB5010.10.0", true);
+                        s7Net.Write("DB5010.2.1", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验校验失败，mes返回:{res.message}");
                     }
 
                 }
                 else if (!req && resp)
                 {
-                    s7Net.Write("DB4020.10.0", false);
-                    s7Net.Write("DB4020.2.0", false);
-                    s7Net.Write("DB4020.2.1", false);
+                    s7Net.Write("DB5010.10.0", false);
+                    s7Net.Write("DB5010.2.0", false);
+                    s7Net.Write("DB5010.2.1", false);
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求复位");
                 }
                 await Task.CompletedTask;

@@ -36,11 +36,11 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
         {
             try
             {
-                var req = s7Net.ReadBool("DB4020.7.0").Content;
-                var resp = s7Net.ReadBool("DB4020.14.0").Content;
-                var enterok = s7Net.ReadBool("DB4020.3.0").Content;
-                var enterng = s7Net.ReadBool("DB4020.3.1").Content;
-                var sn = s7Net.ReadString("DB4023.66", 100);
+                var req = s7Net.ReadBool("DB5010.7.0").Content;
+                var resp = s7Net.ReadBool("DB5010.14.0").Content;
+                var enterok = s7Net.ReadBool("DB5010.3.0").Content;
+                var enterng = s7Net.ReadBool("DB5010.3.1").Content;
+                var sn = s7Net.ReadString("DB5013.66", 100);
 
                 // 更新数据服务
                 _masterModel.UpdateData(req, resp, sn, enterok, enterng);
@@ -49,34 +49,34 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
                 {
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}点检请求收到");
 
-                    var param1 = s7Net.ReadFloat("DB4025.66").Content;
-                    var upper1 = s7Net.ReadFloat("DB4022.92").Content;
-                    var lower1 = s7Net.ReadFloat("DB4022.96").Content;
+                    var param1 = s7Net.ReadFloat("DB5015.66").Content;
+                    var upper1 = s7Net.ReadFloat("DB5012.92").Content;
+                    var lower1 = s7Net.ReadFloat("DB5012.96").Content;
                     var param1Result = (param1 <= upper1 && param1 >= lower1) ? "PASS" : "FAIL";
 
-                    var param2 = s7Net.ReadFloat("DB4025.70").Content;
-                    var upper2 = s7Net.ReadFloat("DB4022.100").Content;
-                    var lower2 = s7Net.ReadFloat("DB4022.104").Content;
+                    var param2 = s7Net.ReadFloat("DB5015.70").Content;
+                    var upper2 = s7Net.ReadFloat("DB5012.100").Content;
+                    var lower2 = s7Net.ReadFloat("DB5012.104").Content;
                     var param2Result = (param2 <= upper2 && param2 >= lower2) ? "PASS" : "FAIL";
 
-                    var param3 = s7Net.ReadFloat("DB4025.74").Content;
-                    var upper3 = s7Net.ReadFloat("DB4022.108").Content;
-                    var lower3 = s7Net.ReadFloat("DB4022.112").Content;
+                    var param3 = s7Net.ReadFloat("DB5015.74").Content;
+                    var upper3 = s7Net.ReadFloat("DB5012.108").Content;
+                    var lower3 = s7Net.ReadFloat("DB5012.112").Content;
                     var param3Result = (param3 <= upper3 && param3 >= lower3) ? "PASS" : "FAIL";
 
-                    var param4 = s7Net.ReadFloat("DB4025.78").Content;
-                    var upper4 = s7Net.ReadFloat("DB4022.116").Content;
-                    var lower4 = s7Net.ReadFloat("DB4022.120").Content;
+                    var param4 = s7Net.ReadFloat("DB5015.78").Content;
+                    var upper4 = s7Net.ReadFloat("DB5012.116").Content;
+                    var lower4 = s7Net.ReadFloat("DB5012.120").Content;
                     var param4Result = (param4 <= upper4 && param4 >= lower4) ? "PASS" : "FAIL";
 
-                    var param5 = s7Net.ReadFloat("DB4025.82").Content;
-                    var upper5 = s7Net.ReadFloat("DB4022.124").Content;
-                    var lower5 = s7Net.ReadFloat("DB4022.128").Content;
+                    var param5 = s7Net.ReadFloat("DB5015.82").Content;
+                    var upper5 = s7Net.ReadFloat("DB5012.124").Content;
+                    var lower5 = s7Net.ReadFloat("DB5012.128").Content;
                     var param5Result = (param5 <= upper5 && param5 >= lower5) ? "PASS" : "FAIL";
 
-                    var param6 = s7Net.ReadFloat("DB4025.86").Content;
-                    var upper6 = s7Net.ReadFloat("DB4022.132").Content;
-                    var lower6 = s7Net.ReadFloat("DB4022.136").Content;
+                    var param6 = s7Net.ReadFloat("DB5015.86").Content;
+                    var upper6 = s7Net.ReadFloat("DB5012.132").Content;
+                    var lower6 = s7Net.ReadFloat("DB5012.136").Content;
                     var param6Result = (param6 <= upper6 && param6 >= lower6) ? "PASS" : "FAIL";
 
                     //总结果
@@ -84,8 +84,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
                         && param4Result == "PASS" && param5Result == "PASS" && param6Result == "PASS") ? "PASS" : "FAIL";
 
                     string IsOK = "";
-                    var OKRes = s7Net.ReadInt32("DB4015.66").Content;
-                    var NGRes = s7Net.ReadInt32("DB4015.70").Content;
+                    var OKRes = s7Net.ReadInt32("DB5015.66").Content;
+                    var NGRes = s7Net.ReadInt32("DB5015.70").Content;
                     if (OKRes != 0 && NGRes == 0)
                     {
                         IsOK = "PASS";
@@ -101,8 +101,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
 
                     if (IsOK != paramResultTotal)
                     {
-                        s7Net.Write("DB4010.14.0", true);
-                        s7Net.Write("DB4010.3.1", true);
+                        s7Net.Write("DB5010.14.0", true);
+                        s7Net.Write("DB5010.3.1", true);
                         await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
                         return;
                     }
@@ -173,22 +173,22 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
                     var res = await _mesApi.UploadMaster(reqParam);
                     if (res.code == 0)
                     {
-                        s7Net.Write("DB4020.14.0", true);
-                        s7Net.Write("DB4020.3.0", true);
+                        s7Net.Write("DB5010.14.0", true);
+                        s7Net.Write("DB5010.3.0", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}点检收集完成");
                     }
                     else
                     {
-                        s7Net.Write("DB4020.14.0", true);
-                        s7Net.Write("DB4020.3.1", true);
+                        s7Net.Write("DB5010.14.0", true);
+                        s7Net.Write("DB5010.3.1", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}点检收集失败，mes返回:{res.message}");
                     }
                 }
                 else if (!req && resp)
                 {
-                    s7Net.Write("DB4020.14.0", false);
-                    s7Net.Write("DB4020.3.0", false);
-                    s7Net.Write("DB4020.3.1", false);
+                    s7Net.Write("DB5010.14.0", false);
+                    s7Net.Write("DB5010.3.0", false);
+                    s7Net.Write("DB5010.3.1", false);
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}点检请求复位");
                 }
 
