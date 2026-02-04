@@ -39,11 +39,21 @@ namespace ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配
             {
                 string statusMessage = "";
                 //plc状态读取
-                var malfunction = s7Net.ReadBool("DB4010.4.0").Content;//设备故障
-                var auto = s7Net.ReadBool("DB4010.4.1").Content;//自动模式
-                var idle = s7Net.ReadBool("DB4010.4.2").Content;//设备空闲
-                var manual = s7Net.ReadBool("DB4010.4.3").Content;//手动模式
-                var check = s7Net.ReadBool("DB4010.4.4").Content;//审核模式
+                var stationStatus = s7Net.ReadByte("DB4010.4").Content;//设备故障
+
+                bool[] bitStatus = new bool[8];
+                for (int i = 0; i < 8; i++)
+                {
+                    // 右移i位，然后与1进行与操作
+                    bitStatus[i] = ((stationStatus >> i) & 1) == 1;
+
+                    Console.WriteLine($"位 {i} 的状态: {bitStatus[i]}");
+                }
+                var malfunction = (stationStatus & 0x01) == 0x01;//设备故障
+                var auto = (stationStatus & 0x02) == 0x02;//自动模式
+                var idle = (stationStatus & 0x04) == 0x04;//设备空闲
+                var manual = (stationStatus & 0x08) == 0x08; //手动模式
+                var check = (stationStatus & 0x10) == 0x10;//审核模式
 
                 if (malfunction) statusMessage = "设备故障";
                 else if (auto) statusMessage = "自动模式";
