@@ -28,7 +28,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc4
             IOptions<PlcConfig> config,
             ILogger<Plc4HostService> logger,
             ILogService logService,
-            干区气密EnterMiddleWare 干区气密测试Enter,       
+            干区气密EnterMiddleWare 干区气密测试Enter,
             干区气密ExitMiddleWare 干区气密测试Exit,
             干区气密MasterMiddleWare 干区气密测试Master,
             后盖超声波焊接EnterMiddleWare 后盖超声波焊接Enter,
@@ -88,27 +88,41 @@ namespace ChargePadLine.Client.Services.PlcService.Plc4
                 return;
             }
 
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                try
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    foreach (var task in _tasks)
+                    try
                     {
-                        await task.ExecuteOnceAsync(_s7Net, stoppingToken);
+                        foreach (var task in _tasks)
+                        {
+                            await task.ExecuteOnceAsync(_s7Net, stoppingToken);
+                        }
+                        await Task.Delay(_plcConfig.Plc4.ScanInterval, stoppingToken);
                     }
-                    await Task.Delay(_plcConfig.Plc4.ScanInterval, stoppingToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    await _logService.RecordLogAsync(LogLevel.Error, $"PLC4 后台监控任务异常: {ex.Message}");
-                    await Task.Delay(1000, stoppingToken);
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        await _logService.RecordLogAsync(LogLevel.Error, $"PLC4 后台监控任务异常: {ex.Message}");
+                        await Task.Delay(1000, stoppingToken);
+                    }
                 }
             }
-            await _logService.RecordLogAsync(LogLevel.Information, "PLC4 后台监控任务已停止。");
+            finally
+            {
+                // 确保在服务停止时释放连接资源
+                await _logService.RecordLogAsync(LogLevel.Information, "PLC4 后台监控任务正在停止，释放资源...");
+                _s7Net?.Dispose();
+                await _logService.RecordLogAsync(LogLevel.Information, "PLC4 后台监控任务已停止。");
+            }
+        }
+
+        public void Dispose()
+        {
+            _s7Net?.Dispose();
         }
     }
 }

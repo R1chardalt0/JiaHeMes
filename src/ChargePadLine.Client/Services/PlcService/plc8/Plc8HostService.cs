@@ -4,6 +4,7 @@ using ChargePadLine.Client.Services.PlcService.Plc1;
 using ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板装配;
 using ChargePadLine.Client.Services.PlcService.Plc1.定子检测;
 using ChargePadLine.Client.Services.PlcService.plc8.旋融焊;
+using HslCommunication.Profinet.LSIS;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -81,27 +82,41 @@ namespace ChargePadLine.Client.Services.PlcService.Plc8
                 return;
             }
 
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                try
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    foreach (var task in _tasks)
+                    try
                     {
-                        await task.ExecuteOnceAsync(_modbus, stoppingToken);
+                        foreach (var task in _tasks)
+                        {
+                            await task.ExecuteOnceAsync(_modbus, stoppingToken);
+                        }
+                        await Task.Delay(_plcConfig.Plc8.ScanInterval, stoppingToken);
                     }
-                    await Task.Delay(_plcConfig.Plc8.ScanInterval, stoppingToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    await _logService.RecordLogAsync(LogLevel.Error, $"PLC8 后台监控任务异常: {ex.Message}");
-                    await Task.Delay(1000, stoppingToken);
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        await _logService.RecordLogAsync(LogLevel.Error, $"PLC8 后台监控任务异常: {ex.Message}");
+                        await Task.Delay(1000, stoppingToken);
+                    }
                 }
             }
-            await _logService.RecordLogAsync(LogLevel.Information, "PLC8 后台监控任务已停止。");
+            finally
+            {
+                // 确保在服务停止时释放连接资源
+                await _logService.RecordLogAsync(LogLevel.Information, "PLC8 后台监控任务正在停止，释放资源...");
+                _modbus?.Dispose();
+                await _logService.RecordLogAsync(LogLevel.Information, "PLC8 后台监控任务已停止。");
+            }
+        }
+
+        public void Dispose()
+        {
+            _modbus?.Dispose();
         }
     }
 }

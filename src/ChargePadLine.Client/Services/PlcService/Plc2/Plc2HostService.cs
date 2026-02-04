@@ -1,4 +1,4 @@
-﻿using ChargePadLine.Client.Controls;
+using ChargePadLine.Client.Controls;
 using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.PlcService.Plc2.导热胶涂敷;
 using ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试;
@@ -81,27 +81,42 @@ namespace ChargePadLine.Client.Services.PlcService.Plc2
                 return;
             }
 
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                try
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    foreach (var task in _tasks)
+                    try
                     {
-                        await task.ExecuteOnceAsync(_s7Net, stoppingToken);
+                        foreach (var task in _tasks)
+                        {
+                            await task.ExecuteOnceAsync(_s7Net, stoppingToken);
+                        }
+                        await Task.Delay(_plcConfig.Plc2.ScanInterval, stoppingToken);
                     }
-                    await Task.Delay(_plcConfig.Plc2.ScanInterval, stoppingToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    await _logService.RecordLogAsync(LogLevel.Error, $"PLC2 后台监控任务异常: {ex.Message}");
-                    await Task.Delay(1000, stoppingToken);
+                    catch (OperationCanceledException)
+                    {
+                        // 服务正在停止，跳出循环
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        await _logService.RecordLogAsync(LogLevel.Error, $"PLC2 后台监控任务异常: {ex.Message}");
+                        await Task.Delay(1000, stoppingToken);
+                    }
                 }
             }
-            await _logService.RecordLogAsync(LogLevel.Information, "PLC2 后台监控任务已停止。");
+            finally
+            {
+                // 确保在服务停止时释放连接资源
+                await _logService.RecordLogAsync(LogLevel.Information, "PLC2 后台监控任务正在停止，释放资源...");
+                _s7Net?.Dispose();
+                await _logService.RecordLogAsync(LogLevel.Information, "PLC2 后台监控任务已停止。");
+            }
+        }
+
+        public void Dispose()
+        {
+            _s7Net?.Dispose();
         }
     }
 }

@@ -79,28 +79,41 @@ namespace ChargePadLine.Client.Services.PlcService.Plc11
                 await _logService.RecordLogAsync(LogLevel.Error, "PLC11 未能成功连接，后台监控任务不会启动。");
                 return;
             }
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                try
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    foreach (var task in _tasks)
+                    try
                     {
-                        await task.ExecuteOnceAsync(_s7Net, stoppingToken);
+                        foreach (var task in _tasks)
+                        {
+                            await task.ExecuteOnceAsync(_s7Net, stoppingToken);
+                        }
+                        await Task.Delay(_plcConfig.Plc11.ScanInterval, stoppingToken);
                     }
-                    await Task.Delay(_plcConfig.Plc11.ScanInterval, stoppingToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    await _logService.RecordLogAsync(LogLevel.Error, $"PLC11 后台监控任务异常: {ex.Message}");
-                    await Task.Delay(1000, stoppingToken);
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        await _logService.RecordLogAsync(LogLevel.Error, $"PLC11 后台监控任务异常: {ex.Message}");
+                        await Task.Delay(1000, stoppingToken);
+                    }
                 }
             }
-            await _logService.RecordLogAsync(LogLevel.Information, "PLC11 后台监控任务已停止。");
+            finally
+            {
+                // 确保在服务停止时释放连接资源
+                await _logService.RecordLogAsync(LogLevel.Information, "PLC11 后台监控任务正在停止，释放资源...");
+                _s7Net?.Dispose();
+                await _logService.RecordLogAsync(LogLevel.Information, "PLC11 后台监控任务已停止。");
+            }
+        }
+
+        public void Dispose()
+        {
+            _s7Net?.Dispose();
         }
     }
 }

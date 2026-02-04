@@ -153,8 +153,6 @@ public partial class App : Application
             if (_serviceProvider != null)
             {
                 StopHostedServices(_serviceProvider);
-                _serviceProvider.Dispose();
-                _serviceProvider = null;
             }
         }
         catch (Exception ex)
@@ -164,19 +162,31 @@ public partial class App : Application
         }
         finally
         {
-            // 释放 Mutex
-            if (_mutex != null)
+            try
             {
-                try
+                // 确保服务提供者被释放
+                _serviceProvider?.Dispose();
+                _serviceProvider = null;
+                
+                // 释放 Mutex
+                if (_mutex != null)
                 {
-                    _mutex.ReleaseMutex();
-                    _mutex.Dispose();
-                    _mutex = null;
+                    try
+                    {
+                        _mutex.ReleaseMutex();
+                        _mutex.Dispose();
+                        _mutex = null;
+                    }
+                    catch (Exception mutexEx)
+                    {
+                        // 记录 Mutex 释放错误但不影响退出
+                        System.Diagnostics.Debug.WriteLine($"释放 Mutex 时发生错误: {mutexEx.Message}");
+                    }
                 }
-                catch
-                {
-                    // 忽略 Mutex 释放错误
-                }
+            }
+            catch (Exception cleanupEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"清理资源时发生错误: {cleanupEx.Message}");
             }
         }
 
@@ -267,31 +277,34 @@ public partial class App : Application
             using var scope = serviceProvider.CreateScope();
             var hostedServices = scope.ServiceProvider.GetServices<IHostedService>().ToList();
 
-            // 创建取消令牌，设置超时时间为 5 秒
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-
-            // 并行停止所有服务
-            var stopTasks = hostedServices.Select(service =>
-                Task.Run(async () =>
+            if (hostedServices.Any())
+            {
+                // 创建取消令牌，设置超时时间为 10 秒 (增加超时时间)
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                
+                // 使用更长的超时时间来等待服务停止
+                var stopTasks = hostedServices.Select(async service =>
                 {
                     try
                     {
+                        System.Diagnostics.Debug.WriteLine($"正在停止服务: {service.GetType().Name}");
                         await service.StopAsync(cts.Token);
+                        System.Diagnostics.Debug.WriteLine($"服务已停止: {service.GetType().Name}");
                     }
                     catch (OperationCanceledException)
                     {
-                        // 超时被取消，强制停止
+                        // 超时被取消，记录信息
                         System.Diagnostics.Debug.WriteLine($"服务停止超时: {service.GetType().Name}");
                     }
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine($"停止服务时发生错误: {service.GetType().Name}, {ex.Message}");
                     }
-                })
-            ).ToArray();
+                }).ToArray();
 
-            // 等待所有服务停止完成，最多等待 5 秒
-            Task.WaitAll(stopTasks, TimeSpan.FromSeconds(5));
+                // 等待所有服务停止完成，最多等待 10 秒
+                Task.WaitAll(stopTasks, TimeSpan.FromSeconds(10));
+            }
         }
         catch (Exception ex)
         {
