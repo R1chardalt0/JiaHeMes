@@ -24,7 +24,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
         private readonly IMesApiService _mesApi;
         private const string PlcName = "【旋融焊】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
-
+      
         public 旋融焊ExitMiddleWare(ILogger<旋融焊ExitMiddleWare> logger, ILogService logService, 旋融焊ExitModel exitModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
@@ -89,8 +89,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                         && param4Result == "PASS" && param5Result == "PASS" && param6Result == "PASS") ? "PASS" : "FAIL";
 
                     string IsOK = "";
-                    var OKRes = modbus.ReadInt32("DB4014.62").Content;
-                    var NGRes = modbus.ReadInt32("DB4014.66").Content;
+                    var OKRes = modbus.ReadInt32("2010.0").Content;
+                    var NGRes = modbus.ReadInt32("2012.0").Content;
                     if (OKRes != 0 && NGRes == 0)
                     {
                         IsOK = "PASS";

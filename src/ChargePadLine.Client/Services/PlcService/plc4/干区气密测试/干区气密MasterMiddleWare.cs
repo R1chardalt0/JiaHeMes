@@ -24,6 +24,19 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
         private const string PlcName = "【干区气密测试】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
+        /// <summary>
+        /// 响应标志
+        /// </summary>
+        [Flags]
+        public enum RespFlag : byte
+        {
+            None = 0,
+            OK = 1 << 0,   // 传感器标定结果存储 OK
+            NG = 1 << 1,   // 传感器标定结果存储 NOK
+            Demarcate = 1 << 2, // 要求传感器进行标定
+            Resp = 1 << 3,      // 点检响应
+            UpdateComplete = 1 << 4  // 更新PLC数据时间完成
+        }
         public 干区气密MasterMiddleWare(ILogger<干区气密MasterMiddleWare> logger, ILogService logService, IOptions<StationConfig> stationconfig, IMesApiService mesApi, 干区气密MasterModel masterModel)
         {
             _logger = logger;
@@ -38,9 +51,11 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
             try
             {
                 var req = s7Net.ReadBool("DB5010.7.0").Content;
-                var resp = s7Net.ReadBool("DB5010.14.0").Content;
-                var enterok = s7Net.ReadBool("DB5010.3.0").Content;//出站OK
-                var enterng = s7Net.ReadBool("DB5010.3.1").Content;//出站NG
+                var respContent = s7Net.ReadByte("DB5010.3").Content;
+                var respFlag = (RespFlag)respContent;
+                var resp = respFlag.HasFlag(RespFlag.Resp); //点检响应
+                var enterok = respFlag.HasFlag(RespFlag.OK);//点检OK
+                var enterng = respFlag.HasFlag(RespFlag.NG);//点检NG
                 var sn = s7Net.ReadString("DB5013.66", 100);
 
                 // 更新数据服务
@@ -102,7 +117,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
 
                     if (IsOK != paramResultTotal)
                     {
-                        s7Net.Write("DB5010.14.0", true);
+                        s7Net.Write("DB5010.3.3", true);
                         s7Net.Write("DB5010.3.1", true);
                         await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
                         return;
@@ -174,20 +189,20 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
                     var res = await _mesApi.UploadMaster(reqParam);
                     if (res.code == 0)
                     {
-                        s7Net.Write("DB5010.14.0", true);
+                        s7Net.Write("DB5010.3.3", true);
                         s7Net.Write("DB5010.3.0", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}点检收集完成");
                     }
                     else
                     {
-                        s7Net.Write("DB5010.14.0", true);
+                        s7Net.Write("DB5010.3.3", true);
                         s7Net.Write("DB5010.3.1", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}点检收集失败，mes返回:{res.message}");
                     }
                 }
                 else if (!req && resp)
                 {
-                    s7Net.Write("DB5010.14.0", false);
+                    s7Net.Write("DB5010.3.3", false);
                     s7Net.Write("DB5010.3.0", false);
                     s7Net.Write("DB5010.3.1", false);
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}点检请求复位");

@@ -52,7 +52,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc4
             };
         }
 
-        private void InitializeModbusConnection()
+        private void InitializeS7NetConnection()
         {
             if (_s7Net != null) return;
 
@@ -80,7 +80,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc4
                 await Task.Delay(2000, stoppingToken);
                 return;
             }
-            InitializeModbusConnection();
+            InitializeS7NetConnection();
 
             if (_s7Net == null)
             {

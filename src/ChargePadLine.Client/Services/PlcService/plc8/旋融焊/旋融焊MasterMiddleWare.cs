@@ -106,8 +106,8 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
 
                     if (IsOK != paramResultTotal)
                     {
-                        modbus.Write("DB4010.14.0", true);
-                        modbus.Write("DB4010.3.1", true);
+                        modbus.Write("3000.0", true);
+                        modbus.Write("3002.0", true);
                         await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
                         return;
                     }

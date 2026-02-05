@@ -3,6 +3,7 @@ using ChargePadLine.Client.Helpers;
 using ChargePadLine.Client.Services.Mes;
 using ChargePadLine.Client.Services.Mes.Dto;
 using ChargePadLine.Client.Services.PlcService.Plc2.电机腔气密测试;
+using ChargePadLine.Client.Services.PlcService.plc3.热铆;
 using ChargePadLine.Client.Services.PlcService.Plc3;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,6 +25,22 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_
         private const string PlcName = "【PCBA性能检测】";
         private List<TestDataItem> testDatas = new List<TestDataItem>();
 
+        /// <summary>
+        /// 响应标志
+        /// </summary>
+        [Flags]
+        public enum RespFlag : byte
+        {
+            None = 0,
+            EnterOK = 1 << 0,   // 进站ok
+            EnterNG = 1 << 1,   // 进站ng
+            EnterCheckOK = 1 << 2, // 进站审核 OK 为返工件
+            NotComplete = 1 << 3,  // 进站审核 NOK，在上工位没有做过
+            ExitOK = 1 << 4,    // 出站OK
+            ExitNG = 1 << 5,    // 出站NG
+            EnterResp = 1 << 6, // 进站响应
+            ExitResp = 1 << 7   // 出站响应
+        }
         public PCBA性能检测ExitMiddleWare(ILogger<PCBA性能检测ExitMiddleWare> logger, ILogService logService, PCBA性能检测ExitModel exitmodel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
@@ -38,13 +55,16 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_
             try
             {
                 var req = s7Net.ReadBool("DB4010.6.4").Content;
-                var resp = s7Net.ReadBool("DB4010.12.0").Content;
-                var enterok = s7Net.ReadBool("DB4010.2.4").Content;//进站OK
-                var enterng = s7Net.ReadBool("DB4010.2.5").Content;//进站NG
+
+                var respContent = s7Net.ReadByte("DB4010.2").Content;
+                var respFlag = (RespFlag)respContent;
+                var resp = respFlag.HasFlag(RespFlag.ExitResp); //出站响应
+                var exitok = respFlag.HasFlag(RespFlag.ExitOK);//出站OK
+                var exitng = respFlag.HasFlag(RespFlag.ExitNG);//出站NG
                 var sn = s7Net.ReadString("DB4013.66", 100);
 
                 // 更新数据服务
-                _exitmodel.UpdateData(req, resp, sn, enterok, enterng);
+                _exitmodel.UpdateData(req, resp, sn, exitok, exitng);
 
                 if (req && !resp)
                 {
@@ -107,7 +127,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_
 
                     if (IsOK != paramResultTotal)
                     {
-                        s7Net.Write("DB4010.12.0", true);
+                        s7Net.Write("DB4010.2.7", true);
                         s7Net.Write("DB4010.2.5", true);
                         await _logService.RecordLogAsync(LogLevel.Error, $"{PlcName}MES与PLC返回OK/NG不一致，mes为:{paramResultTotal}，plc为:{IsOK}");
                         return;
@@ -179,20 +199,20 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.PCBA性能检测_FCT_
                     var res = await _mesApi.UploadData(reqParam);
                     if (res.code == 0)
                     {
-                        s7Net.Write("DB4010.12.0", true);
+                        s7Net.Write("DB4010.2.7", true);
                         s7Net.Write("DB4010.2.4", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站收集完成");
                     }
                     else
                     {
-                        s7Net.Write("DB4010.12.0", true);
+                        s7Net.Write("DB4010.2.7", true);
                         s7Net.Write("DB4010.2.5", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站收集失败，mes返回:{res.message}");
                     }
                 }
                 else if (!req && resp)
                 {
-                    s7Net.Write("DB4010.12.0", false);
+                    s7Net.Write("DB4010.2.7", false);
                     s7Net.Write("DB4010.2.4", false);
                     s7Net.Write("DB4010.2.5", false);
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站请求复位");

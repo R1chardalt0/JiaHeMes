@@ -24,6 +24,36 @@ namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
         private readonly IMesApiService _mesApi;
         private const string PlcName = "【湿区气密】";
 
+        /// <summary>
+        /// 设备状态标志
+        /// </summary>
+        [Flags]
+        public enum StatusFlag : byte
+        {
+            None = 0,
+            Malfunction = 1 << 0,
+            Auto = 1 << 1,
+            Idle = 1 << 2, // 00000100
+            Manual = 1 << 3,      // 00001000
+            Check = 1 << 4, // 00010000          
+        }
+
+        /// <summary>
+        /// 响应标志
+        /// </summary>
+        [Flags]
+        public enum RespFlag : byte
+        {
+            None = 0,
+            EnterOK = 1 << 0,   // 进站ok
+            EnterNG = 1 << 1,   // 进站ng
+            EnterCheckOK = 1 << 2, // 进站审核 OK 为返工件
+            NotComplete = 1 << 3,  // 进站审核 NOK，在上工位没有做过
+            ExitOK = 1 << 4,    // 出站OK
+            ExitNG = 1 << 5,    // 出站NG
+            EnterResp = 1 << 6, // 进站响应
+            ExitResp = 1 << 7   // 出站响应
+        }
         public 湿区气密EnterMiddleWare(ILogger<湿区气密EnterMiddleWare> logger, ILogService logService, 湿区气密EnterModel enterModel, IOptions<StationConfig> stationconfig, IMesApiService mesApi)
         {
             _logger = logger;
@@ -40,32 +70,25 @@ namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
                 string statusMessage = "";
                 //plc状态读取
                 var stationStatus = s7Net.ReadByte("DB4010.4").Content;//设备故障
+                StatusFlag flags = (StatusFlag)stationStatus;
 
-                bool[] bitStatus = new bool[8];
-                for (int i = 0; i < 8; i++)
+                statusMessage = flags switch
                 {
-                    // 右移i位，然后与1进行与操作
-                    bitStatus[i] = ((stationStatus >> i) & 1) == 1;
-
-                    Console.WriteLine($"位 {i} 的状态: {bitStatus[i]}");
-                }
-                var malfunction = (stationStatus & 0x01) == 0x01;//设备故障
-                var auto = (stationStatus & 0x02) == 0x02;//自动模式
-                var idle = (stationStatus & 0x04) == 0x04;//设备空闲
-                var manual = (stationStatus & 0x08) == 0x08; //手动模式
-                var check = (stationStatus & 0x10) == 0x10;//审核模式
-
-                if (malfunction) statusMessage = "设备故障";
-                else if (auto) statusMessage = "自动模式";
-                else if (idle) statusMessage = "设备空闲";
-                else if (manual) statusMessage = "手动模式";
-                else if (check) statusMessage = "审核模式";
-                else statusMessage = "无状态";
+                    var f when f.HasFlag(StatusFlag.Malfunction) => "设备故障",
+                    var f when f.HasFlag(StatusFlag.Auto) => "自动模式",
+                    var f when f.HasFlag(StatusFlag.Idle) => "设备空闲",
+                    var f when f.HasFlag(StatusFlag.Manual) => "手动模式",
+                    var f when f.HasFlag(StatusFlag.Check) => "审核模式",
+                    _ => "无状态"
+                };
 
                 var req = s7Net.ReadBool("DB4010.6.0").Content;
-                var resp = s7Net.ReadBool("DB4010.10.0").Content;
-                var enterok = s7Net.ReadBool("DB4010.2.0").Content;//进站OK
-                var enterng = s7Net.ReadBool("DB4010.2.1").Content;//进站NG
+
+                var respContent = s7Net.ReadByte("DB4010.2").Content;
+                var respFlag = (RespFlag)respContent;
+                var resp = respFlag.HasFlag(RespFlag.EnterResp); //进站响应
+                var enterok = respFlag.HasFlag(RespFlag.EnterOK);//进站OK
+                var enterng = respFlag.HasFlag(RespFlag.EnterNG);//进站NG
                 var sn = s7Net.ReadString("DB4013.66", 100);
 
                 // 更新数据服务
@@ -86,20 +109,20 @@ namespace ChargePadLine.Client.Services.PlcService.plc9.湿区气密测试
                     var res = await _mesApi.UploadCheck(reqParam);
                     if (res.code == 0)
                     {
-                        s7Net.Write("DB4010.10.0", true);
+                        s7Net.Write("DB4010.2.6", true);
                         s7Net.Write("DB4010.2.0", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验成功");
                     }
                     else
                     {
-                        s7Net.Write("DB4010.10.0", true);
+                        s7Net.Write("DB4010.2.6", true);
                         s7Net.Write("DB4010.2.1", true);
                         await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站校验失败，mes返回:{res.message}");
                     }
                 }
                 else if (!req && resp)
                 {
-                    s7Net.Write("DB4010.10.0", false);
+                    s7Net.Write("DB4010.2.6", false);
                     s7Net.Write("DB4010.2.0", false);
                     s7Net.Write("DB4010.2.1", false);
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}进站请求复位");

@@ -51,7 +51,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1
             _logService = logService;
         }
 
-        private void InitializeModbusConnection()
+        private void InitializeS7NetConnection()
         {
             if (_s7Net != null) return;
 
@@ -81,7 +81,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1
                 return;
             }
 
-            InitializeModbusConnection();
+            InitializeS7NetConnection();
 
             if (_s7Net == null)
             {
