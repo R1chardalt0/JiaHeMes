@@ -50,34 +50,39 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                 {
                     await _logService.RecordLogAsync(LogLevel.Information, $"{PlcName}出站请求收到");
 
-                    var param1 = s7Net.ReadFloat("DB5014.70").Content;
-                    var upper1 = s7Net.ReadFloat("DB5012.92").Content;
-                    var lower1 = s7Net.ReadFloat("DB5012.96").Content;
+                    //上下限参数数组
+                    var upLowArray = s7Net.ReadFloatBatch("DB5012.92", 12).Content;
+                    //参数数组
+                    var param = s7Net.ReadFloatBatch("DB5014.70", 6).Content;
+
+                    var param1 = param[0];
+                    var upper1 = upLowArray[0];
+                    var lower1 = upLowArray[1];
                     var param1Result = (param1 <= upper1 && param1 >= lower1) ? "PASS" : "FAIL";
 
-                    var param2 = s7Net.ReadFloat("DB5014.74").Content;
-                    var upper2 = s7Net.ReadFloat("DB5012.100").Content;
-                    var lower2 = s7Net.ReadFloat("DB5012.104").Content;
+                    var param2 = param[1];
+                    var upper2 = upLowArray[2];
+                    var lower2 = upLowArray[3];
                     var param2Result = (param2 <= upper2 && param2 >= lower2) ? "PASS" : "FAIL";
 
-                    var param3 = s7Net.ReadFloat("DB5014.78").Content;
-                    var upper3 = s7Net.ReadFloat("DB5012.108").Content;
-                    var lower3 = s7Net.ReadFloat("DB5012.112").Content;
+                    var param3 = param[2];
+                    var upper3 = upLowArray[4];
+                    var lower3 = upLowArray[5];
                     var param3Result = (param3 <= upper3 && param3 >= lower3) ? "PASS" : "FAIL";
 
-                    var param4 = s7Net.ReadFloat("DB5014.82").Content;
-                    var upper4 = s7Net.ReadFloat("DB5012.116").Content;
-                    var lower4 = s7Net.ReadFloat("DB5012.120").Content;
+                    var param4 = param[3];
+                    var upper4 = upLowArray[6];
+                    var lower4 = upLowArray[7];
                     var param4Result = (param4 <= upper4 && param4 >= lower4) ? "PASS" : "FAIL";
 
-                    var param5 = s7Net.ReadFloat("DB5014.86").Content;
-                    var upper5 = s7Net.ReadFloat("DB5012.124").Content;
-                    var lower5 = s7Net.ReadFloat("DB5012.128").Content;
+                    var param5 = param[4];
+                    var upper5 = upLowArray[8];
+                    var lower5 = upLowArray[9];
                     var param5Result = (param5 <= upper5 && param5 >= lower5) ? "PASS" : "FAIL";
 
-                    var param6 = s7Net.ReadFloat("DB5014.90").Content;
-                    var upper6 = s7Net.ReadFloat("DB5012.132").Content;
-                    var lower6 = s7Net.ReadFloat("DB5012.136").Content;
+                    var param6 = param[5];
+                    var upper6 = upLowArray[10];
+                    var lower6 = upLowArray[11];
                     var param6Result = (param6 <= upper6 && param6 >= lower6) ? "PASS" : "FAIL";
 
                     //总结果
