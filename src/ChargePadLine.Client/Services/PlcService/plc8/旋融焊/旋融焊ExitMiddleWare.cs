@@ -176,7 +176,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                         testData = testDatas
                     };
                     var res = await _mesApi.UploadData(reqParam);
-                    if (res.code == 0)
+                    if (res.code == 200)
                     {
                         modbus.Write("2001.0", true);
                         modbus.Write("2002.0", true);

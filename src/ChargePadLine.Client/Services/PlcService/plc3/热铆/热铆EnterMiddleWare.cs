@@ -104,7 +104,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc3.热铆
                         workOrderCode = _stationconfig.Station6.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
-                    if (res.code == 0)
+                    if (res.code == 200)
                     {
                         s7Net.Write("DB5010.2.6", true);
                         s7Net.Write("DB5010.2.0", true);

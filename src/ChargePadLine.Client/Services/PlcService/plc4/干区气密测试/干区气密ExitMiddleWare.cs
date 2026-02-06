@@ -192,7 +192,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.干区气密测试
                         testData = testDatas
                     };
                     var res = await _mesApi.UploadData(reqParam);
-                    if (res.code == 0)
+                    if (res.code == 200)
                     {
                         s7Net.Write("DB5010.2.7", true);
                         s7Net.Write("DB5010.2.4", true);

@@ -72,7 +72,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc8.旋融焊
                         workOrderCode = _stationconfig.Station12.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
-                    if (res.code == 0)
+                    if (res.code == 200)
                     {
                         modbus.Write("1001.0", true);
                         modbus.Write("1002.0", true);

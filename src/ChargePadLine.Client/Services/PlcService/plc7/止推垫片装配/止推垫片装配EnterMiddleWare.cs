@@ -106,7 +106,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc7.止推垫片装配
                         workOrderCode = _stationconfig.Station11.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
-                    if (res.code == 0)
+                    if (res.code == 200)
                     {
                         s7Net.Write("DB4010.2.6", true);
                         s7Net.Write("DB4010.2.0", true);

@@ -192,7 +192,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.安装支架
                         testData = testDatas
                     };
                     var res = await _mesApi.UploadMaster(reqParam);
-                    if (res.code == 0)
+                    if (res.code == 200)
                     {
                         s7Net.Write("DB5010.3.3", true);
                         s7Net.Write("DB5010.3.0", true);

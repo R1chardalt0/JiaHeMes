@@ -105,7 +105,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc4.后盖超声波焊接
                         workOrderCode = _stationconfig.Station7.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
-                    if (res.code == 0)
+                    if (res.code == 200)
                     {
                         s7Net.Write("DB4010.2.6", true);
                         s7Net.Write("DB4010.2.0", true);

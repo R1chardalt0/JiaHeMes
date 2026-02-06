@@ -195,7 +195,7 @@ namespace ChargePadLine.Client.Services.PlcService.Plc1.O型圈及冷却铝板�
                     };
 
                     var res = await _mesApi.UploadData(reqParam);
-                    if (res.code == 0)
+                    if (res.code == 200)
                     {
                         s7Net.Write("DB5010.2.7", true);
                         s7Net.Write("DB5010.2.4", true);

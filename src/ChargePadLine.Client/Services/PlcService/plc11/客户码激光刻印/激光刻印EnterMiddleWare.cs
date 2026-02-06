@@ -106,7 +106,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc11.客户码激光刻印
                         workOrderCode = _stationconfig.Station15.WorkOrderCode
                     };
                     var res = await _mesApi.UploadCheck(reqParam);
-                    if (res.code == 0)
+                    if (res.code == 200)
                     {
                         s7Net.Write("DB4010.2.6", true);
                         s7Net.Write("DB4010.2.0", true);

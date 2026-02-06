@@ -193,7 +193,7 @@ namespace ChargePadLine.Client.Services.PlcService.plc5.转子充磁与装配
                         testData = testDatas
                     };
                     var res = await _mesApi.UploadMaster(reqParam);
-                    if (res.code == 0)
+                    if (res.code == 200)
                     {
                         s7Net.Write("DB4010.3.3", true);
                         s7Net.Write("DB4010.3.0", true);
