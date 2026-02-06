@@ -203,6 +203,25 @@ const MesSnListTracePage: React.FC = () => {
       render: (productCode) => productCode || '-',
     },
     {
+      title: '创建时间',
+      key: 'createTimeRange',
+      dataIndex: 'createTime',
+      valueType: 'dateTimeRange',
+      fieldProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        placeholder: ['开始时间', '结束时间'],
+        showTime: true,
+      },
+      hideInTable: true, // 不显示在表格中
+      search: {
+        transform: (value: [string, string]) => ({
+          // 将选择的创建时间范围转换为 startTime 和 endTime
+          startTime: value[0],
+          endTime: value[1],
+        }),
+      },
+    },
+    {
       title: '工单编码',
       dataIndex: 'orderCode',
       key: 'orderCode',
@@ -352,25 +371,6 @@ const MesSnListTracePage: React.FC = () => {
       key: 'remark',
       width: 200,
       search: false,
-    },
-    {
-      title: '创建时间',
-      key: 'createTimeRange',
-      dataIndex: 'createTime',
-      valueType: 'dateTimeRange',
-      fieldProps: {
-        format: 'YYYY-MM-DD HH:mm:ss',
-        placeholder: ['开始时间', '结束时间'],
-        showTime: true,
-      },
-      hideInTable: true, // 不显示在表格中
-      search: {
-        transform: (value: [string, string]) => ({
-          // 将选择的创建时间范围转换为 startTime 和 endTime
-          startTime: value[0],
-          endTime: value[1],
-        }),
-      },
     },
     {
       title: '创建时间',
@@ -748,7 +748,7 @@ const MesSnListTracePage: React.FC = () => {
       // 创建历史数据查询参数
       const historyQueryParams: MesSnListHistoryQueryDto = {
         pageIndex: 1,
-        pageSize: 1000, // 设置一个很大的值，确保获取所有数据
+        pageSize: 10000, // 设置一个很大的值，确保获取所有数据
       };
 
       // 应用当前页面的创建时间范围筛选
@@ -915,7 +915,17 @@ const MesSnListTracePage: React.FC = () => {
           search={{
             labelWidth: 120,
             layout: 'vertical',
+            defaultCollapsed: false,
           }}
+          form={{
+            initialValues: {
+              createTimeRange: [
+                new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
+                new Date(new Date().setHours(23, 59, 59, 999)).toISOString()
+              ],
+            },
+          }}
+
           request={async (
             params
           ): Promise<RequestData<MesSnListCurrentDto>> => {
@@ -938,11 +948,25 @@ const MesSnListTracePage: React.FC = () => {
             }
 
             // 处理创建时间范围参数
-            if (params.startTime) {
+            if (params.createTimeRange && Array.isArray(params.createTimeRange)) {
+              // Format dates to ISO string for API
+              queryParams.startTime = params.createTimeRange[0] instanceof Date ? params.createTimeRange[0].toISOString() : params.createTimeRange[0];
+              queryParams.endTime = params.createTimeRange[1] instanceof Date ? params.createTimeRange[1].toISOString() : params.createTimeRange[1];
+            } else if (params.startTime) {
               queryParams.startTime = params.startTime;
-            }
-            if (params.endTime) {
+            } else if (params.endTime) {
               queryParams.endTime = params.endTime;
+            }
+            
+            // 如果没有设置时间范围，默认使用当天
+            if (!queryParams.startTime && !queryParams.endTime) {
+              const todayStart = new Date();
+              todayStart.setHours(0, 0, 0, 0);
+              const todayEnd = new Date();
+              todayEnd.setHours(23, 59, 59, 999);
+              
+              queryParams.startTime = todayStart.toISOString();
+              queryParams.endTime = todayEnd.toISOString();
             }
 
             // 保存当前搜索参数

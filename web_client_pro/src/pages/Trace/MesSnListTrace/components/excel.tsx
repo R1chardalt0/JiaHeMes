@@ -4,6 +4,17 @@ import { DownloadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import { message } from 'antd';
 
+/**
+ * Unicode解码函数
+ * @param str 包含Unicode编码的字符串
+ * @returns 解码后的字符串
+ */
+export const decodeUnicode = (str: string): string => {
+  return str.replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => {
+    return String.fromCharCode(parseInt(hex, 16));
+  });
+};
+
 /** 
  * Excel导出配置接口 
  */
@@ -79,8 +90,14 @@ export const convertObjectsToRows = <T extends Record<string, any>>(
 
   return data.map(item =>
     columns.map(col => {
-      const value = item[col.key];
+      let value = item[col.key];
       if (value == null) return '';
+      
+      // 解码Unicode编码的字符串
+      if (typeof value === 'string') {
+        value = decodeUnicode(value);
+      }
+      
       if (col.formatter) {
         try {
           return col.formatter(value);
