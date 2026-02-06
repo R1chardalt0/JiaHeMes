@@ -21,6 +21,86 @@ import ExcelExportButton from './components/excel';
 import { exportToExcel, convertObjectsToRows, createInfoRows } from './components/excel';
 
 /**
+ * Unicode转中文的辅助函数
+ * 将形如 "\u7EDD\u7F18\u7535\u963B" 的Unicode编码转换为中文字符
+ */
+const decodeUnicode = (str: string): string => {
+  try {
+    // 使用正则表达式匹配Unicode转义序列并替换
+    return str.replace(/\\u([0-9a-fA-F]{4})/g, (_, code) =>
+      String.fromCharCode(parseInt(code, 16))
+    );
+  } catch (error) {
+    console.error('Unicode解码错误:', error);
+    return str; // 解码失败时返回原字符串
+  }
+};
+
+/**
+ * 解析并格式化测试数据，将其中的Unicode编码转换为中文
+ */
+const formatTestData = (testData: any): string => {
+  if (!testData) return '-';
+
+  try {
+    // 如果是字符串，尝试解析为JSON
+    let parsedData;
+    if (typeof testData === 'string') {
+      // 首先解码字符串中的Unicode
+      const decodedString = decodeUnicode(testData);
+      parsedData = JSON.parse(decodedString);
+    } else {
+      parsedData = testData;
+    }
+
+    // 如果是数组，格式化为更易读的形式
+    if (Array.isArray(parsedData)) {
+      return parsedData.map(item => {
+        // 对对象中的每个属性值进行Unicode解码
+        const decodedItem: Record<string, any> = {};
+        Object.keys(item).forEach(key => {
+          const value = item[key];
+          if (typeof value === 'string') {
+            decodedItem[key] = decodeUnicode(value);
+          } else {
+            decodedItem[key] = value;
+          }
+        });
+
+        // 返回关键信息，如参数名称和测试结果
+        const parametricKey = decodedItem.ParametricKey || '未知参数';
+        const testResult = decodedItem.TestResult || '无结果';
+        const testValue = decodedItem.TestValue ? `${decodedItem.TestValue}${decodedItem.Units || ''}` : '';
+
+        return `${parametricKey}: ${testValue} (${testResult})`;
+      }).join('; ');
+    } else if (typeof parsedData === 'object') {
+      // 对于单个对象，也进行Unicode解码
+      const decodedObj: Record<string, any> = {};
+      Object.keys(parsedData).forEach(key => {
+        const value = parsedData[key];
+        if (typeof value === 'string') {
+          decodedObj[key] = decodeUnicode(value);
+        } else {
+          decodedObj[key] = value;
+        }
+      });
+
+      return JSON.stringify(decodedObj);
+    }
+
+    return JSON.stringify(parsedData);
+  } catch (error) {
+    console.error('解析测试数据错误:', error);
+    // 如果解析失败，尝试仅进行Unicode解码
+    if (typeof testData === 'string') {
+      return decodeUnicode(testData);
+    }
+    return String(testData);
+  }
+};
+
+/**
  * SN表追溯页面
  * 功能：查询当前SN表数据，双击查看历史SN表数据
  */
@@ -438,6 +518,7 @@ const MesSnListTracePage: React.FC = () => {
       width: 150,
       search: false,
       ellipsis: true,
+      render: (testData) => formatTestData(testData),
     },
     {
       title: '批次数据',
@@ -446,6 +527,7 @@ const MesSnListTracePage: React.FC = () => {
       width: 150,
       search: false,
       ellipsis: true,
+      render: (batchResults) => formatTestData(batchResults),
     },
     {
       title: '是否异常',
