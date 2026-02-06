@@ -41,7 +41,7 @@ const decodeUnicode = (str: string): string => {
  */
 const formatTestData = (testData: any): string => {
   if (!testData) return '-';
-
+  
   try {
     // 如果是字符串，尝试解析为JSON
     let parsedData;
@@ -52,7 +52,7 @@ const formatTestData = (testData: any): string => {
     } else {
       parsedData = testData;
     }
-
+    
     // 如果是数组，格式化为更易读的形式
     if (Array.isArray(parsedData)) {
       return parsedData.map(item => {
@@ -66,15 +66,15 @@ const formatTestData = (testData: any): string => {
             decodedItem[key] = value;
           }
         });
-
+        
         // 返回关键信息，如参数名称和测试结果
         const parametricKey = decodedItem.ParametricKey || '未知参数';
         const testResult = decodedItem.TestResult || '无结果';
         const testValue = decodedItem.TestValue ? `${decodedItem.TestValue}${decodedItem.Units || ''}` : '';
-
+        
         return `${parametricKey}: ${testValue} (${testResult})`;
       }).join('; ');
-    } else if (typeof parsedData === 'object') {
+    } else if (typeof parsedData === 'object' && parsedData !== null) {
       // 对于单个对象，也进行Unicode解码
       const decodedObj: Record<string, any> = {};
       Object.keys(parsedData).forEach(key => {
@@ -85,16 +85,42 @@ const formatTestData = (testData: any): string => {
           decodedObj[key] = value;
         }
       });
-
-      return JSON.stringify(decodedObj);
+      
+      // 检查是否为简单的键值对对象还是复杂对象，如果是简单对象则格式化输出
+      if (decodedObj.ParametricKey) {
+        // 这是一个测试项目对象
+        const parametricKey = decodedObj.ParametricKey || '未知参数';
+        const testResult = decodedObj.TestResult || '无结果';
+        const testValue = decodedObj.TestValue ? `${decodedObj.TestValue}${decodedObj.Units || ''}` : '';
+        
+        return `${parametricKey}: ${testValue} (${testResult})`;
+      } else {
+        // 返回JSON字符串，但确保不出现[object Object]
+        return JSON.stringify(decodedObj);
+      }
     }
-
-    return JSON.stringify(parsedData);
+    
+    // 处理基本类型数据
+    if (typeof parsedData === 'string') {
+      return decodeUnicode(parsedData);
+    }
+    
+    return String(parsedData);
   } catch (error) {
     console.error('解析测试数据错误:', error);
     // 如果解析失败，尝试仅进行Unicode解码
     if (typeof testData === 'string') {
       return decodeUnicode(testData);
+    }
+    // 确保不返回[object Object]，而是返回有意义的字符串
+    if (typeof testData === 'object' && testData !== null) {
+      // 如果是对象，尝试转换为字符串
+      try {
+        return JSON.stringify(testData);
+      } catch (e) {
+        // 如果JSON.stringify也失败，返回对象的类型信息
+        return `[${Object.keys(testData).length}个属性的对象]`;
+      }
     }
     return String(testData);
   }
