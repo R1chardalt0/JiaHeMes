@@ -56,6 +56,17 @@ const MesSnListTracePage: React.FC = () => {
   });
 
   /**
+   * Unicode解码函数
+   * @param str 包含Unicode编码的字符串
+   * @returns 解码后的字符串
+   */
+  const decodeUnicode = (str: string): string => {
+    return str.replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => {
+      return String.fromCharCode(parseInt(hex, 16));
+    });
+  };
+
+  /**
    * 显示历史记录
    * @param record 当前SN记录
    */
@@ -74,6 +85,14 @@ const MesSnListTracePage: React.FC = () => {
       const enhancedHistoryData = await Promise.all(
         (response.data || []).map(async (historyRecord: MesSnListHistoryDto) => {
           let updatedRecord = { ...historyRecord };
+
+          // 解码测试数据中的Unicode编码
+          if (historyRecord.testData) {
+            updatedRecord = {
+              ...updatedRecord,
+              testData: decodeUnicode(String(historyRecord.testData))
+            };
+          }
 
           // 获取产品编码
           if (historyRecord.productListId) {
