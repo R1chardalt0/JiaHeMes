@@ -783,7 +783,7 @@ namespace ChargePadLine.Client.Helpers
         {
             try
             {
-                var result = _s7net.Write(address, value, 60);
+                var result = _s7net.Write(address, value, 100);
                 return result;
             }
             catch (Exception ex)
